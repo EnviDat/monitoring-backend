@@ -1,5 +1,10 @@
+import os
 from pathlib import Path
 import configparser
+
+from django.db import connection
+
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "monitoring.settings")
 
 
 def read_config(config_path: str):
@@ -16,3 +21,5 @@ def read_config(config_path: str):
         return None
 
     return config
+
+
