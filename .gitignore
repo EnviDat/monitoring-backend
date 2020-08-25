@@ -1,3 +1,5 @@
 /venv-monitor/*
 .idea
 __pycache__/
+*.log
+*.csv
