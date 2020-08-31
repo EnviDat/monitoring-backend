@@ -10,11 +10,11 @@ from django.db import connection
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "monitoring.settings")
 
 import django
+
 django.setup()
 
 
 def read_config(config_path: str):
-
     config_file = Path(config_path)
 
     # Load configuration file
@@ -49,9 +49,8 @@ def execute_commands(commands_list):
 
 
 # Returns a datetime object for date strings (assumes date_string is in UTC timezone)
-# Example format used in LWF Meteo data: "1998-05-20 11:00:00","%Y-%m-%d %H:%M:%S|
+# Example format used in LWF Meteo data: "1998-05-20 11:00:00","%Y-%m-%d %H:%M:%S"
 def get_utc_datetime(date_string, date_format):
-
     dt_object = datetime.strptime(date_string, date_format)
     dt_object.replace(tzinfo=timezone.utc)
 
@@ -60,13 +59,11 @@ def get_utc_datetime(date_string, date_format):
 
 # Returns year from date string
 def get_year(date_string):
-
     return date_parser.parse(date_string).year
 
 
 # Returns Julian day, assumes input string in UTC
 def get_julian_day(date_string, date_format):
-
     dt_object = get_utc_datetime(date_string, date_format)
     dt_object = dt_object.timetuple()
     julian_day = dt_object.tm_yday
@@ -76,20 +73,17 @@ def get_julian_day(date_string, date_format):
 
 # Returns hour from date string
 def get_hour(date_string):
-
     return date_parser.parse(date_string).hour
 
 
 # Returns minute from date string
 def get_minute(date_string):
-
     return date_parser.parse(date_string).minute
 
 
 # Returns week as string from date string, assumes date in UTC time
 # Assumes all days in a new year preceding the first Sunday are considered to be in week 0
 def get_week(date_string, date_format):
-
     dt_object = get_utc_datetime(date_string, date_format)
     week = dt_object.strftime('%U')
 
@@ -98,7 +92,6 @@ def get_week(date_string, date_format):
 
 # Returns True if time is "quarterday" (every 6 hours 00:00, 6:00, 12:00, 18:00)
 def quarter_day(date_string):
-
     hour = get_hour(date_string)
     minute = get_minute(date_string)
 
@@ -110,7 +103,6 @@ def quarter_day(date_string):
 
 # Returns True if time is "halfday" (every 12 hours 00:00 or 12:00)
 def half_day(date_string):
-
     hour = get_hour(date_string)
     minute = get_minute(date_string)
 
@@ -122,7 +114,6 @@ def half_day(date_string):
 
 # Return Julian day prefixed by year and hyphen (ex. 1996-123)
 def year_day(date_string, date_format):
-
     year = get_year(date_string)
     julian_day = get_julian_day(date_string, date_format)
 
@@ -131,9 +122,43 @@ def year_day(date_string, date_format):
 
 # Return week of year prefixed by year and hyphen (ex. 1996-27)
 def year_week(date_string, date_format):
-
     year = get_year(date_string)
     week = get_week(date_string, date_format)
 
     return '{0}-{1}'.format(year, week)
 
+
+# Return line_clean dictionary for csv_import.py for LWF Meteo data
+def get_lwf_meteo_line_clean(row, date_format):
+    return {
+        'timestamp_iso': get_utc_datetime(row['timestamp'], date_format),
+        'year': get_year(row['timestamp']),
+        'julianday': get_julian_day(row['timestamp'], date_format),
+        'quarterday': quarter_day(row['timestamp']),
+        'halfday': half_day(row['timestamp']),
+        'day': year_day(row['timestamp'], date_format),
+        'week': year_week(row['timestamp'], date_format),
+        'temp': row['temp'],
+        'rh': row['rH'],
+        'precip': row['precip'],
+        'par': row['PAR'],
+        'ws': row['ws']
+    }
+
+
+# Return copy dictionary for csv_import.py for LWF Meteo data
+def get_lwf_meteo_copy_dict():
+    return dict(
+        timestamp_iso='timestamp_iso',
+        year='year',
+        julianday='julianday',
+        quarterday='quarterday',
+        halfday='halfday',
+        day='day',
+        week='week',
+        temp='temp',
+        rh='rh',
+        precip='precip',
+        par='par',
+        ws='ws'
+    )
