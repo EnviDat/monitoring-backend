@@ -27,7 +27,7 @@ class LWFMeteoTest(models.Model):
         verbose_name='Quarter Day'
     )
 
-    # Half day (every 12 hours (0:00,. 12:00))
+    # Half day (every 12 hours (0:00, 12:00))
     halfday = models.BooleanField(
         verbose_name='Half Day'
     )
