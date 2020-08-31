@@ -7,6 +7,9 @@ from monitoring.fields import LWFMeteoFloatField
 
 
 # Parent class that defines fields for LWF Meteo stations
+from monitoring.helpers import get_utc_datetime
+
+
 class LWFMeteoTest(models.Model):
     timestamp_iso = models.DateTimeField(
         verbose_name='Timestamp ISO format',
@@ -35,58 +38,79 @@ class LWFMeteoTest(models.Model):
     # Julian day prefixed by year and hyphen (ex. 1996-123)
     day = models.CharField(
         verbose_name='Whole Day',
-        max_length=10,
+        max_length=8,
     )
 
     # Week of year prefixed by year and hyphen (ex. 1996-27)
     week = models.CharField(
         verbose_name='Week Number',
-        max_length=10,
+        max_length=8,
     )
 
     # Air temperature [°C]
     temp = LWFMeteoFloatField(
-        verbose_name='Air Temperature'
+        verbose_name='Air Temperature',
+        null=True
     )
 
     # Relative humidity [%]
     rh = LWFMeteoFloatField(
-        verbose_name='Relative Humidity'
+        verbose_name='Relative Humidity',
+        null=True
     )
 
     # Precipitation [mm hh^-1]
     precip = LWFMeteoFloatField(
-        verbose_name='Precipitation'
+        verbose_name='Precipitation',
+        null=True
     )
 
     # PAR (photosynthetically active radiation) [W m^-2]
     par = LWFMeteoFloatField(
-        verbose_name='Photosynthetically Active Radiation'
+        verbose_name='Photosynthetically Active Radiation',
+        null=True
     )
 
     # Wind speed [m s^-1]
     ws = LWFMeteoFloatField(
-        verbose_name='Wind Speed'
+        verbose_name='Wind Speed',
+        null=True
     )
 
     # Create copy manager for postgres_copy
     objects = CopyManager()
 
-    test_attribute = 222
+    delimiter = ';'
+
+    header = True
 
     input_fields = ['timestamp', 'temp', 'rH', 'precip', 'PAR', 'ws',]
 
     model_fields = ['timestamp_iso', 'year', 'julianday', 'quarterday', 'halfday', 'day', 'week',
                        'temp', 'rh', 'precip', 'par', 'ws']
 
+    date_format = '%Y-%m-%d %H:%M:%S'
+
     # Declare Station has an abstract class so it can be inherited
     class Meta:
         abstract = True
 
 
-
+# Test Station Name
+class test_lwf_1(LWFMeteoTest):
+    pass
 
 
 # Test Station Name
-class test_lwf_1(LWFMeteoTest):
+class test_lwf_2(LWFMeteoTest):
+    pass
+
+
+# Test Station Name
+class test_lwf_3(LWFMeteoTest):
+    pass
+
+
+# Test Station Name
+class test_lwf_4(LWFMeteoTest):
     pass

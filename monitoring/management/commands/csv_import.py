@@ -12,6 +12,7 @@ from monitoring.helpers import get_lwf_meteo_line_clean, get_lwf_meteo_copy_dict
 
 # Setup logging
 import logging
+
 logging.basicConfig(filename=Path('monitoring/logs/csv_import.log'), format='%(asctime)s   %(filename)s: %(message)s',
                     datefmt='%d-%b-%y %H:%M:%S')
 logger = logging.getLogger(__name__)
@@ -60,7 +61,7 @@ class Command(BaseCommand):
             '-t',
             '--typesource',
             required=True,
-            help='Type of data source. Valid options are a file path: "directory" or a url: "web"'
+            help='Type of input data source. Valid options are a file path: "directory" or a url: "web"'
         )
 
     def handle(self, *args, **kwargs):
@@ -72,7 +73,7 @@ class Command(BaseCommand):
             print('URL: {0}'.format(url))
             req = requests.get(url)
             url_content = req.content
-            csv_path = str(Path(kwargs['directory'] + '/' + kwargs['station'] + '_v.csv'))
+            csv_path = str(Path(kwargs['directory'] + '/' + kwargs['inputfile']))
             csv_file = open(csv_path, 'wb')
             csv_file.write(url_content)
             csv_file.close()
@@ -106,8 +107,6 @@ class Command(BaseCommand):
         rows_after = 1
         rows_buffer = []
 
-        copy_dictionary = get_lwf_meteo_copy_dict()
-
         # Write data in input_file into writer_no_duplicates with additional fields
         try:
             with open(writer, 'w', newline='') as sink, open(input_file, 'r') as source:
@@ -130,7 +129,7 @@ class Command(BaseCommand):
                     if len(line_array) != len(csv_field_names):
                         error_msg = "Line has {0} values, header {1} columns ".format(len(line_array),
                                                                                       len(csv_field_names))
-                        # logger.error(error_msg)
+                        logger.error(error_msg)
                         raise ValueError(error_msg)
 
                     row = {csv_field_names[i]: line_array[i] for i in range(len(line_array))}
@@ -172,16 +171,19 @@ class Command(BaseCommand):
                                     ','.join(["{0}".format(v) for v in rows_buffer[-(1 + rows_after)].values()]) + '\n')
                                 records_written += 1
 
-                        # if line_clean['timestamp_iso']:
-                        #     sink.write(','.join(["{0}".format(v) for v in line_clean.values()]) + '\n')
-                        #     records_written += 1
-
         except FileNotFoundError as e:
             print('WARNING (csv_import.py) file not found {0}, exception {1}'.format(input_file, e))
             return
 
         if model_class is None:
             print('WARNING (csv_import.py) no data found for {0}'.format(kwargs['station']))
+            return
+
+        # Check which kind of copy_dictionary should be applied
+        if kwargs['parentclass'] == 'LWFMeteoTest':
+            copy_dictionary = get_lwf_meteo_copy_dict()
+        else:
+            print('WARNING (csv_import.py) {0} parentclass does not exist'.format(kwargs['parentclass']))
             return
 
         # Import processed and cleaned data into Postgres database
