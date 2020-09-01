@@ -6,6 +6,7 @@ from datetime import datetime
 from datetime import timezone
 import dateutil.parser as date_parser
 from django.db import connection
+from django.db.models import Func
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "monitoring.settings")
 
@@ -162,3 +163,30 @@ def get_lwf_meteo_copy_dict():
         par='par',
         ws='ws'
     )
+
+
+# Validate if date string is in ISO timestamp format
+def validate_iso_format(date_string):
+    try:
+        datetime.fromisoformat(date_string)
+        return True
+    except:
+        return False
+
+
+# Return timestamp_iso dict with start and end range
+def get_timestamp_iso_range_dict(start, end):
+    if validate_iso_format(start) and validate_iso_format(end):
+        dict_ts = {'timestamp_iso__range': (start, end)}
+        return dict_ts
+    else:
+        raise ValueError("Incorrect date formats, start and end dates should both be in ISO timestamp format")
+
+
+class Round2(Func):
+    function = "ROUND"
+    template = "%(function)s(%(expressions)s::numeric, 2)"
+
+
+# print(get_timestamp_iso_range_dict('2019-08-09T17:00:00', '2020-08-13T15:00:00'))
+

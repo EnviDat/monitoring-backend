@@ -1,4 +1,4 @@
-"""monitoring URL Configuration
+"""gcNetData URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/3.0/topics/http/urls/
@@ -13,9 +13,13 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from django.contrib import admin
-from django.urls import path
+
+from django.urls import path, include
+
+from monitoring.views import get_db_data, get_derived_data
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('api', include('rest_framework.urls')),
+    path('api/data/<str:model>/<str:lod>/<str:parameter>/<str:start>/<str:end>/', get_db_data),
+    path('api/derived/<str:model>/<str:lod>/<str:parameter>/<str:calc>/<str:start>/<str:end>/', get_derived_data),
 ]
