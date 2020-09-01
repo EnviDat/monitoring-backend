@@ -114,8 +114,8 @@ class Command(BaseCommand):
                 sink.write(','.join(field_names) + '\n')
                 records_written = 0
 
-                # Skip header if it exists
-                if parent_class.header:
+                # Skip number of header lines designated in parent class header line count
+                for i in range(parent_class.header_line_count):
                     next(source, None)
 
                 while True:
@@ -125,6 +125,11 @@ class Command(BaseCommand):
                     if not line:
                         break
                     line_array = [v for v in line.strip().split(parent_class.delimiter) if len(v) > 0]
+
+                    # Skip header lines that start with designated parent class header symbol
+                    # For example: the '#' character
+                    if line.startswith(parent_class.header_symbol):
+                        continue
 
                     if len(line_array) != len(csv_field_names):
                         error_msg = "Line has {0} values, header {1} columns ".format(len(line_array),
