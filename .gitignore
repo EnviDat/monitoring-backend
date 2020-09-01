@@ -5,3 +5,4 @@ __pycache__/
 *.csv
 /monitoring/.env
 monitoring/migrations/
+static/

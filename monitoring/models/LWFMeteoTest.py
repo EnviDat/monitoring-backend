@@ -7,9 +7,6 @@ from monitoring.fields import LWFMeteoFloatField
 
 
 # Parent class that defines fields for LWF Meteo stations
-from monitoring.helpers import get_utc_datetime
-
-
 class LWFMeteoTest(models.Model):
     timestamp_iso = models.DateTimeField(
         verbose_name='Timestamp ISO format',
@@ -82,7 +79,9 @@ class LWFMeteoTest(models.Model):
 
     delimiter = ';'
 
-    header = True
+    header_line_count = 1
+
+    header_symbol = '#'
 
     input_fields = ['timestamp', 'temp', 'rH', 'precip', 'PAR', 'ws',]
 
@@ -113,4 +112,24 @@ class test_lwf_3(LWFMeteoTest):
 
 # Test Station Name
 class test_lwf_4(LWFMeteoTest):
+    pass
+
+
+# Test Station Name
+class test_lwf_5(LWFMeteoTest):
+    pass
+
+
+# Test Station Name
+class test_lwf_6(LWFMeteoTest):
+    pass
+
+
+# Test Station Name
+class test_lwf_7(LWFMeteoTest):
+    pass
+
+
+# Test Station Name
+class test_lwf_8(LWFMeteoTest):
     pass
