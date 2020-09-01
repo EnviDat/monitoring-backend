@@ -1,4 +1,4 @@
-"""gcNetData URL Configuration
+"""Monitoring Backend URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/3.0/topics/http/urls/
@@ -17,6 +17,7 @@ Including another URLconf
 from django.urls import path, include
 
 from monitoring.views import get_db_data, get_derived_data
+
 
 urlpatterns = [
     path('api', include('rest_framework.urls')),

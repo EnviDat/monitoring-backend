@@ -25,7 +25,7 @@ def get_db_data(request, **kwargs):
 
     # Get the model
     class_name = model.rsplit('.', 1)[-1]
-    package = importlib.import_module("monitoring.models.LWFMeteoTest")
+    package = importlib.import_module("monitoring.models")
     model_class = getattr(package, class_name)
 
     if lod == 'quarterday':
