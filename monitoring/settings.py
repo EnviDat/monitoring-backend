@@ -20,19 +20,17 @@ environ.Env.read_env()
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-#SECRET_KEY = 'olno_#$g-3a6dhih-l*&j1fajs7x43dt!%i+vkj$yc#f_5%#4m'
+# SECRET_KEY = 'olno_#$g-3a6dhih-l*&j1fajs7x43dt!%i+vkj$yc#f_5%#4m'
 SECRET_KEY = env("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
-
+ALLOWED_HOSTS = ['localhost', '192.168.206.17', '127.0.0.1']
 
 # Application definition
 
@@ -78,13 +76,15 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'monitoring.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'OPTIONS': {
+            'options': env("DATABASE_SCHEMA")
+        },
         'NAME': env("DATABASE_NAME"),
         'USER': env("DATABASE_USER"),
         'PASSWORD': env("DATABASE_PASSWORD"),
@@ -99,8 +99,23 @@ DATABASES = {
         'HOST': env("DB_SECONDARY_HOST"),
         'PORT': env("DB_SECONDARY_PORT"),
     }
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.postgresql_psycopg2',
+    #     'NAME': env("DATABASE_NAME"),
+    #     'USER': env("DATABASE_USER"),
+    #     'PASSWORD': env("DATABASE_PASSWORD"),
+    #     'HOST': env("DATABASE_HOST"),
+    #     'PORT': env("DATABASE_PORT"),
+    # },
+    # 'secondary': {
+    #     'ENGINE': 'django.db.backends.postgresql_psycopg2',
+    #     'NAME': env("DB_SECONDARY_NAME"),
+    #     'USER': env("DB_SECONDARY_USER"),
+    #     'PASSWORD': env("DB_SECONDARY_PASSWORD"),
+    #     'HOST': env("DB_SECONDARY_HOST"),
+    #     'PORT': env("DB_SECONDARY_PORT"),
+    # }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators
@@ -120,7 +135,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/3.0/topics/i18n/
 
@@ -134,8 +148,8 @@ USE_L10N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
 STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
