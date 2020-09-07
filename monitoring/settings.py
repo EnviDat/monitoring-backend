@@ -79,42 +79,28 @@ WSGI_APPLICATION = 'monitoring.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
+# DATABASE_ROUTERS = ['monitoring.routers.MonitoringRouter']
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'OPTIONS': {
-            'options': env("DATABASE_SCHEMA")
-        },
         'NAME': env("DATABASE_NAME"),
         'USER': env("DATABASE_USER"),
         'PASSWORD': env("DATABASE_PASSWORD"),
         'HOST': env("DATABASE_HOST"),
         'PORT': env("DATABASE_PORT"),
     },
-    'secondary': {
+    'lwf': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': env("DB_SECONDARY_NAME"),
-        'USER': env("DB_SECONDARY_USER"),
-        'PASSWORD': env("DB_SECONDARY_PASSWORD"),
-        'HOST': env("DB_SECONDARY_HOST"),
-        'PORT': env("DB_SECONDARY_PORT"),
+        'OPTIONS': {
+            'options': env("LWF_DB_SCHEMA")
+        },
+        'NAME': env("LWF_DB_NAME"),
+        'USER': env("LWF_DB_USER"),
+        'PASSWORD': env("LWF_DB_PASSWORD"),
+        'HOST': env("LWF_DB_HOST"),
+        'PORT': env("LWF_DB_PORT"),
     }
-    # 'default': {
-    #     'ENGINE': 'django.db.backends.postgresql_psycopg2',
-    #     'NAME': env("DATABASE_NAME"),
-    #     'USER': env("DATABASE_USER"),
-    #     'PASSWORD': env("DATABASE_PASSWORD"),
-    #     'HOST': env("DATABASE_HOST"),
-    #     'PORT': env("DATABASE_PORT"),
-    # },
-    # 'secondary': {
-    #     'ENGINE': 'django.db.backends.postgresql_psycopg2',
-    #     'NAME': env("DB_SECONDARY_NAME"),
-    #     'USER': env("DB_SECONDARY_USER"),
-    #     'PASSWORD': env("DB_SECONDARY_PASSWORD"),
-    #     'HOST': env("DB_SECONDARY_HOST"),
-    #     'PORT': env("DB_SECONDARY_PORT"),
-    # }
 }
 
 # Password validation
