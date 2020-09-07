@@ -25,7 +25,7 @@ def get_db_data(request, **kwargs):
 
     # Get the model
     class_name = model.rsplit('.', 1)[-1]
-    package = importlib.import_module("monitoring.models")
+    package = importlib.import_module("lwf.models")
     model_class = getattr(package, class_name)
 
     if lod == 'quarterday':
@@ -88,7 +88,7 @@ def get_derived_data(request, **kwargs):
 
     # Get the model
     class_name = model.rsplit('.', 1)[-1]
-    package = importlib.import_module("monitoring.models")
+    package = importlib.import_module("lwf.models")
     model_class = getattr(package, class_name)
 
     if calc == 'avg':
