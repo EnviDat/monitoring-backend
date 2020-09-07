@@ -1,5 +1,5 @@
 # Example command:
-#   python manage.py lwf_csv_import -s test_lwf_1 -p LWFMeteoTest -i lwf/data/jubforest.csv -d lwf/data -m test_lwf_1 -t directory
+#   python manage.py lwf_csv_import -s test_1 -p LWFMeteoTest -i lwf/data/jubforest.csv -d lwf/data -m test_lwf_1 -t directory
 
 from pathlib import Path
 import requests
