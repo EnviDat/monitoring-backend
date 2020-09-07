@@ -1,4 +1,4 @@
-"""Monitoring Backend URL Configuration
+"""gcNetData URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/3.0/topics/http/urls/
@@ -14,10 +14,12 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 
-from django.urls import path, include
+from django.urls import path
 
+from gcnet.views import get_dynamic_data, get_derived_data, get_model_stations
 
 urlpatterns = [
-    path('api/lwf/', include('lwf.urls')),
-    path('api/gcnet/', include('gcnet.urls')),
+    path('models/', get_model_stations),
+    path('dynamic/<str:model>/<str:lod>/<str:parameter>/<str:start>/<str:end>/', get_dynamic_data),
+    path('derived/<str:model>/<str:lod>/<str:parameter>/<str:calc>/<str:start>/<str:end>/', get_derived_data),
 ]
