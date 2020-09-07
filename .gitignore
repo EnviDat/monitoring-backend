@@ -6,3 +6,4 @@ __pycache__/
 static/
 /project/.env
 lwf/migrations/
+/gcnet/migrations/
