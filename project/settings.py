@@ -79,7 +79,7 @@ WSGI_APPLICATION = 'project.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
-# DATABASE_ROUTERS = ['monitoring.routers.MonitoringRouter']
+DATABASE_ROUTERS = ['lwf.routers.MonitoringRouter']
 
 DATABASES = {
     'default': {

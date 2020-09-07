@@ -1,5 +1,5 @@
 # Example command:
-#   python manage.py csv_import -s test_lwf_1 -p LWFMeteoTest -i monitoring/data/jubforest.csv -d monitoring/data -m test_lwf_1 -t directory
+#   python manage.py lwf_csv_import -s test_lwf_1 -p LWFMeteoTest -i lwf/data/jubforest.csv -d lwf/data -m test_lwf_1 -t directory
 
 from pathlib import Path
 import requests
@@ -13,7 +13,7 @@ from lwf.helpers import get_lwf_meteo_line_clean, get_lwf_meteo_copy_dict
 # Setup logging
 import logging
 
-logging.basicConfig(filename=Path('lwf/logs/csv_import.log'), format='%(asctime)s   %(filename)s: %(message)s',
+logging.basicConfig(filename=Path('lwf/logs/lwf_csv_import.log'), format='%(asctime)s   %(filename)s: %(message)s',
                     datefmt='%d-%b-%y %H:%M:%S')
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -84,12 +84,12 @@ class Command(BaseCommand):
             print('INPUT FILE: {0}'.format(input_file))
 
         else:
-            print('WARNING (csv_import.py) non-valid value entered for "typesource": {0}'.format(kwargs['typesource']))
+            print('WARNING (lwf_csv_import.py) non-valid value entered for "typesource": {0}'.format(kwargs['typesource']))
             return
 
-        # Get the parent class, assumes parent class is in module within models directory
+        # Get the parent class, assumes parent class is in module within lwf/models directory
         parent_name = kwargs['parentclass'].rsplit('.', 1)[-1]
-        package = importlib.import_module("monitoring.models." + parent_name)
+        package = importlib.import_module("lwf.models." + parent_name)
         parent_class = getattr(package, parent_name)
 
         writer = Path(kwargs['directory'] + '/' + kwargs['station'] + '_temporary.csv')
@@ -144,19 +144,19 @@ class Command(BaseCommand):
                     if kwargs['parentclass'] == 'LWFMeteoTest':
                         line_clean = get_lwf_meteo_line_clean(row, date_form)
                     else:
-                        print('WARNING (csv_import.py) {0} parentclass does not exist'.format(kwargs['parentclass']))
+                        print('WARNING (lwf_csv_import.py) {0} parentclass does not exist'.format(kwargs['parentclass']))
                         return
 
                     # Get the model
                     class_name = kwargs['model'].rsplit('.', 1)[-1]
-                    package = importlib.import_module("monitoring.models")
+                    package = importlib.import_module("lwf.models")
                     model_class = getattr(package, class_name)
 
                     # Make timestamp_iso value a UTC timezone aware datetime object
                     dt_obj = line_clean['timestamp_iso']
                     aware_dt = make_aware(dt_obj)
 
-                    # Check if record with identical timestamp already exists in database, otherwise write record to
+                    # Check if record with identical timestamp already exists in table, otherwise write record to
                     # temporary csv file after checking for record with duplicate timestamp
                     try:
                         model_class.objects.get(timestamp_iso=aware_dt)
@@ -177,18 +177,18 @@ class Command(BaseCommand):
                                 records_written += 1
 
         except FileNotFoundError as e:
-            print('WARNING (csv_import.py) file not found {0}, exception {1}'.format(input_file, e))
+            print('WARNING (lwf_csv_import.py) file not found {0}, exception {1}'.format(input_file, e))
             return
 
         if model_class is None:
-            print('WARNING (csv_import.py) no data found for {0}'.format(kwargs['station']))
+            print('WARNING (lwf_csv_import.py) no data found for {0}'.format(kwargs['station']))
             return
 
         # Check which kind of copy_dictionary should be applied
         if kwargs['parentclass'] == 'LWFMeteoTest':
             copy_dictionary = get_lwf_meteo_copy_dict()
         else:
-            print('WARNING (csv_import.py) {0} parentclass does not exist'.format(kwargs['parentclass']))
+            print('WARNING (lwf_csv_import.py) {0} parentclass does not exist'.format(kwargs['parentclass']))
             return
 
         # Import processed and cleaned data into Postgres database

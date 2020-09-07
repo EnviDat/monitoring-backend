@@ -18,16 +18,16 @@ class MonitoringRouter:
         #     print('***USING LWF SCHEMA***')
         #     return 'lwf'
         # print('***USING PUBLIC SCHEMA***')
-        return 'default'
+        return 'lwf'
 
-    # def db_for_write(self, model, **hints):
-    #
-    #     #print('TEST  ' + model._meta.app_label)
-    #
-    #     # if model._meta.app_label is self.monitoring_label:
-    #     if model in LWF_MODEL:
-    #         #print(model.app_label)
-    #         print('***USING LWF SCHEMA***')
-    #         return 'lwf'
-    #     print('***USING PUBLIC SCHEMA***')
-    #     return 'lwf'
+    def db_for_write(self, model, **hints):
+
+        #print('TEST  ' + model._meta.app_label)
+
+        # # if model._meta.app_label is self.monitoring_label:
+        # if model in LWF_MODEL:
+        #     #print(model.app_label)
+        #     print('***USING LWF SCHEMA***')
+        #     return 'lwf'
+        # print('***USING PUBLIC SCHEMA***')
+        return 'lwf'
