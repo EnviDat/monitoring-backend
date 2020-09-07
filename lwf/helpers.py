@@ -190,11 +190,3 @@ def get_timestamp_iso_range_dict(start, end):
 class Round2(Func):
     function = "ROUND"
     template = "%(function)s(%(expressions)s::numeric, 2)"
-
-# from monitoring.models.LWFMeteoTest import test_lwf_1
-# print(test_lwf_1._meta.app_label)
-# print(test_lwf_1._meta.object_name)
-#
-# from monitoring.models.LWFMeteoTest import LWFMeteoTest
-# print(LWFMeteoTest._meta.app_label)
-# print(LWFMeteoTest._meta.object_name)
