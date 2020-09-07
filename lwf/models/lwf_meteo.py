@@ -1,7 +1,7 @@
 from django.db import models
 from postgres_copy import CopyManager
 
-from monitoring.fields import LWFMeteoFloatField
+from lwf.fields import LWFMeteoFloatField
 
 
 # Parent class that defines fields for LWF Meteo stations

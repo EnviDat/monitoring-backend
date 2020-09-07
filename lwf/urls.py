@@ -16,11 +16,10 @@ Including another URLconf
 
 from django.urls import path, include
 
-from monitoring.views import get_db_data, get_derived_data
+from lwf.views import get_db_data, get_derived_data
 
 
 urlpatterns = [
-    path('api', include('rest_framework.urls')),
-    path('api/data/<str:model>/<str:lod>/<str:parameter>/<str:start>/<str:end>/', get_db_data),
-    path('api/derived/<str:model>/<str:lod>/<str:parameter>/<str:calc>/<str:start>/<str:end>/', get_derived_data),
+    path('data/<str:model>/<str:lod>/<str:parameter>/<str:start>/<str:end>/', get_db_data),
+    path('derived/<str:model>/<str:lod>/<str:parameter>/<str:calc>/<str:start>/<str:end>/', get_derived_data),
 ]

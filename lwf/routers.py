@@ -1,6 +1,4 @@
-from django.contrib.contenttypes.models import ContentType
-
-from monitoring.models.LWFMeteoTest import LWFMeteoTest
+from lwf.models.LWFMeteoTest import LWFMeteoTest
 
 LWF_MODEL = [LWFMeteoTest]
 

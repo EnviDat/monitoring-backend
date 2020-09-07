@@ -8,12 +8,12 @@ from postgres_copy import CopyMapping
 import importlib
 from django.utils.timezone import make_aware
 
-from monitoring.helpers import get_lwf_meteo_line_clean, get_lwf_meteo_copy_dict
+from lwf.helpers import get_lwf_meteo_line_clean, get_lwf_meteo_copy_dict
 
 # Setup logging
 import logging
 
-logging.basicConfig(filename=Path('monitoring/logs/csv_import.log'), format='%(asctime)s   %(filename)s: %(message)s',
+logging.basicConfig(filename=Path('lwf/logs/csv_import.log'), format='%(asctime)s   %(filename)s: %(message)s',
                     datefmt='%d-%b-%y %H:%M:%S')
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)

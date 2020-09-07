@@ -3,7 +3,7 @@ from django.core.exceptions import FieldError
 from django.db.models import Avg, Max, Min, Sum
 from django.http import JsonResponse
 
-from monitoring.helpers import get_timestamp_iso_range_dict, Round2
+from lwf.helpers import get_timestamp_iso_range_dict, Round2
 
 
 # User customized view that returns data based on level of detail and parameter specified by

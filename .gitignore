@@ -3,6 +3,6 @@
 __pycache__/
 *.log
 *.csv
-/monitoring/.env
-monitoring/migrations/
 static/
+/project/.env
+lwf/migrations/

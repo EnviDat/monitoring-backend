@@ -5,10 +5,10 @@ import configparser
 from datetime import datetime
 from datetime import timezone
 import dateutil.parser as date_parser
-from django.db import connection
+from django.apps import apps
 from django.db.models import Func
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "monitoring.settings")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "project.settings")
 
 import django
 
@@ -32,7 +32,11 @@ def read_config(config_path: str):
 
 
 def db_table_exists(table_name):
-    return table_name in [t.lower() for t in connection.introspection.table_names()]
+    app_models = [model.__name__ for model in apps.get_models()]
+    if table_name in app_models:
+        return True
+    else:
+        return False
 
 
 def execute_commands(commands_list):
