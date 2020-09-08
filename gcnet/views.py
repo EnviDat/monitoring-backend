@@ -10,7 +10,7 @@ from gcnet.helpers import validate_date_gcnet, Round2, read_config
 # These model strings are used in the API calls (<str:model>): get_dynamic_data() and get_derived_data()
 def get_model_stations(request):
     # Read the stations config file
-    stations_path = 'config/stations.ini'
+    stations_path = 'gcnet/config/stations.ini'
     stations_config = read_config(stations_path)
 
     # Check if stations_config exists

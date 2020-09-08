@@ -73,7 +73,7 @@ def execute_process(station_type: str, config_dict: dict, local_dat_file: str):
 
     # Assign input to data returned from raw_to_dat call
     processor = FortranProcessorFactory.get_processor(station_type=station_type, data_url=data_url, raw_path=raw_file,
-                                                      command=process_command, dat_path="exec/", start_year=start_year)
+                                                      command=process_command, dat_path="gcnet/exec/", start_year=start_year)
     if not processor:
         logger.error("No processor for station type '{0}'".format(station_type))
         return -1
@@ -85,7 +85,7 @@ def execute_process(station_type: str, config_dict: dict, local_dat_file: str):
         return -1
 
     # Call cleaner to process ARGOS input data and write json and csv output files
-    stations_config_path = "config/stations.ini"
+    stations_config_path = "gcnet/config/stations.ini"
     cleaner = CleanerFactory.get_cleaner(station_type, stations_config_path, writer)
     if not cleaner:
         logger.error("No cleaner for station type '{0}'".format(station_type))
@@ -127,7 +127,7 @@ def get_csv_import_command_list(config_parser: configparser, station_type: str, 
                       '"path" or "url"'.format(input_type))
                 return
 
-            command_string = 'python manage.py csv_import -s {0} -c config/stations.ini ' \
+            command_string = 'python manage.py csv_import -s {0} -c gcnet/config/stations.ini ' \
                              '-i {1}/{2} -d gcnet/data -m {3} -t {4}' \
                 .format(csv_temporary, csv_data, csv_input, model, csv_source_type)
             commands.append(command_string)
@@ -158,7 +158,7 @@ def main(args=None):
     args = parser.parse_args(args)
 
     # read the config file
-    gc_metadata_path = "config/gcnet_metadata.ini"
+    gc_metadata_path = "gcnet/config/gcnet_metadata.ini"
     gc_config = read_config(gc_metadata_path)
 
     if not gc_config:
@@ -211,7 +211,7 @@ def main(args=None):
         csv_writer.write_csv_short_term(station_array, csv_short_days)
 
         # Read the stations config file
-        stations_path = 'config/stations.ini'
+        stations_path = 'gcnet/config/stations.ini'
         stations_config = read_config(stations_path)
 
         # Check if stations_config exists
