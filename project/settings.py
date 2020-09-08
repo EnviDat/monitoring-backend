@@ -101,7 +101,18 @@ DATABASES = {
         'PASSWORD': env("LWF_DB_PASSWORD"),
         'HOST': env("LWF_DB_HOST"),
         'PORT': env("LWF_DB_PORT"),
-    }
+    },
+    'gcnet': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'OPTIONS': {
+            'options': env("GCNET_DB_SCHEMA")
+        },
+        'NAME': env("GCNET_DB_NAME"),
+        'USER': env("GCNET_DB_USER"),
+        'PASSWORD': env("GCNET_DB_PASSWORD"),
+        'HOST': env("GCNET_DB_HOST"),
+        'PORT': env("GCNET_DB_PORT"),
+    },
 }
 
 # Password validation

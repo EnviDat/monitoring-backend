@@ -3,6 +3,9 @@
 __pycache__/
 *.log
 *.csv
+*.dat
+*.raw
+*.json
 static/
 /project/.env
 lwf/migrations/
