@@ -3,7 +3,7 @@ certifi==2020.6.20
 chardet==3.0.4
 configparser==5.0.0
 DateTime==4.3
-Django==3.1.1
+Django==3.1
 django-environ==0.4.5
 django-postgres-copy==2.4.2
 djangorestframework==3.11.1
@@ -11,9 +11,7 @@ environ==1.0
 et-xmlfile==1.0.1
 idna==2.10
 jdcal==1.4.1
-mod-wsgi==4.7.1
 numpy==1.19.1
-openpyxl==3.0.5
 pandas==1.1.1
 pathlib==1.0.1
 psycopg2==2.8.5
