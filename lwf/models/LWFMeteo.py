@@ -128,3 +128,103 @@ class jub(LWFMeteo):
 # Jussy (JUF)
 class juf(LWFMeteo):
     pass
+
+
+# Isone (ISB)
+class isb(LWFMeteo):
+    pass
+
+
+# Isone (ISF)
+class isf(LWFMeteo):
+    pass
+
+
+# Bettlachstock (BTF)
+class btf(LWFMeteo):
+    pass
+
+
+# Bettlachstock (BTB)
+class btb(LWFMeteo):
+    pass
+
+
+# Nationalpark (NAB)
+class nab(LWFMeteo):
+    pass
+
+
+# Nationalpark (NAF)
+class naf(LWFMeteo):
+    pass
+
+
+# Visp (VSB)
+class vsb(LWFMeteo):
+    pass
+
+
+# Visp (VSF)
+class vsf(LWFMeteo):
+    pass
+
+
+# Lausanne (LAB)
+class lab(LWFMeteo):
+    pass
+
+
+# Lausanne (LAF)
+class laf(LWFMeteo):
+    pass
+
+
+# Vordemwald (VOB)
+class vob(LWFMeteo):
+    pass
+
+
+# Vordemwald (VOF)
+class vof(LWFMeteo):
+    pass
+
+
+# Neunkirch (NEB)
+class neb(LWFMeteo):
+    pass
+
+
+# Neunkirch (NEF)
+class nef(LWFMeteo):
+    pass
+
+
+# Novaggio (NOB)
+class nob(LWFMeteo):
+    pass
+
+
+# Novaggio (NOF)
+class nof(LWFMeteo):
+    pass
+
+
+# Othmarsingen (OTB)
+class otb(LWFMeteo):
+    pass
+
+
+# Othmarsingen (OTF)
+class otf(LWFMeteo):
+    pass
+
+
+# Schaenis (SCB)
+class scb(LWFMeteo):
+    pass
+
+
+# Schaenis (SCF)
+class scf(LWFMeteo):
+    pass
