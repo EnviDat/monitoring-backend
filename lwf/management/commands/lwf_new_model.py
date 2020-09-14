@@ -75,7 +75,7 @@ class Command(BaseCommand):
                     controller.write('\nfrom .{0} import {1}\n'.format(model, database_table_name))
 
                 # Assign migrations_commands to contain migrations strings
-                migrations_commands = ['python manage.py makemigrations lwf', 'python manage.py migrate --database=lwf']
+                migrations_commands = ['python manage.py makemigrations lwf', 'python manage.py migrate lwf --database=lwf']
 
                 # Call execute_commands to execute migrations commands
                 execute_commands(migrations_commands)
