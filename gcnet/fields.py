@@ -11,7 +11,7 @@ class CustomFloatField(FloatField):
             WHEN "%(name)s" = '999.0000' THEN NULL
             WHEN "%(name)s" = '-999' THEN NULL
             WHEN "%(name)s" = 'NaN' THEN NULL
-            ELSE TO_NUMBER(("%(name)s"), '9999.9999') 
+            ELSE ROUND(TO_NUMBER(("%(name)s"), '9999.999'), 2) 
         END
     """
 

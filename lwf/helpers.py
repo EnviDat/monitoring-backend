@@ -31,9 +31,9 @@ def read_config(config_path: str):
     return config
 
 
-def lwf_table_exists(table_name):
-    lwf_models = [model.__name__ for model in apps.get_models('lwf')]
-    if table_name in lwf_models:
+def model_exists(table_name):
+    models = [model.__name__ for model in apps.get_models()]
+    if table_name in models:
         return True
     else:
         return False

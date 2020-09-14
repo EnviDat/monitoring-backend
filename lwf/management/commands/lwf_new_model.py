@@ -1,12 +1,12 @@
 # Example command
-#   python manage.py lwf_new_model -c lwf/config/test_conf.ini
+#   python manage.py lwf_new_model -c lwf/config/leb.ini
 
 from django.core.management.base import BaseCommand
 
 __version__ = '0.0.1'
 __author__ = u'Rebecca Kurup Buchholz'
 
-from lwf.helpers import read_config, execute_commands, lwf_table_exists
+from lwf.helpers import read_config, execute_commands, model_exists
 
 
 class Command(BaseCommand):
@@ -50,7 +50,7 @@ class Command(BaseCommand):
         # Check if table already exists in database
         long_db_name = 'lwf_{0}'.format(database_table_name)
 
-        if lwf_table_exists(database_table_name):
+        if model_exists(database_table_name):
             table_exists = True
             print('WARNING (lwf_new_model.py): Table {0} already exists in monitoring database'.format(long_db_name))
 

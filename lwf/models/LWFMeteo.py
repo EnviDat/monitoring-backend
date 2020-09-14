@@ -1,4 +1,3 @@
-import os
 
 from django.db import models
 from postgres_copy import CopyManager
@@ -7,7 +6,7 @@ from lwf.fields import LWFMeteoFloatField
 
 
 # Parent class that defines fields for LWF Meteo stations
-class LWFMeteoTest(models.Model):
+class LWFMeteo(models.Model):
     timestamp_iso = models.DateTimeField(
         verbose_name='Timestamp ISO format',
         unique=True
@@ -90,18 +89,17 @@ class LWFMeteoTest(models.Model):
 
     date_format = '%Y-%m-%d %H:%M:%S'
 
-    schema = 'lwf'
-
     # Declare Station has an abstract class so it can be inherited
     class Meta:
         abstract = True
 
 
-# Test Station Name
-class test_lwf_1(LWFMeteoTest):
+
+# Lens (LEB)
+class leb(LWFMeteo):
     pass
 
 
-# Test Station Name
-class test_lwf_2(LWFMeteoTest):
+# Beatenberg (BAF)
+class baf(LWFMeteo):
     pass

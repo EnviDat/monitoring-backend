@@ -1,5 +1,6 @@
-# Example command:
-#   python manage.py lwf_csv_import -s test_1 -p LWFMeteoTest -i lwf/data/jubforest.csv -d lwf/data -m test_lwf_1 -t directory
+# Example commands:
+#   python manage.py lwf_csv_import -s leb -p LWFMeteo -i lwf/data/lebforest.csv -d lwf/data -m leb -t directory
+#   python manage.py lwf_csv_import -s baf -p LWFMeteo -i lwf/data/baffield.csv -d lwf/data -m baf -t directory
 
 from pathlib import Path
 import requests
@@ -141,7 +142,7 @@ class Command(BaseCommand):
 
                     # Process row and add new calculated fields
                     # Check which kind of cleaner should be applied
-                    if kwargs['parentclass'] == 'LWFMeteoTest':
+                    if kwargs['parentclass'] == 'LWFMeteo':
                         line_clean = get_lwf_meteo_line_clean(row, date_form)
                     else:
                         print('WARNING (lwf_csv_import.py) {0} parentclass does not exist'.format(kwargs['parentclass']))
@@ -185,7 +186,7 @@ class Command(BaseCommand):
             return
 
         # Check which kind of copy_dictionary should be applied
-        if kwargs['parentclass'] == 'LWFMeteoTest':
+        if kwargs['parentclass'] == 'LWFMeteo':
             copy_dictionary = get_lwf_meteo_copy_dict()
         else:
             print('WARNING (lwf_csv_import.py) {0} parentclass does not exist'.format(kwargs['parentclass']))
