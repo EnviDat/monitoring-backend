@@ -103,3 +103,28 @@ class leb(LWFMeteo):
 # Beatenberg (BAF)
 class baf(LWFMeteo):
     pass
+
+
+# Beatenberg (BAB)
+class bab(LWFMeteo):
+    pass
+
+
+# Celerina (CLB)
+class clb(LWFMeteo):
+    pass
+
+
+# Celerina (CLF)
+class clf(LWFMeteo):
+    pass
+
+
+# Jussy (JUB)
+class jub(LWFMeteo):
+    pass
+
+
+# Jussy (JUF)
+class juf(LWFMeteo):
+    pass
