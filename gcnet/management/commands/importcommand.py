@@ -159,31 +159,43 @@ class Command(BaseCommand):
                               'windspeed_u2_stdev': row['WS2Std'],
                               'reftemp': row['TempRef']
                               }
-                if line_clean['timestamp'] not in written_timestamps:
+                # Get the model
+                class_name = kwargs['model'].rsplit('.', 1)[-1]
+                package = importlib.import_module("gcnet.models")
+                model_class = getattr(package, class_name)
 
-                    # keep timestamps length small
-                    written_timestamps = written_timestamps[(-1) * min(len(written_timestamps), 1000):]
-                    written_timestamps += [line_clean['timestamp']]
+                row_timestamp = line_clean['timestamp']
 
-                    # slide the row buffer window
-                    rows_buffer = rows_buffer[(-1) * min(len(rows_buffer), rows_before + rows_after):] + [line_clean]
+                # Check if record with identical timestamp already exists in database, otherwise write record to
+                # temporary csv file after checking for record with duplicate timestamp
+                try:
+                    model_class.objects.get(timestamp=row_timestamp)
 
-                    # check values before and after
-                    if len(rows_buffer) > rows_after:
-                        null_checker(rows_buffer, rows_before, rows_after)
-                        sink.write(','.join(["{0}".format(v) for v in rows_buffer[-(1 + rows_after)].values()]) + '\n')
-                        line_count += 1
-                else:
-                    logger.info('DUPLICATE RECORD for {0}:  {1}'.format((kwargs['station']), row))
-                    duplicate_count += 1
+                except model_class.DoesNotExist:
+
+                    if line_clean['timestamp'] not in written_timestamps:
+
+                        # keep timestamps length small
+                        written_timestamps = written_timestamps[(-1) * min(len(written_timestamps), 1000):]
+                        written_timestamps += [line_clean['timestamp']]
+
+                        # slide the row buffer window
+                        rows_buffer = rows_buffer[(-1) * min(len(rows_buffer), rows_before + rows_after):] + [
+                            line_clean]
+
+                        # check values before and after
+                        if len(rows_buffer) > rows_after:
+                            null_checker(rows_buffer, rows_before, rows_after)
+                            sink.write(
+                                ','.join(["{0}".format(v) for v in rows_buffer[-(1 + rows_after)].values()]) + '\n')
+                            line_count += 1
+
+                        else:
+                            logger.info('DUPLICATE RECORD for {0}:  {1}'.format((kwargs['station']), row))
+                            duplicate_count += 1
 
             logger.info('{0} had {1} duplicate records'.format((kwargs['station']), duplicate_count))
             logger.info('{0} written {1} cleaned records'.format((kwargs['station']), line_count))
-
-        # get the model
-        class_name = kwargs['model'].rsplit('.', 1)[-1]
-        package = importlib.import_module("gcnet.models")
-        model_class = getattr(package, class_name)
 
         # Import processed and cleaned data into postgres database
         c = CopyMapping(
