@@ -1,5 +1,7 @@
 # Example command:
-#   python manage.py gcnet_csv_export -d gcnet/output -n 0_swisscamp -m swisscamp_01d
+#   python manage.py gcnet_csv_export -d gcnet/output -n 1_swisscamp -m swisscamp_01d
+#   python manage.py gcnet_csv_export -d gcnet/output -n 2_crawfordpoint -m crawfordpoint_02d
+#   python manage.py gcnet_csv_export -d gcnet/output -n 3_nasa_u -m nasa_u_03d
 
 import importlib
 from pathlib import Path
