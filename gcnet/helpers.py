@@ -6,6 +6,8 @@ import datetime
 from datetime import timezone
 import math
 from datetime import datetime
+
+from django.core.exceptions import FieldError
 from django.db.models import Func
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "project.settings")
@@ -246,3 +248,28 @@ def meteoio_writer(filename, temporary_csv, temporary_text):
     with open(temporary_text, 'r', newline='\n') as reader:
         for line in reader.readlines():
             writer.writerow(line.split())
+
+
+def write_file_to_list(file_path):
+    with open(file_path, 'r', newline='') as sink:
+        file_list = sink.read().splitlines()
+    return file_list
+
+
+# Prepend file with multiple lines. All newly inserted lines will begin with the '#' character.
+def prepend_multiple_lines(file_name, list_of_lines):
+    """Insert given list of strings as a new lines at the beginning of a file"""
+    # Define name of temporary file
+    temp_file = str(file_name) + '.temp'
+    # Open given original file in read mode and temp file in write mode
+    with open(file_name, 'r') as read_obj, open(temp_file, 'w') as write_obj:
+        # Iterate over the given list of strings and write them to temp file as lines
+        for line in list_of_lines:
+            write_obj.write('#' + line + '\n')
+        # Read lines from original file one by one and append them to the dummy file
+        for line in read_obj:
+            write_obj.write(line)
+    # Remove original file
+    os.remove(file_name)
+    # Rename temp file as the original file
+    os.rename(temp_file, file_name)

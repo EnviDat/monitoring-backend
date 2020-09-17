@@ -1,7 +1,11 @@
-# Example command:
+# Example commands without header:
 #   python manage.py gcnet_csv_export -d gcnet/output -n 1_swisscamp -m swisscamp_01d
 #   python manage.py gcnet_csv_export -d gcnet/output -n 2_crawfordpoint -m crawfordpoint_02d
 #   python manage.py gcnet_csv_export -d gcnet/output -n 3_nasa_u -m nasa_u_03d
+
+# Example commands with header from config file:
+#   python manage.py gcnet_csv_export -d gcnet/output -n 1_swisscamp -m swisscamp_01d -c gcnet/config/nead_header.ini
+#   python manage.py gcnet_csv_export -d gcnet/output -n 3_nasa_u -m nasa_u_03d -c gcnet/config/nead_header.ini
 
 import importlib
 from pathlib import Path
@@ -9,6 +13,9 @@ from django.core.management.base import BaseCommand
 
 # Setup logging
 import logging
+
+from gcnet.helpers import write_file_to_list, prepend_multiple_lines
+
 logging.basicConfig(filename=Path('gcnet/logs/gcnet_csv_export.log'), format='%(asctime)s   %(filename)s: %(message)s',
                     datefmt='%d-%b-%y %H:%M:%S')
 logger = logging.getLogger(__name__)
@@ -37,6 +44,13 @@ class Command(BaseCommand):
             '--model',
             required=True,
             help='Django Model to export data from'
+        )
+
+        parser.add_argument(
+            '-c',
+            '--config',
+            required=False,
+            help='Path to config file containing header'
         )
 
     def handle(self, *args, **kwargs):
@@ -82,6 +96,17 @@ class Command(BaseCommand):
                                                                'windspeed_u2_stdev',
                                                                'reftemp'
                                                                )
+
+        # Check if header argument was passed, if so prepend header to newly created csv file
+        if kwargs['config']:
+
+            # Get header as header_list, each element is a line in the header configuration file
+            header_path = kwargs['config']
+            with open(header_path, 'r', newline='') as sink:
+                header_list = sink.read().splitlines()
+
+            # Prepend new csv file with multiple lines. All newly inserted lines will begin with the '#' character.
+            prepend_multiple_lines(output_path, header_list)
 
         # Log import message
         logger.info('{0} successfully exported, written in {1}'.format(model_class, output_path))
