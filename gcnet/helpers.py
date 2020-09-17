@@ -263,10 +263,10 @@ def prepend_multiple_lines(file_name, list_of_lines):
     temp_file = str(file_name) + '.temp'
     # Open given original file in read mode and temp file in write mode
     with open(file_name, 'r') as read_obj, open(temp_file, 'w') as write_obj:
-        # Iterate over the given list of strings and write them to temp file as lines
+        # Iterate over the given list of strings and write them to temp file as lines, start each line with '#'
         for line in list_of_lines:
             write_obj.write('#' + line + '\n')
-        # Read lines from original file one by one and append them to the dummy file
+        # Read lines from original file one by one and append them to the temp file
         for line in read_obj:
             write_obj.write(line)
     # Remove original file
