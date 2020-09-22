@@ -1,8 +1,3 @@
-# Example commands without header:
-#   python manage.py gcnet_csv_export -d gcnet/output -n 1_swisscamp -m swisscamp_01d
-#   python manage.py gcnet_csv_export -d gcnet/output -n 2_crawfordpoint -m crawfordpoint_02d
-#   python manage.py gcnet_csv_export -d gcnet/output -n 3_nasa_u -m nasa_u_03d
-
 # Example commands with header from config file:
 #   python manage.py gcnet_csv_export -d gcnet/output -n 1_swisscamp -m swisscamp_01d -c gcnet/config/nead_header.ini
 #   python manage.py gcnet_csv_export -d gcnet/output -n 3_nasa_u -m nasa_u_03d -c gcnet/config/nead_header.ini
@@ -12,12 +7,13 @@
 
 import importlib
 from pathlib import Path
+import configparser
 from django.core.management.base import BaseCommand
 
 # Setup logging
 import logging
 
-from gcnet.helpers import prepend_multiple_lines
+from gcnet.helpers import prepend_multiple_lines, get_model_fields, read_config
 
 logging.basicConfig(filename=Path('gcnet/logs/gcnet_csv_export.log'), format='%(asctime)s   %(filename)s: %(message)s',
                     datefmt='%d-%b-%y %H:%M:%S')
@@ -52,8 +48,8 @@ class Command(BaseCommand):
         parser.add_argument(
             '-c',
             '--config',
-            required=False,
-            help='Path to config file containing header. Optional.'
+            required=True,
+            help='Path to config file containing header'
         )
 
         parser.add_argument(
@@ -73,6 +69,11 @@ class Command(BaseCommand):
         package = importlib.import_module("gcnet.models")
         model_class = getattr(package, class_name)
 
+        # Get fields tuple from config
+        config = read_config(kwargs['config'])
+        fields = config.get('HEADER', 'display_description')
+        fields_tuple = tuple(fields.split(","))
+
         # Check if stringnull argument was passed, if so assign it to null_value.
         # Else null_value = None and will by default null values will be assigned to empty string
         if kwargs['stringnull']:
@@ -80,52 +81,22 @@ class Command(BaseCommand):
         else:
             null_value = None
 
-        # Export database table to csv with only 'timestamp_iso' and parameter fields
+        # Export database table to csv with only 'timestamp_iso' and fields from 'display_description' in config
         model_class.objects.order_by('timestamp_iso').to_csv(output_path,
-                                                               'timestamp_iso',
-                                                               'swin',
-                                                               'swout',
-                                                               'netrad',
-                                                               'airtemp1',
-                                                               'airtemp2',
-                                                               'airtemp_cs500air1',
-                                                               'airtemp_cs500air2',
-                                                               'rh1',
-                                                               'rh2',
-                                                               'windspeed1',
-                                                               'windspeed2',
-                                                               'winddir1',
-                                                               'winddir2',
-                                                               'pressure',
-                                                               'sh1',
-                                                               'sh2',
-                                                               'battvolt',
-                                                               'swin_max',
-                                                               'swout_max',
-                                                               'netrad_max',
-                                                               'airtemp1_max',
-                                                               'airtemp2_max',
-                                                               'airtemp1_min',
-                                                               'airtemp2_min',
-                                                               'windspeed_u1_max',
-                                                               'windspeed_u2_max',
-                                                               'windspeed_u1_stdev',
-                                                               'windspeed_u2_stdev',
-                                                               'reftemp',
-                                                               null=null_value
-                                                               )
+                                                             *fields_tuple,
+                                                             header=False,
+                                                             null=null_value
+                                                             )
 
-        # Check if header argument was passed, if so prepend header to newly created csv file
-        if kwargs['config']:
+        # Prepend header to newly created csv file
+        # Get header as header_list, each element is a line in the header configuration file
+        header_path = kwargs['config']
+        with open(header_path, 'r', newline='') as sink:
+            header_list = sink.read().splitlines()
 
-            # Get header as header_list, each element is a line in the header configuration file
-            header_path = kwargs['config']
-            with open(header_path, 'r', newline='') as sink:
-                header_list = sink.read().splitlines()
-
-            # Prepend new csv file with multiple lines from header conf
-            # All newly inserted lines will begin with the '#' character
-            prepend_multiple_lines(output_path, header_list)
+        # Prepend new csv file with multiple lines from header conf
+        # All newly inserted lines will begin with the '#' character
+        prepend_multiple_lines(output_path, header_list)
 
         # Log import message
         logger.info('{0} successfully exported, written in {1}'.format(model_class, output_path))

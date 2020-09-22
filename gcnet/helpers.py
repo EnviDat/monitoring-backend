@@ -1,5 +1,6 @@
 import configparser
 import csv
+import importlib
 import os
 from pathlib import Path
 import datetime
@@ -273,3 +274,21 @@ def prepend_multiple_lines(file_name, list_of_lines):
     os.remove(file_name)
     # Rename temp file as the original file
     os.rename(temp_file, file_name)
+
+
+# Return model fields as comma separated string. Model passed must be model as a class, not just a string.
+def get_model_fields(model):
+
+    fields_list = [f.name for f in model._meta.get_fields()]
+
+    fields_string = ','.join(fields_list)
+
+    return fields_string
+
+
+
+
+
+
+
+

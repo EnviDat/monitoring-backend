@@ -3,8 +3,6 @@ cd "path\to\project\directory"
 python manage.py lwf_csv_import -s leb -p LWFMeteo -i lwf/data/lebforest.csv -d lwf/data -m leb -t directory &
 python manage.py lwf_csv_import -s baf -p LWFMeteo -i lwf/data/baffield.csv -d lwf/data -m baf -t directory &
 python manage.py lwf_csv_import -s bab -p LWFMeteo -i lwf/data/babforest.csv -d lwf/data -m bab -t directory &
-python manage.py lwf_csv_import -s clb -p LWFMeteo -i lwf/data/cibforest.csv -d lwf/data -m clb -t directory &
-python manage.py lwf_csv_import -s clf -p LWFMeteo -i lwf/data/clffield.csv -d lwf/data -m clf -t directory &
 python manage.py lwf_csv_import -s jub -p LWFMeteo -i lwf/data/jubforest.csv -d lwf/data -m jub -t directory &
 python manage.py lwf_csv_import -s juf -p LWFMeteo -i lwf/data/juffield.csv -d lwf/data -m juf -t directory &
 python manage.py lwf_csv_import -s isb -p LWFMeteo -i lwf/data/isbforest.csv -d lwf/data -m isb -t directory &
