@@ -278,14 +278,83 @@ def prepend_multiple_lines(file_name, list_of_lines):
 
 # Return model fields as comma separated string. Model passed must be model as a class, not just a string.
 def get_model_fields(model):
-
     fields_list = [f.name for f in model._meta.get_fields()]
+    fields_string = ','.join(fields_list)
+    return fields_string
+
+
+# Returns string in between parentheses
+# Example inputting 'latlon (69.5647, 49.3308, 1176)' outputs '69.5647, 49.3308, 1176'
+def get_string_in_parentheses(input_string):
+    start = input_string.find('(') + len('(')
+    end = input_string.find(')')
+    substring = input_string[start:end]
+    return substring
+
+
+# Returns latitude as string. NOTE: Assumes that latitude is the first item in the passed string.
+def get_latitude(latlon_string):
+    list = latlon_string.split(',')
+    return list[0].strip()
+
+
+# Returns longitude as string. NOTE: Assumes that longitude is the second item in the passed string.
+def get_longitude(latlon_string):
+    list = latlon_string.split(',')
+    return list[1].strip()
+
+
+# Return altitude as string. NOTE: Assumes that altitude is the third item in the passed string.
+def get_altitude(latlon_string):
+    list = latlon_string.split(',')
+    return list[2].strip()
+
+
+def get_field_value_timestamp(fields_dict):
+    return fields_dict['timestamp_iso']
+
+
+def get_list_comma_delimited(string):
+    list = string.split(',')
+    return list
+
+
+# Gets 'fields' comma separated string for header config by mapping to fields_dict
+def get_fields_string(display_description):
+
+    fields_dict = {'timestamp_iso': 'timestamp',
+                   'swin': 'ISWR',
+                   'swout': 'OSWR',
+                   'netrad': 'NSWR',
+                   'airtemp1': 'TA1',
+                   'airtemp2': 'TA2',
+                   'rh1': 'RH1',
+                   'rh2': 'RH2',
+                   'windspeed1': 'VW1',
+                   'windspeed2': 'VW2',
+                   'winddir1': 'DW1',
+                   'winddir2': 'DW2',
+                   'pressure': 'P',
+                   'sh1': 'HS1',
+                   'sh2': 'HS2',
+                   'battvolt': 'V'
+                   }
+
+    fields_list = []
+
+    for item in display_description:
+        if item in fields_dict:
+            fields_list.append(fields_dict[item])
+        else:
+            print('WARNING (helpers.py) {0} not a valid field'.format(item))
+            return
 
     fields_string = ','.join(fields_list)
 
     return fields_string
 
 
+print(get_fields_string(get_list_comma_delimited('timestamp_iso,swin,swout,netrad,airtemp1,airtemp2,rh1,rh2,windspeed1,windspeed2,winddir1,winddir2,pressure,sh1,sh2,battvolt')))
 
 
 
