@@ -284,7 +284,7 @@ def prepend_line(file_name, line):
     # Open original file in read mode and temp file in write mode
     with open(file_name, 'r') as read_obj, open(temp_file, 'w') as write_obj:
         # Write given line to the temp file
-        write_obj.write(line + '\n')
+        write_obj.write(line)
         # Read lines from original file one by one and append them to the temp file
         for line in read_obj:
             write_obj.write(line)
@@ -301,6 +301,11 @@ def get_model_fields(model):
     return fields_string
 
 
+# Replace substring in a string and return modified string, 'old' is substring to replace with 'new'
+def replace_substring(string, old, new):
+    return string.replace(old, new)
+
+
 # Returns string in between parentheses
 # Example inputting 'latlon (69.5647, 49.3308, 1176)' outputs '69.5647, 49.3308, 1176'
 def get_string_in_parentheses(input_string):
@@ -310,22 +315,31 @@ def get_string_in_parentheses(input_string):
     return substring
 
 
-# Returns latitude as string. NOTE: Assumes that latitude is the first item in the passed string.
-def get_latitude(latlon_string):
-    list = latlon_string.split(',')
-    return list[0].strip()
+# Returns comma delimited string as list
+def convert_string_to_list(string):
+    new_list = string.split(',')
+    return new_list
 
 
-# Returns longitude as string. NOTE: Assumes that longitude is the second item in the passed string.
-def get_longitude(latlon_string):
-    list = latlon_string.split(',')
-    return list[1].strip()
+# Returns new geometry string
+# Input strings must starts with 'latlon' and have two or three values in between parentheses.
+# Acceptable input formats:
+# latlon (69.5647, 49.3308, 1176)
+# latlon (69.5647, 49.3308)
+def get_gcnet_geometry(position_string):
 
+    position_parsed = get_string_in_parentheses(position_string)
+    position_list = convert_string_to_list(position_parsed)
 
-# Return altitude as string. NOTE: Assumes that altitude is the third item in the passed string.
-def get_altitude(latlon_string):
-    list = latlon_string.split(',')
-    return list[2].strip()
+    if len(position_list) == 3:
+        geometry = replace_substring(position_string, 'latlon', 'POINTZ')
+        return geometry
+    elif len(position_list) == 2:
+        geometry = replace_substring(position_string, 'latlon', 'POINT')
+        return geometry
+    else:
+        print('WARNING (helpers.py) "{0}" must have two or three items in between parentheses'.format(position_string))
+        return
 
 
 def get_field_value_timestamp(fields_dict):
@@ -339,7 +353,6 @@ def get_list_comma_delimited(string):
 
 # Gets 'fields' comma separated string for header config by mapping to fields_dict
 def get_fields_string(display_description):
-
     fields_dict = {'timestamp_iso': 'timestamp',
                    'swin': 'ISWR',
                    'swout': 'OSWR',
@@ -375,7 +388,6 @@ def get_fields_string(display_description):
 # Function deletes a line from a file and returns the deleted line (if its length > 0)
 # Note that line_number is 0 indexed
 def delete_line(original_file, line_number):
-
     """ Delete a line from a file at the given line number """
     is_skipped = False
     current_index = 0
@@ -411,9 +423,9 @@ def delete_line(original_file, line_number):
 
 # print(get_fields_string(get_list_comma_delimited('timestamp_iso,swin,swout,netrad,airtemp1,airtemp2,rh1,rh2,windspeed1,windspeed2,winddir1,winddir2,pressure,sh1,sh2,battvolt')))
 # print(delete_line('C:/Users/kurup/Documents/monitoring/gcnet/config/nead_header.ini', 0))
-#print(prepend_line('C:/Users/kurup/Documents/monitoring/gcnet/config/nead_header.ini', 'NEAD 1.0 UTF-8'))
-
-
-
-
-
+# print(prepend_line('C:/Users/kurup/Documents/monitoring/gcnet/config/nead_header.ini', 'NEAD 1.0 UTF-8'))
+# print(replace_substring('latlon (69.5647, 49.3308, 1176))', 'latlon', 'POINTZ'))
+# print(convert_string_to_list('69.5647, 49.3308, 1176'))
+# print(get_string_in_parentheses('latlon (69.5647, 49.3308, 1176)'))
+# print(convert_string_to_list(get_string_in_parentheses('latlon (69.5647, 49.3308, 1176)')))
+#print(get_gcnet_geometry('latlon (69.5647, 49.3308, 1176)'))
