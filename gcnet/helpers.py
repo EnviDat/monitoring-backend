@@ -257,7 +257,7 @@ def write_file_to_list(file_path):
     return file_list
 
 
-# Prepend file with multiple lines. All newly inserted lines will begin with the '#' character.
+# Prepend file with multiple lines. All newly inserted lines will begin with '# '
 def prepend_multiple_lines(file_name, list_of_lines):
     """Insert given list of strings as a new lines at the beginning of a file"""
     # Define name of temporary file
@@ -267,6 +267,24 @@ def prepend_multiple_lines(file_name, list_of_lines):
         # Iterate over the given list of strings and write them to temp file as lines, start each line with '#'
         for line in list_of_lines:
             write_obj.write('# ' + line + '\n')
+        # Read lines from original file one by one and append them to the temp file
+        for line in read_obj:
+            write_obj.write(line)
+    # Remove original file
+    os.remove(file_name)
+    # Rename temp file as the original file
+    os.rename(temp_file, file_name)
+
+
+# Prepend file with line
+def prepend_line(file_name, line):
+    """ Insert given string as a new line at the beginning of a file """
+    # Define name of temporary file
+    temp_file = file_name + '.temp'
+    # Open original file in read mode and temp file in write mode
+    with open(file_name, 'r') as read_obj, open(temp_file, 'w') as write_obj:
+        # Write given line to the temp file
+        write_obj.write(line + '\n')
         # Read lines from original file one by one and append them to the temp file
         for line in read_obj:
             write_obj.write(line)
@@ -391,8 +409,9 @@ def delete_line(original_file, line_number):
         return
 
 
-#print(get_fields_string(get_list_comma_delimited('timestamp_iso,swin,swout,netrad,airtemp1,airtemp2,rh1,rh2,windspeed1,windspeed2,winddir1,winddir2,pressure,sh1,sh2,battvolt')))
-#print(delete_line('C:/Users/kurup/Documents/monitoring/gcnet/config/nead_header.ini', 0))
+# print(get_fields_string(get_list_comma_delimited('timestamp_iso,swin,swout,netrad,airtemp1,airtemp2,rh1,rh2,windspeed1,windspeed2,winddir1,winddir2,pressure,sh1,sh2,battvolt')))
+# print(delete_line('C:/Users/kurup/Documents/monitoring/gcnet/config/nead_header.ini', 0))
+#print(prepend_line('C:/Users/kurup/Documents/monitoring/gcnet/config/nead_header.ini', 'NEAD 1.0 UTF-8'))
 
 
 
