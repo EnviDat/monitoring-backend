@@ -266,7 +266,7 @@ def prepend_multiple_lines(file_name, list_of_lines):
     with open(file_name, 'r') as read_obj, open(temp_file, 'w') as write_obj:
         # Iterate over the given list of strings and write them to temp file as lines, start each line with '#'
         for line in list_of_lines:
-            write_obj.write('#' + line + '\n')
+            write_obj.write('# ' + line + '\n')
         # Read lines from original file one by one and append them to the temp file
         for line in read_obj:
             write_obj.write(line)
@@ -354,8 +354,45 @@ def get_fields_string(display_description):
     return fields_string
 
 
-print(get_fields_string(get_list_comma_delimited('timestamp_iso,swin,swout,netrad,airtemp1,airtemp2,rh1,rh2,windspeed1,windspeed2,winddir1,winddir2,pressure,sh1,sh2,battvolt')))
+# Function deletes a line from a file and returns the deleted line (if its length > 0)
+# Note that line_number is 0 indexed
+def delete_line(original_file, line_number):
 
+    """ Delete a line from a file at the given line number """
+    is_skipped = False
+    current_index = 0
+    temp_file = original_file + '.temp'
+    skipped_line = ''
+
+    # Open original file in read only mode and temp file in write mode
+    with open(original_file, 'r') as read_obj, open(temp_file, 'w') as write_obj:
+        # Line by line copy data from original file to dummy file
+        for line in read_obj:
+            # If current line number matches the given line number then skip copying
+            if current_index != line_number:
+                write_obj.write(line)
+            else:
+                is_skipped = True
+                skipped_line = line
+            current_index += 1
+
+    # If any line is skipped then rename temp file as original file
+    if is_skipped:
+        os.remove(original_file)
+        os.rename(temp_file, original_file)
+    else:
+        os.remove(temp_file)
+
+    # If skipped_line has content (length > 1) then return it
+    if len(skipped_line) > 1:
+        return skipped_line
+    else:
+        print('WARNING (helpers.py) line {0} in {1} has no content'.format(line_number, original_file))
+        return
+
+
+#print(get_fields_string(get_list_comma_delimited('timestamp_iso,swin,swout,netrad,airtemp1,airtemp2,rh1,rh2,windspeed1,windspeed2,winddir1,winddir2,pressure,sh1,sh2,battvolt')))
+#print(delete_line('C:/Users/kurup/Documents/monitoring/gcnet/config/nead_header.ini', 0))
 
 
 
