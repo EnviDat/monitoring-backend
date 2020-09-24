@@ -8,7 +8,7 @@ from django.core.management.base import BaseCommand
 import logging
 
 from gcnet.helpers import prepend_multiple_lines, get_model_fields, read_config, get_string_in_parentheses, \
-    delete_line, prepend_line, replace_substring, get_gcnet_geometry
+    delete_line, prepend_line, replace_substring, get_gcnet_geometry, get_list_comma_delimited, get_fields_string
 
 
 # logging.basicConfig(filename=Path('gcnet/logs/gcnet_csv_export.log'), format='%(asctime)s   %(filename)s: %(message)s',
@@ -91,18 +91,20 @@ class Command(BaseCommand):
             config.set('HEADER', 'geometry', geometry)
 
             # Call get_fields_string() and set 'fields'
-            #display_description = config.get('HEADER', 'display_description')
-
+            display_description = config.get('HEADER', 'display_description')
+            display_description_list = get_list_comma_delimited(display_description)
+            fields_string = get_fields_string(display_description_list)
+            config.set('HEADER', 'fields', fields_string)
 
             # Dynamically write header in config file
             with open(kwargs['config'], 'w') as config_file:
                 config.write(config_file)
 
-        except:
+        except Exception as e:
             # Write first_line to first line of header conf
             prepend_line(kwargs['config'], first_line)
             # Print error message
-            print('WARNING (gcnet_csv_export.py): could not write nead header config')
+            print('WARNING (gcnet_csv_export.py): could not write nead header config, EXCEPTION: {0}'.format(e))
             return
 
         # # Create output_path from arguments

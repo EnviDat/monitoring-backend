@@ -351,9 +351,11 @@ def get_list_comma_delimited(string):
     return list
 
 
-# Gets 'fields' comma separated string for header config by mapping to fields_dict
-def get_fields_string(display_description):
-    fields_dict = {'timestamp_iso': 'timestamp',
+# Returns 'fields' comma separated string for header config by mapping 'display_description' to fields_dict
+def get_fields_string(display_description_list):
+
+    fields_dict = {
+                   'timestamp_iso': 'timestamp',
                    'swin': 'ISWR',
                    'swout': 'OSWR',
                    'netrad': 'NSWR',
@@ -373,11 +375,11 @@ def get_fields_string(display_description):
 
     fields_list = []
 
-    for item in display_description:
+    for item in display_description_list:
         if item in fields_dict:
             fields_list.append(fields_dict[item])
         else:
-            print('WARNING (helpers.py) {0} not a valid field'.format(item))
+            print('WARNING (helpers.py) "{0}" not a valid field'.format(item))
             return
 
     fields_string = ','.join(fields_list)
@@ -421,7 +423,7 @@ def delete_line(original_file, line_number):
         return
 
 
-# print(get_fields_string(get_list_comma_delimited('timestamp_iso,swin,swout,netrad,airtemp1,airtemp2,rh1,rh2,windspeed1,windspeed2,winddir1,winddir2,pressure,sh1,sh2,battvolt')))
+#print(get_fields_string(get_list_comma_delimited('timestamp_iso,swin,swout,netrad,airtemp1,airtemp2,rh1,rh2,windspeed1,windspeed2,winddir1,winddir2,pressure,sh1,sh2,battvolt')))
 # print(delete_line('C:/Users/kurup/Documents/monitoring/gcnet/config/nead_header.ini', 0))
 # print(prepend_line('C:/Users/kurup/Documents/monitoring/gcnet/config/nead_header.ini', 'NEAD 1.0 UTF-8'))
 # print(replace_substring('latlon (69.5647, 49.3308, 1176))', 'latlon', 'POINTZ'))
