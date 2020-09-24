@@ -379,7 +379,7 @@ def get_fields_string(display_description_list):
         if item in fields_dict:
             fields_list.append(fields_dict[item])
         else:
-            print('WARNING (helpers.py) "{0}" not a valid field in fields_dict'.format(item))
+            print('WARNING (helpers.py) "{0}" not a valid key in fields_dict'.format(item))
             return
 
     fields_string = ','.join(fields_list)
@@ -416,7 +416,7 @@ def get_units_offset_string(display_description_list):
         if item in units_offset_dict:
             units_offset_list.append(units_offset_dict[item])
         else:
-            print('WARNING (helpers.py) "{0}" not a valid value in units_offset_dict'.format(item))
+            print('WARNING (helpers.py) "{0}" not a valid key in units_offset_dict'.format(item))
             return
 
     # Convert numbers in units_offset_list into strings and assign to converted_list
@@ -457,7 +457,7 @@ def get_units_multiplier_string(display_description_list):
         if item in units_multiplier_dict:
             units_multiplier_list.append(units_multiplier_dict[item])
         else:
-            print('WARNING (helpers.py) "{0}" not a valid value in units_multiplier_dict'.format(item))
+            print('WARNING (helpers.py) "{0}" not a valid key in units_multiplier_dict'.format(item))
             return
 
     # Convert numbers in units_multiplier_list into strings and assign to converted_list
@@ -468,6 +468,45 @@ def get_units_multiplier_string(display_description_list):
 
     return units_multiplier_string
 
+
+# Returns 'display_units' comma separated string for header config by mapping 'display_description_list' to
+# display_units_dict
+def get_display_units_string(display_description_list):
+
+    degree_symbol = '\N{DEGREE SIGN}'
+
+    display_units_dict = {
+                   'timestamp_iso': 'time',
+                   'short_wave_incoming_radiation': 'W/m2',
+                   'short_wave_outgoing_radiation': 'W/m2',
+                   'net_radiation': 'W/m2',
+                   'air_temperature_1': 'Celcius',
+                   'air_temperature_2': 'Celcius',
+                   'relative_humidity_1': 'percent',
+                   'relative_humidity_2': 'percent',
+                   'wind_speed_1': 'm/s',
+                   'wind_speed_2': 'm/s',
+                   'wind_direction_1': degree_symbol,
+                   'wind_direction_2': 'degrees',
+                   'atmospheric_pressure': 'mbar',
+                   'snow_height_1': 'm',
+                   'snow_height_2': 'm',
+                   'battery_voltage': 'V'
+                   }
+
+    display_units_list = []
+
+    for item in display_description_list:
+        if item in display_units_dict:
+            display_units_list.append(display_units_dict[item])
+        else:
+            print('WARNING (helpers.py) "{0}" not a valid key in display_units_dict'.format(item))
+            return
+
+    # Create comma separated string from display_units_list
+    display_units_string = ','.join(display_units_list)
+
+    return display_units_string
 
 
 # Function deletes a line from a file and returns the deleted line (if its length > 0)
@@ -506,7 +545,7 @@ def delete_line(original_file, line_number):
         return
 
 
-#print(get_units_multiplier_string(get_list_comma_delimited('timestamp_iso,short_wave_incoming_radiation,short_wave_outgoing_radiation,net_radiation,air_temperature_1,air_temperature_2,relative_humidity_1,relative_humidity_2,wind_speed_1,wind_speed_2,wind_direction_1,wind_direction_2,atmospheric_pressure,snow_height_1,snow_height_2,battery_voltage')))
+#print(get_display_units_string(get_list_comma_delimited('timestamp_iso,short_wave_incoming_radiation,short_wave_outgoing_radiation,net_radiation,air_temperature_1,air_temperature_2,relative_humidity_1,relative_humidity_2,wind_speed_1,wind_speed_2,wind_direction_1,wind_direction_2,atmospheric_pressure,snow_height_1,snow_height_2,battery_voltage')))
 # print(delete_line('C:/Users/kurup/Documents/monitoring/gcnet/config/nead_header.ini', 0))
 # print(prepend_line('C:/Users/kurup/Documents/monitoring/gcnet/config/nead_header.ini', 'NEAD 1.0 UTF-8'))
 # print(replace_substring('latlon (69.5647, 49.3308, 1176))', 'latlon', 'POINTZ'))
@@ -514,3 +553,4 @@ def delete_line(original_file, line_number):
 # print(get_string_in_parentheses('latlon (69.5647, 49.3308, 1176)'))
 # print(convert_string_to_list(get_string_in_parentheses('latlon (69.5647, 49.3308, 1176)')))
 #print(get_gcnet_geometry('latlon (69.5647, 49.3308, 1176)'))
+#print("\N{DEGREE SIGN}")

@@ -9,7 +9,7 @@ import logging
 
 from gcnet.helpers import prepend_multiple_lines, get_model_fields, read_config, get_string_in_parentheses, \
     delete_line, prepend_line, replace_substring, get_gcnet_geometry, get_list_comma_delimited, get_fields_string, \
-    get_units_offset_string, get_units_multiplier_string
+    get_units_offset_string, get_units_multiplier_string, get_display_units_string
 
 
 # logging.basicConfig(filename=Path('gcnet/logs/gcnet_csv_export.log'), format='%(asctime)s   %(filename)s: %(message)s',
@@ -108,6 +108,10 @@ class Command(BaseCommand):
             # Call get_units_multiplier_string() and set 'units_multiplier'
             units_multiplier_string = get_units_multiplier_string(display_description_list)
             config.set('HEADER', 'units_multiplier', units_multiplier_string)
+
+            # Call get_display_units_string() and set 'display_units'
+            display_units_string = get_display_units_string(display_description_list)
+            config.set('HEADER', 'display_units', display_units_string)
 
             # Dynamically write header in config file
             with open(kwargs['config'], 'w') as config_file:
