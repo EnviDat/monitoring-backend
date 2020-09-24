@@ -351,26 +351,26 @@ def get_list_comma_delimited(string):
     return list
 
 
-# Returns 'fields' comma separated string for header config by mapping 'display_description' to fields_dict
+# Returns 'fields' comma separated string for header config by mapping 'display_description_list' to fields_dict
 def get_fields_string(display_description_list):
 
     fields_dict = {
                    'timestamp_iso': 'timestamp',
-                   'swin': 'ISWR',
-                   'swout': 'OSWR',
-                   'netrad': 'NSWR',
-                   'airtemp1': 'TA1',
-                   'airtemp2': 'TA2',
-                   'rh1': 'RH1',
-                   'rh2': 'RH2',
-                   'windspeed1': 'VW1',
-                   'windspeed2': 'VW2',
-                   'winddir1': 'DW1',
-                   'winddir2': 'DW2',
-                   'pressure': 'P',
-                   'sh1': 'HS1',
-                   'sh2': 'HS2',
-                   'battvolt': 'V'
+                   'short_wave_incoming_radiation': 'ISWR',
+                   'short_wave_outgoing_radiation': 'OSWR',
+                   'net_radiation': 'NSWR',
+                   'air_temperature_1': 'TA1',
+                   'air_temperature_2': 'TA2',
+                   'relative_humidity_1': 'RH1',
+                   'relative_humidity_2': 'RH2',
+                   'wind_speed_1': 'VW1',
+                   'wind_speed_2': 'VW2',
+                   'wind_direction_1': 'DW1',
+                   'wind_direction_2': 'DW2',
+                   'atmospheric_pressure': 'P',
+                   'snow_height_1': 'HS1',
+                   'snow_height_2': 'HS2',
+                   'battery_voltage': 'V'
                    }
 
     fields_list = []
@@ -379,12 +379,95 @@ def get_fields_string(display_description_list):
         if item in fields_dict:
             fields_list.append(fields_dict[item])
         else:
-            print('WARNING (helpers.py) "{0}" not a valid field'.format(item))
+            print('WARNING (helpers.py) "{0}" not a valid field in fields_dict'.format(item))
             return
 
     fields_string = ','.join(fields_list)
 
     return fields_string
+
+
+# Returns 'units_offset' comma separated string for header config by mapping 'display_description_list' to
+# units_offset_dict
+def get_units_offset_string(display_description_list):
+
+    units_offset_dict = {
+                   'timestamp_iso': 0,
+                   'short_wave_incoming_radiation': 0,
+                   'short_wave_outgoing_radiation': 0,
+                   'net_radiation': 0,
+                   'air_temperature_1': 273.15,
+                   'air_temperature_2': 273.15,
+                   'relative_humidity_1': 0,
+                   'relative_humidity_2': 0,
+                   'wind_speed_1': 0,
+                   'wind_speed_2': 0,
+                   'wind_direction_1': 0,
+                   'wind_direction_2': 0,
+                   'atmospheric_pressure': 0,
+                   'snow_height_1': 0,
+                   'snow_height_2': 0,
+                   'battery_voltage': 0
+                   }
+
+    units_offset_list = []
+
+    for item in display_description_list:
+        if item in units_offset_dict:
+            units_offset_list.append(units_offset_dict[item])
+        else:
+            print('WARNING (helpers.py) "{0}" not a valid value in units_offset_dict'.format(item))
+            return
+
+    # Convert numbers in units_offset_list into strings and assign to converted_list
+    converted_list = [str(element) for element in units_offset_list]
+
+    # Create comma separated string from converted_list
+    units_offset_string = ','.join(converted_list)
+
+    return units_offset_string
+
+
+# Returns 'units_multiplier' comma separated string for header config by mapping 'display_description_list' to
+# units_offset_dict
+def get_units_multiplier_string(display_description_list):
+
+    units_multiplier_dict = {
+                   'timestamp_iso': 1,
+                   'short_wave_incoming_radiation': 1,
+                   'short_wave_outgoing_radiation': 1,
+                   'net_radiation': 1,
+                   'air_temperature_1': 1,
+                   'air_temperature_2': 1,
+                   'relative_humidity_1': 0.01,
+                   'relative_humidity_2': 0.01,
+                   'wind_speed_1': 1,
+                   'wind_speed_2': 1,
+                   'wind_direction_1': 1,
+                   'wind_direction_2': 1,
+                   'atmospheric_pressure': 100,
+                   'snow_height_1': 1,
+                   'snow_height_2': 1,
+                   'battery_voltage': 1
+                   }
+
+    units_multiplier_list = []
+
+    for item in display_description_list:
+        if item in units_multiplier_dict:
+            units_multiplier_list.append(units_multiplier_dict[item])
+        else:
+            print('WARNING (helpers.py) "{0}" not a valid value in units_multiplier_dict'.format(item))
+            return
+
+    # Convert numbers in units_multiplier_list into strings and assign to converted_list
+    converted_list = [str(element) for element in units_multiplier_list]
+
+    # Create comma separated string from converted_list
+    units_multiplier_string = ','.join(converted_list)
+
+    return units_multiplier_string
+
 
 
 # Function deletes a line from a file and returns the deleted line (if its length > 0)
@@ -423,7 +506,7 @@ def delete_line(original_file, line_number):
         return
 
 
-#print(get_fields_string(get_list_comma_delimited('timestamp_iso,swin,swout,netrad,airtemp1,airtemp2,rh1,rh2,windspeed1,windspeed2,winddir1,winddir2,pressure,sh1,sh2,battvolt')))
+#print(get_units_multiplier_string(get_list_comma_delimited('timestamp_iso,short_wave_incoming_radiation,short_wave_outgoing_radiation,net_radiation,air_temperature_1,air_temperature_2,relative_humidity_1,relative_humidity_2,wind_speed_1,wind_speed_2,wind_direction_1,wind_direction_2,atmospheric_pressure,snow_height_1,snow_height_2,battery_voltage')))
 # print(delete_line('C:/Users/kurup/Documents/monitoring/gcnet/config/nead_header.ini', 0))
 # print(prepend_line('C:/Users/kurup/Documents/monitoring/gcnet/config/nead_header.ini', 'NEAD 1.0 UTF-8'))
 # print(replace_substring('latlon (69.5647, 49.3308, 1176))', 'latlon', 'POINTZ'))

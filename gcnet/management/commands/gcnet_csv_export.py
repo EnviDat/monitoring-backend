@@ -8,7 +8,8 @@ from django.core.management.base import BaseCommand
 import logging
 
 from gcnet.helpers import prepend_multiple_lines, get_model_fields, read_config, get_string_in_parentheses, \
-    delete_line, prepend_line, replace_substring, get_gcnet_geometry, get_list_comma_delimited, get_fields_string
+    delete_line, prepend_line, replace_substring, get_gcnet_geometry, get_list_comma_delimited, get_fields_string, \
+    get_units_offset_string, get_units_multiplier_string
 
 
 # logging.basicConfig(filename=Path('gcnet/logs/gcnet_csv_export.log'), format='%(asctime)s   %(filename)s: %(message)s',
@@ -69,6 +70,8 @@ class Command(BaseCommand):
             stations_config = read_config('gcnet/config/stations.ini')
 
             # Assign station_id to corresponding model
+            # TODO add this for all stations
+            # TODO add dictionary?
             if kwargs['model'] == 'swisscamp_01d':
                 station_id = 80300118
             else:
@@ -90,11 +93,21 @@ class Command(BaseCommand):
             geometry = get_gcnet_geometry(position)
             config.set('HEADER', 'geometry', geometry)
 
-            # Call get_fields_string() and set 'fields'
+            # Get display_description as list
             display_description = config.get('HEADER', 'display_description')
             display_description_list = get_list_comma_delimited(display_description)
+
+            # Call get_fields_string() and set 'fields'
             fields_string = get_fields_string(display_description_list)
             config.set('HEADER', 'fields', fields_string)
+
+            # Call get_units_offset_string() and set 'units_offset'
+            units_offset_string = get_units_offset_string(display_description_list)
+            config.set('HEADER', 'units_offset', units_offset_string)
+
+            # Call get_units_multiplier_string() and set 'units_multiplier'
+            units_multiplier_string = get_units_multiplier_string(display_description_list)
+            config.set('HEADER', 'units_multiplier', units_multiplier_string)
 
             # Dynamically write header in config file
             with open(kwargs['config'], 'w') as config_file:
@@ -116,7 +129,7 @@ class Command(BaseCommand):
         # model_class = getattr(package, class_name)
         #
         # # Get fields tuple from config
-        # fields = config.get('HEADER', 'display_description')
+        # fields = config.get('HEADER', 'database_fields')
         # fields_tuple = tuple(fields.split(","))
         #
         # # Check if stringnull argument was passed, if so assign it to null_value.
