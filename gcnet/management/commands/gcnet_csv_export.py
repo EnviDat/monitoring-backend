@@ -1,22 +1,26 @@
 # Example commands:
 #   python manage.py gcnet_csv_export -d gcnet/output -n 1_swisscamp -m swisscamp_01d -c gcnet/config/nead_header.ini -s -999
+#   python manage.py gcnet_csv_export -d gcnet/csv_output -n 6_summit -m summit_06d -c gcnet/config/nead_header.ini -s -999
+#   python manage.py gcnet_csv_export -d gcnet/csv_output -n 8_dye2 -m dye2_08d -c gcnet/config/nead_header.ini -s -999
+#   python manage.py gcnet_csv_export -d gcnet/csv_output -n 24_east_grip -m east_grip_24d -c gcnet/config/nead_header.ini -s -999
+#   python manage.py gcnet_csv_export -d gcnet/csv_output -n 4_gits -m gits_04d -c gcnet/config/nead_header.ini -s -999
+
 import importlib
 from pathlib import Path
+
 from django.core.management.base import BaseCommand
 
 # Setup logging
 import logging
 
-from gcnet.helpers import prepend_multiple_lines, get_model_fields, read_config, get_string_in_parentheses, \
-    delete_line, prepend_line, replace_substring, get_gcnet_geometry, get_list_comma_delimited, get_fields_string, \
-    get_units_offset_string, get_units_multiplier_string, get_display_units_string, \
-    get_database_fields_data_types_string
+from gcnet.helpers import read_config, delete_line, prepend_line, get_gcnet_geometry, get_list_comma_delimited, \
+    get_fields_string, get_units_offset_string, get_units_multiplier_string, get_display_units_string, \
+    get_database_fields_data_types_string, prepend_multiple_lines, get_station_id
 
-
-# logging.basicConfig(filename=Path('gcnet/logs/gcnet_csv_export.log'), format='%(asctime)s   %(filename)s: %(message)s',
-#                     datefmt='%d-%b-%y %H:%M:%S')
-# logger = logging.getLogger(__name__)
-# logger.setLevel(logging.DEBUG)
+logging.basicConfig(filename=Path('gcnet/logs/gcnet_csv_export.log'), format='%(asctime)s   %(filename)s: %(message)s',
+                    datefmt='%d-%b-%y %H:%M:%S')
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 
 class Command(BaseCommand):
@@ -74,13 +78,7 @@ class Command(BaseCommand):
             stations_config = read_config('gcnet/config/stations.ini')
 
             # Assign station_id to corresponding model
-            # TODO add this for all stations
-            # TODO add dictionary?
-            if kwargs['model'] == 'swisscamp_01d':
-                station_id = 80300118
-            else:
-                print('WARNING (gcnet_csv_export.py) {0} not a valid model'.format(kwargs['model']))
-                return
+            station_id = get_station_id(kwargs['model'])
 
             # Set 'station_id'
             config.set('HEADER', 'station_id', str(station_id))
@@ -132,44 +130,44 @@ class Command(BaseCommand):
             print('WARNING (gcnet_csv_export.py): could not write nead header config, EXCEPTION: {0}'.format(e))
             return
 
-        # # Create output_path from arguments
-        # output_path = Path(kwargs['directory'] + '/' + kwargs['name'] + '.csv')
-        #
-        # # Get the model
-        # class_name = kwargs['model'].rsplit('.', 1)[-1]
-        # package = importlib.import_module("gcnet.models")
-        # model_class = getattr(package, class_name)
-        #
-        # # Get fields tuple from config
-        # fields = config.get('HEADER', 'database_fields')
-        # fields_tuple = tuple(fields.split(","))
-        #
-        # # Check if stringnull argument was passed, if so assign it to null_value.
-        # # Else null_value = None and will by default null values will be assigned to empty string
-        # if kwargs['stringnull']:
-        #     null_value = kwargs['stringnull']
-        # else:
-        #     null_value = None
-        #
-        # # Export database table to csv with only 'timestamp_iso' and fields from 'display_description' in config
-        # model_class.objects.order_by('timestamp_iso').to_csv(output_path,
-        #                                                      *fields_tuple,
-        #                                                      header=False,
-        #                                                      null=null_value
-        #                                                      )
-        #
+        # Create output_path from arguments
+        output_path = Path(kwargs['directory'] + '/' + kwargs['name'] + '.csv')
+
+        # Get the model
+        class_name = kwargs['model'].rsplit('.', 1)[-1]
+        package = importlib.import_module("gcnet.models")
+        model_class = getattr(package, class_name)
+
+        # Get fields tuple from config
+        fields = config.get('HEADER', 'database_fields')
+        fields_tuple = tuple(fields.split(","))
+
+        # Check if stringnull argument was passed, if so assign it to null_value.
+        # Else null_value = None and will by default null values will be assigned to empty string
+        if kwargs['stringnull']:
+            null_value = kwargs['stringnull']
+        else:
+            null_value = None
+
+        # Export database table to csv with only 'timestamp_iso' and fields from 'display_description' in config
+        model_class.objects.order_by('timestamp_iso').to_csv(output_path,
+                                                              *fields_tuple,
+                                                              header=False,
+                                                              null=null_value
+                                                              )
+
         # Write first_line to first line of header conf
         prepend_line(kwargs['config'], first_line)
-        #
-        # # Prepend header to newly created csv file
-        # # Get header as header_list, each element is a line in the header configuration file
-        # header_path = kwargs['config']
-        # with open(header_path, 'r', newline='') as sink:
-        #     header_list = sink.read().splitlines()
-        #
-        # # Prepend new csv file with multiple lines from header conf
-        # # All newly inserted lines will begin with the '#' character
-        # prepend_multiple_lines(output_path, header_list)
-        #
-        # # # Log import message
-        # # logger.info('{0} successfully exported, written in {1}'.format(model_class, output_path))
+
+        # Prepend header to newly created csv file
+        # Get header as header_list, each element is a line in the header configuration file
+        header_path = kwargs['config']
+        with open(header_path, 'r', newline='\n') as sink:
+            header_list = sink.read().splitlines()
+
+        # Prepend new csv file with multiple lines from header conf
+        # All newly inserted lines will begin with the '#' character
+        prepend_multiple_lines(output_path, header_list)
+
+        # Log import message
+        logger.info('{0} successfully exported, written in {1}'.format(model_class, output_path))

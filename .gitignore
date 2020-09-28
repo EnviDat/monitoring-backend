@@ -10,3 +10,4 @@ static/
 /project/.env
 lwf/migrations/
 /gcnet/migrations/
+/gcnet/csv_output/

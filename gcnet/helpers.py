@@ -263,7 +263,7 @@ def prepend_multiple_lines(file_name, list_of_lines):
     # Define name of temporary file
     temp_file = str(file_name) + '.temp'
     # Open given original file in read mode and temp file in write mode
-    with open(file_name, 'r') as read_obj, open(temp_file, 'w') as write_obj:
+    with open(file_name, 'r', newline='\n') as read_obj, open(temp_file, 'w', newline='\n') as write_obj:
         # Iterate over the given list of strings and write them to temp file as lines, start each line with '#'
         for line in list_of_lines:
             write_obj.write('# ' + line + '\n')
@@ -282,7 +282,7 @@ def prepend_line(file_name, line):
     # Define name of temporary file
     temp_file = file_name + '.temp'
     # Open original file in read mode and temp file in write mode
-    with open(file_name, 'r') as read_obj, open(temp_file, 'w') as write_obj:
+    with open(file_name, 'r', newline='\n') as read_obj, open(temp_file, 'w', newline='\n') as write_obj:
         # Write given line to the temp file
         write_obj.write(line)
         # Read lines from original file one by one and append them to the temp file
@@ -338,7 +338,6 @@ def convert_list_to_string(input_list, separator=' '):
 # latlon (69.5647, 49.3308, 1176)
 # latlon (69.5647, 49.3308)
 def get_gcnet_geometry(position_string):
-
     latlon_string = get_string_in_parentheses(position_string)
     latlon_list = convert_string_to_list(latlon_string)
 
@@ -371,25 +370,24 @@ def get_list_comma_delimited(string):
 
 # Returns 'fields' comma separated string for header config by mapping 'display_description_list' to fields_dict
 def get_fields_string(display_description_list):
-
     fields_dict = {
-                   'timestamp_iso': 'timestamp',
-                   'short_wave_incoming_radiation': 'ISWR',
-                   'short_wave_outgoing_radiation': 'OSWR',
-                   'net_radiation': 'NSWR',
-                   'air_temperature_1': 'TA1',
-                   'air_temperature_2': 'TA2',
-                   'relative_humidity_1': 'RH1',
-                   'relative_humidity_2': 'RH2',
-                   'wind_speed_1': 'VW1',
-                   'wind_speed_2': 'VW2',
-                   'wind_direction_1': 'DW1',
-                   'wind_direction_2': 'DW2',
-                   'atmospheric_pressure': 'P',
-                   'snow_height_1': 'HS1',
-                   'snow_height_2': 'HS2',
-                   'battery_voltage': 'V'
-                   }
+        'timestamp_iso': 'timestamp',
+        'short_wave_incoming_radiation': 'ISWR',
+        'short_wave_outgoing_radiation': 'OSWR',
+        'net_radiation': 'NSWR',
+        'air_temperature_1': 'TA1',
+        'air_temperature_2': 'TA2',
+        'relative_humidity_1': 'RH1',
+        'relative_humidity_2': 'RH2',
+        'wind_speed_1': 'VW1',
+        'wind_speed_2': 'VW2',
+        'wind_direction_1': 'DW1',
+        'wind_direction_2': 'DW2',
+        'atmospheric_pressure': 'P',
+        'snow_height_1': 'HS1',
+        'snow_height_2': 'HS2',
+        'battery_voltage': 'V'
+    }
 
     fields_list = []
 
@@ -408,25 +406,24 @@ def get_fields_string(display_description_list):
 # Returns 'units_offset' comma separated string for header config by mapping 'display_description_list' to
 # units_offset_dict
 def get_units_offset_string(display_description_list):
-
     units_offset_dict = {
-                   'timestamp_iso': 0,
-                   'short_wave_incoming_radiation': 0,
-                   'short_wave_outgoing_radiation': 0,
-                   'net_radiation': 0,
-                   'air_temperature_1': 273.15,
-                   'air_temperature_2': 273.15,
-                   'relative_humidity_1': 0,
-                   'relative_humidity_2': 0,
-                   'wind_speed_1': 0,
-                   'wind_speed_2': 0,
-                   'wind_direction_1': 0,
-                   'wind_direction_2': 0,
-                   'atmospheric_pressure': 0,
-                   'snow_height_1': 0,
-                   'snow_height_2': 0,
-                   'battery_voltage': 0
-                   }
+        'timestamp_iso': 0,
+        'short_wave_incoming_radiation': 0,
+        'short_wave_outgoing_radiation': 0,
+        'net_radiation': 0,
+        'air_temperature_1': 273.15,
+        'air_temperature_2': 273.15,
+        'relative_humidity_1': 0,
+        'relative_humidity_2': 0,
+        'wind_speed_1': 0,
+        'wind_speed_2': 0,
+        'wind_direction_1': 0,
+        'wind_direction_2': 0,
+        'atmospheric_pressure': 0,
+        'snow_height_1': 0,
+        'snow_height_2': 0,
+        'battery_voltage': 0
+    }
 
     units_offset_list = []
 
@@ -449,25 +446,24 @@ def get_units_offset_string(display_description_list):
 # Returns 'units_multiplier' comma separated string for header config by mapping 'display_description_list' to
 # units_offset_dict
 def get_units_multiplier_string(display_description_list):
-
     units_multiplier_dict = {
-                   'timestamp_iso': 1,
-                   'short_wave_incoming_radiation': 1,
-                   'short_wave_outgoing_radiation': 1,
-                   'net_radiation': 1,
-                   'air_temperature_1': 1,
-                   'air_temperature_2': 1,
-                   'relative_humidity_1': 0.01,
-                   'relative_humidity_2': 0.01,
-                   'wind_speed_1': 1,
-                   'wind_speed_2': 1,
-                   'wind_direction_1': 1,
-                   'wind_direction_2': 1,
-                   'atmospheric_pressure': 100,
-                   'snow_height_1': 1,
-                   'snow_height_2': 1,
-                   'battery_voltage': 1
-                   }
+        'timestamp_iso': 1,
+        'short_wave_incoming_radiation': 1,
+        'short_wave_outgoing_radiation': 1,
+        'net_radiation': 1,
+        'air_temperature_1': 1,
+        'air_temperature_2': 1,
+        'relative_humidity_1': 0.01,
+        'relative_humidity_2': 0.01,
+        'wind_speed_1': 1,
+        'wind_speed_2': 1,
+        'wind_direction_1': 1,
+        'wind_direction_2': 1,
+        'atmospheric_pressure': 100,
+        'snow_height_1': 1,
+        'snow_height_2': 1,
+        'battery_voltage': 1
+    }
 
     units_multiplier_list = []
 
@@ -490,25 +486,24 @@ def get_units_multiplier_string(display_description_list):
 # Returns 'display_units' comma separated string for header config by mapping 'display_description_list' to
 # display_units_dict
 def get_display_units_string(display_description_list):
-
     display_units_dict = {
-                   'timestamp_iso': 'time',
-                   'short_wave_incoming_radiation': 'W/m2',
-                   'short_wave_outgoing_radiation': 'W/m2',
-                   'net_radiation': 'W/m2',
-                   'air_temperature_1': '°C',
-                   'air_temperature_2': '°C',
-                   'relative_humidity_1': '%',
-                   'relative_humidity_2': '%',
-                   'wind_speed_1': 'm/s',
-                   'wind_speed_2': 'm/s',
-                   'wind_direction_1': '°',
-                   'wind_direction_2': '°',
-                   'atmospheric_pressure': 'mbar',
-                   'snow_height_1': 'm',
-                   'snow_height_2': 'm',
-                   'battery_voltage': 'V'
-                   }
+        'timestamp_iso': 'time',
+        'short_wave_incoming_radiation': 'W/m2',
+        'short_wave_outgoing_radiation': 'W/m2',
+        'net_radiation': 'W/m2',
+        'air_temperature_1': '°C',
+        'air_temperature_2': '°C',
+        'relative_humidity_1': '%',
+        'relative_humidity_2': '%',
+        'wind_speed_1': 'm/s',
+        'wind_speed_2': 'm/s',
+        'wind_direction_1': '°',
+        'wind_direction_2': '°',
+        'atmospheric_pressure': 'mbar',
+        'snow_height_1': 'm',
+        'snow_height_2': 'm',
+        'battery_voltage': 'V'
+    }
 
     display_units_list = []
 
@@ -528,25 +523,24 @@ def get_display_units_string(display_description_list):
 # Returns 'database_fields_data_types' comma separated string for header config by mapping 'display_description_list' to
 # database_fields_data_types_dict
 def get_database_fields_data_types_string(display_description_list):
-
     database_fields_data_types_dict = {
-                   'timestamp_iso': 'timestamp',
-                   'short_wave_incoming_radiation': 'real',
-                   'short_wave_outgoing_radiation': 'real',
-                   'net_radiation': 'real',
-                   'air_temperature_1': 'real',
-                   'air_temperature_2': 'real',
-                   'relative_humidity_1': 'real',
-                   'relative_humidity_2': 'real',
-                   'wind_speed_1': 'real',
-                   'wind_speed_2': 'real',
-                   'wind_direction_1': 'real',
-                   'wind_direction_2': 'real',
-                   'atmospheric_pressure': 'real',
-                   'snow_height_1': 'real',
-                   'snow_height_2': 'real',
-                   'battery_voltage': 'real'
-                   }
+        'timestamp_iso': 'timestamp',
+        'short_wave_incoming_radiation': 'real',
+        'short_wave_outgoing_radiation': 'real',
+        'net_radiation': 'real',
+        'air_temperature_1': 'real',
+        'air_temperature_2': 'real',
+        'relative_humidity_1': 'real',
+        'relative_humidity_2': 'real',
+        'wind_speed_1': 'real',
+        'wind_speed_2': 'real',
+        'wind_direction_1': 'real',
+        'wind_direction_2': 'real',
+        'atmospheric_pressure': 'real',
+        'snow_height_1': 'real',
+        'snow_height_2': 'real',
+        'battery_voltage': 'real'
+    }
 
     database_fields_data_types_list = []
 
@@ -563,7 +557,41 @@ def get_database_fields_data_types_string(display_description_list):
     return display_units_string
 
 
-# Function deletes a line from a file and returns the deleted line (if its length > 0)
+# Returns 'station_id' from stations config by mapping kwargs['model'] to station_id_dict
+def get_station_id(model):
+    station_id_dict = {
+        # ==== ARGOS Stations =====
+        'gits_04d': '107282',
+        'humboldt_05d': '107283',
+        'tunu_n_07d': '107285',
+        'petermann_22d': '107284',
+
+        # ==== GOES Stations =====
+        'swisscamp_10m_tower_00d': '8030A1E0',
+        'swisscamp_01d': '80300118',
+        'crawfordpoint_02d': '8030126E',
+        'nasa_u_03d': '8030D770',
+        'summit_06d': '803027F4',
+        'dye2_08d': '803064FE',
+        'jar1_09d': '80303482',
+        'saddle_10d': '80307788',
+        'southdome_11d': '80305164',
+        'nasa_east_12d': '8030E2EA',
+        'nasa_southeast_15d': '8030870C',
+        'neem_23d': '8030C406',
+        'east_grip_24d': '8030947A'
+    }
+
+    if model in station_id_dict:
+        station_id = station_id_dict[model]
+    else:
+        print('WARNING (helpers.py) {0} not a valid model'.format(model))
+        return
+
+    return station_id
+
+
+# Deletes a line from a file and returns the deleted line (if its length > 0)
 # Note that line_number is 0 indexed
 def delete_line(original_file, line_number):
     """ Delete a line from a file at the given line number """
@@ -598,15 +626,15 @@ def delete_line(original_file, line_number):
         print('WARNING (helpers.py) line {0} in {1} has no content'.format(line_number, original_file))
         return
 
-
 # print(get_database_fields_data_types_string(get_list_comma_delimited('timestamp_iso,short_wave_incoming_radiation,short_wave_outgoing_radiation,net_radiation,air_temperature_1,air_temperature_2,relative_humidity_1,relative_humidity_2,wind_speed_1,wind_speed_2,wind_direction_1,wind_direction_2,atmospheric_pressure,snow_height_1,snow_height_2,battery_voltage')))
 # print(delete_line('C:/Users/kurup/Documents/monitoring/gcnet/config/nead_header.ini', 0))
 # print(prepend_line('C:/Users/kurup/Documents/monitoring/gcnet/config/nead_header.ini', 'NEAD 1.0 UTF-8'))
 # print(replace_substring('latlon (69.5647, 49.3308, 1176))', 'latlon', 'POINTZ'))
-#print(convert_string_to_list('69.5647, 49.3308, 1176'))
-#print(switch_two_elements((convert_string_to_list('69.5647, 49.3308, 1176')), 0, 1))
+# print(convert_string_to_list('69.5647, 49.3308, 1176'))
+# print(switch_two_elements((convert_string_to_list('69.5647, 49.3308, 1176')), 0, 1))
 # print(get_string_in_parentheses('latlon (69.5647, 49.3308, 1176)'))
 # print(convert_string_to_list(get_string_in_parentheses('latlon (69.5647, 49.3308, 1176)')))
-#print(get_gcnet_geometry('latlon (69.5647, 49.3308, 1176)'))
+# print(get_gcnet_geometry('latlon (69.5647, 49.3308, 1176)'))
 # print("\N{DEGREE SIGN}")
 # print(replace_substring('latlon (69.5647, 49.3308, 1176)', ',', ''))
+#print(get_station_id('summit_06df'))
