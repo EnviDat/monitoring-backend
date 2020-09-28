@@ -9,7 +9,8 @@ import logging
 
 from gcnet.helpers import prepend_multiple_lines, get_model_fields, read_config, get_string_in_parentheses, \
     delete_line, prepend_line, replace_substring, get_gcnet_geometry, get_list_comma_delimited, get_fields_string, \
-    get_units_offset_string, get_units_multiplier_string, get_display_units_string
+    get_units_offset_string, get_units_multiplier_string, get_display_units_string, \
+    get_database_fields_data_types_string
 
 
 # logging.basicConfig(filename=Path('gcnet/logs/gcnet_csv_export.log'), format='%(asctime)s   %(filename)s: %(message)s',
@@ -49,6 +50,9 @@ class Command(BaseCommand):
             help='Path to config file containing header'
         )
 
+        # TODO add column_delimter as optional argument
+
+        # TODO later make this optional and update corresponding handle() code
         parser.add_argument(
             '-s',
             '--stringnull',
@@ -113,7 +117,12 @@ class Command(BaseCommand):
             display_units_string = get_display_units_string(display_description_list)
             config.set('HEADER', 'display_units', display_units_string)
 
+            # Call get_database_fields_data_types_string() and set 'database_fields_data_types'
+            database_fields_data_types_string = get_database_fields_data_types_string(display_description_list)
+            config.set('HEADER', 'database_fields_data_types', database_fields_data_types_string)
+
             # Dynamically write header in config file
+            # TODO write line endings in LF: \n
             with open(kwargs['config'], encoding='utf-8', mode='w') as config_file:
                 config.write(config_file)
 

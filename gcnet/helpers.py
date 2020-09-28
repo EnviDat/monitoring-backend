@@ -317,27 +317,43 @@ def get_string_in_parentheses(input_string):
 
 # Returns comma delimited string as list
 def convert_string_to_list(string):
-    new_list = string.split(',')
+    new_list = [item.strip() for item in string.split(',')]
     return new_list
 
 
-# Returns new geometry string
+# Switch two elements of list by index
+def switch_two_elements(input_list, a, b):
+    input_list[a], input_list[b] = input_list[b], input_list[a]
+    return input_list
+
+
+# Returns list of strings to string with space
+def convert_list_to_string(input_list, separator=' '):
+    return separator.join(input_list)
+
+
+# Returns new geometry string in format POINTZ (49.3308 69.5647 1176) i.e. POINTZ (longitude, latidute, altitude)
 # Input strings must starts with 'latlon' and have two or three values in between parentheses.
 # Acceptable input formats:
 # latlon (69.5647, 49.3308, 1176)
 # latlon (69.5647, 49.3308)
 def get_gcnet_geometry(position_string):
 
-    position_parsed = get_string_in_parentheses(position_string)
-    position_list = convert_string_to_list(position_parsed)
+    latlon_string = get_string_in_parentheses(position_string)
+    latlon_list = convert_string_to_list(latlon_string)
 
-    if len(position_list) == 3:
-        geometry = replace_substring(position_string, 'latlon', 'POINTZ')
-        geometry_no_commas = replace_substring(geometry, ',', '')
+    # Switch latitude and longitude from source data
+    longlat_list = switch_two_elements(latlon_list, 0, 1)
+    longlat_string = convert_list_to_string(longlat_list)
+    position_longlat = replace_substring(position_string, latlon_string, longlat_string)
+
+    if len(latlon_list) == 3:
+        point_geometry = replace_substring(position_longlat, 'latlon', 'POINTZ')
+        geometry_no_commas = replace_substring(point_geometry, ',', '')
         return geometry_no_commas
-    elif len(position_list) == 2:
-        geometry = replace_substring(position_string, 'latlon', 'POINT')
-        geometry_no_commas = replace_substring(geometry, ',', '')
+    elif len(latlon_list) == 2:
+        point_geometry = replace_substring(position_longlat, 'latlon', 'POINT')
+        geometry_no_commas = replace_substring(point_geometry, ',', '')
         return geometry_no_commas
     else:
         print('WARNING (helpers.py) "{0}" must have two or three items in between parentheses'.format(position_string))
@@ -480,8 +496,8 @@ def get_display_units_string(display_description_list):
                    'short_wave_incoming_radiation': 'W/m2',
                    'short_wave_outgoing_radiation': 'W/m2',
                    'net_radiation': 'W/m2',
-                   'air_temperature_1': 'Celcius',
-                   'air_temperature_2': 'Celcius',
+                   'air_temperature_1': '°C',
+                   'air_temperature_2': '°C',
                    'relative_humidity_1': '%',
                    'relative_humidity_2': '%',
                    'wind_speed_1': 'm/s',
@@ -505,6 +521,44 @@ def get_display_units_string(display_description_list):
 
     # Create comma separated string from display_units_list
     display_units_string = ','.join(display_units_list)
+
+    return display_units_string
+
+
+# Returns 'database_fields_data_types' comma separated string for header config by mapping 'display_description_list' to
+# database_fields_data_types_dict
+def get_database_fields_data_types_string(display_description_list):
+
+    database_fields_data_types_dict = {
+                   'timestamp_iso': 'timestamp',
+                   'short_wave_incoming_radiation': 'real',
+                   'short_wave_outgoing_radiation': 'real',
+                   'net_radiation': 'real',
+                   'air_temperature_1': 'real',
+                   'air_temperature_2': 'real',
+                   'relative_humidity_1': 'real',
+                   'relative_humidity_2': 'real',
+                   'wind_speed_1': 'real',
+                   'wind_speed_2': 'real',
+                   'wind_direction_1': 'real',
+                   'wind_direction_2': 'real',
+                   'atmospheric_pressure': 'real',
+                   'snow_height_1': 'real',
+                   'snow_height_2': 'real',
+                   'battery_voltage': 'real'
+                   }
+
+    database_fields_data_types_list = []
+
+    for item in display_description_list:
+        if item in database_fields_data_types_dict:
+            database_fields_data_types_list.append(database_fields_data_types_dict[item])
+        else:
+            print('WARNING (helpers.py) "{0}" not a valid key in database_fields_data_types_dict'.format(item))
+            return
+
+    # Create comma separated string from display_units_list
+    display_units_string = ','.join(database_fields_data_types_list)
 
     return display_units_string
 
@@ -545,13 +599,14 @@ def delete_line(original_file, line_number):
         return
 
 
-#print(get_display_units_string(get_list_comma_delimited('timestamp_iso,short_wave_incoming_radiation,short_wave_outgoing_radiation,net_radiation,air_temperature_1,air_temperature_2,relative_humidity_1,relative_humidity_2,wind_speed_1,wind_speed_2,wind_direction_1,wind_direction_2,atmospheric_pressure,snow_height_1,snow_height_2,battery_voltage')))
+# print(get_database_fields_data_types_string(get_list_comma_delimited('timestamp_iso,short_wave_incoming_radiation,short_wave_outgoing_radiation,net_radiation,air_temperature_1,air_temperature_2,relative_humidity_1,relative_humidity_2,wind_speed_1,wind_speed_2,wind_direction_1,wind_direction_2,atmospheric_pressure,snow_height_1,snow_height_2,battery_voltage')))
 # print(delete_line('C:/Users/kurup/Documents/monitoring/gcnet/config/nead_header.ini', 0))
 # print(prepend_line('C:/Users/kurup/Documents/monitoring/gcnet/config/nead_header.ini', 'NEAD 1.0 UTF-8'))
 # print(replace_substring('latlon (69.5647, 49.3308, 1176))', 'latlon', 'POINTZ'))
-# print(convert_string_to_list('69.5647, 49.3308, 1176'))
+#print(convert_string_to_list('69.5647, 49.3308, 1176'))
+#print(switch_two_elements((convert_string_to_list('69.5647, 49.3308, 1176')), 0, 1))
 # print(get_string_in_parentheses('latlon (69.5647, 49.3308, 1176)'))
 # print(convert_string_to_list(get_string_in_parentheses('latlon (69.5647, 49.3308, 1176)')))
-#print(get_gcnet_geometry('latlon (69.5647, a, b, c)'))
-#print("\N{DEGREE SIGN}")
-#print(replace_substring('latlon (69.5647, 49.3308, 1176)', ',', ''))
+#print(get_gcnet_geometry('latlon (69.5647, 49.3308, 1176)'))
+# print("\N{DEGREE SIGN}")
+# print(replace_substring('latlon (69.5647, 49.3308, 1176)', ',', ''))
