@@ -114,7 +114,7 @@ class Command(BaseCommand):
             config.set('HEADER', 'display_units', display_units_string)
 
             # Dynamically write header in config file
-            with open(kwargs['config'], 'w') as config_file:
+            with open(kwargs['config'], encoding='utf-8', mode='w') as config_file:
                 config.write(config_file)
 
         except Exception as e:

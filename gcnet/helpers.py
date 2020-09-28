@@ -22,7 +22,7 @@ def read_config(config_path: str):
     config_file = Path(config_path)
 
     # Load gcnet configuration file
-    gc_config = configparser.ConfigParser()
+    gc_config = configparser.RawConfigParser()
     gc_config.read(config_file)
 
     print("Read config params file: {0}, sections: {1}".format(config_path, ', '.join(gc_config.sections())))
@@ -333,10 +333,12 @@ def get_gcnet_geometry(position_string):
 
     if len(position_list) == 3:
         geometry = replace_substring(position_string, 'latlon', 'POINTZ')
-        return geometry
+        geometry_no_commas = replace_substring(geometry, ',', '')
+        return geometry_no_commas
     elif len(position_list) == 2:
         geometry = replace_substring(position_string, 'latlon', 'POINT')
-        return geometry
+        geometry_no_commas = replace_substring(geometry, ',', '')
+        return geometry_no_commas
     else:
         print('WARNING (helpers.py) "{0}" must have two or three items in between parentheses'.format(position_string))
         return
@@ -473,8 +475,6 @@ def get_units_multiplier_string(display_description_list):
 # display_units_dict
 def get_display_units_string(display_description_list):
 
-    degree_symbol = '\N{DEGREE SIGN}'
-
     display_units_dict = {
                    'timestamp_iso': 'time',
                    'short_wave_incoming_radiation': 'W/m2',
@@ -482,12 +482,12 @@ def get_display_units_string(display_description_list):
                    'net_radiation': 'W/m2',
                    'air_temperature_1': 'Celcius',
                    'air_temperature_2': 'Celcius',
-                   'relative_humidity_1': 'percent',
-                   'relative_humidity_2': 'percent',
+                   'relative_humidity_1': '%',
+                   'relative_humidity_2': '%',
                    'wind_speed_1': 'm/s',
                    'wind_speed_2': 'm/s',
-                   'wind_direction_1': degree_symbol,
-                   'wind_direction_2': 'degrees',
+                   'wind_direction_1': '°',
+                   'wind_direction_2': '°',
                    'atmospheric_pressure': 'mbar',
                    'snow_height_1': 'm',
                    'snow_height_2': 'm',
@@ -552,5 +552,6 @@ def delete_line(original_file, line_number):
 # print(convert_string_to_list('69.5647, 49.3308, 1176'))
 # print(get_string_in_parentheses('latlon (69.5647, 49.3308, 1176)'))
 # print(convert_string_to_list(get_string_in_parentheses('latlon (69.5647, 49.3308, 1176)')))
-#print(get_gcnet_geometry('latlon (69.5647, 49.3308, 1176)'))
+#print(get_gcnet_geometry('latlon (69.5647, a, b, c)'))
 #print("\N{DEGREE SIGN}")
+#print(replace_substring('latlon (69.5647, 49.3308, 1176)', ',', ''))
