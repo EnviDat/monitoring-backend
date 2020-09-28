@@ -122,8 +122,7 @@ class Command(BaseCommand):
             config.set('HEADER', 'database_fields_data_types', database_fields_data_types_string)
 
             # Dynamically write header in config file
-            # TODO write line endings in LF: \n
-            with open(kwargs['config'], encoding='utf-8', mode='w') as config_file:
+            with open(kwargs['config'], encoding='utf-8', mode='w', newline='\n') as config_file:
                 config.write(config_file)
 
         except Exception as e:
