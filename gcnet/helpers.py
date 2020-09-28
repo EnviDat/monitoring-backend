@@ -626,15 +626,3 @@ def delete_line(original_file, line_number):
         print('WARNING (helpers.py) line {0} in {1} has no content'.format(line_number, original_file))
         return
 
-# print(get_database_fields_data_types_string(get_list_comma_delimited('timestamp_iso,short_wave_incoming_radiation,short_wave_outgoing_radiation,net_radiation,air_temperature_1,air_temperature_2,relative_humidity_1,relative_humidity_2,wind_speed_1,wind_speed_2,wind_direction_1,wind_direction_2,atmospheric_pressure,snow_height_1,snow_height_2,battery_voltage')))
-# print(delete_line('C:/Users/kurup/Documents/monitoring/gcnet/config/nead_header.ini', 0))
-# print(prepend_line('C:/Users/kurup/Documents/monitoring/gcnet/config/nead_header.ini', 'NEAD 1.0 UTF-8'))
-# print(replace_substring('latlon (69.5647, 49.3308, 1176))', 'latlon', 'POINTZ'))
-# print(convert_string_to_list('69.5647, 49.3308, 1176'))
-# print(switch_two_elements((convert_string_to_list('69.5647, 49.3308, 1176')), 0, 1))
-# print(get_string_in_parentheses('latlon (69.5647, 49.3308, 1176)'))
-# print(convert_string_to_list(get_string_in_parentheses('latlon (69.5647, 49.3308, 1176)')))
-# print(get_gcnet_geometry('latlon (69.5647, 49.3308, 1176)'))
-# print("\N{DEGREE SIGN}")
-# print(replace_substring('latlon (69.5647, 49.3308, 1176)', ',', ''))
-#print(get_station_id('summit_06df'))

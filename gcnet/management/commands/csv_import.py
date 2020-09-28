@@ -8,12 +8,13 @@ from postgres_copy import CopyMapping
 import importlib
 from django.utils.timezone import make_aware
 
+from gcnet.csvvalidator import csv_validator
 from gcnet.helpers import quarter_day, half_day, year_day, year_week, gcnet_utc_timestamp, gcnet_utc_datetime
 
 # Setup logging
 import logging
 
-logging.basicConfig(filename=Path('gcnet/logs/gcnet_csv_import.log'), format='%(asctime)s   %(filename)s: %(message)s',
+logging.basicConfig(filename=Path('gcnet/csv_logs/summit.log'), format='%(asctime)s   %(filename)s: %(message)s',
                     datefmt='%d-%b-%y %H:%M:%S')
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -111,12 +112,22 @@ class Command(BaseCommand):
 
                 sink.write(','.join(field_names) + '\n')
                 records_written = 0
+                line_number = 0
 
                 while True:
+
                     line = source.readline()
+
+                    # Increment line_number
+                    line_number += 1
+
+                    # Skip header lines that start with '#'
+                    if line.startswith('#'):
+                        continue
 
                     if not line:
                         break
+
                     line_array = [v for v in line.strip().split(',') if len(v) > 0]
 
                     if len(line_array) != len(csv_field_names):
@@ -127,8 +138,8 @@ class Command(BaseCommand):
 
                     row = {csv_field_names[i]: line_array[i] for i in range(len(line_array))}
 
-                    # Call dat_validator and log unexpected values
-                    # dat_validator(kwargs['config'], row, kwargs['inputfile'])
+                    # Call csv_validator and log unexpected values
+                    csv_validator(kwargs['config'], row, kwargs['inputfile'], line_number)
 
                     # Convert row['Doyd'] to float and assign to doyd variable
                     doyd = float(row['Doyd'])
@@ -218,6 +229,6 @@ class Command(BaseCommand):
         c.save()
 
         # Log import message
-        # logger.info('{0} successfully imported, {1} new record(s) written in {2}'.format((kwargs['inputfile']),
-        #                                                                                  records_written,
-        #                                                                                  (kwargs['model'])))
+        logger.info('{0} successfully imported, {1} new record(s) written in {2}'.format((kwargs['inputfile']),
+                                                                                         records_written,
+                                                                                         (kwargs['model'])))

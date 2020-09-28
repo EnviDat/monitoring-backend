@@ -33,7 +33,7 @@ from gcnet.helpers import quarter_day, half_day, year_day, year_week, gcnet_utc_
 # Setup logging
 import logging
 
-logging.basicConfig(filename=Path('gcnet/logs/import.log'), format='%(asctime)s   %(filename)s: %(message)s',
+logging.basicConfig(filename=Path('gcnet/logs/01_dat_import.log'), format='%(asctime)s   %(filename)s: %(message)s',
                     datefmt='%d-%b-%y %H:%M:%S')
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
