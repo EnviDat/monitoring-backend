@@ -77,7 +77,7 @@ class Command(BaseCommand):
             # Get stations confg
             stations_config = read_config('gcnet/config/stations.ini')
 
-            # Assign station_id to corresponding model
+            # Assign station_id to model's corresponding station_id
             station_id = get_station_id(kwargs['model'])
 
             # Set 'station_id'
