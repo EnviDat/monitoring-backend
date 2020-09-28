@@ -2,6 +2,7 @@
 #   python manage.py csv_logger -s 06_summit -c config/stations.ini -i gcnet/csv_output/6_summit.csv -d gcnet/data -t directory
 #   python manage.py csv_logger -s 08_dye2 -c config/stations.ini -i gcnet/csv_output/8_dye2.csv -d gcnet/data -t directory
 #   python manage.py csv_logger -s 24_east_grip -c config/stations.ini -i gcnet/csv_output/24_east_grip.csv -d gcnet/data -t directory
+#   python manage.py csv_logger -s 04_gits -c config/stations.ini -i gcnet/csv_output/4_gits.csv -d gcnet/data -t directory
 
 
 from pathlib import Path
@@ -13,7 +14,7 @@ from gcnet.csvvalidator import csv_validator, csv_null_checker
 # Setup logging
 import logging
 
-logging.basicConfig(filename=Path('gcnet/csv_logs/east_grip.log'), format='%(asctime)s   %(filename)s: %(message)s',
+logging.basicConfig(filename=Path('gcnet/csv_logs/gits.log'), format='%(asctime)s   %(filename)s: %(message)s',
                     datefmt='%d-%b-%y %H:%M:%S')
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)

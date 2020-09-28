@@ -8,7 +8,7 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "project.settings")
 # Setup logging
 import logging
 
-logging.basicConfig(filename=Path('gcnet/csv_logs/east_grip.log'),
+logging.basicConfig(filename=Path('gcnet/csv_logs/gits.log'),
                     format='%(asctime)s   %(filename)s: %(message)s',
                     datefmt='%d-%b-%y %H:%M:%S')
 validator_logger = logging.getLogger(__name__)
