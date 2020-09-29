@@ -228,3 +228,18 @@ class scb(LWFMeteo):
 # Schaenis (SCF)
 class scf(LWFMeteo):
     pass
+
+
+# Alpthal (ALB)
+class alb(LWFMeteo):
+    pass
+
+
+# Chironico (CIB)
+class cib(LWFMeteo):
+    pass
+
+
+# Chironico (CIF)
+class cif(LWFMeteo):
+    pass

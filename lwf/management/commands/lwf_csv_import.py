@@ -1,8 +1,9 @@
 # Example commands:
 #   python manage.py lwf_csv_import -s leb -p LWFMeteo -i lwf/data/lebforest.csv -d lwf/data -m leb -t directory
+#   python manage.py lwf_csv_import -s alb -p LWFMeteo -i lwf/data/albforest.csv -d lwf/data -m alb -t directory
 #   python manage.py lwf_csv_import -s baf -p LWFMeteo -i lwf/data/baffield.csv -d lwf/data -m baf -t directory
 #   python manage.py lwf_csv_import -s bab -p LWFMeteo -i lwf/data/babforest.csv -d lwf/data -m bab -t directory
-#   python manage.py lwf_csv_import -s clb -p LWFMeteo -i lwf/data/cibforest.csv -d lwf/data -m clb -t directory
+#   python manage.py lwf_csv_import -s clb -p LWFMeteo -i lwf/data/clbforest.csv -d lwf/data -m clb -t directory
 #   python manage.py lwf_csv_import -s clf -p LWFMeteo -i lwf/data/clffield.csv -d lwf/data -m clf -t directory
 #   python manage.py lwf_csv_import -s jub -p LWFMeteo -i lwf/data/jubforest.csv -d lwf/data -m jub -t directory
 #   python manage.py lwf_csv_import -s juf -p LWFMeteo -i lwf/data/juffield.csv -d lwf/data -m juf -t directory
@@ -10,6 +11,8 @@
 #   python manage.py lwf_csv_import -s isf -p LWFMeteo -i lwf/data/isffield.csv -d lwf/data -m isf -t directory
 #   python manage.py lwf_csv_import -s btf -p LWFMeteo -i lwf/data/btffield.csv -d lwf/data -m btf -t directory
 #   python manage.py lwf_csv_import -s btb -p LWFMeteo -i lwf/data/btbforest.csv -d lwf/data -m btb -t directory
+#   python manage.py lwf_csv_import -s cib -p LWFMeteo -i lwf/data/cibforest.csv -d lwf/data -m cib -t directory
+#   python manage.py lwf_csv_import -s cif -p LWFMeteo -i lwf/data/ciffield.csv -d lwf/data -m cif -t directory
 #   python manage.py lwf_csv_import -s nab -p LWFMeteo -i lwf/data/nabforest.csv -d lwf/data -m nab -t directory
 #   python manage.py lwf_csv_import -s naf -p LWFMeteo -i lwf/data/naffield.csv -d lwf/data -m naf -t directory
 #   python manage.py lwf_csv_import -s vsb -p LWFMeteo -i lwf/data/vsbforest.csv -d lwf/data -m vsb -t directory

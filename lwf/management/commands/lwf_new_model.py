@@ -11,6 +11,9 @@ from lwf.helpers import read_config, execute_commands, model_exists
 
 class Command(BaseCommand):
 
+    # def get_config_versions(self):
+    #     return ['0.0.1']
+
     def add_arguments(self, parser):
 
         parser.add_argument(

@@ -52,3 +52,9 @@ from .LWFMeteo import otf
 from .LWFMeteo import scb
 
 from .LWFMeteo import scf
+
+from .LWFMeteo import alb
+
+from .LWFMeteo import cib
+
+from .LWFMeteo import cif
