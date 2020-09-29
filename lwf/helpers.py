@@ -190,3 +190,21 @@ def get_timestamp_iso_range_dict(start, end):
 class Round2(Func):
     function = "ROUND"
     template = "%(function)s(%(expressions)s::numeric, 2)"
+
+
+# Returns True if string has spaces
+def has_spaces(string):
+    if ' ' in string:
+        return True
+    else:
+        return False
+
+
+# Function returns a list of models in 'lwf' app
+def return_lwf_models():
+    lwf_models = []
+    for key in apps.all_models['lwf']:
+        lwf_models.append(key)
+    print(lwf_models)
+
+print(return_lwf_models())

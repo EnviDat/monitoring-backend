@@ -6,7 +6,7 @@ from django.core.management.base import BaseCommand
 __version__ = '0.0.1'
 __author__ = u'Rebecca Kurup Buchholz'
 
-from lwf.helpers import read_config, execute_commands, model_exists
+from lwf.helpers import read_config, execute_commands, model_exists, has_spaces
 
 
 class Command(BaseCommand):
@@ -29,8 +29,13 @@ class Command(BaseCommand):
         conf = read_config(kwargs['config'])
         model = conf.get('configuration', 'model')
         name = conf.get('configuration', 'name')
-        # TODO make lower case, replace space with _ (report error)
+
+        # Check if 'database_table_name' in config file is in valid format (no spaces)
         database_table_name = conf.get('configuration', 'database_table_name').lower()
+        if has_spaces(database_table_name):
+            print('WARNING (lwf_new_model.py): {0} "database_table_name" setting "{1}" is in invalid format. This '
+                  'setting must not contain spaces.'.format(kwargs['config'], database_table_name))
+            return
 
         # Create models file path string
         model_path = 'lwf/models/{0}.py'.format(model)

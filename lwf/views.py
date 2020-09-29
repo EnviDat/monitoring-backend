@@ -6,6 +6,12 @@ from django.http import JsonResponse
 from lwf.helpers import get_timestamp_iso_range_dict, Round2
 
 
+# Returns a list of models in 'lwf' app
+# TODO finish this
+# def get_models
+# here return_lwf_models()
+
+
 # User customized view that returns data based on level of detail and parameter specified by
 # model (i.e. 'database_station_name' in conf file)
 # Levels of detail:  'all' (every hour), 'quarterday' (00:00, 06:00, 12:00, 18:00), 'halfday' (00:00, 12:00)
@@ -67,7 +73,7 @@ def get_db_data(request, **kwargs):
 # Returns derived data values by day, week, or year: 'avg' (average), 'max' (maximum) and 'min' (minimum)
 # User customized view that returns data based parameter specified
 # lod must be 'day', 'week', or 'year'
-# calc must be 'avg', 'max', or 'min'
+# calc must be 'avg', 'max', 'min', or 'sum'
 # Accepts ISO timestamp ranges
 def get_derived_data(request, **kwargs):
     # Assign kwargs from url to variables

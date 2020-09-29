@@ -7,8 +7,6 @@ import datetime
 from datetime import timezone
 import math
 from datetime import datetime
-
-from django.core.exceptions import FieldError
 from django.db.models import Func
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "project.settings")
