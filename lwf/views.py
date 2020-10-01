@@ -143,3 +143,71 @@ def get_derived_data(request, **kwargs):
 
     else:
         raise FieldError("Incorrect values inputted in url")
+
+
+# View similar to get_db_data() but offers additional filtering by returning values greater than a specified filter
+# Note only returns values > x (not inclusive of x!)
+# User customized view that returns data based on level of detail and parameter specified by
+# model (i.e. 'database_station_name' in conf file)
+# Levels of detail:  'all' (every hour), 'quarterday' (00:00, 06:00, 12:00, 18:00), 'halfday' (00:00, 12:00)
+# Accepts ISO timestamp ranges
+# Values returned are greater than value specified in 'gt'
+def get_db_data_greater_than(request, **kwargs):
+    # Assign kwargs from url to variables
+    start = kwargs['start']
+    end = kwargs['end']
+    lod = kwargs['lod']
+    parameter = kwargs['parameter']
+    model = kwargs['model']
+    greater_than = kwargs['gt']
+
+    display_values = ['timestamp_iso', parameter]
+
+    # Assign greater_than filter to dict_greater_than
+    dict_greater_than = {parameter + '__gt': greater_than}
+
+    # Check if 'start' and 'end' kwargs are in both ISO timestamp format, assign filter to timestamp_iso field range
+    dict_timestamps = get_timestamp_iso_range_dict(start, end)
+
+    # Get the model
+    class_name = model.rsplit('.', 1)[-1]
+    package = importlib.import_module("lwf.models")
+    model_class = getattr(package, class_name)
+
+    if lod == 'quarterday':
+        try:
+            queryset = list(model_class.objects
+                            .values(*display_values)
+                            .filter(quarterday=True)
+                            .filter(**dict_timestamps)
+                            .filter(**dict_greater_than)
+                            .order_by('timestamp_iso').all())
+        except FieldError:
+            raise FieldError('Incorrect values inputted in {0} quarterday url parameter'.format(model))
+        return JsonResponse(queryset, safe=False)
+
+    elif lod == 'halfday':
+        try:
+            queryset = list(model_class.objects
+                            .values(*display_values)
+                            .filter(halfday=True)
+                            .filter(**dict_timestamps)
+                            .filter(**dict_greater_than)
+                            .order_by('timestamp_iso').all())
+        except FieldError:
+            raise FieldError('Incorrect values inputted in {0} halfday url parameter'.format(model))
+        return JsonResponse(queryset, safe=False)
+
+    elif lod == 'all':
+        try:
+            queryset = list(model_class.objects
+                            .values(*display_values)
+                            .filter(**dict_timestamps)
+                            .filter(**dict_greater_than)
+                            .order_by('timestamp_iso').all())
+        except FieldError:
+            raise FieldError('Incorrect values inputted in {0} all url parameter'.format(model))
+        return JsonResponse(queryset, safe=False)
+
+    else:
+        raise FieldError("Incorrect values inputted in url")
