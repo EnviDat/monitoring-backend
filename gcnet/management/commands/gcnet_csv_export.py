@@ -1,13 +1,13 @@
 # Example commands:
-#   python manage.py gcnet_csv_export -d gcnet/output -n 1_swisscamp -m swisscamp_01d -c gcnet/config/nead_header.ini -s -999
+#   python manage.py gcnet_csv_export -d gcnet/output -n 1_swisscamp -m swisscamp_01d -c gcnet/config/nead_header.ini -l ; -s -999
 #   python manage.py gcnet_csv_export -d gcnet/csv_output -n 6_summit -m summit_06d -c gcnet/config/nead_header.ini -s -999
 #   python manage.py gcnet_csv_export -d gcnet/csv_output -n 8_dye2 -m dye2_08d -c gcnet/config/nead_header.ini -s -999
 #   python manage.py gcnet_csv_export -d gcnet/csv_output -n 24_east_grip -m east_grip_24d -c gcnet/config/nead_header.ini -s -999
 #   python manage.py gcnet_csv_export -d gcnet/csv_output -n 4_gits -m gits_04d -c gcnet/config/nead_header.ini -s -999
 
+
 import importlib
 from pathlib import Path
-
 from django.core.management.base import BaseCommand
 
 # Setup logging
@@ -54,17 +54,23 @@ class Command(BaseCommand):
             help='Path to config file containing header'
         )
 
-        # TODO add column_delimter as optional argument
+        parser.add_argument(
+            '-l',
+            '--delimiter',
+            required=False,
+            help='String that will be used as a delimiter in csv. Optional. Default delimiter is comma: ","'
+        )
 
-        # TODO later make this optional and update corresponding handle() code
         parser.add_argument(
             '-s',
             '--stringnull',
-            required=True,
-            help='String to populate exported null values with'
+            required=False,
+            help='String to populate exported null values with in csv. Optional. Default null string is an empty string: ""'
         )
 
     def handle(self, *args, **kwargs):
+
+        # ========================================= WRITE NEAD CONFIG =================================================
 
         # Remove first line from header config and store in first_line
         first_line = delete_line(kwargs['config'], 0)
@@ -87,8 +93,19 @@ class Command(BaseCommand):
             station_name = stations_config.get(str(station_id), 'name')
             config.set('HEADER', 'station_name', station_name)
 
-            # Set 'nodata_value' to kwarg stringnull passed
-            config.set('HEADER', 'nodata_value', kwargs['stringnull'])
+            # Check if kwargs['stringnull'] passed. Set 'nodata_value' to kwarg stringnull passed.
+            # Else set 'nodata_value' in config to empty string: ''
+            if kwargs['stringnull']:
+                config.set('HEADER', 'nodata_value', kwargs['stringnull'])
+            else:
+                config.set('HEADER', 'nodata_value', '')
+
+            # Check if kwargs['delimiter'] passed. Set 'column_delimiter' to kwarg delimiter passed.
+            # Else set 'column_delimiter' in config to comma: ','
+            if kwargs['delimiter']:
+                config.set('HEADER', 'column_delimiter', kwargs['delimiter'])
+            else:
+                config.set('HEADER', 'column_delimiter', ',')
 
             # Parse 'position' from stations.ini, modify, and set 'geometry'
             position = stations_config.get(str(station_id), 'position')
@@ -130,6 +147,8 @@ class Command(BaseCommand):
             print('WARNING (gcnet_csv_export.py): could not write nead header config, EXCEPTION: {0}'.format(e))
             return
 
+        # ========================================= EXPORT CSV ========================================================
+
         # Create output_path from arguments
         output_path = Path(kwargs['directory'] + '/' + kwargs['name'] + '.csv')
 
@@ -142,6 +161,9 @@ class Command(BaseCommand):
         fields = config.get('HEADER', 'database_fields')
         fields_tuple = tuple(fields.split(","))
 
+        # Get column_delimiter from config
+        column_delimiter = config.get('HEADER', 'column_delimiter')
+
         # Check if stringnull argument was passed, if so assign it to null_value.
         # Else null_value = None and will by default null values will be assigned to empty string
         if kwargs['stringnull']:
@@ -151,10 +173,11 @@ class Command(BaseCommand):
 
         # Export database table to csv with only 'timestamp_iso' and fields from 'display_description' in config
         model_class.objects.order_by('timestamp_iso').to_csv(output_path,
-                                                              *fields_tuple,
-                                                              header=False,
-                                                              null=null_value
-                                                              )
+                                                             *fields_tuple,
+                                                             delimiter=column_delimiter,
+                                                             header=False,
+                                                             null=null_value
+                                                             )
 
         # Write first_line to first line of header conf
         prepend_line(kwargs['config'], first_line)
@@ -169,5 +192,5 @@ class Command(BaseCommand):
         # All newly inserted lines will begin with the '#' character
         prepend_multiple_lines(output_path, header_list)
 
-        # Log import message
+        # Log export message
         logger.info('{0} successfully exported, written in {1}'.format(model_class, output_path))
