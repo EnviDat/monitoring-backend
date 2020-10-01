@@ -136,7 +136,7 @@ class Command(BaseCommand):
         rows_after = 1
         rows_buffer = []
 
-        # Write data in input_file into writer_no_duplicates with additional fields
+        # Write data in input_file into writer with additional fields
         try:
             with open(writer, 'w', newline='') as sink, open(input_file, 'r') as source:
 
@@ -226,7 +226,7 @@ class Command(BaseCommand):
             # Give it the model
             model_class,
 
-            # CSV with timestamps and other generated fields and no duplicate records
+            # CSV with timestamps and other generated fields
             writer,
 
             # And a dict mapping the model fields to CSV headers
