@@ -4,6 +4,7 @@ from pathlib import Path
 import configparser
 from datetime import datetime
 from datetime import timezone
+from datetime import timedelta
 import dateutil.parser as date_parser
 from django.apps import apps
 from django.db.models import Func
@@ -187,6 +188,17 @@ def get_timestamp_iso_range_dict(start, end):
         raise ValueError("Incorrect date formats, start and end dates should both be in ISO timestamp format")
 
 
+# Return timestamp_iso dict with start and end range truncated to whole dates
+def get_timestamp_iso_range_day_dict(start, end):
+    if validate_iso_format(start) and validate_iso_format(end):
+        start_day = datetime.date(datetime.fromisoformat(start))
+        end_day = datetime.date(datetime.fromisoformat(end))
+        dict_ts = {'timestamp_iso__range': (start_day, end_day)}
+        return dict_ts
+    else:
+        raise ValueError("Incorrect date formats, start and end dates should both be in ISO timestamp format")
+
+
 class Round2(Func):
     function = "ROUND"
     template = "%(function)s(%(expressions)s::numeric, 2)"
@@ -207,4 +219,9 @@ def get_lwf_models_list():
         lwf_models.append(key)
     return lwf_models
 
-
+# TODO finish week and year validation
+#print((datetime.fromisoformat('2015-01-01T15:00:00')).strftime('%V'))
+my_date = datetime.date(datetime.fromisoformat('2015-01-01T15:00:00'))
+print(my_date)
+last_sunday = my_date + timedelta(days=-my_date.weekday() -1)
+print(last_sunday)

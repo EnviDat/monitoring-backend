@@ -3,7 +3,7 @@ from django.core.exceptions import FieldError
 from django.db.models import Avg, Max, Min, Sum
 from django.http import JsonResponse
 
-from lwf.helpers import get_timestamp_iso_range_dict, Round2, get_lwf_models_list
+from lwf.helpers import get_timestamp_iso_range_dict, Round2, get_lwf_models_list, get_timestamp_iso_range_day_dict
 
 
 # View returns a list of models currently in the 'lwf' app
@@ -89,8 +89,15 @@ def get_derived_data(request, **kwargs):
     dict_min = {parameter + '_min': Min(parameter)}
     dict_sum = {parameter + '_sum': Round2(Sum(parameter))}
 
+    # dict_timestamps = get_timestamp_iso_range_dict(start, end)
+
     # Check if 'start' and 'end' kwargs are in both ISO timestamp format, assign filter to timestamp_iso field range
-    dict_timestamps = get_timestamp_iso_range_dict(start, end)
+    # Check which level of detail was passed
+    if lod == 'day':
+        dict_timestamps = get_timestamp_iso_range_day_dict(start, end)
+        print(dict_timestamps)
+    else:
+        raise FieldError("Incorrect values inputted in 'lod' url")
 
     # Get the model
     class_name = model.rsplit('.', 1)[-1]
