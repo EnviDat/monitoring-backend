@@ -3,13 +3,13 @@ from django.core.exceptions import FieldError
 from django.db.models import Avg, Max, Min, Sum
 from django.http import JsonResponse
 
-from lwf.helpers import get_timestamp_iso_range_dict, Round2
+from lwf.helpers import get_timestamp_iso_range_dict, Round2, get_lwf_models_list
 
 
-# Returns a list of models in 'lwf' app
-# TODO finish this
-# def get_models
-# here return_lwf_models()
+# View returns a list of models currently in the 'lwf' app
+def get_lwf_models(request):
+    lwf_models = get_lwf_models_list()
+    return JsonResponse(lwf_models, safe=False)
 
 
 # User customized view that returns data based on level of detail and parameter specified by

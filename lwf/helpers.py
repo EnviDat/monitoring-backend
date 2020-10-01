@@ -201,10 +201,10 @@ def has_spaces(string):
 
 
 # Function returns a list of models in 'lwf' app
-def return_lwf_models():
+def get_lwf_models_list():
     lwf_models = []
     for key in apps.all_models['lwf']:
         lwf_models.append(key)
-    print(lwf_models)
+    return lwf_models
 
-print(return_lwf_models())
+
