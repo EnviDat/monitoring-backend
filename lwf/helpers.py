@@ -2,9 +2,8 @@ import os
 import subprocess
 from pathlib import Path
 import configparser
-from datetime import datetime
+from datetime import datetime, date
 from datetime import timezone
-from datetime import timedelta
 import dateutil.parser as date_parser
 from django.apps import apps
 from django.db.models import Func
@@ -170,6 +169,27 @@ def get_lwf_meteo_copy_dict():
     )
 
 
+# Validate if date string is in year format: 'YYYY' ('2016')
+def validate_year(date_string):
+    try:
+        datetime.strptime(date_string, '%Y')
+        return True
+    except:
+        return False
+
+
+# Validate if date string in year-week number format: '2015-00', '2015-01', …, '2015-53'
+# From documentation:
+# Week number of the year (Monday as the first day of the week) as a decimal number.
+# All days in a new year preceding the first Monday are considered to be in week 0.
+def validate_year_week(date_string):
+    try:
+        datetime.strptime(date_string, '%Y-%W')
+        return True
+    except:
+        return False
+
+
 # Validate if date string is in ISO timestamp format
 def validate_iso_format(date_string):
     try:
@@ -179,24 +199,51 @@ def validate_iso_format(date_string):
         return False
 
 
+# Validate if date string is in ISO timestamp format: YYYY-MM-DD ('2019-12-04')
+def validate_iso_format_date(date_string):
+    try:
+        date.fromisoformat(date_string)
+        return True
+    except:
+        return False
+
+
 # Return timestamp_iso dict with start and end range
+# From documentation about 'range':
+# Warning
+# Filtering a DateTimeField with dates won’t include items on the last day, because the bounds are interpreted as
+# “0am on the given date”. If pub_date was a DateTimeField, the above expression would be turned into this SQL:
+# SELECT ... WHERE pub_date BETWEEN '2005-01-01 00:00:00' and '2005-03-31 00:00:00';
+# Generally speaking, you can’t mix dates and datetimes.
 def get_timestamp_iso_range_dict(start, end):
     if validate_iso_format(start) and validate_iso_format(end):
         dict_ts = {'timestamp_iso__range': (start, end)}
         return dict_ts
     else:
-        raise ValueError("Incorrect date formats, start and end dates should both be in ISO timestamp format")
+        raise ValueError("Incorrect date format, start and end dates should both be in ISO timestamp format")
 
 
-# Return timestamp_iso dict with start and end range truncated to whole dates
+# Return timestamp_iso dict with start and end range in whole date format: YYYY-MM-DD ('2019-12-04')
 def get_timestamp_iso_range_day_dict(start, end):
-    if validate_iso_format(start) and validate_iso_format(end):
-        start_day = datetime.date(datetime.fromisoformat(start))
-        end_day = datetime.date(datetime.fromisoformat(end))
-        dict_ts = {'timestamp_iso__range': (start_day, end_day)}
+    if validate_iso_format_date(start) and validate_iso_format_date(end):
+        dict_ts = {'timestamp_iso__range': (start, end)}
         return dict_ts
     else:
-        raise ValueError("Incorrect date formats, start and end dates should both be in ISO timestamp format")
+        raise ValueError("Incorrect date format, start and end dates should both be in ISO timestamp date format:"
+                         " YYYY-MM-DD ('2019-12-04')")
+
+
+# Return timestamp_iso dict with start and end range for whole weeks
+# Monday is considered the first day of the week, time starts at 00:00:00
+def get_timestamp_iso_range_year_week(start, end):
+    start_week = datetime.strptime(start + '-1T00:00:00', '%Y-%W-%wT%H:%M:%S')
+    start_iso = datetime.strftime(start_week, '%Y-%m-%dT%H:%M:%S')
+
+    end_week = datetime.strptime(end + '-1T00:00:00', '%Y-%W-%wT%H:%M:%S')
+    end_iso = datetime.strftime(end_week, '%Y-%m-%dT%H:%M:%S')
+
+    dict_ts = {'timestamp_iso__range': (start_iso, end_iso)}
+    return dict_ts
 
 
 class Round2(Func):
@@ -219,9 +266,14 @@ def get_lwf_models_list():
         lwf_models.append(key)
     return lwf_models
 
-# TODO finish week and year validation
-#print((datetime.fromisoformat('2015-01-01T15:00:00')).strftime('%V'))
-my_date = datetime.date(datetime.fromisoformat('2015-01-01T15:00:00'))
-print(my_date)
-last_sunday = my_date + timedelta(days=-my_date.weekday() -1)
-print(last_sunday)
+
+# #print((datetime.fromisoformat('2015-01-01T15:00:00')).strftime('%V'))
+# my_date = datetime.date(datetime.fromisoformat('2015-01-01T15:00:00'))
+# print(my_date)
+# last_sunday = my_date + timedelta(days=-my_date.weekday() -1)
+# print(last_sunday)
+# print(validate_iso_format('2015-01-01'))
+#print(validate_year('2015-01-01T15:00:00'))
+#print(validate_week('2015-01-01'))
+#print(validate_year_week('00'))
+#print(get_timestamp_iso_range_year_week('2020-01', '2020-41'))
