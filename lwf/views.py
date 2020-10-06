@@ -89,19 +89,21 @@ def get_derived_data(request, **kwargs):
     dict_min = {parameter + '_min': Min(parameter)}
     # dict_sum = {parameter + '_sum': Round2(Sum(parameter))}
 
-    dict_timestamps = get_timestamp_iso_range_dict(start, end)
+    #dict_timestamps = get_timestamp_iso_range_dict(start, end)
 
     # Check if 'start' and 'end' kwargs are in both ISO timestamp format, assign filter to timestamp_iso field range
     # Check which level of detail was passed
     # TODO make sure it accepts different date formats
     # TODO return timestamps also
     # Check if timestamps are in full ISO format with hours and minutes, for example: '2005-01-01 00:00:00'
-    # if lod == 'day':
-    #     #
-    #     dict_timestamps = get_timestamp_iso_range_day_dict(start, end)
-    #     print(dict_timestamps)
-    # else:
-    #     raise FieldError("Incorrect values inputted in 'lod' url")
+
+    # Check if timestamps are in year format:
+    if lod == 'day':
+        #
+        dict_timestamps = get_timestamp_iso_range_day_dict(start, end)
+        print(dict_timestamps)
+    else:
+        raise FieldError("Incorrect values inputted in 'lod' url")
 
     # Get the model
     class_name = model.rsplit('.', 1)[-1]

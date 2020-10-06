@@ -214,7 +214,6 @@ def validate_iso_format_date(date_string):
 # Filtering a DateTimeField with dates won’t include items on the last day, because the bounds are interpreted as
 # “0am on the given date”. If pub_date was a DateTimeField, the above expression would be turned into this SQL:
 # SELECT ... WHERE pub_date BETWEEN '2005-01-01 00:00:00' and '2005-03-31 00:00:00';
-# Generally speaking, you can’t mix dates and datetimes.
 def get_timestamp_iso_range_dict(start, end):
     if validate_iso_format(start) and validate_iso_format(end):
         dict_ts = {'timestamp_iso__range': (start, end)}
@@ -241,6 +240,18 @@ def get_timestamp_iso_range_year_week(start, end):
 
     end_week = datetime.strptime(end + '-1T00:00:00', '%Y-%W-%wT%H:%M:%S')
     end_iso = datetime.strftime(end_week, '%Y-%m-%dT%H:%M:%S')
+
+    dict_ts = {'timestamp_iso__range': (start_iso, end_iso)}
+    return dict_ts
+
+
+# Return timestamp_iso dict with start and end range for whole years
+def get_timestamp_iso_range_years(start, end):
+    start_year = datetime.strptime(start + '-01-01T00:00:00', '%Y-%m-%dT%H:%M:%S')
+    start_iso = datetime.strftime(start_year, '%Y-%m-%dT%H:%M:%S')
+
+    end_year = datetime.strptime(end + '-01-01T00:00:00', '%Y-%m-%dT%H:%M:%S')
+    end_iso = datetime.strftime(end_year, '%Y-%m-%dT%H:%M:%S')
 
     dict_ts = {'timestamp_iso__range': (start_iso, end_iso)}
     return dict_ts
@@ -277,3 +288,4 @@ def get_lwf_models_list():
 #print(validate_week('2015-01-01'))
 #print(validate_year_week('00'))
 #print(get_timestamp_iso_range_year_week('2020-01', '2020-41'))
+# print(get_timestamp_iso_range_years('1997', '2020'))
