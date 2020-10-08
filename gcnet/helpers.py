@@ -371,20 +371,36 @@ def get_fields_string(display_description_list):
     fields_dict = {
         'timestamp_iso': 'timestamp',
         'short_wave_incoming_radiation': 'ISWR',
+        # TODO add about the new values
+        'short_wave_incoming_radiation_max': 'ISWR_max',
         'short_wave_outgoing_radiation': 'OSWR',
+        'short_wave_outgoing_radiation_max': 'OSWR_max',
         'net_radiation': 'NSWR',
+        'net_radiation_max': 'NSWR_max',
         'air_temperature_1': 'TA1',
+        'air_temperature_1_max': 'TA1_max',
+        'air_temperature_1_min': 'TA1_min',
         'air_temperature_2': 'TA2',
+        'air_temperature_2_max': 'TA2_max',
+        'air_temperature_2_min': 'TA2_min',
+        'air_temperature_cs500_air1': 'TA3',
+        'air_temperature_cs500_air2': 'TA4',
         'relative_humidity_1': 'RH1',
         'relative_humidity_2': 'RH2',
         'wind_speed_1': 'VW1',
+        # TODO is this value the same as ws1?
+        'wind_speed_u1_max': 'VW1_max',
+        'wind_speed_u1_stdev': 'VW1_stdev',
         'wind_speed_2': 'VW2',
+        'wind_speed_u2_max': 'VW2_max',
+        'wind_speed_u2_stdev': 'VW2_stdev',
         'wind_direction_1': 'DW1',
         'wind_direction_2': 'DW2',
         'atmospheric_pressure': 'P',
         'snow_height_1': 'HS1',
         'snow_height_2': 'HS2',
-        'battery_voltage': 'V'
+        'battery_voltage': 'V',
+        'ref_temperature': 'TA5'
     }
 
     fields_list = []
