@@ -401,10 +401,10 @@ def get_fields_string(display_description_list):
     return fields_string
 
 
-# Returns 'units_offset' comma separated string for header config by mapping 'display_description_list' to
-# units_offset_dict
-def get_units_offset_string(display_description_list):
-    units_offset_dict = {
+# Returns 'add_value' comma separated string for header config by mapping 'display_description_list' to
+# add_value_dict
+def get_add_value_string(display_description_list):
+    add_value_dict = {
         'timestamp_iso': 0,
         'short_wave_incoming_radiation': 0,
         'short_wave_outgoing_radiation': 0,
@@ -423,28 +423,28 @@ def get_units_offset_string(display_description_list):
         'battery_voltage': 0
     }
 
-    units_offset_list = []
+    add_value_list = []
 
     for item in display_description_list:
-        if item in units_offset_dict:
-            units_offset_list.append(units_offset_dict[item])
+        if item in add_value_dict:
+            add_value_list.append(add_value_dict[item])
         else:
-            print('WARNING (helpers.py) "{0}" not a valid key in units_offset_dict'.format(item))
+            print('WARNING (helpers.py) "{0}" not a valid key in add_value_dict'.format(item))
             return
 
-    # Convert numbers in units_offset_list into strings and assign to converted_list
-    converted_list = [str(element) for element in units_offset_list]
+    # Convert numbers in add_value_list into strings and assign to converted_list
+    converted_list = [str(element) for element in add_value_list]
 
     # Create comma separated string from converted_list
-    units_offset_string = ','.join(converted_list)
+    add_value_string = ','.join(converted_list)
 
-    return units_offset_string
+    return add_value_string
 
 
-# Returns 'units_multiplier' comma separated string for header config by mapping 'display_description_list' to
-# units_offset_dict
-def get_units_multiplier_string(display_description_list):
-    units_multiplier_dict = {
+# Returns 'scale_factor' comma separated string for header config by mapping 'display_description_list' to
+# scale_factor_dict
+def get_scale_factor_string(display_description_list):
+    scale_factor_dict = {
         'timestamp_iso': 1,
         'short_wave_incoming_radiation': 1,
         'short_wave_outgoing_radiation': 1,
@@ -463,22 +463,22 @@ def get_units_multiplier_string(display_description_list):
         'battery_voltage': 1
     }
 
-    units_multiplier_list = []
+    scale_factor_list = []
 
     for item in display_description_list:
-        if item in units_multiplier_dict:
-            units_multiplier_list.append(units_multiplier_dict[item])
+        if item in scale_factor_dict:
+            scale_factor_list.append(scale_factor_dict[item])
         else:
-            print('WARNING (helpers.py) "{0}" not a valid key in units_multiplier_dict'.format(item))
+            print('WARNING (helpers.py) "{0}" not a valid key in scale_factor_dict'.format(item))
             return
 
-    # Convert numbers in units_multiplier_list into strings and assign to converted_list
-    converted_list = [str(element) for element in units_multiplier_list]
+    # Convert numbers in scale_factor_list into strings and assign to converted_list
+    converted_list = [str(element) for element in scale_factor_list]
 
     # Create comma separated string from converted_list
-    units_multiplier_string = ','.join(converted_list)
+    scale_factor_string = ','.join(converted_list)
 
-    return units_multiplier_string
+    return scale_factor_string
 
 
 # Returns 'display_units' comma separated string for header config by mapping 'display_description_list' to

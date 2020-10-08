@@ -7,6 +7,7 @@
 
 
 import importlib
+import io
 from pathlib import Path
 from django.core.management.base import BaseCommand
 
@@ -14,8 +15,8 @@ from django.core.management.base import BaseCommand
 import logging
 
 from gcnet.helpers import read_config, delete_line, prepend_line, get_gcnet_geometry, get_list_comma_delimited, \
-    get_fields_string, get_units_offset_string, get_units_multiplier_string, get_display_units_string, \
-    get_database_fields_data_types_string, prepend_multiple_lines, get_station_id
+    get_fields_string, get_display_units_string, get_database_fields_data_types_string, prepend_multiple_lines, \
+    get_station_id, get_add_value_string, get_scale_factor_string
 
 logging.basicConfig(filename=Path('gcnet/logs/gcnet_csv_export.log'), format='%(asctime)s   %(filename)s: %(message)s',
                     datefmt='%d-%b-%y %H:%M:%S')
@@ -72,7 +73,7 @@ class Command(BaseCommand):
 
         # ========================================= WRITE NEAD CONFIG =================================================
 
-        # Remove first line from header config and store in first_line
+        # Remove first line from header config and assign to first_line
         first_line = delete_line(kwargs['config'], 0)
 
         # Try to dynamically generate NEAD config file
@@ -87,54 +88,54 @@ class Command(BaseCommand):
             station_id = get_station_id(kwargs['model'])
 
             # Set 'station_id'
-            config.set('HEADER', 'station_id', str(station_id))
+            config.set('METADATA', 'station_id', str(station_id))
 
             # Set 'station_name'
             station_name = stations_config.get(str(station_id), 'name')
-            config.set('HEADER', 'station_name', station_name)
+            config.set('METADATA', 'station_name', station_name)
 
             # Check if kwargs['stringnull'] passed. Set 'nodata_value' to kwarg stringnull passed.
-            # Else set 'nodata_value' in config to empty string: ''
+            # Else set 'nodata' in config to empty string: ''
             if kwargs['stringnull']:
-                config.set('HEADER', 'nodata_value', kwargs['stringnull'])
+                config.set('METADATA', 'nodata', kwargs['stringnull'])
             else:
-                config.set('HEADER', 'nodata_value', '')
+                config.set('METADATA', 'nodata', '')
 
-            # Check if kwargs['delimiter'] passed. Set 'column_delimiter' to kwarg delimiter passed.
+            # Check if kwargs['delimiter'] passed. Set 'field_delimiter' to kwarg delimiter passed.
             # Else set 'column_delimiter' in config to comma: ','
             if kwargs['delimiter']:
-                config.set('HEADER', 'column_delimiter', kwargs['delimiter'])
+                config.set('METADATA', 'field_delimiter', kwargs['delimiter'])
             else:
-                config.set('HEADER', 'column_delimiter', ',')
+                config.set('METADATA', 'field_delimiter', ',')
 
             # Parse 'position' from stations.ini, modify, and set 'geometry'
             position = stations_config.get(str(station_id), 'position')
             geometry = get_gcnet_geometry(position)
-            config.set('HEADER', 'geometry', geometry)
+            config.set('METADATA', 'geometry', geometry)
 
             # Get display_description as list
-            display_description = config.get('HEADER', 'display_description')
+            display_description = config.get('FIELDS', 'display_description')
             display_description_list = get_list_comma_delimited(display_description)
 
             # Call get_fields_string() and set 'fields'
             fields_string = get_fields_string(display_description_list)
-            config.set('HEADER', 'fields', fields_string)
+            config.set('FIELDS', 'fields', fields_string)
 
-            # Call get_units_offset_string() and set 'units_offset'
-            units_offset_string = get_units_offset_string(display_description_list)
-            config.set('HEADER', 'units_offset', units_offset_string)
+            # Call get_units_offset_string() and set 'add_value'
+            add_value_string = get_add_value_string(display_description_list)
+            config.set('FIELDS', 'add_value', add_value_string)
 
-            # Call get_units_multiplier_string() and set 'units_multiplier'
-            units_multiplier_string = get_units_multiplier_string(display_description_list)
-            config.set('HEADER', 'units_multiplier', units_multiplier_string)
+            # Call get_scale_factor_string() and set 'scale_factor'
+            scale_factor_string = get_scale_factor_string(display_description_list)
+            config.set('FIELDS', 'scale_factor', scale_factor_string)
 
             # Call get_display_units_string() and set 'display_units'
             display_units_string = get_display_units_string(display_description_list)
-            config.set('HEADER', 'display_units', display_units_string)
+            config.set('FIELDS', 'display_units', display_units_string)
 
             # Call get_database_fields_data_types_string() and set 'database_fields_data_types'
             database_fields_data_types_string = get_database_fields_data_types_string(display_description_list)
-            config.set('HEADER', 'database_fields_data_types', database_fields_data_types_string)
+            config.set('FIELDS', 'database_fields_data_types', database_fields_data_types_string)
 
             # Dynamically write header in config file
             with open(kwargs['config'], encoding='utf-8', mode='w', newline='\n') as config_file:
@@ -157,12 +158,12 @@ class Command(BaseCommand):
         package = importlib.import_module("gcnet.models")
         model_class = getattr(package, class_name)
 
-        # Get fields tuple from config
-        fields = config.get('HEADER', 'database_fields')
+        # Get database_fields tuple from config
+        fields = config.get('FIELDS', 'database_fields')
         fields_tuple = tuple(fields.split(","))
 
-        # Get column_delimiter from config
-        column_delimiter = config.get('HEADER', 'column_delimiter')
+        # Get field_delimiter from config
+        field_delimiter = config.get('METADATA', 'field_delimiter')
 
         # Check if stringnull argument was passed, if so assign it to null_value.
         # Else null_value = None and will by default null values will be assigned to empty string
@@ -174,10 +175,19 @@ class Command(BaseCommand):
         # Export database table to csv with only 'timestamp_iso' and fields from 'display_description' in config
         model_class.objects.order_by('timestamp_iso').to_csv(output_path,
                                                              *fields_tuple,
-                                                             delimiter=column_delimiter,
+                                                             delimiter=field_delimiter,
                                                              header=False,
                                                              null=null_value
                                                              )
+
+        # TODO modify output_path for streaming
+        # f = io.StringIO
+        # model_class.objects.order_by('timestamp_iso').to_csv(f,
+        #                                                      *fields_tuple,
+        #                                                      delimiter=column_delimiter,
+        #                                                      header=False,
+        #                                                      null=null_value
+        #                                                      )
 
         # Write first_line to first line of header conf
         prepend_line(kwargs['config'], first_line)
