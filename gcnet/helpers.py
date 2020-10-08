@@ -371,7 +371,7 @@ def get_fields_string(display_description_list):
     fields_dict = {
         'timestamp_iso': 'timestamp',
         'short_wave_incoming_radiation': 'ISWR',
-        # TODO add about the new values
+        # TODO ask about the new values
         'short_wave_incoming_radiation_max': 'ISWR_max',
         'short_wave_outgoing_radiation': 'OSWR',
         'short_wave_outgoing_radiation_max': 'OSWR_max',
@@ -423,20 +423,34 @@ def get_add_value_string(display_description_list):
     add_value_dict = {
         'timestamp_iso': 0,
         'short_wave_incoming_radiation': 0,
+        'short_wave_incoming_radiation_max': 0,
         'short_wave_outgoing_radiation': 0,
+        'short_wave_outgoing_radiation_max': 0,
         'net_radiation': 0,
+        'net_radiation_max': 0,
         'air_temperature_1': 273.15,
+        'air_temperature_1_max': 273.15,
+        'air_temperature_1_min': 273.15,
         'air_temperature_2': 273.15,
+        'air_temperature_2_max': 273.15,
+        'air_temperature_2_min': 273.15,
+        'air_temperature_cs500_air1': 273.15,
+        'air_temperature_cs500_air2': 273.15,
         'relative_humidity_1': 0,
         'relative_humidity_2': 0,
         'wind_speed_1': 0,
+        'wind_speed_u1_max': 0,
+        'wind_speed_u1_stdev': 0,
         'wind_speed_2': 0,
+        'wind_speed_u2_max': 0,
+        'wind_speed_u2_stdev': 0,
         'wind_direction_1': 0,
         'wind_direction_2': 0,
         'atmospheric_pressure': 0,
         'snow_height_1': 0,
         'snow_height_2': 0,
-        'battery_voltage': 0
+        'battery_voltage': 0,
+        'ref_temperature': 273.15
     }
 
     add_value_list = []
@@ -463,20 +477,34 @@ def get_scale_factor_string(display_description_list):
     scale_factor_dict = {
         'timestamp_iso': 1,
         'short_wave_incoming_radiation': 1,
+        'short_wave_incoming_radiation_max': 1,
         'short_wave_outgoing_radiation': 1,
+        'short_wave_outgoing_radiation_max': 1,
         'net_radiation': 1,
+        'net_radiation_max': 1,
         'air_temperature_1': 1,
+        'air_temperature_1_max': 1,
+        'air_temperature_1_min': 1,
         'air_temperature_2': 1,
+        'air_temperature_2_max': 1,
+        'air_temperature_2_min': 1,
+        'air_temperature_cs500_air1': 1,
+        'air_temperature_cs500_air2': 1,
         'relative_humidity_1': 0.01,
         'relative_humidity_2': 0.01,
         'wind_speed_1': 1,
+        'wind_speed_u1_max': 1,
+        'wind_speed_u1_stdev': 1,
         'wind_speed_2': 1,
+        'wind_speed_u2_max': 1,
+        'wind_speed_u2_stdev': 1,
         'wind_direction_1': 1,
         'wind_direction_2': 1,
         'atmospheric_pressure': 100,
         'snow_height_1': 1,
         'snow_height_2': 1,
-        'battery_voltage': 1
+        'battery_voltage': 1,
+        'ref_temperature': 1
     }
 
     scale_factor_list = []
@@ -503,20 +531,34 @@ def get_display_units_string(display_description_list):
     display_units_dict = {
         'timestamp_iso': 'time',
         'short_wave_incoming_radiation': 'W/m2',
+        'short_wave_incoming_radiation_max': 'W/m2',
         'short_wave_outgoing_radiation': 'W/m2',
+        'short_wave_outgoing_radiation_max': 'W/m2',
         'net_radiation': 'W/m2',
+        'net_radiation_max': 'W/m2',
         'air_temperature_1': '°C',
+        'air_temperature_1_max': '°C',
+        'air_temperature_1_min': '°C',
         'air_temperature_2': '°C',
+        'air_temperature_2_max': '°C',
+        'air_temperature_2_min': '°C',
+        'air_temperature_cs500_air1': '°C',
+        'air_temperature_cs500_air2': '°C',
         'relative_humidity_1': '%',
         'relative_humidity_2': '%',
         'wind_speed_1': 'm/s',
+        'wind_speed_u1_max': 'm/s',
+        'wind_speed_u1_stdev': 'm/s',
         'wind_speed_2': 'm/s',
+        'wind_speed_u2_max': 'm/s',
+        'wind_speed_u2_stdev': 'm/s',
         'wind_direction_1': '°',
         'wind_direction_2': '°',
         'atmospheric_pressure': 'mbar',
         'snow_height_1': 'm',
         'snow_height_2': 'm',
-        'battery_voltage': 'V'
+        'battery_voltage': 'V',
+        'ref_temperature': '°C'
     }
 
     display_units_list = []
@@ -540,20 +582,34 @@ def get_database_fields_data_types_string(display_description_list):
     database_fields_data_types_dict = {
         'timestamp_iso': 'timestamp',
         'short_wave_incoming_radiation': 'real',
+        'short_wave_incoming_radiation_max': 'real',
         'short_wave_outgoing_radiation': 'real',
+        'short_wave_outgoing_radiation_max': 'real',
         'net_radiation': 'real',
+        'net_radiation_max': 'real',
         'air_temperature_1': 'real',
+        'air_temperature_1_max': 'real',
+        'air_temperature_1_min': 'real',
         'air_temperature_2': 'real',
+        'air_temperature_2_max': 'real',
+        'air_temperature_2_min': 'real',
+        'air_temperature_cs500_air1': 'real',
+        'air_temperature_cs500_air2': 'real',
         'relative_humidity_1': 'real',
         'relative_humidity_2': 'real',
         'wind_speed_1': 'real',
+        'wind_speed_u1_max': 'real',
+        'wind_speed_u1_stdev': 'real',
         'wind_speed_2': 'real',
+        'wind_speed_u2_max': 'real',
+        'wind_speed_u2_stdev': 'real',
         'wind_direction_1': 'real',
         'wind_direction_2': 'real',
         'atmospheric_pressure': 'real',
         'snow_height_1': 'real',
         'snow_height_2': 'real',
-        'battery_voltage': 'real'
+        'battery_voltage': 'real',
+        'ref_temperature': 'real'
     }
 
     database_fields_data_types_list = []
