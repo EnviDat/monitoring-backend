@@ -16,10 +16,11 @@ Including another URLconf
 
 from django.urls import path
 
-from gcnet.views import get_dynamic_data, get_derived_data, get_model_stations
+from gcnet.views import get_dynamic_data, get_derived_data, get_model_stations, some_streaming_csv_view
 
 urlpatterns = [
     path('models/', get_model_stations),
     path('dynamic/<str:model>/<str:lod>/<str:parameter>/<str:start>/<str:end>/', get_dynamic_data),
     path('derived/<str:model>/<str:lod>/<str:parameter>/<str:calc>/<str:start>/<str:end>/', get_derived_data),
+    path('stream/', some_streaming_csv_view)
 ]

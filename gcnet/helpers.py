@@ -2,11 +2,14 @@ import configparser
 import csv
 import importlib
 import os
+import re
 from pathlib import Path
 import datetime
 from datetime import timezone
 import math
 from datetime import datetime
+
+from django.contrib.sites import management
 from django.db.models import Func
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "project.settings")
@@ -16,11 +19,34 @@ import django
 django.setup()
 
 
+def save_comments(config_file):
+    """Save index and content of comments in config file and return dictionary thereof"""
+    comment_map = {}
+    with open(config_file, 'r') as file:
+        i = 0
+        lines = file.readlines()
+        for line in lines:
+            if re.match(r'^\s*#.*?$', line):
+                comment_map[i] = line
+            i += 1
+    return comment_map
+
+
+def restore_comments(config_file, comment_map):
+    """Write comments to config file at their original indices"""
+    with open(config_file, 'r') as file:
+        lines = file.readlines()
+    for (index, comment) in sorted(comment_map.items()):
+        lines.insert(index, comment)
+    with open(config_file, 'w') as file:
+        file.write(''.join(lines))
+
+
 def read_config(config_path: str):
     config_file = Path(config_path)
 
     # Load gcnet configuration file
-    gc_config = configparser.RawConfigParser()
+    gc_config = configparser.RawConfigParser(comment_prefixes=';', allow_no_value=True)
     gc_config.read(config_file)
 
     print("Read config params file: {0}, sections: {1}".format(config_path, ', '.join(gc_config.sections())))
@@ -525,10 +551,9 @@ def get_scale_factor_string(display_description_list):
     return scale_factor_string
 
 
-# Returns 'display_units' comma separated string for header config by mapping 'display_description_list' to
-# display_units_dict
-def get_display_units_string(display_description_list):
-    display_units_dict = {
+# Returns 'units' comma separated string for header config by mapping 'display_description_list' to units_dict
+def get_units_string(display_description_list):
+    units_dict = {
         'timestamp_iso': 'time',
         'short_wave_incoming_radiation': 'W/m2',
         'short_wave_incoming_radiation_max': 'W/m2',
@@ -536,7 +561,7 @@ def get_display_units_string(display_description_list):
         'short_wave_outgoing_radiation_max': 'W/m2',
         'net_radiation': 'W/m2',
         'net_radiation_max': 'W/m2',
-        'air_temperature_1': '°C',
+        'air_temperature_1': u'°C',
         'air_temperature_1_max': '°C',
         'air_temperature_1_min': '°C',
         'air_temperature_2': '°C',
@@ -561,19 +586,19 @@ def get_display_units_string(display_description_list):
         'ref_temperature': '°C'
     }
 
-    display_units_list = []
+    units_list = []
 
     for item in display_description_list:
-        if item in display_units_dict:
-            display_units_list.append(display_units_dict[item])
+        if item in units_dict:
+            units_list.append(units_dict[item])
         else:
-            print('WARNING (helpers.py) "{0}" not a valid key in display_units_dict'.format(item))
+            print('WARNING (helpers.py) "{0}" not a valid key in units_dict'.format(item))
             return
 
     # Create comma separated string from display_units_list
-    display_units_string = ','.join(display_units_list)
+    units_string = ','.join(units_list)
 
-    return display_units_string
+    return units_string
 
 
 # Returns 'database_fields_data_types' comma separated string for header config by mapping 'display_description_list' to
@@ -695,4 +720,8 @@ def delete_line(original_file, line_number):
     else:
         print('WARNING (helpers.py) line {0} in {1} has no content'.format(line_number, original_file))
         return
+
+
+
+
 

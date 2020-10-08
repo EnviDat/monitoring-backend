@@ -4,10 +4,8 @@
 #   python manage.py gcnet_csv_export -d gcnet/csv_output -n 8_dye2 -m dye2_08d -c gcnet/config/nead_header.ini -s -999
 #   python manage.py gcnet_csv_export -d gcnet/csv_output -n 24_east_grip -m east_grip_24d -c gcnet/config/nead_header.ini -s -999
 #   python manage.py gcnet_csv_export -d gcnet/csv_output -n 4_gits -m gits_04d -c gcnet/config/nead_header.ini -s -999
-
-
+import configparser
 import importlib
-import io
 from pathlib import Path
 from django.core.management.base import BaseCommand
 
@@ -15,8 +13,8 @@ from django.core.management.base import BaseCommand
 import logging
 
 from gcnet.helpers import read_config, delete_line, prepend_line, get_gcnet_geometry, get_list_comma_delimited, \
-    get_fields_string, get_display_units_string, get_database_fields_data_types_string, prepend_multiple_lines, \
-    get_station_id, get_add_value_string, get_scale_factor_string
+    get_fields_string, get_database_fields_data_types_string, prepend_multiple_lines, \
+    get_station_id, get_add_value_string, get_scale_factor_string, get_units_string
 
 logging.basicConfig(filename=Path('gcnet/logs/gcnet_csv_export.log'), format='%(asctime)s   %(filename)s: %(message)s',
                     datefmt='%d-%b-%y %H:%M:%S')
@@ -81,6 +79,13 @@ class Command(BaseCommand):
             # Get header config
             config = read_config(kwargs['config'])
 
+            # create map containing comment lines and their indices
+            # comment_map = save_comments(config)
+            # print(comment_map)
+
+            # # put the comments back in their original indices
+            # restore_comments(config_file, comment_map)
+
             # Get stations confg
             stations_config = read_config('gcnet/config/stations.ini')
 
@@ -129,9 +134,9 @@ class Command(BaseCommand):
             scale_factor_string = get_scale_factor_string(display_description_list)
             config.set('FIELDS', 'scale_factor', scale_factor_string)
 
-            # Call get_display_units_string() and set 'display_units'
-            display_units_string = get_display_units_string(display_description_list)
-            config.set('FIELDS', 'display_units', display_units_string)
+            # Call get_units_string() and set 'units'
+            units_string = get_units_string(display_description_list)
+            config.set('FIELDS', 'units', units_string)
 
             # Call get_database_fields_data_types_string() and set 'database_fields_data_types'
             database_fields_data_types_string = get_database_fields_data_types_string(display_description_list)
@@ -172,19 +177,26 @@ class Command(BaseCommand):
         else:
             null_value = None
 
+        # response = HttpResponse(content_type="text/csv")
+        # response[
+        #     "Content-Disposition"
+        # ] = f"attachment; filename={'TEST'}.csv"
+        # writer = csv.writer(response)
+
         # Export database table to csv with only 'timestamp_iso' and fields from 'display_description' in config
         model_class.objects.order_by('timestamp_iso').to_csv(output_path,
                                                              *fields_tuple,
                                                              delimiter=field_delimiter,
                                                              header=False,
-                                                             null=null_value
+                                                             null=null_value,
+                                                             encoding='utf-8'
                                                              )
 
         # TODO modify output_path for streaming
         # f = io.StringIO
-        # model_class.objects.order_by('timestamp_iso').to_csv(f,
+        # model_class.objects.order_by('timestamp_iso').to_csv(#f,
         #                                                      *fields_tuple,
-        #                                                      delimiter=column_delimiter,
+        #                                                      delimiter=field_delimiter,
         #                                                      header=False,
         #                                                      null=null_value
         #                                                      )
@@ -204,3 +216,8 @@ class Command(BaseCommand):
 
         # Log export message
         logger.info('{0} successfully exported, written in {1}'.format(model_class, output_path))
+
+
+
+
+
