@@ -168,7 +168,8 @@ def gcnet_streaming_csv(request, **kwargs):
     csv_temporary = '{0}_temporary'.format(kwargs['model'])
 
     # Trigger gcnet_csv_export.py
-    csv_command = 'python manage.py gcnet_csv_export -d gcnet/temporary -n {0} -m swisscamp_01d -c gcnet/config/nead_header.ini -s -999'.format(csv_temporary)
+    csv_command = 'python manage.py gcnet_csv_export -d gcnet/temporary -n {0} -m swisscamp_01d ' \
+                  '-c gcnet/config/nead_header.ini -s -999'.format(csv_temporary)
     try:
         process_result = subprocess.run(csv_command, shell=True, check=True,
                                         stdout=subprocess.PIPE, universal_newlines=True)

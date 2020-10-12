@@ -282,12 +282,14 @@ def write_file_to_list(file_path):
 
 
 # Prepend file with multiple lines. All newly inserted lines will begin with '# '
-def prepend_multiple_lines(file_name, list_of_lines):
+def prepend_multiple_lines_version(file_name, list_of_lines, version):
     """Insert given list of strings as a new lines at the beginning of a file"""
     # Define name of temporary file
     temp_file = str(file_name) + '.temp'
     # Open given original file in read mode and temp file in write mode
     with open(file_name, 'r', newline='\n') as read_obj, open(temp_file, 'w', newline='\n') as write_obj:
+        # Write version as first line
+        write_obj.write('# ' + version + '\n')
         # Iterate over the given list of strings and write them to temp file as lines, start each line with '#'
         for line in list_of_lines:
             write_obj.write('# ' + line + '\n')

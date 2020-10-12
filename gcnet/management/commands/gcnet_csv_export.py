@@ -1,5 +1,5 @@
 # Example commands:
-#   python manage.py gcnet_csv_export -d gcnet/output -n 1_swisscamp -m swisscamp_01d -c gcnet/config/nead_header.ini -l ; -s -999
+#   python manage.py gcnet_csv_export -d gcnet/output -n 1_swisscamp -m swisscamp_01d -c gcnet/config/nead_header.ini -f "NEAD 1.0 UTF-8" -s -999
 #   python manage.py gcnet_csv_export -d gcnet/csv_output -n 6_summit -m summit_06d -c gcnet/config/nead_header.ini -s -999
 #   python manage.py gcnet_csv_export -d gcnet/csv_output -n 8_dye2 -m dye2_08d -c gcnet/config/nead_header.ini -s -999
 #   python manage.py gcnet_csv_export -d gcnet/csv_output -n 24_east_grip -m east_grip_24d -c gcnet/config/nead_header.ini -s -999
@@ -12,9 +12,9 @@ from django.core.management.base import BaseCommand
 # Setup logging
 import logging
 
-from gcnet.helpers import read_config, delete_line, prepend_line, get_gcnet_geometry, get_list_comma_delimited, \
-    get_fields_string, get_database_fields_data_types_string, prepend_multiple_lines, \
-    get_station_id, get_add_value_string, get_scale_factor_string, get_units_string
+from gcnet.helpers import read_config, get_gcnet_geometry, get_list_comma_delimited, \
+    get_fields_string, get_database_fields_data_types_string, \
+    get_station_id, get_add_value_string, get_scale_factor_string, get_units_string, prepend_multiple_lines_version
 
 logging.basicConfig(filename=Path('gcnet/logs/gcnet_csv_export.log'), format='%(asctime)s   %(filename)s: %(message)s',
                     datefmt='%d-%b-%y %H:%M:%S')
@@ -54,6 +54,13 @@ class Command(BaseCommand):
         )
 
         parser.add_argument(
+            '-f',
+            '--format',
+            required=True,
+            help='NEAD format version, for example: "NEAD 1.0 UTF-8"'
+        )
+
+        parser.add_argument(
             '-l',
             '--delimiter',
             required=False,
@@ -70,9 +77,6 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
 
         # ========================================= WRITE NEAD CONFIG =================================================
-
-        # Remove first line from header config and assign to first_line
-        first_line = delete_line(kwargs['config'], 0)
 
         # Try to dynamically generate NEAD config file
         try:
@@ -147,8 +151,6 @@ class Command(BaseCommand):
                 config.write(config_file)
 
         except Exception as e:
-            # Write first_line to first line of header conf
-            prepend_line(kwargs['config'], first_line)
             # Print error message
             print('WARNING (gcnet_csv_export.py): could not write nead header config, EXCEPTION: {0}'.format(e))
             return
@@ -186,18 +188,18 @@ class Command(BaseCommand):
                                                              encoding='utf-8'
                                                              )
 
-        # Write first_line to first line of header conf
-        prepend_line(kwargs['config'], first_line)
-
         # Prepend header to newly created csv file
         # Get header as header_list, each element is a line in the header configuration file
         header_path = kwargs['config']
         with open(header_path, 'r', newline='\n') as sink:
             header_list = sink.read().splitlines()
 
-        # Prepend new csv file with multiple lines from header conf
+        # Assign version
+        version = kwargs['format']
+
+        # Prepend new csv file with version and multiple lines from header conf
         # All newly inserted lines will begin with the '#' character
-        prepend_multiple_lines(output_path, header_list)
+        prepend_multiple_lines_version(output_path, header_list, version)
 
         # Log export message
         logger.info('{0} successfully exported, written in {1}'.format(model_class, output_path))
