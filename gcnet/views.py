@@ -1,4 +1,5 @@
 import csv
+import datetime
 import importlib
 import os
 import subprocess
@@ -7,7 +8,7 @@ from django.core import management
 from django.core.exceptions import FieldError
 from django.db.models import Avg, Max, Min
 from django.http import JsonResponse, StreamingHttpResponse
-from gcnet.helpers import validate_date_gcnet, Round2, read_config
+from gcnet.helpers import validate_date_gcnet, Round2, read_config, get_unix_timestamp
 
 
 # Returns list of stations in stations.ini config file by their 'model' (string that is the name of the station
@@ -164,21 +165,39 @@ class Echo:
         return value
 
 
-def gcnet_streaming_csv(request, **kwargs):
-    # Assign kwargs from url to variables
-    csv_filename = '{0}.csv'.format(kwargs['model'])
-    csv_temporary = '{0}_temporary'.format(kwargs['model'])
+# Streams gcnet station data to csv file
+# kwargs['model'] corresponds to the station names that are listed in models.py
+# kwargs['nodata'] assigns string to populate null values in database
+# If kwargs['nodata'] is 'empty' then null values are populated with empty string: ''
+# Format is "NEAD 1.0 UTF-8"
+def gcnet_streaming_csv_v1(request, **kwargs):
 
-    test_store = ''
+    # Assign csv_filename
+    csv_filename = '{0}.csv'.format(kwargs['model'])
+
+    # Assign null_value
+    if kwargs['nodata'] == 'empty':
+        null_value = ''
+    else:
+        null_value= kwargs['nodata']
+
+    # Get current timestamp
+    timestamp = get_unix_timestamp()
+    csv_temporary = '{0}_temporary_{1}'.format(kwargs['model'], timestamp)
 
     # Trigger gcnet_csv_export.py
-    management.call_command('gcnet_csv_export', directory='gcnet/temporary', name=csv_temporary,
-                                       model='swisscamp_01d',
-                                       config='gcnet/config/nead_header.ini', format="NEAD 1.0 UTF-8",
-                                       stringnull='-999')
+    try:
+        management.call_command('gcnet_csv_export', directory='gcnet/temporary', name=csv_temporary,
+                                model=kwargs['model'],
+                                config='gcnet/config/nead_header.ini', format="NEAD 1.0 UTF-8",
+                                stringnull=null_value)
+    except Exception as e:
+        # Print error message
+        print('WARNING (gcnet/views.py): could not execute gcnet_csv_export, EXCEPTION: {0}'.format(e))
+        return
 
     # Stream response
-    with open('C:/Users/kurup/Documents/monitoring/gcnet/temporary/{0}.csv'.format(csv_temporary), newline='') as f:
+    with open('gcnet/temporary/{0}.csv'.format(csv_temporary), newline='') as f:
         reader = csv.reader(f)
         data = list(reader)
     pseudo_buffer = Echo()

@@ -1,15 +1,14 @@
 import configparser
 import csv
-import importlib
 import os
 import re
+import time
 from pathlib import Path
 import datetime
 from datetime import timezone
 import math
 from datetime import datetime
 
-from django.contrib.sites import management
 from django.db.models import Func
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "project.settings")
@@ -722,6 +721,12 @@ def delete_line(original_file, line_number):
     else:
         print('WARNING (helpers.py) line {0} in {1} has no content'.format(line_number, original_file))
         return
+
+
+def get_unix_timestamp():
+    timestamp = int(time.time())
+    return timestamp
+
 
 
 
