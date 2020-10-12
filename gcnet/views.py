@@ -3,6 +3,7 @@ import importlib
 import os
 import subprocess
 
+from django.core import management
 from django.core.exceptions import FieldError
 from django.db.models import Avg, Max, Min
 from django.http import JsonResponse, StreamingHttpResponse
@@ -157,6 +158,7 @@ class Echo:
     """An object that implements just the write method of the file-like
     interface. Used in gcnet_streaming_csv()
     """
+
     def write(self, value):
         """Write the value by returning it, instead of storing in a buffer."""
         return value
@@ -167,17 +169,13 @@ def gcnet_streaming_csv(request, **kwargs):
     csv_filename = '{0}.csv'.format(kwargs['model'])
     csv_temporary = '{0}_temporary'.format(kwargs['model'])
 
+    test_store = ''
+
     # Trigger gcnet_csv_export.py
-    csv_command = 'python manage.py gcnet_csv_export -d gcnet/temporary -n {0} -m swisscamp_01d ' \
-                  '-c gcnet/config/nead_header.ini -s -999'.format(csv_temporary)
-    try:
-        process_result = subprocess.run(csv_command, shell=True, check=True,
-                                        stdout=subprocess.PIPE, universal_newlines=True)
-        # NOTE: the line line below must be included otherwise the import commands do not work!!!
-        print('RUNNING: {0}   STDOUT: {1}'.format(csv_command, process_result.stdout))
-    except subprocess.CalledProcessError:
-        print('COULD NOT RUN: {0}'.format(csv_command))
-        print('')
+    management.call_command('gcnet_csv_export', directory='gcnet/temporary', name=csv_temporary,
+                                       model='swisscamp_01d',
+                                       config='gcnet/config/nead_header.ini', format="NEAD 1.0 UTF-8",
+                                       stringnull='-999')
 
     # Stream response
     with open('C:/Users/kurup/Documents/monitoring/gcnet/temporary/{0}.csv'.format(csv_temporary), newline='') as f:
@@ -193,4 +191,3 @@ def gcnet_streaming_csv(request, **kwargs):
     os.remove('gcnet/temporary/{0}.csv'.format(csv_temporary))
 
     return response
-
