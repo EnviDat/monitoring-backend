@@ -1,5 +1,8 @@
 import csv
 import importlib
+import os
+import subprocess
+
 from django.core.exceptions import FieldError
 from django.db.models import Avg, Max, Min
 from django.http import JsonResponse, StreamingHttpResponse
@@ -152,21 +155,31 @@ def get_derived_data(request, **kwargs):
 
 class Echo:
     """An object that implements just the write method of the file-like
-    interface.
+    interface. Used in gcnet_streaming_csv()
     """
-
     def write(self, value):
         """Write the value by returning it, instead of storing in a buffer."""
         return value
 
 
-def some_streaming_csv_view(request):
-    """A view that streams a large CSV file."""
-    # Generate a sequence of rows. The range is based on the maximum number of
-    # rows that can be handled by a single sheet in most spreadsheet
-    # applications.
-    rows = (["Row {}".format(idx), str(idx)] for idx in range(65536))
-    with open('C:/Users/kurup/Documents/monitoring/gcnet/output/1_swisscamp.csv', newline='') as f:
+def gcnet_streaming_csv(request):
+
+    # Trigger gcnet_csv_export.py
+    csv_command = 'python manage.py gcnet_csv_export -d gcnet/temporary -n 1_swisscamp_temporary -m swisscamp_01d -c gcnet/config/nead_header.ini -s -999'
+    try:
+        process_result = subprocess.run(csv_command, shell=True, check=True,
+                                        stdout=subprocess.PIPE, universal_newlines=True)
+        # NOTE: the line line below must be included otherwise the import commands do not work!!!
+        print('RUNNING: {0}   STDOUT: {1}'.format(csv_command, process_result.stdout))
+    except subprocess.CalledProcessError:
+        print('COULD NOT RUN: {0}'.format(csv_command))
+        print('')
+
+    # Assign csv_filename
+    csv_filename = "1_swisscamp_test.csv"
+
+    # Stream response
+    with open('C:/Users/kurup/Documents/monitoring/gcnet/temporary/1_swisscamp_temporary.csv', newline='') as f:
         reader = csv.reader(f)
         data = list(reader)
     pseudo_buffer = Echo()
@@ -174,6 +187,11 @@ def some_streaming_csv_view(request):
     # response = StreamingHttpResponse((writer.writerow(row) for row in rows),
     response = StreamingHttpResponse((writer.writerow(row) for row in data),
                                      content_type="text/csv")
-    response['Content-Disposition'] = 'attachment; filename="somefilename.csv"'
+    # response['Content-Disposition'] = 'attachment; filename="somefilename.csv"'
+    response['Content-Disposition'] = 'attachment; filename={0}'.format(csv_filename)
+
+    # Remove temporary csv from gcnet/temporary directory
+    os.remove('gcnet/temporary/1_swisscamp_temporary.csv')
+
     return response
 

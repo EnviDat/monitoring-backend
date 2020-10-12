@@ -192,15 +192,6 @@ class Command(BaseCommand):
                                                              encoding='utf-8'
                                                              )
 
-        # TODO modify output_path for streaming
-        # f = io.StringIO
-        # model_class.objects.order_by('timestamp_iso').to_csv(#f,
-        #                                                      *fields_tuple,
-        #                                                      delimiter=field_delimiter,
-        #                                                      header=False,
-        #                                                      null=null_value
-        #                                                      )
-
         # Write first_line to first line of header conf
         prepend_line(kwargs['config'], first_line)
 

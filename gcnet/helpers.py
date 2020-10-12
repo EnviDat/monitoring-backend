@@ -562,13 +562,13 @@ def get_units_string(display_description_list):
         'net_radiation': 'W/m2',
         'net_radiation_max': 'W/m2',
         'air_temperature_1': u'°C',
-        'air_temperature_1_max': '°C',
-        'air_temperature_1_min': '°C',
-        'air_temperature_2': '°C',
-        'air_temperature_2_max': '°C',
-        'air_temperature_2_min': '°C',
-        'air_temperature_cs500_air1': '°C',
-        'air_temperature_cs500_air2': '°C',
+        'air_temperature_1_max': 'Degrees C',
+        'air_temperature_1_min': 'Degrees C',
+        'air_temperature_2': 'Degrees C',
+        'air_temperature_2_max': 'Degrees C',
+        'air_temperature_2_min': 'Degrees C',
+        'air_temperature_cs500_air1': 'Degrees C',
+        'air_temperature_cs500_air2': 'Degrees C',
         'relative_humidity_1': '%',
         'relative_humidity_2': '%',
         'wind_speed_1': 'm/s',
@@ -577,13 +577,13 @@ def get_units_string(display_description_list):
         'wind_speed_2': 'm/s',
         'wind_speed_u2_max': 'm/s',
         'wind_speed_u2_stdev': 'm/s',
-        'wind_direction_1': '°',
-        'wind_direction_2': '°',
+        'wind_direction_1': 'Degrees',
+        'wind_direction_2': 'Degrees',
         'atmospheric_pressure': 'mbar',
         'snow_height_1': 'm',
         'snow_height_2': 'm',
         'battery_voltage': 'V',
-        'ref_temperature': '°C'
+        'ref_temperature': 'Degrees C'
     }
 
     units_list = []
