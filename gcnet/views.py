@@ -162,10 +162,13 @@ class Echo:
         return value
 
 
-def gcnet_streaming_csv(request):
+def gcnet_streaming_csv(request, **kwargs):
+    # Assign kwargs from url to variables
+    csv_filename = '{0}.csv'.format(kwargs['model'])
+    csv_temporary = '{0}_temporary'.format(kwargs['model'])
 
     # Trigger gcnet_csv_export.py
-    csv_command = 'python manage.py gcnet_csv_export -d gcnet/temporary -n 1_swisscamp_temporary -m swisscamp_01d -c gcnet/config/nead_header.ini -s -999'
+    csv_command = 'python manage.py gcnet_csv_export -d gcnet/temporary -n {0} -m swisscamp_01d -c gcnet/config/nead_header.ini -s -999'.format(csv_temporary)
     try:
         process_result = subprocess.run(csv_command, shell=True, check=True,
                                         stdout=subprocess.PIPE, universal_newlines=True)
@@ -175,23 +178,18 @@ def gcnet_streaming_csv(request):
         print('COULD NOT RUN: {0}'.format(csv_command))
         print('')
 
-    # Assign csv_filename
-    csv_filename = "1_swisscamp_test.csv"
-
     # Stream response
-    with open('C:/Users/kurup/Documents/monitoring/gcnet/temporary/1_swisscamp_temporary.csv', newline='') as f:
+    with open('C:/Users/kurup/Documents/monitoring/gcnet/temporary/{0}.csv'.format(csv_temporary), newline='') as f:
         reader = csv.reader(f)
         data = list(reader)
     pseudo_buffer = Echo()
     writer = csv.writer(pseudo_buffer)
-    # response = StreamingHttpResponse((writer.writerow(row) for row in rows),
     response = StreamingHttpResponse((writer.writerow(row) for row in data),
                                      content_type="text/csv")
-    # response['Content-Disposition'] = 'attachment; filename="somefilename.csv"'
     response['Content-Disposition'] = 'attachment; filename={0}'.format(csv_filename)
 
     # Remove temporary csv from gcnet/temporary directory
-    os.remove('gcnet/temporary/1_swisscamp_temporary.csv')
+    os.remove('gcnet/temporary/{0}.csv'.format(csv_temporary))
 
     return response
 

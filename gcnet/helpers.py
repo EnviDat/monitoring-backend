@@ -561,7 +561,7 @@ def get_units_string(display_description_list):
         'short_wave_outgoing_radiation_max': 'W/m2',
         'net_radiation': 'W/m2',
         'net_radiation_max': 'W/m2',
-        'air_temperature_1': u'°C',
+        'air_temperature_1': 'Degrees C',
         'air_temperature_1_max': 'Degrees C',
         'air_temperature_1_min': 'Degrees C',
         'air_temperature_2': 'Degrees C',

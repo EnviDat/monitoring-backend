@@ -177,12 +177,6 @@ class Command(BaseCommand):
         else:
             null_value = None
 
-        # response = HttpResponse(content_type="text/csv")
-        # response[
-        #     "Content-Disposition"
-        # ] = f"attachment; filename={'TEST'}.csv"
-        # writer = csv.writer(response)
-
         # Export database table to csv with only 'timestamp_iso' and fields from 'display_description' in config
         model_class.objects.order_by('timestamp_iso').to_csv(output_path,
                                                              *fields_tuple,

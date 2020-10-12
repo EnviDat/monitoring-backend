@@ -22,5 +22,5 @@ urlpatterns = [
     path('models/', get_model_stations),
     path('dynamic/<str:model>/<str:lod>/<str:parameter>/<str:start>/<str:end>/', get_dynamic_data),
     path('derived/<str:model>/<str:lod>/<str:parameter>/<str:calc>/<str:start>/<str:end>/', get_derived_data),
-    path('stream/', gcnet_streaming_csv)
+    path('stream/<str:model>/', gcnet_streaming_csv)
 ]
