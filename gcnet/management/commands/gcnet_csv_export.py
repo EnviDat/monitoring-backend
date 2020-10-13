@@ -3,8 +3,8 @@
 #   python manage.py gcnet_csv_export -d gcnet/csv_output -n 6_summit -m summit_06d -c gcnet/config/nead_header.ini -s -999
 #   python manage.py gcnet_csv_export -d gcnet/csv_output -n 8_dye2 -m dye2_08d -c gcnet/config/nead_header.ini -s -999
 #   python manage.py gcnet_csv_export -d gcnet/csv_output -n 24_east_grip -m east_grip_24d -c gcnet/config/nead_header.ini -s -999
-#   python manage.py gcnet_csv_export -d gcnet/csv_output -n 4_gits -m gits_04d -c gcnet/config/nead_header.ini -s -999
-import configparser
+#   python manage.py gcnet_csv_export -d gcnet/csv_output -n 4_gits -m gits_04d -c gcnet/config/nead_header.ini -f "NEAD 1.0 UTF-8" -s -999
+
 import importlib
 from pathlib import Path
 from django.core.management.base import BaseCommand
@@ -12,9 +12,8 @@ from django.core.management.base import BaseCommand
 # Setup logging
 import logging
 
-from gcnet.helpers import read_config, get_gcnet_geometry, get_list_comma_delimited, \
-    get_fields_string, get_database_fields_data_types_string, \
-    get_station_id, get_add_value_string, get_scale_factor_string, get_units_string, prepend_multiple_lines_version
+from gcnet.helpers import read_config, prepend_multiple_lines_version
+from gcnet.write_nead_config import write_nead_config
 
 logging.basicConfig(filename=Path('gcnet/logs/gcnet_csv_export.log'), format='%(asctime)s   %(filename)s: %(message)s',
                     datefmt='%d-%b-%y %H:%M:%S')
@@ -71,91 +70,32 @@ class Command(BaseCommand):
             '-s',
             '--stringnull',
             required=False,
-            help='String to populate exported null values with in csv. Optional. Default null string is an empty string: ""'
+            help='String to populate exported null values with in csv. Optional. Default null string is an empty '
+                 'string: "" '
         )
 
     def handle(self, *args, **kwargs):
 
         # ========================================= WRITE NEAD CONFIG =================================================
 
-        # Try to dynamically generate NEAD config file
-        try:
-            # Get header config
-            config = read_config(kwargs['config'])
+        # Write NEAD config, call write_nead_config() with arguments based on kwargs passed
+        if not kwargs['stringnull'] and not kwargs['delimiter']:
+            write_nead_config(config_path=kwargs['config'], model=kwargs['model'])
 
-            # create map containing comment lines and their indices
-            # comment_map = save_comments(config)
-            # print(comment_map)
+        elif kwargs['stringnull'] and not kwargs['delimiter']:
+            write_nead_config(config_path=kwargs['config'], model=kwargs['model'], stringnull=kwargs['stringnull'])
 
-            # # put the comments back in their original indices
-            # restore_comments(config_file, comment_map)
+        elif not kwargs['stringnull'] and kwargs['delimiter']:
+            write_nead_config(config_path=kwargs['config'], model=kwargs['model'], delimiter=kwargs['delimiter'])
 
-            # Get stations confg
-            stations_config = read_config('gcnet/config/stations.ini')
-
-            # Assign station_id to model's corresponding station_id
-            station_id = get_station_id(kwargs['model'])
-
-            # Set 'station_id'
-            config.set('METADATA', 'station_id', str(station_id))
-
-            # Set 'station_name'
-            station_name = stations_config.get(str(station_id), 'name')
-            config.set('METADATA', 'station_name', station_name)
-
-            # Check if kwargs['stringnull'] passed. Set 'nodata_value' to kwarg stringnull passed.
-            # Else set 'nodata' in config to empty string: ''
-            if kwargs['stringnull']:
-                config.set('METADATA', 'nodata', kwargs['stringnull'])
-            else:
-                config.set('METADATA', 'nodata', '')
-
-            # Check if kwargs['delimiter'] passed. Set 'field_delimiter' to kwarg delimiter passed.
-            # Else set 'column_delimiter' in config to comma: ','
-            if kwargs['delimiter']:
-                config.set('METADATA', 'field_delimiter', kwargs['delimiter'])
-            else:
-                config.set('METADATA', 'field_delimiter', ',')
-
-            # Parse 'position' from stations.ini, modify, and set 'geometry'
-            position = stations_config.get(str(station_id), 'position')
-            geometry = get_gcnet_geometry(position)
-            config.set('METADATA', 'geometry', geometry)
-
-            # Get display_description as list
-            display_description = config.get('FIELDS', 'display_description')
-            display_description_list = get_list_comma_delimited(display_description)
-
-            # Call get_fields_string() and set 'fields'
-            fields_string = get_fields_string(display_description_list)
-            config.set('FIELDS', 'fields', fields_string)
-
-            # Call get_units_offset_string() and set 'add_value'
-            add_value_string = get_add_value_string(display_description_list)
-            config.set('FIELDS', 'add_value', add_value_string)
-
-            # Call get_scale_factor_string() and set 'scale_factor'
-            scale_factor_string = get_scale_factor_string(display_description_list)
-            config.set('FIELDS', 'scale_factor', scale_factor_string)
-
-            # Call get_units_string() and set 'units'
-            units_string = get_units_string(display_description_list)
-            config.set('FIELDS', 'units', units_string)
-
-            # Call get_database_fields_data_types_string() and set 'database_fields_data_types'
-            database_fields_data_types_string = get_database_fields_data_types_string(display_description_list)
-            config.set('FIELDS', 'database_fields_data_types', database_fields_data_types_string)
-
-            # Dynamically write header in config file
-            with open(kwargs['config'], encoding='utf-8', mode='w', newline='\n') as config_file:
-                config.write(config_file)
-
-        except Exception as e:
-            # Print error message
-            print('WARNING (gcnet_csv_export.py): could not write nead header config, EXCEPTION: {0}'.format(e))
-            return
+        elif kwargs['stringnull'] and kwargs['delimiter']:
+            write_nead_config(config_path=kwargs['config'], model=kwargs['model'], stringnull=kwargs['stringnull'],
+                              delimiter=kwargs['delimiter'])
 
         # ========================================= EXPORT CSV ========================================================
+
+        # Get header config
+        config = read_config(kwargs['config'])
 
         # Create output_path from arguments
         output_path = Path(kwargs['directory'] + '/' + kwargs['name'] + '.csv')

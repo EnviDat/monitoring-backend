@@ -16,7 +16,7 @@ def write_nead_config(config_path, model, stringnull='', delimiter=','):
         # restore_comments(config_file, comment_map)
 
         # Get stations confg
-        stations_config = read_config('config/stations.ini')
+        stations_config = read_config('gcnet/config/stations.ini')
 
         # Assign station_id to model's corresponding station_id
         station_id = get_station_id(model)
@@ -28,19 +28,11 @@ def write_nead_config(config_path, model, stringnull='', delimiter=','):
         station_name = stations_config.get(str(station_id), 'name')
         config.set('METADATA', 'station_name', station_name)
 
-        # Check if 'stringnull' passed. Set 'nodata_value' to stringnull passed.
-        # Else set 'nodata' in config to empty string: ''
-        if stringnull:
-            config.set('METADATA', 'nodata', stringnull)
-        else:
-            config.set('METADATA', 'nodata', '')
+        # Set 'nodata_value' to 'stringnull' argument passed or default value which is an empty string: ''
+        config.set('METADATA', 'nodata', stringnull)
 
-        # Check if 'delimiter' passed. Set 'field_delimiter' to delimiter passed.
-        # Else set 'column_delimiter' in config to comma: ','
-        if delimiter != ',':
-            config.set('METADATA', 'field_delimiter', delimiter)
-        else:
-            config.set('METADATA', 'field_delimiter', ',')
+        # Set 'field_delimiter' to 'delimiter' argument passed or defaut value which is a comma: ','
+        config.set('METADATA', 'field_delimiter', delimiter)
 
         # Parse 'position' from stations.ini, modify, and set 'geometry'
         position = stations_config.get(str(station_id), 'position')
@@ -79,5 +71,3 @@ def write_nead_config(config_path, model, stringnull='', delimiter=','):
         # Print error message
         print('WARNING (write_nead_config.py): could not write nead header config, EXCEPTION: {0}'.format(e))
         return
-
-# write_nead_config('config/nead_header.ini', 'gits_04d', stringnull='', delimiter=',')
