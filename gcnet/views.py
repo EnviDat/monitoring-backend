@@ -267,12 +267,12 @@ def streaming_csv_view(request):
     rows = (csv_writer.writerow('-999' if x is None else x for x in row) for row in queryset)
 
     # Combine header with rows of data
-    header_rows = list(chain(test_line, rows))
+    #header_rows = list(chain(test_line, rows))
 
     # row_generator = gcnet_csv_row_generator(csv_writer, queryset)
     # rows = next(row_generator)
 
-    response = StreamingHttpResponse(header_rows, content_type="text/csv")
+    response = StreamingHttpResponse(list(chain(test_line, rows)), content_type="text/csv")
     response["Content-Disposition"] = 'attachment; filename="swisscamp.csv"'
 
     return response
