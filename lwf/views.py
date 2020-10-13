@@ -3,7 +3,8 @@ from django.core.exceptions import FieldError
 from django.db.models import Avg, Max, Min, Sum
 from django.http import JsonResponse
 
-from lwf.helpers import get_timestamp_iso_range_dict, Round2, get_lwf_models_list, get_timestamp_iso_range_day_dict
+from lwf.helpers import get_timestamp_iso_range_dict, Round2, get_lwf_models_list, get_timestamp_iso_range_day_dict, \
+    get_timestamp_iso_range_year_week, get_timestamp_iso_range_years
 
 
 # View returns a list of models currently in the 'lwf' app
@@ -89,18 +90,22 @@ def get_derived_data(request, **kwargs):
     dict_min = {parameter + '_min': Min(parameter)}
     # dict_sum = {parameter + '_sum': Round2(Sum(parameter))}
 
+    # Check if 'start' and 'end' kwargs are in both ISO timestamp format, assign filter to timestamp_iso field range
     #dict_timestamps = get_timestamp_iso_range_dict(start, end)
 
-    # Check if 'start' and 'end' kwargs are in both ISO timestamp format, assign filter to timestamp_iso field range
     # Check which level of detail was passed
-    # TODO make sure it accepts different date formats
-    # TODO return timestamps also
-    # Check if timestamps are in full ISO format with hours and minutes, for example: '2005-01-01 00:00:00'
-
-    # Check if timestamps are in year format:
+    # TODO verify this is ok and also implement in GC-Net app?
+    # Check if timestamps are in whole date format: YYYY-MM-DD ('2019-12-04')
     if lod == 'day':
-        #
         dict_timestamps = get_timestamp_iso_range_day_dict(start, end)
+        print(dict_timestamps)
+    # Check if timestamps are in whole week format: YYYY-WW ('2020-22')  ('22' is the twenty-second week of the year)
+    elif lod == 'week':
+        dict_timestamps = get_timestamp_iso_range_year_week(start, end)
+        print(dict_timestamps)
+    # Check if timestamps are in whole year format: YYYY ('2020')
+    elif lod == 'year':
+        dict_timestamps = get_timestamp_iso_range_years(start, end)
         print(dict_timestamps)
     else:
         raise FieldError("Incorrect values inputted in 'lod' url")
