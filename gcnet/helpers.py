@@ -729,13 +729,4 @@ def get_unix_timestamp():
     return timestamp
 
 
-def gcnet_csv_row_generator(csv_writer, queryset):
-
-    test_line = 'fields = timestamp,ISWR,ISWR_max,OSWR,OSWR_max,NSWR,NSWR_max,TA1,TA1_max,TA1_min,TA2,TA2_max,' \
-                'TA2_min,TA3,TA4,RH1,RH2,VW1,VW1_max,VW1_stdev,VW2,VW2_max,VW2_stdev,DW1,DW2,P,HS1,HS2,V,TA5'
-
-    yield test_line
-    yield (csv_writer.writerow('-999' if x is None else x for x in row) for row in queryset)
-
-
 

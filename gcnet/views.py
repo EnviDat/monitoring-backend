@@ -18,6 +18,7 @@ from gcnet.helpers import validate_date_gcnet, Round2, read_config, get_unix_tim
 # model in gcnet/models.py)
 # These model strings are used in the API calls (<str:model>): get_dynamic_data() and get_derived_data()
 from gcnet.models import swisscamp_01d
+from gcnet.write_nead_config import write_nead_config
 
 
 def get_model_stations(request):
@@ -171,7 +172,7 @@ class Echo:
         return value
 
 
-# Streams gcnet station data to csv file
+# Streams GC-Net station data to csv file
 # kwargs['model'] corresponds to the station names that are listed in models.py
 # kwargs['nodata'] assigns string to populate null values in database
 # If kwargs['nodata'] is 'empty' then null values are populated with empty string: ''
@@ -217,62 +218,67 @@ def gcnet_streaming_csv_v1(request, **kwargs):
     return response
 
 
-def csv_serializer(self, data):
-    # Format the row to append to the CSV file
-    return [
-        data.id,
-        data.airtemp1,
-        ...
-    ]
+# Streams GC-Net station data to csv file in NEAD format
+# kwargs['model'] corresponds to the station names that are listed in models.py
+# kwargs['nodata'] assigns string to populate null values in database
+# If kwargs['nodata'] is 'empty' then null values are populated with empty string: ''
+# Format is "NEAD 1.0 UTF-8"
+def streaming_csv_view_v1(request, **kwargs):
 
+    # Assign version
+    version = "# NEAD 1.0 UTF-8\n"
 
-class gcnet_csv(viewsets.ViewSet):
-    def list(self, request):
-        # 1. Get the iterator of the QuerySet
-        iterator = swisscamp_01d.objects.iterator()
+    # Assign nead_config
+    nead_config = 'gcnet/config/nead_header.ini'
 
-        # 2. Create the instance of our CSVStream class
-        csv_stream = CSVStream()
+    # Assign null_value
+    if kwargs['nodata'] == 'empty':
+        null_value = ''
+    else:
+        null_value = kwargs['nodata']
 
-        # 3. Stream (download) the file
-        return csv_stream.export("myfile", iterator, csv_serializer)
+    # Assign station_model
+    station_model = kwargs['model']
 
+    # Assign output_csv
+    output_csv = station_model + '.csv'
 
-def streaming_csv_view(request):
+    # Write NEAD config file
+    write_nead_config(config_path=nead_config, model=station_model, stringnull=null_value, delimiter=',')
 
-    # Assign display_values from database fields
+    # Read NEAD config file and assign to nead_lines
+    # Concatenate '# ' in front of every line and append to hash_lines
+    with open(nead_config, 'r') as nead_header:
+        nead_lines = nead_header.readlines()
+        hash_lines = []
+        for line in nead_lines:
+            line = '# ' + line
+            hash_lines.append(line)
+
+    # Assign display_values from database_fields
     database_fields = 'timestamp_iso,swin,swin_max,swout,swout_max,netrad,netrad_max,airtemp1,airtemp1_max,airtemp1_min,' \
              'airtemp2,airtemp2_max,airtemp2_min,airtemp_cs500air1,airtemp_cs500air2,rh1,rh2,windspeed1,' \
              'windspeed_u1_max,windspeed_u1_stdev,windspeed2,windspeed_u2_max,windspeed_u2_stdev,winddir1,winddir2,' \
              'pressure,sh1,sh2,battvolt,reftemp'
     display_values = list(database_fields.split(','))
 
-    # Create buffered csv writer
+    # Create buffered csv_writer
     echo_buffer = Echo()
     csv_writer = csv.writer(echo_buffer)
 
-    # Write test line
-    test_line = 'fields = timestamp,ISWR,ISWR_max,OSWR,OSWR_max,NSWR,NSWR_max,TA1,TA1_max,TA1_min,TA2,TA2_max,' \
-                'TA2_min,TA3,TA4,RH1,RH2,VW1,VW1_max,VW1_stdev,VW2,VW2_max,VW2_stdev,DW1,DW2,P,HS1,HS2,V,TA5'
-    # csv_writer.writerow(test_line)
+    # Get the model as a class
+    class_name = kwargs['model'].rsplit('.', 1)[-1]
+    package = importlib.import_module("gcnet.models")
+    model_class = getattr(package, class_name)
 
-    queryset = swisscamp_01d.objects.values_list(*display_values).order_by('timestamp_iso').all()
+    # Create queryset
+    queryset = model_class.objects.values_list(*display_values).order_by('timestamp_iso').all()
 
-    # In line below null values in database are written as empty strings in csv: ''
-    #rows = (csv_writer.writerow(row) for row in queryset)
+    # Generator expression to write each row in the queryset by calculating each row as needed and not all at once
+    rows = (csv_writer.writerow(null_value if x is None else x for x in row) for row in queryset)
 
-    # By using a generator expression to write each row in the queryset python calculates each row as needed,
-    # rather than all at once.
-    # Note that the generator uses parentheses, instead of square brackets: ( ) instead of [ ]
-    rows = (csv_writer.writerow('-999' if x is None else x for x in row) for row in queryset)
-
-    # Combine header with rows of data
-    #header_rows = list(chain(test_line, rows))
-
-    # row_generator = gcnet_csv_row_generator(csv_writer, queryset)
-    # rows = next(row_generator)
-
-    response = StreamingHttpResponse(list(chain(test_line, rows)), content_type="text/csv")
-    response["Content-Disposition"] = 'attachment; filename="swisscamp.csv"'
+    # Chain version, hash_lines, and rows into StreamingHTTPResponse
+    response = StreamingHttpResponse(list(chain(version, hash_lines, rows)), content_type="text/csv")
+    response["Content-Disposition"] = 'attachment; filename=' + output_csv
 
     return response

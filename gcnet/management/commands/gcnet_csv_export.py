@@ -92,7 +92,7 @@ class Command(BaseCommand):
             write_nead_config(config_path=kwargs['config'], model=kwargs['model'], stringnull=kwargs['stringnull'],
                               delimiter=kwargs['delimiter'])
 
-        # ========================================= EXPORT CSV ========================================================
+        # ========================================= EXPORT NEAD FORMAT CSV ============================================
 
         # Get header config
         config = read_config(kwargs['config'])
@@ -100,7 +100,7 @@ class Command(BaseCommand):
         # Create output_path from arguments
         output_path = Path(kwargs['directory'] + '/' + kwargs['name'] + '.csv')
 
-        # Get the model
+        # Get the model as a class
         class_name = kwargs['model'].rsplit('.', 1)[-1]
         package = importlib.import_module("gcnet.models")
         model_class = getattr(package, class_name)

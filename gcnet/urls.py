@@ -17,12 +17,12 @@ from django.conf.urls import url
 from django.urls import path, re_path
 
 from gcnet.views import get_dynamic_data, get_derived_data, get_model_stations, gcnet_streaming_csv_v1, \
-    streaming_csv_view
+    streaming_csv_view_v1
 
 urlpatterns = [
     path('models/', get_model_stations),
     path('dynamic/<str:model>/<str:lod>/<str:parameter>/<str:start>/<str:end>/', get_dynamic_data),
     path('derived/<str:model>/<str:lod>/<str:parameter>/<str:calc>/<str:start>/<str:end>/', get_derived_data),
-    path('stream/<str:model>/<str:nodata>/', gcnet_streaming_csv_v1),
-    path('csv/', streaming_csv_view),
+    # path('stream/<str:model>/<str:nodata>/', gcnet_streaming_csv_v1),
+    path('csv/<str:model>/<str:nodata>/', streaming_csv_view_v1),
 ]
