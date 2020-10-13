@@ -275,6 +275,7 @@ def streaming_csv_view_v1(request, **kwargs):
     queryset = model_class.objects.values_list(*display_values).order_by('timestamp_iso').all()
 
     # Generator expression to write each row in the queryset by calculating each row as needed and not all at once
+    # Write values that are null in database as the value assigned to 'null_value'
     rows = (csv_writer.writerow(null_value if x is None else x for x in row) for row in queryset)
 
     # Chain version, hash_lines, and rows into StreamingHTTPResponse
