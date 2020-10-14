@@ -1,26 +1,20 @@
 import csv
-import datetime
 import importlib
 import os
-import subprocess
 from itertools import chain
 
 from django.core import management
 from django.core.exceptions import FieldError
 from django.db.models import Avg, Max, Min
 from django.http import JsonResponse, StreamingHttpResponse
-from rest_framework import viewsets
 
-from gcnet.csv_stream import CSVStream
-from gcnet.helpers import validate_date_gcnet, Round2, read_config, get_unix_timestamp, gcnet_csv_row_generator
+from gcnet.helpers import validate_date_gcnet, Round2, read_config, get_unix_timestamp
+from gcnet.write_nead_config import write_nead_config
+
 
 # Returns list of stations in stations.ini config file by their 'model' (string that is the name of the station
 # model in gcnet/models.py)
 # These model strings are used in the API calls (<str:model>): get_dynamic_data() and get_derived_data()
-from gcnet.models import swisscamp_01d
-from gcnet.write_nead_config import write_nead_config
-
-
 def get_model_stations(request):
     # Read the stations config file
     stations_path = 'gcnet/config/stations.ini'
@@ -224,7 +218,6 @@ def gcnet_streaming_csv_v1(request, **kwargs):
 # If kwargs['nodata'] is 'empty' then null values are populated with empty string: ''
 # Format is "NEAD 1.0 UTF-8"
 def streaming_csv_view_v1(request, **kwargs):
-
     # Assign version
     version = "# NEAD 1.0 UTF-8\n"
 
@@ -257,9 +250,9 @@ def streaming_csv_view_v1(request, **kwargs):
 
     # Assign display_values from database_fields
     database_fields = 'timestamp_iso,swin,swin_max,swout,swout_max,netrad,netrad_max,airtemp1,airtemp1_max,airtemp1_min,' \
-             'airtemp2,airtemp2_max,airtemp2_min,airtemp_cs500air1,airtemp_cs500air2,rh1,rh2,windspeed1,' \
-             'windspeed_u1_max,windspeed_u1_stdev,windspeed2,windspeed_u2_max,windspeed_u2_stdev,winddir1,winddir2,' \
-             'pressure,sh1,sh2,battvolt,reftemp'
+                      'airtemp2,airtemp2_max,airtemp2_min,airtemp_cs500air1,airtemp_cs500air2,rh1,rh2,windspeed1,' \
+                      'windspeed_u1_max,windspeed_u1_stdev,windspeed2,windspeed_u2_max,windspeed_u2_stdev,winddir1,winddir2,' \
+                      'pressure,sh1,sh2,battvolt,reftemp'
     display_values = list(database_fields.split(','))
 
     # Create buffered csv_writer
