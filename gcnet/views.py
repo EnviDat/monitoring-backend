@@ -9,8 +9,7 @@ from django.core.exceptions import FieldError
 from django.db.models import Avg, Max, Min
 from django.http import JsonResponse, StreamingHttpResponse
 
-from gcnet.helpers import validate_date_gcnet, Round2, read_config, get_unix_timestamp, dt_minus_hour, \
-    get_nead_queryset_row, get_nead_queryset_value
+from gcnet.helpers import validate_date_gcnet, Round2, read_config, get_unix_timestamp, get_nead_queryset_value
 from gcnet.write_nead_config import write_nead_config
 
 
@@ -250,11 +249,19 @@ def streaming_csv_view_v1(request, **kwargs):
             line = '# ' + line
             hash_lines.append(line)
 
-    # Assign display_values from database_fields
-    database_fields = 'timestamp_iso,swin,swin_max,swout,swout_max,netrad,netrad_max,airtemp1,airtemp1_max,airtemp1_min,' \
-                      'airtemp2,airtemp2_max,airtemp2_min,airtemp_cs500air1,airtemp_cs500air2,rh1,rh2,windspeed1,' \
-                      'windspeed_u1_max,windspeed_u1_stdev,windspeed2,windspeed_u2_max,windspeed_u2_stdev,winddir1,winddir2,' \
-                      'pressure,sh1,sh2,battvolt,reftemp'
+    # Assign nead_config_parser
+    nead_config_parser = read_config(nead_config)
+
+    # Check if nead_config_parser exists
+    if not nead_config_parser:
+        raise FieldError("WARNING non-valid config file: {0}".format(nead_config))
+
+    # Assign display_values from database_fields in nead_config_parser
+    # database_fields = 'timestamp_iso,swin,swin_max,swout,swout_max,netrad,netrad_max,airtemp1,airtemp1_max,airtemp1_min,' \
+    #                   'airtemp2,airtemp2_max,airtemp2_min,airtemp_cs500air1,airtemp_cs500air2,rh1,rh2,windspeed1,' \
+    #                   'windspeed_u1_max,windspeed_u1_stdev,windspeed2,windspeed_u2_max,windspeed_u2_stdev,winddir1,winddir2,' \
+    #                   'pressure,sh1,sh2,battvolt,reftemp'
+    database_fields = nead_config_parser.get('FIELDS', 'database_fields')
     display_values = list(database_fields.split(','))
 
     # Create buffered csv_writer
@@ -269,13 +276,19 @@ def streaming_csv_view_v1(request, **kwargs):
     # Create queryset
     queryset = model_class.objects.values_list(*display_values).order_by('timestamp_iso').all()
 
-    # Generator expression to write each row in the queryset by calculating each row as needed and not all at once
+    # Assign 'timestamp_meaning' from nead_config_parser
+    timestamp_meaning = nead_config_parser.get('METADATA', 'timestamp_meaning')
+
+    # Generator expressions to write each row in the queryset by calculating each row as needed and not all at once
     # Write values that are null in database as the value assigned to 'null_value'
-    # TODO shift 'timestamp_iso' one hour into the past if 'timestamp_meaning' is 'beginning'
-    # rows = (csv_writer.writerow(null_value if x is None else x for x in row) for row in queryset)
-    # rows = (csv_writer.writerow(dt_minus_hour(row[0]) if x is row[0] else x for x in row) for row in queryset)
-    rows = (csv_writer.writerow(get_nead_queryset_value(x, null_value) for x in row) for row in queryset)
-    #null_value_rows = rows.writerows(null_value if x is None for row in rows)
+    # Write timestamps as they are in database if 'timestamp_meaning' == 'end'
+    if timestamp_meaning == 'end':
+        rows = (csv_writer.writerow(null_value if x is None else x for x in row) for row in queryset)
+    # Write timestamps one hour behind how they are in database if 'timestamp_meaning' == 'beginning'
+    elif timestamp_meaning == 'beginning':
+        rows = (csv_writer.writerow(get_nead_queryset_value(x, null_value) for x in row) for row in queryset)
+    else:
+        raise FieldError("WARNING non-valid 'timestamp_meaning' setting in 'METADATA' section of : {0}".format(nead_config))
 
     # Chain version, hash_lines, and rows into StreamingHTTPResponse
     response = StreamingHttpResponse(list(chain(version, hash_lines, rows)), content_type="text/csv")
