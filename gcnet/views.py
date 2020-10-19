@@ -257,10 +257,6 @@ def streaming_csv_view_v1(request, **kwargs):
         raise FieldError("WARNING non-valid config file: {0}".format(nead_config))
 
     # Assign display_values from database_fields in nead_config_parser
-    # database_fields = 'timestamp_iso,swin,swin_max,swout,swout_max,netrad,netrad_max,airtemp1,airtemp1_max,airtemp1_min,' \
-    #                   'airtemp2,airtemp2_max,airtemp2_min,airtemp_cs500air1,airtemp_cs500air2,rh1,rh2,windspeed1,' \
-    #                   'windspeed_u1_max,windspeed_u1_stdev,windspeed2,windspeed_u2_max,windspeed_u2_stdev,winddir1,winddir2,' \
-    #                   'pressure,sh1,sh2,battvolt,reftemp'
     database_fields = nead_config_parser.get('FIELDS', 'database_fields')
     display_values = list(database_fields.split(','))
 
