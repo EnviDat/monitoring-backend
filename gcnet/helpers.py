@@ -7,7 +7,7 @@ from pathlib import Path
 import datetime
 from datetime import timezone
 import math
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from django.db.models import Func
 
@@ -729,4 +729,28 @@ def get_unix_timestamp():
     return timestamp
 
 
+def dt_minus_hour(dt_obj):
+    dt_obj_minus_hour = dt_obj - timedelta(hours=1)
+    return dt_obj_minus_hour
 
+
+# print(dt_minus_hour(datetime(2019, 5, 18, 0, 17, 8)))
+
+# rows = (csv_writer.writerow(dt_minus_hour(row[0]) if x is row[0] else x for x in row) for row in queryset)
+
+def get_nead_queryset_row(row, null_value):
+    for x in row:
+        if x is row[0]:
+            row[0] = dt_minus_hour(row[0])
+        if x is None:
+            row[x] = null_value
+        else:
+            row[x] = x
+
+
+def get_nead_queryset_value(x, null_value):
+    if type(x) is datetime:
+        x = dt_minus_hour(x)
+    if x is None:
+        x = null_value
+    return x

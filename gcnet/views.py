@@ -3,12 +3,14 @@ import importlib
 import os
 from itertools import chain
 
+import pytz
 from django.core import management
 from django.core.exceptions import FieldError
 from django.db.models import Avg, Max, Min
 from django.http import JsonResponse, StreamingHttpResponse
 
-from gcnet.helpers import validate_date_gcnet, Round2, read_config, get_unix_timestamp
+from gcnet.helpers import validate_date_gcnet, Round2, read_config, get_unix_timestamp, dt_minus_hour, \
+    get_nead_queryset_row, get_nead_queryset_value
 from gcnet.write_nead_config import write_nead_config
 
 
@@ -158,7 +160,7 @@ def get_derived_data(request, **kwargs):
 
 class Echo:
     """An object that implements just the write method of the file-like
-    interface. Used in gcnet_streaming_csv()
+    interface.
     """
 
     def write(self, value):
@@ -269,7 +271,11 @@ def streaming_csv_view_v1(request, **kwargs):
 
     # Generator expression to write each row in the queryset by calculating each row as needed and not all at once
     # Write values that are null in database as the value assigned to 'null_value'
-    rows = (csv_writer.writerow(null_value if x is None else x for x in row) for row in queryset)
+    # TODO shift 'timestamp_iso' one hour into the past if 'timestamp_meaning' is 'beginning'
+    # rows = (csv_writer.writerow(null_value if x is None else x for x in row) for row in queryset)
+    # rows = (csv_writer.writerow(dt_minus_hour(row[0]) if x is row[0] else x for x in row) for row in queryset)
+    rows = (csv_writer.writerow(get_nead_queryset_value(x, null_value) for x in row) for row in queryset)
+    #null_value_rows = rows.writerows(null_value if x is None for row in rows)
 
     # Chain version, hash_lines, and rows into StreamingHTTPResponse
     response = StreamingHttpResponse(list(chain(version, hash_lines, rows)), content_type="text/csv")
