@@ -39,28 +39,28 @@ def write_nead_config(config_path, model, stringnull='', delimiter=','):
         geometry = get_gcnet_geometry(position)
         config.set('METADATA', 'geometry', geometry)
 
-        # Get display_description as list
-        display_description = config.get('FIELDS', 'display_description')
-        display_description_list = get_list_comma_delimited(display_description)
+        # Get database_fields as list
+        database_fields = config.get('FIELDS', 'database_fields')
+        database_fields_list = get_list_comma_delimited(database_fields)
 
         # Call get_fields_string() and set 'fields'
-        fields_string = get_fields_string(display_description_list)
+        fields_string = get_fields_string(database_fields_list)
         config.set('FIELDS', 'fields', fields_string)
 
         # Call get_units_offset_string() and set 'add_value'
-        add_value_string = get_add_value_string(display_description_list)
+        add_value_string = get_add_value_string(database_fields_list)
         config.set('FIELDS', 'add_value', add_value_string)
 
         # Call get_scale_factor_string() and set 'scale_factor'
-        scale_factor_string = get_scale_factor_string(display_description_list)
+        scale_factor_string = get_scale_factor_string(database_fields_list)
         config.set('FIELDS', 'scale_factor', scale_factor_string)
 
         # Call get_units_string() and set 'units'
-        units_string = get_units_string(display_description_list)
+        units_string = get_units_string(database_fields_list)
         config.set('FIELDS', 'units', units_string)
 
         # Call get_database_fields_data_types_string() and set 'database_fields_data_types'
-        database_fields_data_types_string = get_database_fields_data_types_string(display_description_list)
+        database_fields_data_types_string = get_database_fields_data_types_string(database_fields_list)
         config.set('FIELDS', 'database_fields_data_types', database_fields_data_types_string)
 
         # Dynamically write header in config file

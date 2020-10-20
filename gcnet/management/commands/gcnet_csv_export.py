@@ -5,6 +5,8 @@
 #   python manage.py gcnet_csv_export -d gcnet/csv_output -n 24_east_grip -m east_grip_24d -c gcnet/config/nead_header.ini -s -999
 #   python manage.py gcnet_csv_export -d gcnet/csv_output -n 4_gits -m gits_04d -c gcnet/config/nead_header.ini -f "NEAD 1.0 UTF-8" -s -999
 
+# TODO: NOTE currently can only export timestamps as they are written, i.e. 'timestamp_meaning' = 'end'
+
 import importlib
 from pathlib import Path
 from django.core.management.base import BaseCommand

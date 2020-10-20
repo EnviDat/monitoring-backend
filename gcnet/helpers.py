@@ -390,48 +390,48 @@ def get_field_value_timestamp(fields_dict):
 
 
 def get_list_comma_delimited(string):
-    list = string.split(',')
-    return list
+    comma_delimited_list = string.split(',')
+    return comma_delimited_list
 
 
-# Returns 'fields' comma separated string for header config by mapping 'display_description_list' to fields_dict
-def get_fields_string(display_description_list):
+# Returns 'fields' comma separated string for header config by mapping 'database_fields_list' to fields_dict
+def get_fields_string(database_fields_list):
     fields_dict = {
         'timestamp_iso': 'timestamp',
-        'shortwave_incoming_radiation': 'ISWR',
-        'shortwave_incoming_radiation_max': 'ISWR_max',
-        'shortwave_outgoing_radiation': 'OSWR',
-        'shortwave_outgoing_radiation_max': 'OSWR_max',
-        'net_radiation': 'NSWR',
-        'net_radiation_max': 'NSWR_max',
-        'air_temperature_1': 'TA1',
-        'air_temperature_1_max': 'TA1_max',
-        'air_temperature_1_min': 'TA1_min',
-        'air_temperature_2': 'TA2',
-        'air_temperature_2_max': 'TA2_max',
-        'air_temperature_2_min': 'TA2_min',
-        'air_temperature_cs500_air1': 'TA3',
-        'air_temperature_cs500_air2': 'TA4',
-        'relative_humidity_1': 'RH1',
-        'relative_humidity_2': 'RH2',
-        'wind_speed_1': 'VW1',
-        'wind_speed_u1_max': 'VW1_max',
-        'wind_speed_u1_stdev': 'VW1_stdev',
-        'wind_speed_2': 'VW2',
-        'wind_speed_u2_max': 'VW2_max',
-        'wind_speed_u2_stdev': 'VW2_stdev',
-        'wind_direction_1': 'DW1',
-        'wind_direction_2': 'DW2',
-        'atmospheric_pressure': 'P',
-        'snow_height_1': 'HS1',
-        'snow_height_2': 'HS2',
-        'battery_voltage': 'V',
-        'ref_temperature': 'TA5'
+        'swin': 'ISWR',
+        'swin_max': 'ISWR_max',
+        'swout': 'OSWR',
+        'swout_max': 'OSWR_max',
+        'netrad': 'NSWR',
+        'netrad_max': 'NSWR_max',
+        'airtemp1': 'TA1',
+        'airtemp1_max': 'TA1_max',
+        'airtemp1_min': 'TA1_min',
+        'airtemp2': 'TA2',
+        'airtemp2_max': 'TA2_max',
+        'airtemp2_min': 'TA2_min',
+        'airtemp_cs500air1': 'TA3',
+        'airtemp_cs500air2': 'TA4',
+        'rh1': 'RH1',
+        'rh2': 'RH2',
+        'windspeed1': 'VW1',
+        'windspeed_u1_max': 'VW1_max',
+        'windspeed_u1_stdev': 'VW1_stdev',
+        'windspeed2': 'VW2',
+        'windspeed_u2_max': 'VW2_max',
+        'windspeed_u2_stdev': 'VW2_stdev',
+        'winddir1': 'DW1',
+        'winddir2': 'DW2',
+        'pressure': 'P',
+        'sh1': 'HS1',
+        'sh2': 'HS2',
+        'battvolt': 'V',
+        'reftemp': 'TA5'
     }
 
     fields_list = []
 
-    for item in display_description_list:
+    for item in database_fields_list:
         if item in fields_dict:
             fields_list.append(fields_dict[item])
         else:
@@ -443,45 +443,45 @@ def get_fields_string(display_description_list):
     return fields_string
 
 
-# Returns 'add_value' comma separated string for header config by mapping 'display_description_list' to
+# Returns 'add_value' comma separated string for header config by mapping 'database_fields_list' to
 # add_value_dict
-def get_add_value_string(display_description_list):
+def get_add_value_string(database_fields_list):
     add_value_dict = {
         'timestamp_iso': 0,
-        'shortwave_incoming_radiation': 0,
-        'shortwave_incoming_radiation_max': 0,
-        'shortwave_outgoing_radiation': 0,
-        'shortwave_outgoing_radiation_max': 0,
-        'net_radiation': 0,
-        'net_radiation_max': 0,
-        'air_temperature_1': 273.15,
-        'air_temperature_1_max': 273.15,
-        'air_temperature_1_min': 273.15,
-        'air_temperature_2': 273.15,
-        'air_temperature_2_max': 273.15,
-        'air_temperature_2_min': 273.15,
-        'air_temperature_cs500_air1': 273.15,
-        'air_temperature_cs500_air2': 273.15,
-        'relative_humidity_1': 0,
-        'relative_humidity_2': 0,
-        'wind_speed_1': 0,
-        'wind_speed_u1_max': 0,
-        'wind_speed_u1_stdev': 0,
-        'wind_speed_2': 0,
-        'wind_speed_u2_max': 0,
-        'wind_speed_u2_stdev': 0,
-        'wind_direction_1': 0,
-        'wind_direction_2': 0,
-        'atmospheric_pressure': 0,
-        'snow_height_1': 0,
-        'snow_height_2': 0,
-        'battery_voltage': 0,
-        'ref_temperature': 273.15
+        'swin': 0,
+        'swin_max': 0,
+        'swout': 0,
+        'swout_max': 0,
+        'netrad': 0,
+        'netrad_max': 0,
+        'airtemp1': 273.15,
+        'airtemp1_max': 273.15,
+        'airtemp1_min': 273.15,
+        'airtemp2': 273.15,
+        'airtemp2_max': 273.15,
+        'airtemp2_min': 273.15,
+        'airtemp_cs500air1': 273.15,
+        'airtemp_cs500air2': 273.15,
+        'rh1': 0,
+        'rh2': 0,
+        'windspeed1': 0,
+        'windspeed_u1_max': 0,
+        'windspeed_u1_stdev': 0,
+        'windspeed2': 0,
+        'windspeed_u2_max': 0,
+        'windspeed_u2_stdev': 0,
+        'winddir1': 0,
+        'winddir2': 0,
+        'pressure': 0,
+        'sh1': 0,
+        'sh2': 0,
+        'battvolt': 0,
+        'reftemp': 273.15
     }
 
     add_value_list = []
 
-    for item in display_description_list:
+    for item in database_fields_list:
         if item in add_value_dict:
             add_value_list.append(add_value_dict[item])
         else:
@@ -497,45 +497,45 @@ def get_add_value_string(display_description_list):
     return add_value_string
 
 
-# Returns 'scale_factor' comma separated string for header config by mapping 'display_description_list' to
+# Returns 'scale_factor' comma separated string for header config by mapping 'database_fields_list' to
 # scale_factor_dict
-def get_scale_factor_string(display_description_list):
+def get_scale_factor_string(database_fields_list):
     scale_factor_dict = {
         'timestamp_iso': 1,
-        'shortwave_incoming_radiation': 1,
-        'shortwave_incoming_radiation_max': 1,
-        'shortwave_outgoing_radiation': 1,
-        'shortwave_outgoing_radiation_max': 1,
-        'net_radiation': 1,
-        'net_radiation_max': 1,
-        'air_temperature_1': 1,
-        'air_temperature_1_max': 1,
-        'air_temperature_1_min': 1,
-        'air_temperature_2': 1,
-        'air_temperature_2_max': 1,
-        'air_temperature_2_min': 1,
-        'air_temperature_cs500_air1': 1,
-        'air_temperature_cs500_air2': 1,
-        'relative_humidity_1': 0.01,
-        'relative_humidity_2': 0.01,
-        'wind_speed_1': 1,
-        'wind_speed_u1_max': 1,
-        'wind_speed_u1_stdev': 1,
-        'wind_speed_2': 1,
-        'wind_speed_u2_max': 1,
-        'wind_speed_u2_stdev': 1,
-        'wind_direction_1': 1,
-        'wind_direction_2': 1,
-        'atmospheric_pressure': 100,
-        'snow_height_1': 1,
-        'snow_height_2': 1,
-        'battery_voltage': 1,
-        'ref_temperature': 1
+        'swin': 1,
+        'swin_max': 1,
+        'swout': 1,
+        'swout_max': 1,
+        'netrad': 1,
+        'netrad_max': 1,
+        'airtemp1': 1,
+        'airtemp1_max': 1,
+        'airtemp1_min': 1,
+        'airtemp2': 1,
+        'airtemp2_max': 1,
+        'airtemp2_min': 1,
+        'airtemp_cs500air1': 1,
+        'airtemp_cs500air2': 1,
+        'rh1': 0.01,
+        'rh2': 0.01,
+        'windspeed1': 1,
+        'windspeed_u1_max': 1,
+        'windspeed_u1_stdev': 1,
+        'windspeed2': 1,
+        'windspeed_u2_max': 1,
+        'windspeed_u2_stdev': 1,
+        'winddir1': 1,
+        'winddir2': 1,
+        'pressure': 100,
+        'sh1': 1,
+        'sh2': 1,
+        'battvolt': 1,
+        'reftemp': 1
     }
 
     scale_factor_list = []
 
-    for item in display_description_list:
+    for item in database_fields_list:
         if item in scale_factor_dict:
             scale_factor_list.append(scale_factor_dict[item])
         else:
@@ -551,44 +551,44 @@ def get_scale_factor_string(display_description_list):
     return scale_factor_string
 
 
-# Returns 'units' comma separated string for header config by mapping 'display_description_list' to units_dict
-def get_units_string(display_description_list):
+# Returns 'units' comma separated string for header config by mapping 'database_fields_list' to units_dict
+def get_units_string(database_fields_list):
     units_dict = {
         'timestamp_iso': 'time',
-        'shortwave_incoming_radiation': 'W/m2',
-        'shortwave_incoming_radiation_max': 'W/m2',
-        'shortwave_outgoing_radiation': 'W/m2',
-        'shortwave_outgoing_radiation_max': 'W/m2',
-        'net_radiation': 'W/m2',
-        'net_radiation_max': 'W/m2',
-        'air_temperature_1': 'Degrees C',
-        'air_temperature_1_max': 'Degrees C',
-        'air_temperature_1_min': 'Degrees C',
-        'air_temperature_2': 'Degrees C',
-        'air_temperature_2_max': 'Degrees C',
-        'air_temperature_2_min': 'Degrees C',
-        'air_temperature_cs500_air1': 'Degrees C',
-        'air_temperature_cs500_air2': 'Degrees C',
-        'relative_humidity_1': '%',
-        'relative_humidity_2': '%',
-        'wind_speed_1': 'm/s',
-        'wind_speed_u1_max': 'm/s',
-        'wind_speed_u1_stdev': 'm/s',
-        'wind_speed_2': 'm/s',
-        'wind_speed_u2_max': 'm/s',
-        'wind_speed_u2_stdev': 'm/s',
-        'wind_direction_1': 'Degrees',
-        'wind_direction_2': 'Degrees',
-        'atmospheric_pressure': 'mbar',
-        'snow_height_1': 'm',
-        'snow_height_2': 'm',
-        'battery_voltage': 'V',
-        'ref_temperature': 'Degrees C'
+        'swin': 'W/m2',
+        'swin_max': 'W/m2',
+        'swout': 'W/m2',
+        'swout_max': 'W/m2',
+        'netrad': 'W/m2',
+        'netrad_max': 'W/m2',
+        'airtemp1': 'Degrees C',
+        'airtemp1_max': 'Degrees C',
+        'airtemp1_min': 'Degrees C',
+        'airtemp2': 'Degrees C',
+        'airtemp2_max': 'Degrees C',
+        'airtemp2_min': 'Degrees C',
+        'airtemp_cs500air1': 'Degrees C',
+        'airtemp_cs500air2': 'Degrees C',
+        'rh1': '%',
+        'rh2': '%',
+        'windspeed1': 'm/s',
+        'windspeed_u1_max': 'm/s',
+        'windspeed_u1_stdev': 'm/s',
+        'windspeed2': 'm/s',
+        'windspeed_u2_max': 'm/s',
+        'windspeed_u2_stdev': 'm/s',
+        'winddir1': 'Degrees',
+        'winddir2': 'Degrees',
+        'pressure': 'mbar',
+        'sh1': 'm',
+        'sh2': 'm',
+        'battvolt': 'V',
+        'reftemp': 'Degrees C'
     }
 
     units_list = []
 
-    for item in display_description_list:
+    for item in database_fields_list:
         if item in units_dict:
             units_list.append(units_dict[item])
         else:
@@ -601,45 +601,45 @@ def get_units_string(display_description_list):
     return units_string
 
 
-# Returns 'database_fields_data_types' comma separated string for header config by mapping 'display_description_list' to
+# Returns 'database_fields_data_types' comma separated string for header config by mapping 'database_fields_list' to
 # database_fields_data_types_dict
-def get_database_fields_data_types_string(display_description_list):
+def get_database_fields_data_types_string(database_fields_list):
     database_fields_data_types_dict = {
         'timestamp_iso': 'timestamp',
-        'shortwave_incoming_radiation': 'real',
-        'shortwave_incoming_radiation_max': 'real',
-        'shortwave_outgoing_radiation': 'real',
-        'shortwave_outgoing_radiation_max': 'real',
-        'net_radiation': 'real',
-        'net_radiation_max': 'real',
-        'air_temperature_1': 'real',
-        'air_temperature_1_max': 'real',
-        'air_temperature_1_min': 'real',
-        'air_temperature_2': 'real',
-        'air_temperature_2_max': 'real',
-        'air_temperature_2_min': 'real',
-        'air_temperature_cs500_air1': 'real',
-        'air_temperature_cs500_air2': 'real',
-        'relative_humidity_1': 'real',
-        'relative_humidity_2': 'real',
-        'wind_speed_1': 'real',
-        'wind_speed_u1_max': 'real',
-        'wind_speed_u1_stdev': 'real',
-        'wind_speed_2': 'real',
-        'wind_speed_u2_max': 'real',
-        'wind_speed_u2_stdev': 'real',
-        'wind_direction_1': 'real',
-        'wind_direction_2': 'real',
-        'atmospheric_pressure': 'real',
-        'snow_height_1': 'real',
-        'snow_height_2': 'real',
-        'battery_voltage': 'real',
-        'ref_temperature': 'real'
+        'swin': 'real',
+        'swin_max': 'real',
+        'swout': 'real',
+        'swout_max': 'real',
+        'netrad': 'real',
+        'netrad_max': 'real',
+        'airtemp1': 'real',
+        'airtemp1_max': 'real',
+        'airtemp1_min': 'real',
+        'airtemp2': 'real',
+        'airtemp2_max': 'real',
+        'airtemp2_min': 'real',
+        'airtemp_cs500air1': 'real',
+        'airtemp_cs500air2': 'real',
+        'rh1': 'real',
+        'rh2': 'real',
+        'windspeed1': 'real',
+        'windspeed_u1_max': 'real',
+        'windspeed_u1_stdev': 'real',
+        'windspeed2': 'real',
+        'windspeed_u2_max': 'real',
+        'windspeed_u2_stdev': 'real',
+        'winddir1': 'real',
+        'winddir2': 'real',
+        'pressure': 'real',
+        'sh1': 'real',
+        'sh2': 'real',
+        'battvolt': 'real',
+        'reftemp': 'real'
     }
 
     database_fields_data_types_list = []
 
-    for item in display_description_list:
+    for item in database_fields_list:
         if item in database_fields_data_types_dict:
             database_fields_data_types_list.append(database_fields_data_types_dict[item])
         else:
@@ -684,6 +684,57 @@ def get_station_id(model):
         return
 
     return station_id
+
+
+# TODO write function to get display_description
+# # Returns 'fields' comma separated string for header config by mapping 'display_description_list' to fields_dict
+# def get_fields_string(display_description_list):
+#     fields_dict = {
+#         'timestamp_iso': 'timestamp',
+#         'shortwave_incoming_radiation': 'ISWR',
+#         'shortwave_incoming_radiation_max': 'ISWR_max',
+#         'shortwave_outgoing_radiation': 'OSWR',
+#         'shortwave_outgoing_radiation_max': 'OSWR_max',
+#         'net_radiation': 'NSWR',
+#         'net_radiation_max': 'NSWR_max',
+#         'air_temperature_1': 'TA1',
+#         'air_temperature_1_max': 'TA1_max',
+#         'air_temperature_1_min': 'TA1_min',
+#         'air_temperature_2': 'TA2',
+#         'air_temperature_2_max': 'TA2_max',
+#         'air_temperature_2_min': 'TA2_min',
+#         'air_temperature_cs500_air1': 'TA3',
+#         'air_temperature_cs500_air2': 'TA4',
+#         'relative_humidity_1': 'RH1',
+#         'relative_humidity_2': 'RH2',
+#         'wind_speed_1': 'VW1',
+#         'wind_speed_u1_max': 'VW1_max',
+#         'wind_speed_u1_stdev': 'VW1_stdev',
+#         'wind_speed_2': 'VW2',
+#         'wind_speed_u2_max': 'VW2_max',
+#         'wind_speed_u2_stdev': 'VW2_stdev',
+#         'wind_direction_1': 'DW1',
+#         'wind_direction_2': 'DW2',
+#         'atmospheric_pressure': 'P',
+#         'snow_height_1': 'HS1',
+#         'snow_height_2': 'HS2',
+#         'battery_voltage': 'V',
+#         'ref_temperature': 'TA5'
+#     }
+#
+#     fields_list = []
+#
+#     for item in display_description_list:
+#         if item in fields_dict:
+#             fields_list.append(fields_dict[item])
+#         else:
+#             print('WARNING (helpers.py) "{0}" not a valid key in fields_dict'.format(item))
+#             return
+#
+#     fields_string = ','.join(fields_list)
+#
+#     return fields_string
+
 
 
 # Deletes a line from a file and returns the deleted line (if its length > 0)
