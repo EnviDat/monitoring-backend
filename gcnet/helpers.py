@@ -398,11 +398,10 @@ def get_list_comma_delimited(string):
 def get_fields_string(display_description_list):
     fields_dict = {
         'timestamp_iso': 'timestamp',
-        'short_wave_incoming_radiation': 'ISWR',
-        # TODO ask about the new values
-        'short_wave_incoming_radiation_max': 'ISWR_max',
-        'short_wave_outgoing_radiation': 'OSWR',
-        'short_wave_outgoing_radiation_max': 'OSWR_max',
+        'shortwave_incoming_radiation': 'ISWR',
+        'shortwave_incoming_radiation_max': 'ISWR_max',
+        'shortwave_outgoing_radiation': 'OSWR',
+        'shortwave_outgoing_radiation_max': 'OSWR_max',
         'net_radiation': 'NSWR',
         'net_radiation_max': 'NSWR_max',
         'air_temperature_1': 'TA1',
@@ -416,7 +415,6 @@ def get_fields_string(display_description_list):
         'relative_humidity_1': 'RH1',
         'relative_humidity_2': 'RH2',
         'wind_speed_1': 'VW1',
-        # TODO is this value the same as ws1?
         'wind_speed_u1_max': 'VW1_max',
         'wind_speed_u1_stdev': 'VW1_stdev',
         'wind_speed_2': 'VW2',
@@ -450,10 +448,10 @@ def get_fields_string(display_description_list):
 def get_add_value_string(display_description_list):
     add_value_dict = {
         'timestamp_iso': 0,
-        'short_wave_incoming_radiation': 0,
-        'short_wave_incoming_radiation_max': 0,
-        'short_wave_outgoing_radiation': 0,
-        'short_wave_outgoing_radiation_max': 0,
+        'shortwave_incoming_radiation': 0,
+        'shortwave_incoming_radiation_max': 0,
+        'shortwave_outgoing_radiation': 0,
+        'shortwave_outgoing_radiation_max': 0,
         'net_radiation': 0,
         'net_radiation_max': 0,
         'air_temperature_1': 273.15,
@@ -504,10 +502,10 @@ def get_add_value_string(display_description_list):
 def get_scale_factor_string(display_description_list):
     scale_factor_dict = {
         'timestamp_iso': 1,
-        'short_wave_incoming_radiation': 1,
-        'short_wave_incoming_radiation_max': 1,
-        'short_wave_outgoing_radiation': 1,
-        'short_wave_outgoing_radiation_max': 1,
+        'shortwave_incoming_radiation': 1,
+        'shortwave_incoming_radiation_max': 1,
+        'shortwave_outgoing_radiation': 1,
+        'shortwave_outgoing_radiation_max': 1,
         'net_radiation': 1,
         'net_radiation_max': 1,
         'air_temperature_1': 1,
@@ -557,10 +555,10 @@ def get_scale_factor_string(display_description_list):
 def get_units_string(display_description_list):
     units_dict = {
         'timestamp_iso': 'time',
-        'short_wave_incoming_radiation': 'W/m2',
-        'short_wave_incoming_radiation_max': 'W/m2',
-        'short_wave_outgoing_radiation': 'W/m2',
-        'short_wave_outgoing_radiation_max': 'W/m2',
+        'shortwave_incoming_radiation': 'W/m2',
+        'shortwave_incoming_radiation_max': 'W/m2',
+        'shortwave_outgoing_radiation': 'W/m2',
+        'shortwave_outgoing_radiation_max': 'W/m2',
         'net_radiation': 'W/m2',
         'net_radiation_max': 'W/m2',
         'air_temperature_1': 'Degrees C',
@@ -608,10 +606,10 @@ def get_units_string(display_description_list):
 def get_database_fields_data_types_string(display_description_list):
     database_fields_data_types_dict = {
         'timestamp_iso': 'timestamp',
-        'short_wave_incoming_radiation': 'real',
-        'short_wave_incoming_radiation_max': 'real',
-        'short_wave_outgoing_radiation': 'real',
-        'short_wave_outgoing_radiation_max': 'real',
+        'shortwave_incoming_radiation': 'real',
+        'shortwave_incoming_radiation_max': 'real',
+        'shortwave_outgoing_radiation': 'real',
+        'shortwave_outgoing_radiation_max': 'real',
         'net_radiation': 'real',
         'net_radiation_max': 'real',
         'air_temperature_1': 'real',
