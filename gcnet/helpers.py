@@ -652,6 +652,56 @@ def get_database_fields_data_types_string(database_fields_list):
     return display_units_string
 
 
+# Returns 'display_description' comma separated string for header config by mapping 'database_fields_list' to
+# display_description_dict
+def get_display_description(database_fields_list):
+    display_description_dict = {
+        'timestamp_iso': 'timestamp_iso',
+        'swin': 'shortwave_incoming_radiation',
+        'swin_max': 'shortwave_incoming_radiation_max',
+        'swout': 'shortwave_outgoing_radiation',
+        'swout_max': 'shortwave_outgoing_radiation_max',
+        'netrad': 'net_radiation',
+        'netrad_max': 'net_radiation_max',
+        'airtemp1': 'air_temperature_1',
+        'airtemp1_max': 'air_temperature_1_max',
+        'airtemp1_min': 'air_temperature_1_min',
+        'airtemp2': 'air_temperature_2',
+        'airtemp2_max': 'air_temperature_2_max',
+        'airtemp2_min': 'air_temperature_2_min',
+        'airtemp_cs500air1': 'air_temperature_cs500_air1',
+        'airtemp_cs500air2': 'air_temperature_cs500_air2',
+        'rh1': 'relative_humidity_1',
+        'rh2': 'relative_humidity_2',
+        'windspeed1': 'wind_speed_1',
+        'windspeed_u1_max': 'wind_speed_u1_max',
+        'windspeed_u1_stdev': 'wind_speed_u1_stdev',
+        'windspeed2': 'wind_speed_2',
+        'windspeed_u2_max': 'wind_speed_u2_max',
+        'windspeed_u2_stdev': 'wind_speed_u2_stdev',
+        'winddir1': 'wind_direction_1',
+        'winddir2': 'wind_direction_2',
+        'pressure': 'atmospheric_pressure',
+        'sh1': 'snow_height_1',
+        'sh2': 'snow_height_2',
+        'battvolt': 'battery_voltage',
+        'reftemp': 'ref_temperature'
+    }
+
+    display_description_list = []
+
+    for item in database_fields_list:
+        if item in display_description_dict:
+            display_description_list.append(display_description_dict[item])
+        else:
+            print('WARNING (helpers.py) "{0}" not a valid key in display_description_dict'.format(item))
+            return
+
+    display_description_string = ','.join(display_description_list)
+
+    return display_description_string
+
+
 # Returns 'station_id' from stations config by mapping kwargs['model'] to station_id_dict
 def get_station_id(model):
     station_id_dict = {
@@ -684,57 +734,6 @@ def get_station_id(model):
         return
 
     return station_id
-
-
-# TODO write function to get display_description
-# # Returns 'fields' comma separated string for header config by mapping 'display_description_list' to fields_dict
-# def get_fields_string(display_description_list):
-#     fields_dict = {
-#         'timestamp_iso': 'timestamp',
-#         'shortwave_incoming_radiation': 'ISWR',
-#         'shortwave_incoming_radiation_max': 'ISWR_max',
-#         'shortwave_outgoing_radiation': 'OSWR',
-#         'shortwave_outgoing_radiation_max': 'OSWR_max',
-#         'net_radiation': 'NSWR',
-#         'net_radiation_max': 'NSWR_max',
-#         'air_temperature_1': 'TA1',
-#         'air_temperature_1_max': 'TA1_max',
-#         'air_temperature_1_min': 'TA1_min',
-#         'air_temperature_2': 'TA2',
-#         'air_temperature_2_max': 'TA2_max',
-#         'air_temperature_2_min': 'TA2_min',
-#         'air_temperature_cs500_air1': 'TA3',
-#         'air_temperature_cs500_air2': 'TA4',
-#         'relative_humidity_1': 'RH1',
-#         'relative_humidity_2': 'RH2',
-#         'wind_speed_1': 'VW1',
-#         'wind_speed_u1_max': 'VW1_max',
-#         'wind_speed_u1_stdev': 'VW1_stdev',
-#         'wind_speed_2': 'VW2',
-#         'wind_speed_u2_max': 'VW2_max',
-#         'wind_speed_u2_stdev': 'VW2_stdev',
-#         'wind_direction_1': 'DW1',
-#         'wind_direction_2': 'DW2',
-#         'atmospheric_pressure': 'P',
-#         'snow_height_1': 'HS1',
-#         'snow_height_2': 'HS2',
-#         'battery_voltage': 'V',
-#         'ref_temperature': 'TA5'
-#     }
-#
-#     fields_list = []
-#
-#     for item in display_description_list:
-#         if item in fields_dict:
-#             fields_list.append(fields_dict[item])
-#         else:
-#             print('WARNING (helpers.py) "{0}" not a valid key in fields_dict'.format(item))
-#             return
-#
-#     fields_string = ','.join(fields_list)
-#
-#     return fields_string
-
 
 
 # Deletes a line from a file and returns the deleted line (if its length > 0)
