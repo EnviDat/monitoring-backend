@@ -1,5 +1,6 @@
 from gcnet.helpers import read_config, get_station_id, get_gcnet_geometry, get_list_comma_delimited, get_fields_string, \
-    get_add_value_string, get_scale_factor_string, get_units_string, get_database_fields_data_types_string
+    get_add_value_string, get_scale_factor_string, get_units_string, get_database_fields_data_types_string, \
+    get_display_description
 
 
 def write_nead_config(config_path, model, stringnull='', delimiter=','):
@@ -58,6 +59,10 @@ def write_nead_config(config_path, model, stringnull='', delimiter=','):
         # Call get_units_string() and set 'units'
         units_string = get_units_string(database_fields_list)
         config.set('FIELDS', 'units', units_string)
+
+        # Call get_display_description() and set 'display_description'
+        display_description_string = get_display_description(database_fields_list)
+        config.set('FIELDS', 'display_description', display_description_string)
 
         # Call get_database_fields_data_types_string() and set 'database_fields_data_types'
         database_fields_data_types_string = get_database_fields_data_types_string(database_fields_list)

@@ -679,11 +679,11 @@ def get_display_description(database_fields_list):
         'windspeed2': 'wind_speed_2',
         'windspeed_u2_max': 'wind_speed_u2_max',
         'windspeed_u2_stdev': 'wind_speed_u2_stdev',
-        'winddir1': 'wind_direction_1',
-        'winddir2': 'wind_direction_2',
-        'pressure': 'atmospheric_pressure',
-        'sh1': 'snow_height_1',
-        'sh2': 'snow_height_2',
+        'winddir1': 'wind_from_direction_1',
+        'winddir2': 'wind_from_direction_2',
+        'pressure': 'air_pressure',
+        'sh1': 'snow_depth_1',
+        'sh2': 'snow_depth_2',
         'battvolt': 'battery_voltage',
         'reftemp': 'ref_temperature'
     }
