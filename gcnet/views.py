@@ -1,13 +1,14 @@
 import csv
 import importlib
 import os
+from io import StringIO
 from itertools import chain
 
 import pytz
 from django.core import management
 from django.core.exceptions import FieldError
 from django.db.models import Avg, Max, Min
-from django.http import JsonResponse, StreamingHttpResponse
+from django.http import JsonResponse, StreamingHttpResponse, HttpResponse
 
 from gcnet.helpers import validate_date_gcnet, Round2, read_config, get_unix_timestamp, get_nead_queryset_value
 from gcnet.write_nead_config import write_nead_config
@@ -220,7 +221,7 @@ def gcnet_streaming_csv_v1(request, **kwargs):
 # Format is "NEAD 1.0 UTF-8"
 def streaming_csv_view_v1(request, **kwargs):
     # Assign version
-    version = "# NEAD 1.0 UTF-8\n"
+    version = "# NEAD 1.0 UTF-8"
 
     # Assign nead_config
     nead_config = 'gcnet/config/nead_header.ini'
@@ -269,25 +270,64 @@ def streaming_csv_view_v1(request, **kwargs):
     package = importlib.import_module("gcnet.models")
     model_class = getattr(package, class_name)
 
-    # Create queryset
-    queryset = model_class.objects.values_list(*display_values).order_by('timestamp_iso').all()
+    # Define a generator to stream GC-Net data directly to the client
+    def stream(version, hash_lines):
+        buffer_ = StringIO()
+        writer = csv.writer(buffer_)
 
-    # Assign 'timestamp_meaning' from nead_config_parser
-    timestamp_meaning = nead_config_parser.get('METADATA', 'timestamp_meaning')
+        writer.writerow([version])
 
-    # Generator expressions to write each row in the queryset by calculating each row as needed and not all at once
-    # Write values that are null in database as the value assigned to 'null_value'
-    # Write timestamps as they are in database if 'timestamp_meaning' == 'end'
-    if timestamp_meaning == 'end':
-        rows = (csv_writer.writerow(null_value if x is None else x for x in row) for row in queryset)
-    # Write timestamps one hour behind how they are in database if 'timestamp_meaning' == 'beginning'
-    elif timestamp_meaning == 'beginning':
-        rows = (csv_writer.writerow(get_nead_queryset_value(x, null_value) for x in row) for row in queryset)
-    else:
-        raise FieldError("WARNING non-valid 'timestamp_meaning' setting in 'METADATA' section of : {0}".format(nead_config))
+        buffer_.writelines(hash_lines)
 
-    # Chain version, hash_lines, and rows into StreamingHTTPResponse
-    response = StreamingHttpResponse(list(chain(version, hash_lines, rows)), content_type="text/csv")
-    response["Content-Disposition"] = 'attachment; filename=' + output_csv
+        # for line in hash_lines:
+        #     # buffer_.write(line)
+        #     buffer_.w
+
+        # Assign 'timestamp_meaning' from nead_config_parser
+        timestamp_meaning = nead_config_parser.get('METADATA', 'timestamp_meaning')
+
+        for row in model_class.objects.values_list(*display_values).order_by('timestamp_iso').iterator():
+            if timestamp_meaning == 'end':
+                writer.writerow(null_value if x is None else x for x in row)
+            # Write timestamps one hour behind how they are in database if 'timestamp_meaning' == 'beginning'
+            elif timestamp_meaning == 'beginning':
+                writer.writerow(get_nead_queryset_value(x, null_value) for x in row)
+            else:
+                raise FieldError("WARNING non-valid 'timestamp_meaning' setting in 'METADATA' section of : {0}".format(nead_config))
+
+            # writer.writerow(get_nead_queryset_value(x, null_value) for x in row)
+            buffer_.seek(0)
+            data = buffer_.read()
+            buffer_.seek(0)
+            buffer_.truncate()
+            yield data
+
+    # Create the streaming response object
+    response = StreamingHttpResponse(stream(version, hash_lines), content_type='text/csv')
+    # response = StreamingHttpResponse(list(chain(version, hash_lines, stream())), content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="somefilename.csv"'
+
+
+
+    # # Create queryset
+    # queryset = model_class.objects.values_list(*display_values).order_by('timestamp_iso').all()
+    #
+    # # Assign 'timestamp_meaning' from nead_config_parser
+    # timestamp_meaning = nead_config_parser.get('METADATA', 'timestamp_meaning')
+    #
+    # # Generator expressions to write each row in the queryset by calculating each row as needed and not all at once
+    # # Write values that are null in database as the value assigned to 'null_value'
+    # # Write timestamps as they are in database if 'timestamp_meaning' == 'end'
+    # if timestamp_meaning == 'end':
+    #     rows = (csv_writer.writerow(null_value if x is None else x for x in row) for row in queryset)
+    # # Write timestamps one hour behind how they are in database if 'timestamp_meaning' == 'beginning'
+    # elif timestamp_meaning == 'beginning':
+    #     rows = (csv_writer.writerow(get_nead_queryset_value(x, null_value) for x in row) for row in queryset)
+    # else:
+    #     raise FieldError("WARNING non-valid 'timestamp_meaning' setting in 'METADATA' section of : {0}".format(nead_config))
+    #
+    # # Chain version, hash_lines, and rows into StreamingHTTPResponse
+    # response = StreamingHttpResponse(list(chain(version, hash_lines, rows)), content_type="text/csv")
+    # response["Content-Disposition"] = 'attachment; filename=' + output_csv
 
     return response
