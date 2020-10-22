@@ -45,7 +45,7 @@ def read_config(config_path: str):
     config_file = Path(config_path)
 
     # Load gcnet configuration file
-    gc_config = configparser.RawConfigParser(comment_prefixes=';', allow_no_value=True)
+    gc_config = configparser.RawConfigParser(inline_comment_prefixes='#', allow_no_value=True)
     gc_config.read(config_file)
 
     # TODO comment out print statement out before deployment

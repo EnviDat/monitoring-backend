@@ -4,9 +4,9 @@ from io import StringIO
 
 from django.core.exceptions import FieldError
 from django.db.models import Avg, Max, Min
-from django.http import JsonResponse, StreamingHttpResponse, HttpResponse
+from django.http import JsonResponse, StreamingHttpResponse
 
-from gcnet.helpers import validate_date_gcnet, Round2, read_config, get_unix_timestamp, get_nead_queryset_value
+from gcnet.helpers import validate_date_gcnet, Round2, read_config, get_nead_queryset_value
 from gcnet.write_nead_config import write_nead_config
 
 
@@ -217,13 +217,13 @@ def streaming_csv_view_v1(request, **kwargs):
     model_class = getattr(package, class_name)
 
     # Define a generator to stream GC-Net data directly to the client
-    def stream(version, hash_lines):
+    def stream(nead_version, hashed_lines):
         buffer_ = StringIO()
         writer = csv.writer(buffer_)
 
         # Write version and hash_lines to buffer_
-        buffer_.writelines(version)
-        buffer_.writelines(hash_lines)
+        buffer_.writelines(nead_version)
+        buffer_.writelines(hashed_lines)
 
         # Assign 'timestamp_meaning' from nead_config_parser
         timestamp_meaning = nead_config_parser.get('METADATA', 'timestamp_meaning')
