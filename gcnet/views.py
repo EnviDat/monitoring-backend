@@ -1,9 +1,7 @@
 import csv
 import importlib
-import os
 from io import StringIO
 
-from django.core import management
 from django.core.exceptions import FieldError
 from django.db.models import Avg, Max, Min
 from django.http import JsonResponse, StreamingHttpResponse, HttpResponse
