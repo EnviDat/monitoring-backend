@@ -166,52 +166,6 @@ class Echo:
         return value
 
 
-# Streams GC-Net station data to csv file
-# kwargs['model'] corresponds to the station names that are listed in models.py
-# kwargs['nodata'] assigns string to populate null values in database
-# If kwargs['nodata'] is 'empty' then null values are populated with empty string: ''
-# Format is "NEAD 1.0 UTF-8"
-def gcnet_streaming_csv_v1(request, **kwargs):
-    # Assign csv_filename
-    csv_filename = '{0}.csv'.format(kwargs['model'])
-
-    # Assign null_value
-    if kwargs['nodata'] == 'empty':
-        null_value = ''
-    else:
-        null_value = kwargs['nodata']
-
-    # Get current timestamp
-    timestamp = get_unix_timestamp()
-    csv_temporary = '{0}_temporary_{1}'.format(kwargs['model'], timestamp)
-
-    # Trigger gcnet_csv_export.py
-    try:
-        management.call_command('gcnet_csv_export', directory='gcnet/temporary', name=csv_temporary,
-                                model=kwargs['model'],
-                                config='gcnet/config/nead_header.ini', format="NEAD 1.0 UTF-8",
-                                stringnull=null_value)
-    except Exception as e:
-        # Print error message
-        print('WARNING (gcnet/views.py): could not execute gcnet_csv_export, EXCEPTION: {0}'.format(e))
-        return
-
-    # Stream response
-    with open('gcnet/temporary/{0}.csv'.format(csv_temporary), newline='') as f:
-        reader = csv.reader(f)
-        data = list(reader)
-    pseudo_buffer = Echo()
-    writer = csv.writer(pseudo_buffer)
-    response = StreamingHttpResponse((writer.writerow(row) for row in data),
-                                     content_type="text/csv")
-    response['Content-Disposition'] = 'attachment; filename={0}'.format(csv_filename)
-
-    # Remove temporary csv from gcnet/temporary directory
-    os.remove('gcnet/temporary/{0}.csv'.format(csv_temporary))
-
-    return response
-
-
 # Streams GC-Net station data to csv file in NEAD format
 # kwargs['model'] corresponds to the station names that are listed in models.py
 # kwargs['nodata'] assigns string to populate null values in database
