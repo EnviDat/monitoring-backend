@@ -221,7 +221,7 @@ def gcnet_streaming_csv_v1(request, **kwargs):
 # Format is "NEAD 1.0 UTF-8"
 def streaming_csv_view_v1(request, **kwargs):
     # Assign version
-    version = "# NEAD 1.0 UTF-8"
+    version = "# NEAD 1.0 UTF-8\n"
 
     # Assign nead_config
     nead_config = 'gcnet/config/nead_header.ini'
@@ -261,10 +261,6 @@ def streaming_csv_view_v1(request, **kwargs):
     database_fields = nead_config_parser.get('FIELDS', 'database_fields')
     display_values = list(database_fields.split(','))
 
-    # Create buffered csv_writer
-    echo_buffer = Echo()
-    csv_writer = csv.writer(echo_buffer)
-
     # Get the model as a class
     class_name = kwargs['model'].rsplit('.', 1)[-1]
     package = importlib.import_module("gcnet.models")
@@ -275,18 +271,17 @@ def streaming_csv_view_v1(request, **kwargs):
         buffer_ = StringIO()
         writer = csv.writer(buffer_)
 
-        writer.writerow([version])
-
+        # Write version and hash_lines to buffer_
+        buffer_.writelines(version)
         buffer_.writelines(hash_lines)
-
-        # for line in hash_lines:
-        #     # buffer_.write(line)
-        #     buffer_.w
 
         # Assign 'timestamp_meaning' from nead_config_parser
         timestamp_meaning = nead_config_parser.get('METADATA', 'timestamp_meaning')
 
+        # Generator expressions to write each row in the queryset by calculating each row as needed and not all at once
+        # Write values that are null in database as the value assigned to 'null_value'
         for row in model_class.objects.values_list(*display_values).order_by('timestamp_iso').iterator():
+            # Write timestamps as they are in database if 'timestamp_meaning' == 'end'
             if timestamp_meaning == 'end':
                 writer.writerow(null_value if x is None else x for x in row)
             # Write timestamps one hour behind how they are in database if 'timestamp_meaning' == 'beginning'
@@ -295,39 +290,15 @@ def streaming_csv_view_v1(request, **kwargs):
             else:
                 raise FieldError("WARNING non-valid 'timestamp_meaning' setting in 'METADATA' section of : {0}".format(nead_config))
 
-            # writer.writerow(get_nead_queryset_value(x, null_value) for x in row)
+            # Yield data (row from datbase)
             buffer_.seek(0)
             data = buffer_.read()
             buffer_.seek(0)
             buffer_.truncate()
             yield data
 
-    # Create the streaming response object
+    # Create the streaming response object and output csv
     response = StreamingHttpResponse(stream(version, hash_lines), content_type='text/csv')
-    # response = StreamingHttpResponse(list(chain(version, hash_lines, stream())), content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="somefilename.csv"'
-
-
-
-    # # Create queryset
-    # queryset = model_class.objects.values_list(*display_values).order_by('timestamp_iso').all()
-    #
-    # # Assign 'timestamp_meaning' from nead_config_parser
-    # timestamp_meaning = nead_config_parser.get('METADATA', 'timestamp_meaning')
-    #
-    # # Generator expressions to write each row in the queryset by calculating each row as needed and not all at once
-    # # Write values that are null in database as the value assigned to 'null_value'
-    # # Write timestamps as they are in database if 'timestamp_meaning' == 'end'
-    # if timestamp_meaning == 'end':
-    #     rows = (csv_writer.writerow(null_value if x is None else x for x in row) for row in queryset)
-    # # Write timestamps one hour behind how they are in database if 'timestamp_meaning' == 'beginning'
-    # elif timestamp_meaning == 'beginning':
-    #     rows = (csv_writer.writerow(get_nead_queryset_value(x, null_value) for x in row) for row in queryset)
-    # else:
-    #     raise FieldError("WARNING non-valid 'timestamp_meaning' setting in 'METADATA' section of : {0}".format(nead_config))
-    #
-    # # Chain version, hash_lines, and rows into StreamingHTTPResponse
-    # response = StreamingHttpResponse(list(chain(version, hash_lines, rows)), content_type="text/csv")
-    # response["Content-Disposition"] = 'attachment; filename=' + output_csv
+    response['Content-Disposition'] = 'attachment; filename=' + output_csv
 
     return response
