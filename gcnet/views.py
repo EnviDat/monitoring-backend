@@ -288,7 +288,7 @@ def streaming_csv_view_v1(request, **kwargs):
             else:
                 raise FieldError("WARNING non-valid 'timestamp_meaning' setting in 'METADATA' section of : {0}".format(nead_config))
 
-            # Yield data (row from datbase)
+            # Yield data (row from database)
             buffer_.seek(0)
             data = buffer_.read()
             buffer_.seek(0)
