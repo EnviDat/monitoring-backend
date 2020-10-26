@@ -1,3 +1,5 @@
+from io import StringIO
+
 from gcnet.helpers import read_config, get_station_id, get_gcnet_geometry, get_list_comma_delimited, get_fields_string, \
     get_add_value_string, get_scale_factor_string, get_units_string, get_database_fields_data_types_string, \
     get_display_description
@@ -65,10 +67,18 @@ def write_nead_config(config_path, model, stringnull='', delimiter=',', ts_meani
         config.set('FIELDS', 'database_fields_data_types', database_fields_data_types_string)
 
         # Dynamically write header in config file
-        with open(config_path, encoding='utf-8', mode='w', newline='\n') as config_file:
-            config.write(config_file)
+        # TODO StringIO
+        buffer_ = StringIO()
+        # with open(config_path, encoding='utf-8', mode='w', newline='\n') as config_file:
+        config.write(buffer_)
+
+        #print(buffer_.getvalue(), config)
+        return buffer_.getvalue(), config
 
     except Exception as e:
         # Print error message
         print('WARNING (write_nead_config.py): could not write nead header config, EXCEPTION: {0}'.format(e))
-        return
+        return None, None
+
+
+#print(write_nead_config('config/nead_header.ini', 'swisscamp_01d', stringnull='', delimiter=',', ts_meaning='end'))

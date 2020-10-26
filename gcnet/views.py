@@ -192,23 +192,28 @@ def streaming_csv_view_v1(request, **kwargs):
     output_csv = station_model + '.csv'
 
     # Write NEAD config file
-    write_nead_config(config_path=nead_config, model=station_model, stringnull=null_value, delimiter=',', ts_meaning=timestamp_meaning)
+    config_buffer, nead_config_parser = write_nead_config(config_path=nead_config, model=station_model, stringnull=null_value, delimiter=',', ts_meaning=timestamp_meaning)
+    # TODO check config_buffer and nead_config_parser are not None, return
+    hash_lines = []
+    for line in config_buffer.replace('\r\n', '\n').split('\n'):
+        line = '# ' + line + '\n'
+        hash_lines.append(line)
 
     # Read NEAD config file and assign to nead_lines
     # Concatenate '# ' in front of every line and append to hash_lines
-    with open(nead_config, 'r') as nead_header:
-        nead_lines = nead_header.readlines()
-        hash_lines = []
-        for line in nead_lines:
-            line = '# ' + line
-            hash_lines.append(line)
+    # with open(nead_config, 'r') as nead_header:
+    #     nead_lines = nead_header.readlines()
+    #     hash_lines = []
+    #     for line in nead_lines:
+    #         line = '# ' + line
+    #         hash_lines.append(line)
 
     # Assign nead_config_parser
-    nead_config_parser = read_config(nead_config)
+    # nead_config_parser = read_config(nead_config)
 
-    # Check if nead_config_parser exists
-    if not nead_config_parser:
-        raise FieldError("WARNING non-valid config file: {0}".format(nead_config))
+    # # Check if nead_config_parser exists
+    # if not nead_config_parser:
+    #     raise FieldError("WARNING non-valid config file: {0}".format(nead_config))
 
     # Assign display_values from database_fields in nead_config_parser
     database_fields = nead_config_parser.get('FIELDS', 'database_fields')
@@ -218,6 +223,10 @@ def streaming_csv_view_v1(request, **kwargs):
     class_name = kwargs['model'].rsplit('.', 1)[-1]
     package = importlib.import_module("gcnet.models")
     model_class = getattr(package, class_name)
+
+    # Get count of records in model
+    rows_count = model_class.objects.count()
+    print(rows_count)
 
     # Define a generator to stream GC-Net data directly to the client
     def stream(nead_version, hashed_lines):
