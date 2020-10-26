@@ -94,7 +94,6 @@ def get_derived_data(request, **kwargs):
     #dict_timestamps = get_timestamp_iso_range_dict(start, end)
 
     # Check which level of detail was passed
-    # TODO verify this is ok and also implement in GC-Net app?
     # Check if timestamps are in whole date format: YYYY-MM-DD ('2019-12-04')
     if lod == 'day':
         dict_timestamps = get_timestamp_iso_range_day_dict(start, end)

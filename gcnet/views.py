@@ -14,6 +14,10 @@ from gcnet.write_nead_config import write_nead_config
 # Returns list of stations in stations.ini config file by their 'model' (string that is the name of the station
 # model in gcnet/models.py)
 # These model strings are used in the API calls (<str:model>): get_dynamic_data() and get_derived_data()
+from lwf.helpers import get_timestamp_iso_range_day_dict, get_timestamp_iso_range_year_week, \
+    get_timestamp_iso_range_years
+
+
 def get_model_stations(request):
     # Read the stations config file
     stations_path = 'gcnet/config/stations.ini'
@@ -113,7 +117,23 @@ def get_derived_data(request, **kwargs):
 
     # Check if 'start' and 'end' kwargs are in ISO format or unix timestamp format, assign filter to corresponding
     # timestamp field in dict_timestamps
-    dict_timestamps = validate_date_gcnet(start, end)
+    # dict_timestamps = validate_date_gcnet(start, end)
+
+    # Check which level of detail was passed
+    # Check if timestamps are in whole date format: YYYY-MM-DD ('2019-12-04')
+    if lod == 'day':
+        dict_timestamps = get_timestamp_iso_range_day_dict(start, end)
+        print(dict_timestamps)
+    # Check if timestamps are in whole week format: YYYY-WW ('2020-22')  ('22' is the twenty-second week of the year)
+    elif lod == 'week':
+        dict_timestamps = get_timestamp_iso_range_year_week(start, end)
+        print(dict_timestamps)
+    # Check if timestamps are in whole year format: YYYY ('2020')
+    elif lod == 'year':
+        dict_timestamps = get_timestamp_iso_range_years(start, end)
+        print(dict_timestamps)
+    else:
+        raise FieldError("Incorrect values inputted in 'lod' url")
 
     # Get the model
     class_name = model.rsplit('.', 1)[-1]
