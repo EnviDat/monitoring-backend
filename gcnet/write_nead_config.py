@@ -6,7 +6,7 @@ from gcnet.helpers import read_config, get_station_id, get_gcnet_geometry, get_l
 
 
 def write_nead_config(config_path, model, stringnull='', delimiter=',', ts_meaning='end'):
-    # Try to dynamically generate NEAD config file
+    # Try to dynamically generate NEAD config in buffer_
     try:
         # Get header config
         config = read_config(config_path)
@@ -66,13 +66,10 @@ def write_nead_config(config_path, model, stringnull='', delimiter=',', ts_meani
         database_fields_data_types_string = get_database_fields_data_types_string(database_fields_list)
         config.set('FIELDS', 'database_fields_data_types', database_fields_data_types_string)
 
-        # Dynamically write header in config file
-        # TODO StringIO
+        # Dynamically write NEAD header into buffer_
         buffer_ = StringIO()
-        # with open(config_path, encoding='utf-8', mode='w', newline='\n') as config_file:
         config.write(buffer_)
 
-        #print(buffer_.getvalue(), config)
         return buffer_.getvalue(), config
 
     except Exception as e:
@@ -81,4 +78,3 @@ def write_nead_config(config_path, model, stringnull='', delimiter=',', ts_meani
         return None, None
 
 
-#print(write_nead_config('config/nead_header.ini', 'swisscamp_01d', stringnull='', delimiter=',', ts_meaning='end'))

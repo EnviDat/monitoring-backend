@@ -2,6 +2,7 @@ import csv
 import importlib
 from io import StringIO
 
+from django.contrib.sites import requests
 from django.core.exceptions import FieldError
 from django.db.models import Avg, Max, Min
 from django.http import JsonResponse, StreamingHttpResponse
@@ -168,6 +169,8 @@ class Echo:
 # kwargs['model'] corresponds to the station names that are listed in models.py
 # kwargs['nodata'] assigns string to populate null values in database
 # If kwargs['nodata'] is 'empty' then null values are populated with empty string: ''
+# kwargs['timestamp_meaning'] corresponds to the meaning of timestamp_iso
+# kwargs['timestamp_meaning'] must be 'beginning' or 'end'
 # Format is "NEAD 1.0 UTF-8"
 def streaming_csv_view_v1(request, **kwargs):
     # Assign version
@@ -191,29 +194,20 @@ def streaming_csv_view_v1(request, **kwargs):
     # Assign output_csv
     output_csv = station_model + '.csv'
 
-    # Write NEAD config file
+    # Get NEAD header
     config_buffer, nead_config_parser = write_nead_config(config_path=nead_config, model=station_model, stringnull=null_value, delimiter=',', ts_meaning=timestamp_meaning)
-    # TODO check config_buffer and nead_config_parser are not None, return
+
+    # Check if config_buffer or nead_config_parser are None
+    if nead_config_parser is None:
+        raise Exception('WARNING (views.py): nead_config_parser is None')
+    if config_buffer is None:
+        raise Exception('WARNING (views.py): config_buffer is None')
+
+    # Fill hash_lines with config_buffer lines prepended with '# '
     hash_lines = []
     for line in config_buffer.replace('\r\n', '\n').split('\n'):
         line = '# ' + line + '\n'
         hash_lines.append(line)
-
-    # Read NEAD config file and assign to nead_lines
-    # Concatenate '# ' in front of every line and append to hash_lines
-    # with open(nead_config, 'r') as nead_header:
-    #     nead_lines = nead_header.readlines()
-    #     hash_lines = []
-    #     for line in nead_lines:
-    #         line = '# ' + line
-    #         hash_lines.append(line)
-
-    # Assign nead_config_parser
-    # nead_config_parser = read_config(nead_config)
-
-    # # Check if nead_config_parser exists
-    # if not nead_config_parser:
-    #     raise FieldError("WARNING non-valid config file: {0}".format(nead_config))
 
     # Assign display_values from database_fields in nead_config_parser
     database_fields = nead_config_parser.get('FIELDS', 'database_fields')
@@ -225,8 +219,9 @@ def streaming_csv_view_v1(request, **kwargs):
     model_class = getattr(package, class_name)
 
     # Get count of records in model
-    rows_count = model_class.objects.count()
-    print(rows_count)
+    # TODO use this to implement progress bar
+    # rows_count = model_class.objects.count()
+    # print(rows_count)
 
     # Define a generator to stream GC-Net data directly to the client
     def stream(nead_version, hashed_lines):
@@ -248,7 +243,7 @@ def streaming_csv_view_v1(request, **kwargs):
                 writer.writerow(get_nead_queryset_value(x, null_value) for x in row)
             else:
                 raise FieldError(
-                    "WARNING non-valid 'timestamp_meaning' setting in 'METADATA' section of : {0}".format(nead_config))
+                    "WARNING non-valid 'timestamp_meaning' kwarg. Must be either 'beginning' or 'end;")
 
             # Yield data (row from database)
             buffer_.seek(0)

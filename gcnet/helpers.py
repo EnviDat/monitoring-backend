@@ -48,8 +48,7 @@ def read_config(config_path: str):
     gc_config = configparser.RawConfigParser(inline_comment_prefixes='#', allow_no_value=True)
     gc_config.read(config_file)
 
-    # TODO comment out print statement out before deployment
-    print("Read config params file: {0}, sections: {1}".format(config_path, ', '.join(gc_config.sections())))
+    # print("Read config params file: {0}, sections: {1}".format(config_path, ', '.join(gc_config.sections())))
 
     if len(gc_config.sections()) < 1:
         print("Invalid config file, missing sections")
