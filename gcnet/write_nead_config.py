@@ -3,18 +3,11 @@ from gcnet.helpers import read_config, get_station_id, get_gcnet_geometry, get_l
     get_display_description
 
 
-def write_nead_config(config_path, model, stringnull='', delimiter=','):
+def write_nead_config(config_path, model, stringnull='', delimiter=',', ts_meaning='end'):
     # Try to dynamically generate NEAD config file
     try:
         # Get header config
         config = read_config(config_path)
-
-        # create map containing comment lines and their indices
-        # comment_map = save_comments(config)
-        # print(comment_map)
-
-        # # put the comments back in their original indices
-        # restore_comments(config_file, comment_map)
 
         # Get stations confg
         stations_config = read_config('gcnet/config/stations.ini')
@@ -32,8 +25,11 @@ def write_nead_config(config_path, model, stringnull='', delimiter=','):
         # Set 'nodata_value' to 'stringnull' argument passed or default value which is an empty string: ''
         config.set('METADATA', 'nodata', stringnull)
 
-        # Set 'field_delimiter' to 'delimiter' argument passed or defaut value which is a comma: ','
+        # Set 'field_delimiter' to 'delimiter' argument passed or default value which is a comma: ','
         config.set('METADATA', 'field_delimiter', delimiter)
+
+        # Set 'timestamp_meaning' to 'ts_meaning; argument passed or default value which is 'end'
+        config.set('METADATA', 'timestamp_meaning', ts_meaning)
 
         # Parse 'position' from stations.ini, modify, and set 'geometry'
         position = stations_config.get(str(station_id), 'position')

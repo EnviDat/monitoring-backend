@@ -185,11 +185,14 @@ def streaming_csv_view_v1(request, **kwargs):
     # Assign station_model
     station_model = kwargs['model']
 
+    # Assign timestamp_meaning
+    timestamp_meaning = kwargs['timestamp_meaning']
+
     # Assign output_csv
     output_csv = station_model + '.csv'
 
     # Write NEAD config file
-    write_nead_config(config_path=nead_config, model=station_model, stringnull=null_value, delimiter=',')
+    write_nead_config(config_path=nead_config, model=station_model, stringnull=null_value, delimiter=',', ts_meaning=timestamp_meaning)
 
     # Read NEAD config file and assign to nead_lines
     # Concatenate '# ' in front of every line and append to hash_lines
@@ -225,9 +228,6 @@ def streaming_csv_view_v1(request, **kwargs):
         buffer_.writelines(nead_version)
         buffer_.writelines(hashed_lines)
 
-        # Assign 'timestamp_meaning' from nead_config_parser
-        timestamp_meaning = nead_config_parser.get('METADATA', 'timestamp_meaning')
-
         # Generator expressions to write each row in the queryset by calculating each row as needed and not all at once
         # Write values that are null in database as the value assigned to 'null_value'
         for row in model_class.objects.values_list(*display_values).order_by('timestamp_iso').iterator():
@@ -238,7 +238,8 @@ def streaming_csv_view_v1(request, **kwargs):
             elif timestamp_meaning == 'beginning':
                 writer.writerow(get_nead_queryset_value(x, null_value) for x in row)
             else:
-                raise FieldError("WARNING non-valid 'timestamp_meaning' setting in 'METADATA' section of : {0}".format(nead_config))
+                raise FieldError(
+                    "WARNING non-valid 'timestamp_meaning' setting in 'METADATA' section of : {0}".format(nead_config))
 
             # Yield data (row from database)
             buffer_.seek(0)

@@ -22,5 +22,5 @@ urlpatterns = [
     path('models/', get_model_stations),
     path('dynamic/<str:model>/<str:lod>/<str:parameter>/<str:start>/<str:end>/', get_dynamic_data),
     path('derived/<str:model>/<str:lod>/<str:parameter>/<str:calc>/<str:start>/<str:end>/', get_derived_data),
-    path('csv/<str:model>/<str:nodata>/', streaming_csv_view_v1),
+    path('csv/<str:model>/<str:nodata>/<str:timestamp_meaning>/', streaming_csv_view_v1),
 ]
