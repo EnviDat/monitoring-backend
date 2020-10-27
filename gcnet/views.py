@@ -2,10 +2,9 @@ import csv
 import importlib
 from io import StringIO
 
-from django.contrib.sites import requests
 from django.core.exceptions import FieldError
 from django.db.models import Avg, Max, Min
-from django.http import JsonResponse, StreamingHttpResponse
+from django.http import JsonResponse, StreamingHttpResponse, HttpResponseNotFound
 
 from gcnet.helpers import validate_date_gcnet, Round2, read_config, get_nead_queryset_value
 from gcnet.write_nead_config import write_nead_config
@@ -25,7 +24,7 @@ def get_model_stations(request):
 
     # Check if stations_config exists
     if not stations_config:
-        raise FieldError("WARNING non-valid config file: {0}".format(stations_path))
+        return HttpResponseNotFound("<h1>Page not found</h1>")
 
     # Assign variable to contain model_id list for all stations in stations.ini
     model_stations = []
@@ -56,13 +55,26 @@ def get_dynamic_data(request, **kwargs):
 
     # Check if 'start' and 'end' kwargs are in ISO format or unix timestamp format, assign filter to corresponding
     # timestamp field in dict_timestamps
-    dict_timestamps = validate_date_gcnet(start, end)
+    try:
+        dict_timestamps = validate_date_gcnet(start, end)
+    except ValueError:
+        return HttpResponseNotFound("<h1>Page not found</h1>"
+                                    "<h3>Incorrect date format for 'start' and/or 'end' timestamps.</h3>"
+                                    "<h3>Start and end dates should both be in ISO timestamp "
+                                    "date format: YYYY-MM-DDTHH:MM:SS+00:00 ('2020-10-20T17:00:00+00:00')</h3>"
+                                    "<h3>Or with an alternative timezone beyond UTC: YYYY-MM-DDTHH:MM:SS+xx:00 ("
+                                    "'2020-10-20T17:00:00+02:00')</h3>"
+                                    "<h3>Or with an alternative timezone behind UTC: YYYY-MM-DDTHH:MM:SS-xx:00 ("
+                                    "'2020-10-20T17:00:00-03:00')</h3>")
 
     # Get the model
-    class_name = model.rsplit('.', 1)[-1]
-    package = importlib.import_module("gcnet.models")
-    model_class = getattr(package, class_name)
-
+    try:
+        class_name = model.rsplit('.', 1)[-1]
+        package = importlib.import_module("gcnet.models")
+        model_class = getattr(package, class_name)
+    except AttributeError:
+        return HttpResponseNotFound("<h1>Page not found</h1>"
+                                    "<h3>Non-valid 'model' (station) entered in URL: {0}</h3>".format(model))
     if lod == 'quarterday':
         try:
             queryset = list(model_class.objects
@@ -71,8 +83,10 @@ def get_dynamic_data(request, **kwargs):
                             .filter(**dict_timestamps)
                             .order_by('timestamp').all())
         except FieldError:
-            raise FieldError('Incorrect values inputted in {0} quarterday url parameter'.format(model))
+            return HttpResponseNotFound("<h1>Page not found</h1><h3>Non-existent parameter entered in URL: {0}</h3>"
+                                        .format(parameter))
         return JsonResponse(queryset, safe=False)
+
     elif lod == 'halfday':
         try:
             queryset = list(model_class.objects
@@ -81,8 +95,10 @@ def get_dynamic_data(request, **kwargs):
                             .filter(**dict_timestamps)
                             .order_by('timestamp').all())
         except FieldError:
-            raise FieldError('Incorrect values inputted in {0} halfday url parameter'.format(model))
+            return HttpResponseNotFound("<h1>Page not found</h1><h3>Non-existent parameter entered in URL: {0}</h3>"
+                                        .format(parameter))
         return JsonResponse(queryset, safe=False)
+
     elif lod == 'all':
         try:
             queryset = list(model_class.objects
@@ -90,11 +106,14 @@ def get_dynamic_data(request, **kwargs):
                             .filter(**dict_timestamps)
                             .order_by('timestamp').all())
         except FieldError:
-            raise FieldError('Incorrect values inputted in {0} all url parameter'.format(model))
+            return HttpResponseNotFound("<h1>Page not found</h1><h3>Non-existent parameter entered in URL: {0}</h3>"
+                                        .format(parameter))
         return JsonResponse(queryset, safe=False)
 
     else:
-        raise FieldError("Incorrect values inputted in url")
+        return HttpResponseNotFound("<h1>Page not found</h1>"
+                                    "<h3>Non-valid 'lod' (level of detail) entered in URL: {0}"
+                                    "<h3>Valid 'lod' options: all, quarterday, halfday".format(lod))
 
 
 # Returns derived data values by day, week, or year: 'avg' (average), 'max' (maximum) and 'min' (minimum)
@@ -122,23 +141,52 @@ def get_derived_data(request, **kwargs):
     # Check which level of detail was passed
     # Check if timestamps are in whole date format: YYYY-MM-DD ('2019-12-04')
     if lod == 'day':
-        dict_timestamps = get_timestamp_iso_range_day_dict(start, end)
-        print(dict_timestamps)
+        try:
+            dict_timestamps = get_timestamp_iso_range_day_dict(start, end)
+            # print(dict_timestamps)
+        except ValueError:
+            return HttpResponseNotFound("<h1>Page not found</h1>"
+                                        "<h3>Incorrect date format for 'start' and/or 'end' timestamps.</h3>"
+                                        "<h3>Start and end dates should both be in ISO timestamp "
+                                        "date format: YYYY-MM-DD ('2019-12-04')</h3>")
+
     # Check if timestamps are in whole week format: YYYY-WW ('2020-22')  ('22' is the twenty-second week of the year)
     elif lod == 'week':
-        dict_timestamps = get_timestamp_iso_range_year_week(start, end)
-        print(dict_timestamps)
+        try:
+            dict_timestamps = get_timestamp_iso_range_year_week(start, end)
+            # print(dict_timestamps)
+        except ValueError:
+            return HttpResponseNotFound("<h1>Page not found</h1>"
+                                        "<h3>Incorrect date format for Level of Detail: week</h3>"
+                                        "<h3>Start and end dates should both be in Year-Week Number format: "
+                                        ": YYYY-WW ('2019-05' or '2020-20)</h3>"
+                                        "<h3>Monday is considered the first day of the week.</h3>"
+                                        "<h3>All days in a new year preceding the first Monday are considered to be in "
+                                        "week 0.</h3>")
+
     # Check if timestamps are in whole year format: YYYY ('2020')
     elif lod == 'year':
-        dict_timestamps = get_timestamp_iso_range_years(start, end)
-        print(dict_timestamps)
+        try:
+            dict_timestamps = get_timestamp_iso_range_years(start, end)
+            # print(dict_timestamps)
+        except ValueError:
+            return HttpResponseNotFound("<h1>Page not found</h1>"
+                                        "<h3>Incorrect date format for Level of Detail: year</h3>"
+                                        "<h3>Start and end dates should both be in year format: YYYY ('2019')</h3>")
+
     else:
-        raise FieldError("Incorrect values inputted in 'lod' url")
+        return HttpResponseNotFound("<h1>Page not found</h1>"
+                                    "<h3>Non-valid 'lod' (level of detail) entered in URL: {0}"
+                                    "<h3>Valid 'lod' options: day, week, year".format(lod))
 
     # Get the model
-    class_name = model.rsplit('.', 1)[-1]
-    package = importlib.import_module("gcnet.models")
-    model_class = getattr(package, class_name)
+    try:
+        class_name = model.rsplit('.', 1)[-1]
+        package = importlib.import_module("gcnet.models")
+        model_class = getattr(package, class_name)
+    except AttributeError:
+        return HttpResponseNotFound("<h1>Page not found</h1>"
+                                    "<h3>Non-valid 'model' (station) entered in URL: {0}</h3>".format(model))
 
     if calc == 'avg':
         try:
@@ -148,8 +196,10 @@ def get_derived_data(request, **kwargs):
                             .filter(**dict_timestamps)
                             .order_by(lod))
         except FieldError:
-            raise FieldError("Incorrect values inputted in 'avg' url")
+            return HttpResponseNotFound("<h1>Page not found</h1><h3>Non-existent parameter entered in URL: {0}</h3>"
+                                        .format(parameter))
         return JsonResponse(queryset, safe=False)
+
     elif calc == 'max':
         try:
             queryset = list(model_class.objects
@@ -158,8 +208,10 @@ def get_derived_data(request, **kwargs):
                             .filter(**dict_timestamps)
                             .order_by(lod))
         except FieldError:
-            raise FieldError("Incorrect values inputted in 'max' url")
+            return HttpResponseNotFound("<h1>Page not found</h1><h3>Non-existent parameter entered in URL: {0}</h3>"
+                                        .format(parameter))
         return JsonResponse(queryset, safe=False)
+
     elif calc == 'min':
         try:
             queryset = list(model_class.objects
@@ -168,11 +220,14 @@ def get_derived_data(request, **kwargs):
                             .filter(**dict_timestamps)
                             .order_by(lod))
         except FieldError:
-            raise FieldError("Incorrect values inputted in 'min' url")
+            return HttpResponseNotFound("<h1>Page not found</h1><h3>Non-existent parameter entered in URL: {0}</h3>"
+                                        .format(parameter))
         return JsonResponse(queryset, safe=False)
 
     else:
-        raise FieldError("Incorrect values inputted in url")
+        return HttpResponseNotFound("<h1>Page not found</h1>"
+                                    "<h3>Non-valid 'calc' (calculation) entered in URL: {0}"
+                                    "<h3>Valid 'calc' options: avg, max, min".format(calc))
 
 
 class Echo:
@@ -219,9 +274,13 @@ def streaming_csv_view_v1(request, **kwargs):
 
     # Check if config_buffer or nead_config_parser are None
     if nead_config_parser is None:
-        raise Exception('WARNING (views.py): nead_config_parser is None')
+        return HttpResponseNotFound("<h1>Page not found</h1>"
+                                    "<h3>Check that valid 'model' (station) entered in URL: {0}</h3>"
+                                    .format(kwargs['model']))
     if config_buffer is None:
-        raise Exception('WARNING (views.py): config_buffer is None')
+        return HttpResponseNotFound("<h1>Page not found</h1>"
+                                    "<h3>Check that valid 'model' (station) entered in URL: {0}</h3>"
+                                    .format(kwargs['model']))
 
     # Fill hash_lines with config_buffer lines prepended with '# '
     hash_lines = []
@@ -233,15 +292,26 @@ def streaming_csv_view_v1(request, **kwargs):
     database_fields = nead_config_parser.get('FIELDS', 'database_fields')
     display_values = list(database_fields.split(','))
 
-    # Get the model as a class
-    class_name = kwargs['model'].rsplit('.', 1)[-1]
-    package = importlib.import_module("gcnet.models")
-    model_class = getattr(package, class_name)
+    # Get the model
+    try:
+        class_name = kwargs['model'].rsplit('.', 1)[-1]
+        package = importlib.import_module("gcnet.models")
+        model_class = getattr(package, class_name)
+    except AttributeError:
+        return HttpResponseNotFound("<h1>Page not found</h1>"
+                                    "<h3>Non-valid 'model' (station) entered in URL: {0}</h3>".format(kwargs['model']))
 
     # Get count of records in model
     # TODO use this to implement progress bar
     # rows_count = model_class.objects.count()
     # print(rows_count)
+
+    # Check if timestamp_meaning is valid
+    if timestamp_meaning not in ['end', 'beginning']:
+        return HttpResponseNotFound("<h1>Page not found</h1>"
+                                    "<h3>Non-valid 'timestamp_meaning' kwarg entered in URL: {0}</h3>"
+                                    "<h3>Valid 'timestamp_meaning' kwarg options: end, beginning"
+                                    .format(timestamp_meaning))
 
     # Define a generator to stream GC-Net data directly to the client
     def stream(nead_version, hashed_lines):
