@@ -121,26 +121,64 @@ def get_aggregate_data(request, **kwargs):
     # Assign kwargs from url to variables
     start = kwargs['start']
     end = kwargs['end']
-    lod = kwargs['lod']
     parameter = kwargs['parameter']
     model = kwargs['model']
 
+    # If parameter == 'all' assign 'parameters' to values in config settings 'database_fields'
+    # Else assign parameters to parameter passed in URL
+    if parameter == 'all':
+        # TODO later make this work by reading from config ana handling even values that end in '_max' or '_min'
+        # config_path = 'gcnet/config/nead_header.ini'
+        # config = read_config(config_path)
+        # parameters = config.get('FIELDS', 'database_fields').split(',')
+        parameters = ['swin',
+                      'swout',
+                      'netrad',
+                      'netrad_max',
+                      'airtemp1',
+                      'airtemp2',
+                      'airtemp_cs500air1',
+                      'airtemp_cs500air2',
+                      'rh1',
+                      'rh2',
+                      'windspeed1',
+                      'windspeed_u1_stdev',
+                      'windspeed2',
+                      'windspeed_u2_stdev',
+                      'winddir1',
+                      'winddir2',
+                      'pressure',
+                      'sh1',
+                      'sh2',
+                      'battvolt',
+                      'reftemp']
+        print(parameters)
+    else:
+        parameters = [parameter]
+
     # Assign dict_fields with fields and values to be displayed in json
     dict_fields = {'timestamp_first': Min('timestamp_iso'),
-                   'timestamp_last': Max('timestamp_iso'),
-                   parameter + '_min': Min(parameter),
-                   parameter + '_max': Max(parameter),
-                   parameter + '_avg': Round2(Avg(parameter))}
+                   'timestamp_last': Max('timestamp_iso')}
+
+    for parameter in parameters:
+        dict_fields[parameter + '_min'] = Min(parameter)
+        dict_fields[parameter + '_max'] = Max(parameter)
+        dict_fields[parameter + '_avg'] = Round2(Avg(parameter))
+
+    # print(dict_fields)
 
     # Check if timestamps are in whole date format: YYYY-MM-DD ('2019-12-04')
+    # or ISO timestamp: YYYY-MM-DDTHH:MM:SS+00:00 (2020-10-18T18:00:00+00:00)
     try:
         dict_timestamps = get_timestamp_iso_range_day_dict(start, end)
         # print(dict_timestamps)
     except ValueError:
         return HttpResponseNotFound("<h1>Page not found</h1>"
                                     "<h3>Incorrect date format for 'start' and/or 'end' timestamps.</h3>"
-                                    "<h3>Start and end dates should both be in ISO timestamp "
-                                    "date format: YYYY-MM-DD ('2019-12-04')</h3>")
+                                    "<h3>Start and end dates should both be in either ISO timestamp "
+                                    "date format: YYYY-MM-DD ('2019-12-04')</h3>"
+                                    "<h3>Or dates can be in ISO timestamp date and time "
+                                    "format: YYYY-MM-DDTHH:MM:SS+00:00 (2020-10-18T18:00:00+00:00)</h3>")
 
     # NOTE: This section currently commented out because only daily aggregate values are currently returned
     # # Check which level of detail was passed
@@ -194,13 +232,15 @@ def get_aggregate_data(request, **kwargs):
     # Get the queryset and return the response
     try:
         queryset = list(model_class.objects
-                        .values(lod)
+                        .values('day')
                         .annotate(**dict_fields)
                         .filter(**dict_timestamps)
-                        .order_by(lod))
-    except FieldError:
-        return HttpResponseNotFound("<h1>Page not found</h1><h3>Non-existent parameter entered in URL: {0}</h3>"
-                                    .format(parameter))
+                        .order_by('day'))
+    # except FieldError:
+    #     return HttpResponseNotFound("<h1>Page not found</h1><h3>Non-existent parameter entered in URL: {0}</h3>"
+    #                                 .format(parameter))
+    except Exception as e:
+        raise FieldError('Exception: {0}'.format(e))
     return JsonResponse(queryset, safe=False)
 
 
