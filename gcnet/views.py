@@ -121,6 +121,8 @@ def get_dynamic_data(request, **kwargs):
 # lod must be 'day', 'week', or 'year'
 # calc must be 'avg', 'max', or 'min'
 # Accepts both unix timestamp and ISO timestamp ranges
+# TODO return only daily, everything else comment out
+# TODO also accept HH:MM and time zone
 def get_derived_data(request, **kwargs):
     # Assign kwargs from url to variables
     start = kwargs['start']
@@ -132,7 +134,11 @@ def get_derived_data(request, **kwargs):
 
     dict_avg = {parameter + '_avg': Round2(Avg(parameter))}
     dict_max = {parameter + '_max': Max(parameter)}
-    dict_min = {parameter + '_min': Min(parameter)}
+    dict_min = {'timestamp_first': Min('timestamp_iso'),
+                'timestamp_last': Max('timestamp_iso'),
+                parameter + '_min': Min(parameter),
+                parameter + '_max': Max(parameter),
+                parameter + '_avg': Round2(Avg(parameter))}
 
     # Check if 'start' and 'end' kwargs are in ISO format or unix timestamp format, assign filter to corresponding
     # timestamp field in dict_timestamps
@@ -324,7 +330,10 @@ def streaming_csv_view_v1(request, **kwargs):
 
         # Generator expressions to write each row in the queryset by calculating each row as needed and not all at once
         # Write values that are null in database as the value assigned to 'null_value'
-        for row in model_class.objects.values_list(*display_values).order_by('timestamp_iso').iterator():
+        for row in model_class.objects\
+                .values_list(*display_values)\
+                .order_by('timestamp_iso')\
+                .iterator():
             # Write timestamps as they are in database if 'timestamp_meaning' == 'end'
             if timestamp_meaning == 'end':
                 writer.writerow(null_value if x is None else x for x in row)
@@ -336,6 +345,7 @@ def streaming_csv_view_v1(request, **kwargs):
                     "WARNING non-valid 'timestamp_meaning' kwarg. Must be either 'beginning' or 'end;")
 
             # Yield data (row from database)
+            # TODO check seek()
             buffer_.seek(0)
             data = buffer_.read()
             buffer_.seek(0)

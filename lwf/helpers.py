@@ -228,10 +228,10 @@ def get_timestamp_iso_range_day_dict(start, end):
         start_day = datetime.strptime(start + 'T00:00:00+00:00', '%Y-%m-%dT%H:%M:%S%z')
         start_iso = datetime.strftime(start_day, '%Y-%m-%dT%H:%M:%S%z')
 
-        end_day = datetime.strptime(end + 'T23:00:00+00:00', '%Y-%m-%dT%H:%M:%S%z')
+        end_day = datetime.strptime(end + 'T00:00:00+00:00', '%Y-%m-%dT%H:%M:%S%z')
         end_iso = datetime.strftime(end_day, '%Y-%m-%dT%H:%M:%S%z')
 
-        dict_ts = {'timestamp_iso__range': (start_iso, end_iso)}
+        dict_ts = {'timestamp_iso__gte': start_iso, 'timestamp_iso__lt': end_iso}
         return dict_ts
     else:
         raise ValueError("Incorrect date format, start and end dates should both be in ISO timestamp date format:"
@@ -246,7 +246,7 @@ def get_timestamp_iso_range_year_week(start, end):
     start_week = datetime.strptime(start + '-1T00:00:00+00:00', '%Y-%W-%wT%H:%M:%S%z')
     start_iso = datetime.strftime(start_week, '%Y-%m-%dT%H:%M:%S%z')
 
-    end_week = datetime.strptime(end + '-0T23:00:00+00:00', '%Y-%W-%wT%H:%M:%S%z')
+    end_week = datetime.strptime(end + '-0T23:59:59+00:00', '%Y-%W-%wT%H:%M:%S%z')
     end_iso = datetime.strftime(end_week, '%Y-%m-%dT%H:%M:%S%z')
 
     dict_ts = {'timestamp_iso__range': (start_iso, end_iso)}
