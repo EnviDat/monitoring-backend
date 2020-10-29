@@ -233,9 +233,22 @@ def get_timestamp_iso_range_day_dict(start, end):
 
         dict_ts = {'timestamp_iso__gte': start_iso, 'timestamp_iso__lt': end_iso}
         return dict_ts
+
+    # elif validate_iso_format_datetime(start) and validate_iso_format_datetime(end):
+    #     dict_ts = {'timestamp_iso__gte': start, 'timestamp_iso__lt': end}
+    #     return dict_ts
+
     else:
         raise ValueError("Incorrect date format, start and end dates should both be in ISO timestamp date format:"
                          " YYYY-MM-DD ('2019-12-04')")
+
+
+def validate_iso_format_datetime(date_text):
+    try:
+        datetime.fromisoformat(date_text)
+        return True
+    except:
+        return False
 
 
 # Return timestamp_iso dict with start and end range for whole weeks

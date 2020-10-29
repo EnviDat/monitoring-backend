@@ -6,9 +6,8 @@ from django.core.exceptions import FieldError
 from django.db.models import Avg, Max, Min
 from django.http import JsonResponse, StreamingHttpResponse, HttpResponseNotFound
 
-from gcnet.helpers import validate_date_gcnet, Round2, read_config, get_nead_queryset_value
+from gcnet.helpers import validate_date_gcnet, Round2, read_config, get_nead_queryset_value, get_model
 from gcnet.write_nead_config import write_nead_config
-
 
 # Returns list of stations in stations.ini config file by their 'model' (string that is the name of the station
 # model in gcnet/models.py)
@@ -116,124 +115,93 @@ def get_dynamic_data(request, **kwargs):
                                     "<h3>Valid 'lod' options: all, quarterday, halfday".format(lod))
 
 
-# Returns derived data values by day, week, or year: 'avg' (average), 'max' (maximum) and 'min' (minimum)
+# Returns aggregate data values by day: 'avg' (average), 'max' (maximum) and 'min' (minimum)
 # User customized view that returns data based parameter specified
-# lod must be 'day', 'week', or 'year'
-# calc must be 'avg', 'max', or 'min'
-# Accepts both unix timestamp and ISO timestamp ranges
-# TODO return only daily, everything else comment out
-# TODO also accept HH:MM and time zone
-def get_derived_data(request, **kwargs):
+def get_aggregate_data(request, **kwargs):
     # Assign kwargs from url to variables
     start = kwargs['start']
     end = kwargs['end']
     lod = kwargs['lod']
     parameter = kwargs['parameter']
     model = kwargs['model']
-    calc = kwargs['calc']
 
-    dict_avg = {parameter + '_avg': Round2(Avg(parameter))}
-    dict_max = {parameter + '_max': Max(parameter)}
-    dict_min = {'timestamp_first': Min('timestamp_iso'),
-                'timestamp_last': Max('timestamp_iso'),
-                parameter + '_min': Min(parameter),
-                parameter + '_max': Max(parameter),
-                parameter + '_avg': Round2(Avg(parameter))}
+    # Assign dict_fields with fields and values to be displayed in json
+    dict_fields = {'timestamp_first': Min('timestamp_iso'),
+                   'timestamp_last': Max('timestamp_iso'),
+                   parameter + '_min': Min(parameter),
+                   parameter + '_max': Max(parameter),
+                   parameter + '_avg': Round2(Avg(parameter))}
 
-    # Check if 'start' and 'end' kwargs are in ISO format or unix timestamp format, assign filter to corresponding
-    # timestamp field in dict_timestamps
-    # dict_timestamps = validate_date_gcnet(start, end)
-
-    # Check which level of detail was passed
     # Check if timestamps are in whole date format: YYYY-MM-DD ('2019-12-04')
-    if lod == 'day':
-        try:
-            dict_timestamps = get_timestamp_iso_range_day_dict(start, end)
-            # print(dict_timestamps)
-        except ValueError:
-            return HttpResponseNotFound("<h1>Page not found</h1>"
-                                        "<h3>Incorrect date format for 'start' and/or 'end' timestamps.</h3>"
-                                        "<h3>Start and end dates should both be in ISO timestamp "
-                                        "date format: YYYY-MM-DD ('2019-12-04')</h3>")
-
-    # Check if timestamps are in whole week format: YYYY-WW ('2020-22')  ('22' is the twenty-second week of the year)
-    elif lod == 'week':
-        try:
-            dict_timestamps = get_timestamp_iso_range_year_week(start, end)
-            # print(dict_timestamps)
-        except ValueError:
-            return HttpResponseNotFound("<h1>Page not found</h1>"
-                                        "<h3>Incorrect date format for Level of Detail: week</h3>"
-                                        "<h3>Start and end dates should both be in Year-Week Number format: "
-                                        ": YYYY-WW ('2019-05' or '2020-20)</h3>"
-                                        "<h3>Monday is considered the first day of the week.</h3>"
-                                        "<h3>All days in a new year preceding the first Monday are considered to be in "
-                                        "week 0.</h3>")
-
-    # Check if timestamps are in whole year format: YYYY ('2020')
-    elif lod == 'year':
-        try:
-            dict_timestamps = get_timestamp_iso_range_years(start, end)
-            # print(dict_timestamps)
-        except ValueError:
-            return HttpResponseNotFound("<h1>Page not found</h1>"
-                                        "<h3>Incorrect date format for Level of Detail: year</h3>"
-                                        "<h3>Start and end dates should both be in year format: YYYY ('2019')</h3>")
-
-    else:
+    try:
+        dict_timestamps = get_timestamp_iso_range_day_dict(start, end)
+        # print(dict_timestamps)
+    except ValueError:
         return HttpResponseNotFound("<h1>Page not found</h1>"
-                                    "<h3>Non-valid 'lod' (level of detail) entered in URL: {0}"
-                                    "<h3>Valid 'lod' options: day, week, year".format(lod))
+                                    "<h3>Incorrect date format for 'start' and/or 'end' timestamps.</h3>"
+                                    "<h3>Start and end dates should both be in ISO timestamp "
+                                    "date format: YYYY-MM-DD ('2019-12-04')</h3>")
+
+    # NOTE: This section currently commented out because only daily aggregate values are currently returned
+    # # Check which level of detail was passed
+    # # Check if timestamps are in whole date format: YYYY-MM-DD ('2019-12-04')
+    # if lod == 'day':
+    #     try:
+    #         dict_timestamps = get_timestamp_iso_range_day_dict(start, end)
+    #         # print(dict_timestamps)
+    #     except ValueError:
+    #         return HttpResponseNotFound("<h1>Page not found</h1>"
+    #                                     "<h3>Incorrect date format for 'start' and/or 'end' timestamps.</h3>"
+    #                                     "<h3>Start and end dates should both be in ISO timestamp "
+    #                                     "date format: YYYY-MM-DD ('2019-12-04')</h3>")
+    #
+    # # Check if timestamps are in whole week format: YYYY-WW ('2020-22')  ('22' is the twenty-second week of the year)
+    # elif lod == 'week':
+    #     try:
+    #         dict_timestamps = get_timestamp_iso_range_year_week(start, end)
+    #         # print(dict_timestamps)
+    #     except ValueError:
+    #         return HttpResponseNotFound("<h1>Page not found</h1>"
+    #                                     "<h3>Incorrect date format for Level of Detail: week</h3>"
+    #                                     "<h3>Start and end dates should both be in Year-Week Number format: "
+    #                                     ": YYYY-WW ('2019-05' or '2020-20)</h3>"
+    #                                     "<h3>Monday is considered the first day of the week.</h3>"
+    #                                     "<h3>All days in a new year preceding the first Monday are considered to be in "
+    #                                     "week 0.</h3>")
+    #
+    # # Check if timestamps are in whole year format: YYYY ('2020')
+    # elif lod == 'year':
+    #     try:
+    #         dict_timestamps = get_timestamp_iso_range_years(start, end)
+    #         # print(dict_timestamps)
+    #     except ValueError:
+    #         return HttpResponseNotFound("<h1>Page not found</h1>"
+    #                                     "<h3>Incorrect date format for Level of Detail: year</h3>"
+    #                                     "<h3>Start and end dates should both be in year format: YYYY ('2019')</h3>")
+    #
+    # else:
+    #     return HttpResponseNotFound("<h1>Page not found</h1>"
+    #                                 "<h3>Non-valid 'lod' (level of detail) entered in URL: {0}"
+    #                                 "<h3>Valid 'lod' options: day, week, year".format(lod))
 
     # Get the model
     try:
-        class_name = model.rsplit('.', 1)[-1]
-        package = importlib.import_module("gcnet.models")
-        model_class = getattr(package, class_name)
+        model_class = get_model(model)
     except AttributeError:
         return HttpResponseNotFound("<h1>Page not found</h1>"
                                     "<h3>Non-valid 'model' (station) entered in URL: {0}</h3>".format(model))
 
-    if calc == 'avg':
-        try:
-            queryset = list(model_class.objects
-                            .values(lod)
-                            .annotate(**dict_avg)
-                            .filter(**dict_timestamps)
-                            .order_by(lod))
-        except FieldError:
-            return HttpResponseNotFound("<h1>Page not found</h1><h3>Non-existent parameter entered in URL: {0}</h3>"
-                                        .format(parameter))
-        return JsonResponse(queryset, safe=False)
-
-    elif calc == 'max':
-        try:
-            queryset = list(model_class.objects
-                            .values(lod)
-                            .annotate(**dict_max)
-                            .filter(**dict_timestamps)
-                            .order_by(lod))
-        except FieldError:
-            return HttpResponseNotFound("<h1>Page not found</h1><h3>Non-existent parameter entered in URL: {0}</h3>"
-                                        .format(parameter))
-        return JsonResponse(queryset, safe=False)
-
-    elif calc == 'min':
-        try:
-            queryset = list(model_class.objects
-                            .values(lod)
-                            .annotate(**dict_min)
-                            .filter(**dict_timestamps)
-                            .order_by(lod))
-        except FieldError:
-            return HttpResponseNotFound("<h1>Page not found</h1><h3>Non-existent parameter entered in URL: {0}</h3>"
-                                        .format(parameter))
-        return JsonResponse(queryset, safe=False)
-
-    else:
-        return HttpResponseNotFound("<h1>Page not found</h1>"
-                                    "<h3>Non-valid 'calc' (calculation) entered in URL: {0}"
-                                    "<h3>Valid 'calc' options: avg, max, min".format(calc))
+    # Get the queryset and return the response
+    try:
+        queryset = list(model_class.objects
+                        .values(lod)
+                        .annotate(**dict_fields)
+                        .filter(**dict_timestamps)
+                        .order_by(lod))
+    except FieldError:
+        return HttpResponseNotFound("<h1>Page not found</h1><h3>Non-existent parameter entered in URL: {0}</h3>"
+                                    .format(parameter))
+    return JsonResponse(queryset, safe=False)
 
 
 class Echo:
@@ -276,7 +244,9 @@ def streaming_csv_view_v1(request, **kwargs):
     output_csv = station_model + '.csv'
 
     # Get NEAD header
-    config_buffer, nead_config_parser = write_nead_config(config_path=nead_config, model=station_model, stringnull=null_value, delimiter=',', ts_meaning=timestamp_meaning)
+    config_buffer, nead_config_parser = write_nead_config(config_path=nead_config, model=station_model,
+                                                          stringnull=null_value, delimiter=',',
+                                                          ts_meaning=timestamp_meaning)
 
     # Check if config_buffer or nead_config_parser are None
     if nead_config_parser is None:
@@ -330,9 +300,9 @@ def streaming_csv_view_v1(request, **kwargs):
 
         # Generator expressions to write each row in the queryset by calculating each row as needed and not all at once
         # Write values that are null in database as the value assigned to 'null_value'
-        for row in model_class.objects\
-                .values_list(*display_values)\
-                .order_by('timestamp_iso')\
+        for row in model_class.objects \
+                .values_list(*display_values) \
+                .order_by('timestamp_iso') \
                 .iterator():
             # Write timestamps as they are in database if 'timestamp_meaning' == 'end'
             if timestamp_meaning == 'end':

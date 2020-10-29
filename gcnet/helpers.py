@@ -1,5 +1,6 @@
 import configparser
 import csv
+import importlib
 import os
 import re
 import time
@@ -10,6 +11,7 @@ import math
 from datetime import datetime, timedelta
 
 from django.db.models import Func
+from django.http import HttpResponseNotFound
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "project.settings")
 
@@ -787,3 +789,9 @@ def get_nead_queryset_value(x, null_value):
     if x is None:
         x = null_value
     return x
+
+
+def get_model(model):
+    class_name = model.rsplit('.', 1)[-1]
+    package = importlib.import_module("gcnet.models")
+    return getattr(package, class_name)

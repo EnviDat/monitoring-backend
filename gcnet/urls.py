@@ -15,21 +15,19 @@ Including another URLconf
 """
 from django.urls import path
 
-from gcnet.views import get_dynamic_data, get_derived_data, get_model_stations, streaming_csv_view_v1
+from gcnet.views import get_dynamic_data, get_model_stations, streaming_csv_view_v1, get_aggregate_data
 
 urlpatterns = [
     path('models/', get_model_stations),
     # TODO replace 'dynamic' with json
     path('dynamic/<str:model>/<str:lod>/<str:parameter>/<str:start>/<str:end>/', get_dynamic_data),
-    path('derived/<str:model>/<str:lod>/<str:parameter>/<str:calc>/<str:start>/<str:end>/', get_derived_data),
     # TODO let user select which fields are returned in csv
     path('csv/<str:model>/<str:nodata>/<str:timestamp_meaning>/', streaming_csv_view_v1),
     # TODO
     # nead/<str:model>/<str:parameter> or <all>/<str:start>/<str:end>/<str:nodata>/<str:timestamp_meaning>/
     # json/<str:model>/<str:parameter> or <all>/<str:start>/<str:end>/<str:nodata>/<str:timestamp_meaning>/
-    # TODO return only daily averages for below
-    # TODO accept both date and full date time string
     # output: in average csv (header can be skipped), day (for ex.: 2020-12-02), all (from nead_header.ini) or 1 parameter,
     # parametername_avg (airtemp1_avg), min and max (from 24 hour period) (airtemp1_max, airtemp1_min)
-    # avg/daily/<csv> or <json>/<str:model>/<str:parameter> or <all>/<str:start>/<str:end>/<str:nodata>/<str:timestamp_meaning>/
+    # summary/daily/<csv> or <json>/<str:model>/<str:parameter> or <all>/<str:start>/<str:end>/<str:nodata>/<str:timestamp_meaning>/
+    path('summary/daily/json/<str:model>/<str:lod>/<str:parameter>/<str:start>/<str:end>/', get_aggregate_data)
 ]
