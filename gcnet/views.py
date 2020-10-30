@@ -1,12 +1,11 @@
-import csv
 import importlib
-from io import StringIO
 
 from django.core.exceptions import FieldError
 from django.db.models import Avg, Max, Min
 from django.http import JsonResponse, StreamingHttpResponse, HttpResponseNotFound
 
-from gcnet.helpers import validate_date_gcnet, Round2, read_config, get_nead_queryset_value, get_model
+from gcnet.helpers import validate_date_gcnet, Round2, read_config, get_nead_queryset_value, get_model, \
+    get_hashed_lines, stream, get_null_value
 from gcnet.write_nead_config import write_nead_config
 
 # Returns list of stations in stations.ini config file by their 'model' (string that is the name of the station
@@ -134,7 +133,7 @@ def get_aggregate_data(request, **kwargs):
         parameters = ['swin',
                       'swout',
                       'netrad',
-                      'netrad_max',
+                      #'netrad_max',
                       'airtemp1',
                       'airtemp2',
                       'airtemp_cs500air1',
@@ -261,7 +260,9 @@ class Echo:
 # kwargs['timestamp_meaning'] corresponds to the meaning of timestamp_iso
 # kwargs['timestamp_meaning'] must be 'beginning' or 'end'
 # Format is "NEAD 1.0 UTF-8"
-def streaming_csv_view_v1(request, **kwargs):
+def streaming_csv_view_v1(request, start='', end='', **kwargs):
+
+    # ===================================== ASSIGN VARIABLES ========================================================
     # Assign version
     version = "# NEAD 1.0 UTF-8\n"
 
@@ -269,10 +270,7 @@ def streaming_csv_view_v1(request, **kwargs):
     nead_config = 'gcnet/config/nead_header.ini'
 
     # Assign null_value
-    if kwargs['nodata'] == 'empty':
-        null_value = ''
-    else:
-        null_value = kwargs['nodata']
+    null_value = get_null_value(kwargs['nodata'])
 
     # Assign station_model
     station_model = kwargs['model']
@@ -283,6 +281,22 @@ def streaming_csv_view_v1(request, **kwargs):
     # Assign output_csv
     output_csv = station_model + '.csv'
 
+    # ================================  VALIDATE VARIABLES =========================================================
+    # Get and validate the model_class
+    try:
+        model_class = get_model(kwargs['model'])
+    except AttributeError:
+        return HttpResponseNotFound("<h1>Page not found</h1>"
+                                    "<h3>Non-valid 'model' (station) entered in URL: {0}</h3>".format(kwargs['model']))
+
+    # Check if timestamp_meaning is valid
+    if timestamp_meaning not in ['end', 'beginning']:
+        return HttpResponseNotFound("<h1>Page not found</h1>"
+                                    "<h3>Non-valid 'timestamp_meaning' kwarg entered in URL: {0}</h3>"
+                                    "<h3>Valid 'timestamp_meaning' kwarg options: end, beginning"
+                                    .format(timestamp_meaning))
+
+    # =============================== PROCESS NEAD HEADER ===========================================================
     # Get NEAD header
     config_buffer, nead_config_parser = write_nead_config(config_path=nead_config, model=station_model,
                                                           stringnull=null_value, delimiter=',',
@@ -299,71 +313,16 @@ def streaming_csv_view_v1(request, **kwargs):
                                     .format(kwargs['model']))
 
     # Fill hash_lines with config_buffer lines prepended with '# '
-    hash_lines = []
-    for line in config_buffer.replace('\r\n', '\n').split('\n'):
-        line = '# ' + line + '\n'
-        hash_lines.append(line)
+    hash_lines = get_hashed_lines(config_buffer)
 
     # Assign display_values from database_fields in nead_config_parser
     database_fields = nead_config_parser.get('FIELDS', 'database_fields')
     display_values = list(database_fields.split(','))
 
-    # Get the model
-    try:
-        class_name = kwargs['model'].rsplit('.', 1)[-1]
-        package = importlib.import_module("gcnet.models")
-        model_class = getattr(package, class_name)
-    except AttributeError:
-        return HttpResponseNotFound("<h1>Page not found</h1>"
-                                    "<h3>Non-valid 'model' (station) entered in URL: {0}</h3>".format(kwargs['model']))
-
-    # Get count of records in model
-    # TODO use this to implement progress bar
-    # rows_count = model_class.objects.count()
-    # print(rows_count)
-
-    # Check if timestamp_meaning is valid
-    if timestamp_meaning not in ['end', 'beginning']:
-        return HttpResponseNotFound("<h1>Page not found</h1>"
-                                    "<h3>Non-valid 'timestamp_meaning' kwarg entered in URL: {0}</h3>"
-                                    "<h3>Valid 'timestamp_meaning' kwarg options: end, beginning"
-                                    .format(timestamp_meaning))
-
-    # Define a generator to stream GC-Net data directly to the client
-    def stream(nead_version, hashed_lines):
-        buffer_ = StringIO()
-        writer = csv.writer(buffer_)
-
-        # Write version and hash_lines to buffer_
-        buffer_.writelines(nead_version)
-        buffer_.writelines(hashed_lines)
-
-        # Generator expressions to write each row in the queryset by calculating each row as needed and not all at once
-        # Write values that are null in database as the value assigned to 'null_value'
-        for row in model_class.objects \
-                .values_list(*display_values) \
-                .order_by('timestamp_iso') \
-                .iterator():
-            # Write timestamps as they are in database if 'timestamp_meaning' == 'end'
-            if timestamp_meaning == 'end':
-                writer.writerow(null_value if x is None else x for x in row)
-            # Write timestamps one hour behind how they are in database if 'timestamp_meaning' == 'beginning'
-            elif timestamp_meaning == 'beginning':
-                writer.writerow(get_nead_queryset_value(x, null_value) for x in row)
-            else:
-                raise FieldError(
-                    "WARNING non-valid 'timestamp_meaning' kwarg. Must be either 'beginning' or 'end;")
-
-            # Yield data (row from database)
-            # TODO check seek()
-            buffer_.seek(0)
-            data = buffer_.read()
-            buffer_.seek(0)
-            buffer_.truncate()
-            yield data
-
+    # ===================================  STREAM NEAD DATA ===========================================================
     # Create the streaming response object and output csv
-    response = StreamingHttpResponse(stream(version, hash_lines), content_type='text/csv')
+    response = StreamingHttpResponse(stream(version, hash_lines, model_class, display_values, timestamp_meaning,
+                                            null_value, start, end), content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename=' + output_csv
 
     return response

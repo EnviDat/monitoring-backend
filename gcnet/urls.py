@@ -13,6 +13,7 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+from django.conf.urls import url
 from django.urls import path
 
 from gcnet.views import get_dynamic_data, get_model_stations, streaming_csv_view_v1, get_aggregate_data
@@ -22,9 +23,11 @@ urlpatterns = [
     # TODO replace 'dynamic' with json
     path('dynamic/<str:model>/<str:lod>/<str:parameter>/<str:start>/<str:end>/', get_dynamic_data),
     # TODO let user select which fields are returned in csv
-    path('csv/<str:model>/<str:nodata>/<str:timestamp_meaning>/', streaming_csv_view_v1),
+    # path('nead/<str:model>/<str:nodata>/<str:timestamp_meaning>/', streaming_csv_view_v1),
+    url(r'nead/(?P<model>\w+)/(?P<nodata>[-\w]+)/(?P<timestamp_meaning>\w+)/(?P<start>[-\w]+)/(?P<end>[-\w]+)', streaming_csv_view_v1),
+    url(r'nead/(?P<model>\w+)/(?P<nodata>[-\w]+)/(?P<timestamp_meaning>\w+)/', streaming_csv_view_v1),
     # TODO
-    # nead/<str:model>/<str:parameter> or <all>/<str:start>/<str:end>/<str:nodata>/<str:timestamp_meaning>/
+    # nead/<str:model>/<str:parameter> or <all>/<str:nodata>/<str:timestamp_meaning>/<str:start>/<str:end>/
     # json/<str:model>/<str:parameter> or <all>/<str:start>/<str:end>/<str:nodata>/<str:timestamp_meaning>/
     # output: in average csv (header can be skipped), day (for ex.: 2020-12-02), all (from nead_header.ini) or 1 parameter,
     # parametername_avg (airtemp1_avg), min and max (from 24 hour period) (airtemp1_max, airtemp1_min)
