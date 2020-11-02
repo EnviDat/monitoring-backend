@@ -814,7 +814,7 @@ def stream(nead_version, hashed_lines, model_class, display_values, timestamp_me
 
     # If kwargs 'start' and 'end' passed in URL validate and assign to dict_timestamps
     dict_timestamps = {}
-    if len(start) > 0 and len(end):
+    if len(start) > 0 and len(end) > 0:
         dict_timestamps = get_timestamp_iso_range_day_dict(start, end)
 
     # Create buffer_ and writer objects
@@ -870,6 +870,15 @@ def get_null_value(nodata_kwargs):
     else:
         null_value = nodata_kwargs
     return null_value
+
+
+# Assign display_values
+def get_display_values(display_value_kwarg, values_list):
+    if display_value_kwarg == 'all':
+        display_values = values_list
+    else:
+        display_values = [display_value_kwarg]
+    return display_values
 
 
 # Write row and adjust timestamp_meaning

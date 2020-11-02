@@ -16,21 +16,18 @@ Including another URLconf
 from django.conf.urls import url
 from django.urls import path
 
-from gcnet.views import get_dynamic_data, get_model_stations, streaming_csv_view_v1, get_aggregate_data
+from gcnet.views import get_model_stations, streaming_csv_view_v1, get_aggregate_data, get_json_data
 
 urlpatterns = [
     path('models/', get_model_stations),
-    # TODO replace 'dynamic' with json
-    path('dynamic/<str:model>/<str:lod>/<str:parameter>/<str:start>/<str:end>/', get_dynamic_data),
+    path('json/<str:model>/<str:lod>/<str:parameter>/<str:start>/<str:end>/', get_json_data),
     # TODO let user select which fields are returned in csv
-    # path('nead/<str:model>/<str:nodata>/<str:timestamp_meaning>/', streaming_csv_view_v1),
     url(r'nead/(?P<model>\w+)/(?P<nodata>[-\w]+)/(?P<timestamp_meaning>\w+)/(?P<start>[-\w]+)/(?P<end>[-\w]+)', streaming_csv_view_v1),
     url(r'nead/(?P<model>\w+)/(?P<nodata>[-\w]+)/(?P<timestamp_meaning>\w+)/', streaming_csv_view_v1),
     # TODO
     # nead/<str:model>/<str:parameter> or <all>/<str:nodata>/<str:timestamp_meaning>/<str:start>/<str:end>/
-    # json/<str:model>/<str:parameter> or <all>/<str:start>/<str:end>/<str:nodata>/<str:timestamp_meaning>/
     # output: in average csv (header can be skipped), day (for ex.: 2020-12-02), all (from nead_header.ini) or 1 parameter,
     # parametername_avg (airtemp1_avg), min and max (from 24 hour period) (airtemp1_max, airtemp1_min)
-    # summary/daily/<csv> or <json>/<str:model>/<str:parameter> or <all>/<str:start>/<str:end>/<str:nodata>/<str:timestamp_meaning>/
+    # summary/daily/<csv> or <json>/<str:model>/<str:parameter> or <all>/<str:start>/<str:end>/
     path('summary/daily/json/<str:model>/<str:parameter>/<str:start>/<str:end>/', get_aggregate_data)
 ]
