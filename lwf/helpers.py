@@ -7,6 +7,7 @@ from datetime import timezone
 import dateutil.parser as date_parser
 from django.apps import apps
 from django.db.models import Func
+from django.http import HttpResponseNotFound
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "project.settings")
 
@@ -218,8 +219,14 @@ def get_timestamp_iso_range_dict(start, end):
     if validate_iso_format(start) and validate_iso_format(end):
         dict_ts = {'timestamp_iso__range': (start, end)}
         return dict_ts
+    # else:
+    #     raise ValueError("Incorrect date format, start and end dates should both be in ISO timestamp format")
     else:
-        raise ValueError("Incorrect date format, start and end dates should both be in ISO timestamp format")
+        return HttpResponseNotFound("<h1>Page not found</h1>"
+                                    "<h3>Incorrect date format for 'start' and/or 'end' timestamps.</h3>"
+                                    "<h3>Start and end dates should both be in either ISO timestamp "
+                                    "date format: YYYY-MM-DD ('2019-12-04')</h3>"
+                                   )
 
 
 # Return timestamp_iso dict with start and end range in whole date format: YYYY-MM-DD ('2019-12-04')

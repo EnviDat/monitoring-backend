@@ -809,7 +809,7 @@ def get_hashed_lines(config_buffer):
     return hash_lines
 
 
-# Define a generator to stream GC-Net data directly to the client
+# Define a generator to stream GC-Net data directly to the client 
 def stream(nead_version, hashed_lines, model_class, display_values, timestamp_meaning, null_value, start, end):
 
     # If kwargs 'start' and 'end' passed in URL validate and assign to dict_timestamps
@@ -821,9 +821,14 @@ def stream(nead_version, hashed_lines, model_class, display_values, timestamp_me
     buffer_ = StringIO()
     writer = csv.writer(buffer_)
 
-    # Write version and hash_lines to buffer_
-    buffer_.writelines(nead_version)
-    buffer_.writelines(hashed_lines)
+    # Check if values passed for 'nead_version' and 'hashed_lines'
+    # If True: Write version and hash_lines to buffer_
+    if len(nead_version) > 0 and len(hashed_lines) > 0:
+        buffer_.writelines(nead_version)
+        buffer_.writelines(hashed_lines)
+    # Else: Write 'display_values' to buffer_
+    else:
+        buffer_.writelines(','.join(display_values) + '\n')
 
     # Generator expressions to write each row in the queryset by calculating each row as needed and not all at once
     # Write values that are null in database as the value assigned to 'null_value'
@@ -872,13 +877,13 @@ def get_null_value(nodata_kwargs):
     return null_value
 
 
-# Assign display_values
-def get_display_values(display_value_kwarg, values_list):
-    if display_value_kwarg == 'all':
-        display_values = values_list
-    else:
-        display_values = [display_value_kwarg]
-    return display_values
+# # Get display_values
+# def get_display_values(parameter_kwarg):
+#     if parameter_kwarg == 'multiple':
+#         display_values = ['timestamp_iso'] + returned_parameters
+#     else:
+#         display_values = ['timestamp_iso'] + [parameter_kwarg]
+#     return display_values
 
 
 # Write row and adjust timestamp_meaning
