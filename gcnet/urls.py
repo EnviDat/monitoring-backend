@@ -22,7 +22,6 @@ urlpatterns = [
     path('models/', get_model_stations),
     path('json/<str:model>/<str:lod>/<str:parameter>/<str:start>/<str:end>/', get_json_data),
     path('csv/<str:model>/<str:parameter>/<str:start>/<str:end>/<str:timestamp_meaning>/<str:nodata>/', get_csv),
-    # TODO let user select which fields are returned in csv
     url(r'nead/(?P<model>\w+)/(?P<nodata>[-\w]+)/(?P<timestamp_meaning>\w+)/(?P<start>[-\w]+)/(?P<end>[-\w]+)', streaming_csv_view_v1),
     url(r'nead/(?P<model>\w+)/(?P<nodata>[-\w]+)/(?P<timestamp_meaning>\w+)/', streaming_csv_view_v1),
     # TODO

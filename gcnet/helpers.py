@@ -809,7 +809,7 @@ def get_hashed_lines(config_buffer):
     return hash_lines
 
 
-# Define a generator to stream GC-Net data directly to the client 
+# Define a generator to stream GC-Net data directly to the client
 def stream(nead_version, hashed_lines, model_class, display_values, timestamp_meaning, null_value, start, end):
 
     # If kwargs 'start' and 'end' passed in URL validate and assign to dict_timestamps

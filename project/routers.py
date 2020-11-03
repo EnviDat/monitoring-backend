@@ -14,11 +14,23 @@ class MonitoringRouter:
 
     def db_for_write(self, model):
         if model._meta.app_label == 'lwf':
-            print("APP_LABEL: " + model._meta.app_label)
+            # print("APP_LABEL: " + model._meta.app_label)
             return 'lwf'
         elif model._meta.app_label == 'gcnet':
-            print("APP_LABEL: " + model._meta.app_label)
+            # print("APP_LABEL: " + model._meta.app_label)
             return 'gcnet'
         else:
-            print('WARNING (routers.py) non-valid model": {0}'.format(model))
+            # print('WARNING (routers.py) non-valid model": {0}'.format(model))
+            return -1
+
+    def allow_migrate(self, db, app_label, model_name=None, **hints):
+            # return 'gcnet'
+        if app_label == 'lwf':
+            # print("APP_LABEL: " + app_label)
+            return 'lwf'
+        elif app_label == 'gcnet':
+            # print("APP_LABEL: " + app_label)
+            return 'gcnet'
+        else:
+            # print('WARNING (routers.py) non-valid app_label": {0}'.format(app_label))
             return -1

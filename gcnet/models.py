@@ -50,6 +50,7 @@ class Station(models.Model):
     swin = CustomFloatField(
         verbose_name='SWin',
         null=True,
+        db_column='swin'
     )
 
     # Unit: SW_up [W m-2]
@@ -149,55 +150,55 @@ class Station(models.Model):
     )
 
     # Unit: [W m-2]
-    swin_max = CustomFloatField(
+    swin_maximum = CustomFloatField(
         verbose_name='SWinMax',
         null=True,
     )
 
     # Unit: [W m-2]
-    swout_max = CustomFloatField(
-        verbose_name='SWoutMax',
+    swout_minimum = CustomFloatField(
+        verbose_name='SWoutMin',
         null=True,
     )
 
     # Unit: NetRadMax[W m-2]
-    netrad_max = CustomFloatField(
+    netrad_maximum = CustomFloatField(
         verbose_name='NetRadMax',
         null=True,
     )
 
     # Unit: Max Air Temperature1 (TC) [degC]
-    airtemp1_max = CustomFloatField(
+    airtemp1_maximum = CustomFloatField(
         verbose_name='Max Air Temperature1 (TC)',
         null=True,
     )
 
     # Unit: Max Air Temperature2 (TC)[degC]
-    airtemp2_max = CustomFloatField(
+    airtemp2_maximum = CustomFloatField(
         verbose_name='Max Air Temperature2 (TC)',
         null=True,
     )
 
     # Unit: Min Air Temperature1 (TC)[degC]
-    airtemp1_min = CustomFloatField(
+    airtemp1_minimum = CustomFloatField(
         verbose_name='Min Air Temperature1 (TC)',
         null=True,
     )
 
     # Unit: Min Air Temperature2 (TC) [degC]
-    airtemp2_min = CustomFloatField(
+    airtemp2_minimum = CustomFloatField(
         verbose_name='Min Air Temperature2 (TC)',
         null=True,
     )
 
     # Unit: Max Windspeed-U1 [m/s]
-    windspeed_u1_max = CustomFloatField(
+    windspeed_u1_maximum = CustomFloatField(
         verbose_name='Max Windspeed-U1',
         null=True,
     )
 
     # Unit: Max Windspeed-U2 [m/s]
-    windspeed_u2_max = CustomFloatField(
+    windspeed_u2_maximum = CustomFloatField(
         verbose_name='Max Windspeed-U2',
         null=True,
     )
@@ -235,6 +236,11 @@ class Station(models.Model):
 
 # Test class to use for testing data imports
 class test(Station):
+    pass
+
+
+# Test class 2 to use for testing data imports
+class test2(Station):
     pass
 
 

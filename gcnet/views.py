@@ -1,4 +1,3 @@
-
 from django.core.exceptions import FieldError
 from django.db.models import Avg, Max, Min
 from django.http import JsonResponse, StreamingHttpResponse, HttpResponseNotFound
@@ -12,29 +11,36 @@ from gcnet.write_nead_config import write_nead_config
 # These model strings are used in the API calls (<str:model>): get_dynamic_data() and get_derived_data()
 from lwf.helpers import get_timestamp_iso_range_day_dict
 
-
-# Declare global variable 'returned_parameters' to specify which fields should be return from database table
+# Declare variable 'returned_parameters' to specify which fields should be return from database table
 returned_parameters = ['swin',
-                      'swout',
-                      'netrad',
-                      #'netrad_max',
-                      'airtemp1',
-                      'airtemp2',
-                      'airtemp_cs500air1',
-                      'airtemp_cs500air2',
-                      'rh1',
-                      'rh2',
-                      'windspeed1',
-                      'windspeed_u1_stdev',
-                      'windspeed2',
-                      'windspeed_u2_stdev',
-                      'winddir1',
-                      'winddir2',
-                      'pressure',
-                      'sh1',
-                      'sh2',
-                      'battvolt',
-                      'reftemp']
+                       'swin_maximum',
+                       'swout',
+                       'swout_minimum',
+                       'netrad',
+                       'netrad_maximum',
+                       'airtemp1',
+                       'airtemp1_maximum',
+                       'airtemp1_minimum',
+                       'airtemp2',
+                       'airtemp2_maximum',
+                       'airtemp2_minimum',
+                       'airtemp_cs500air1',
+                       'airtemp_cs500air2',
+                       'rh1',
+                       'rh2',
+                       'windspeed1',
+                       'windspeed_u1_maximum',
+                       'windspeed_u1_stdev',
+                       'windspeed2',
+                       'windspeed_u2_maximum',
+                       'windspeed_u2_stdev',
+                       'winddir1',
+                       'winddir2',
+                       'pressure',
+                       'sh1',
+                       'sh2',
+                       'battvolt',
+                       'reftemp']
 
 
 def get_model_stations(request):
@@ -72,6 +78,8 @@ def get_json_data(request, **kwargs):
     parameter = kwargs['parameter']
     model = kwargs['model']
 
+    # If parameter == 'multiple' assign 'parameters' to values in 'returned_parameters'
+    # Else assign parameters to parameter passed in URL
     if kwargs['parameter'] == 'multiple':
         display_values = ['timestamp_iso'] + returned_parameters
     else:
@@ -147,35 +155,10 @@ def get_aggregate_data(request, **kwargs):
     parameter = kwargs['parameter']
     model = kwargs['model']
 
-    # If parameter == 'all' assign 'parameters' to values in config settings 'database_fields'
+    # If parameter == 'multiple' assign 'parameters' to values in 'returned_parameters'
     # Else assign parameters to parameter passed in URL
-    if parameter == 'all':
-        # TODO later make this work by reading from config ana handling even values that end in '_max' or '_min'
-        # config_path = 'gcnet/config/nead_header.ini'
-        # config = read_config(config_path)
-        # parameters = config.get('FIELDS', 'database_fields').split(',')
-        parameters = ['swin',
-                      'swout',
-                      'netrad',
-                      #'netrad_max',
-                      'airtemp1',
-                      'airtemp2',
-                      'airtemp_cs500air1',
-                      'airtemp_cs500air2',
-                      'rh1',
-                      'rh2',
-                      'windspeed1',
-                      'windspeed_u1_stdev',
-                      'windspeed2',
-                      'windspeed_u2_stdev',
-                      'winddir1',
-                      'winddir2',
-                      'pressure',
-                      'sh1',
-                      'sh2',
-                      'battvolt',
-                      'reftemp']
-        print(parameters)
+    if parameter == 'multiple':
+        parameters = returned_parameters
     else:
         parameters = [parameter]
 
@@ -187,8 +170,6 @@ def get_aggregate_data(request, **kwargs):
         dict_fields[parameter + '_min'] = Min(parameter)
         dict_fields[parameter + '_max'] = Max(parameter)
         dict_fields[parameter + '_avg'] = Round2(Avg(parameter))
-
-    # print(dict_fields)
 
     # Check if timestamps are in whole date format: YYYY-MM-DD ('2019-12-04')
     # or ISO timestamp: YYYY-MM-DDTHH:MM:SS+00:00 (2020-10-18T18:00:00+00:00)
@@ -285,7 +266,6 @@ class Echo:
 # kwargs['timestamp_meaning'] must be 'beginning' or 'end'
 # Format is "NEAD 1.0 UTF-8"
 def streaming_csv_view_v1(request, start='', end='', **kwargs):
-
     # ===================================== ASSIGN VARIABLES ========================================================
     # Assign version
     version = "# NEAD 1.0 UTF-8\n"
@@ -359,7 +339,6 @@ def streaming_csv_view_v1(request, start='', end='', **kwargs):
 # kwargs['timestamp_meaning'] corresponds to the meaning of timestamp_iso
 # kwargs['timestamp_meaning'] must be 'beginning' or 'end'
 def get_csv(request, start='', end='', **kwargs):
-
     # ===================================== ASSIGN VARIABLES ========================================================
 
     # Assign null_value
@@ -400,7 +379,7 @@ def get_csv(request, start='', end='', **kwargs):
                                     .format(timestamp_meaning))
 
     # Assign display_values 'returned_parameters'
-    #display_values = ['timestamp_iso'] + returned_parameters
+    # display_values = ['timestamp_iso'] + returned_parameters
 
     # ===================================  STREAM DATA ===============================================================
     # Create the streaming response object and output csv
