@@ -13,23 +13,19 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from django.conf.urls import url
 from django.urls import path
 
 from gcnet.views import get_model_stations, streaming_csv_view_v1, get_aggregate_data, get_json_data, get_csv
 
 urlpatterns = [
     path('models/', get_model_stations),
+
     path('json/<str:model>/<str:lod>/<str:parameter>/<str:start>/<str:end>/', get_json_data),
     path('csv/<str:model>/<str:parameter>/<str:start>/<str:end>/<str:timestamp_meaning>/<str:nodata>/', get_csv),
-    url(r'nead/(?P<model>\w+)/(?P<nodata>[-\w]+)/(?P<timestamp_meaning>\w+)/(?P<start>[-\w]+)/(?P<end>[-\w]+)', streaming_csv_view_v1),
-    url(r'nead/(?P<model>\w+)/(?P<nodata>[-\w]+)/(?P<timestamp_meaning>\w+)/', streaming_csv_view_v1),
-    # TODO
-    # nead/<str:model>/<str:parameter> or <all>/<str:nodata>/<str:timestamp_meaning>/<str:start>/<str:end>/
-    # output: in average csv (header can be skipped), day (for ex.: 2020-12-02), all (from nead_header.ini) or 1 parameter,
-    # parametername_avg (airtemp1_avg), min and max (from 24 hour period) (airtemp1_max, airtemp1_min)
-    # summary/daily/<csv> or <json>/<str:model>/<str:parameter> or <all>/<str:start>/<str:end>/
-    url(r'summary/daily/csv/(?P<model>\w+)/(?P<parameter>[-\w]+)/(?P<start>[-\w]+)/(?P<end>[-\w]+)/('
-        r'?P<timestamp_meaning>[-\w]+)/(?P<nodata>[-\w]+)/', get_aggregate_data),
-    path('summary/daily/json/<str:model>/<str:parameter>/<str:start>/<str:end>/', get_aggregate_data)
+
+    path('summary/daily/json/<str:model>/<str:parameter>/<str:start>/<str:end>/', get_aggregate_data),
+    path('summary/daily/csv/<str:model>/<str:parameter>/<str:start>/<str:end>/<str:timestamp_meaning>/<str:nodata>/', get_aggregate_data),
+
+    path('nead/<str:model>/<str:timestamp_meaning>/<str:nodata>/<str:start>/<str:end>', streaming_csv_view_v1),
+    path('nead/<str:model>/<str:timestamp_meaning>/<str:nodata>/', streaming_csv_view_v1),
 ]

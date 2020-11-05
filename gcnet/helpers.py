@@ -13,6 +13,7 @@ from io import StringIO
 
 from django.core.exceptions import FieldError
 from django.db.models import Func, Min, Max, Avg
+from django.http import HttpResponseNotFound
 
 from lwf.helpers import get_timestamp_iso_range_day_dict
 
@@ -909,7 +910,8 @@ def write_row(timestamp_meaning, writer, null_value, row):
         writer.writerow(get_nead_queryset_value(x, null_value) for x in row)
 
     else:
-        raise FieldError("WARNING non-valid 'timestamp_meaning' kwarg. Must be either 'beginning' or 'end'")
+        return HttpResponseNotFound("<h1>WARNING non-valid 'timestamp_meaning' kwarg. Must be either 'beginning' or "
+                                    "'end'</h3>")
 
 
 # Get 'dict_fields' for aggregate views

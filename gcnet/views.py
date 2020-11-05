@@ -112,7 +112,7 @@ def get_json_data(request, **kwargs):
                             .filter(**dict_timestamps)
                             .order_by('timestamp').all())
         except FieldError:
-            return HttpResponseNotFound("<h1>Page not found</h1><h3>Non-existent parameter entered in URL: {0}</h3>"
+            return HttpResponseNotFound("<h1>Page not found</h1><h3>Non-valid parameter entered in URL: {0}</h3>"
                                         .format(parameter))
         return JsonResponse(queryset, safe=False)
 
@@ -124,7 +124,7 @@ def get_json_data(request, **kwargs):
                             .filter(**dict_timestamps)
                             .order_by('timestamp').all())
         except FieldError:
-            return HttpResponseNotFound("<h1>Page not found</h1><h3>Non-existent parameter entered in URL: {0}</h3>"
+            return HttpResponseNotFound("<h1>Page not found</h1><h3>Non-valid parameter entered in URL: {0}</h3>"
                                         .format(parameter))
         return JsonResponse(queryset, safe=False)
 
@@ -135,7 +135,7 @@ def get_json_data(request, **kwargs):
                             .filter(**dict_timestamps)
                             .order_by('timestamp').all())
         except FieldError:
-            return HttpResponseNotFound("<h1>Page not found</h1><h3>Non-existent parameter entered in URL: {0}</h3>"
+            return HttpResponseNotFound("<h1>Page not found</h1><h3>Non-valid parameter entered in URL: {0}</h3>"
                                         .format(parameter))
         return JsonResponse(queryset, safe=False)
 
@@ -154,18 +154,29 @@ def get_aggregate_data(request, timestamp_meaning='', nodata='', **kwargs):
     parameter = kwargs['parameter']
     model = kwargs['model']
 
+    # Get the model
+    try:
+        model_class = get_model(model)
+    except AttributeError:
+        return HttpResponseNotFound("<h1>Page not found</h1>"
+                                    "<h3>Non-valid 'model' (station) entered in URL: {0}</h3>".format(model))
+
     # If parameter == 'multiple' assign 'parameters' to values in 'returned_parameters'
-    # Else assign parameters to parameter passed in URL
+    # Else assign parameters to parameter passed in URL after checking if parameter exists as field in database table
     if parameter == 'multiple':
         parameters = returned_parameters
     else:
-        parameters = [parameter]
+        fields = [field.name for field in model_class._meta.get_fields()]
+        if parameter in fields:
+            parameters = [parameter]
+        else:
+            return HttpResponseNotFound("<h1>Page not found</h1><h3>Non-existent parameter entered in URL: {0}</h3>"
+                                        .format(parameter))
 
     # Assign 'dictionary_fields' with fields and values to be displayed
     dictionary_fields = get_dict_fields(parameters)
 
     # Check if timestamps are in whole date format: YYYY-MM-DD ('2019-12-04')
-    # or ISO timestamp: YYYY-MM-DDTHH:MM:SS+00:00 (2020-10-18T18:00:00+00:00)
     try:
         dict_timestamps = get_timestamp_iso_range_day_dict(start, end)
         # print(dict_timestamps)
@@ -173,16 +184,7 @@ def get_aggregate_data(request, timestamp_meaning='', nodata='', **kwargs):
         return HttpResponseNotFound("<h1>Page not found</h1>"
                                     "<h3>Incorrect date format for 'start' and/or 'end' timestamps.</h3>"
                                     "<h3>Start and end dates should both be in either ISO timestamp "
-                                    "date format: YYYY-MM-DD ('2019-12-04')</h3>"
-                                    "<h3>Or dates can be in ISO timestamp date and time "
-                                    "format: YYYY-MM-DDTHH:MM:SS+00:00 (2020-10-18T18:00:00+00:00)</h3>")
-
-    # Get the model
-    try:
-        model_class = get_model(model)
-    except AttributeError:
-        return HttpResponseNotFound("<h1>Page not found</h1>"
-                                    "<h3>Non-valid 'model' (station) entered in URL: {0}</h3>".format(model))
+                                    "date format: YYYY-MM-DD ('2019-12-04')</h3>")
 
     # NOTE: This section currently commented out because only daily aggregate values are currently returned
     # # Check which level of detail was passed
@@ -234,14 +236,23 @@ def get_aggregate_data(request, timestamp_meaning='', nodata='', **kwargs):
         # Assign empty strings to 'version' and 'hash_lines' because they are not used in this view
         version = ''
         hash_lines = ''
+
         # Check if 'empty' passed for 'nodata', if so assign 'nodata' to empty string: ''
         if nodata == 'empty':
             nodata = ''
+
         # Assign 'display_values' to ['day'] + keys of 'dictionary_fields'
         display_values = ['day'] + [*dictionary_fields]
-        print(display_values)
+
         # Assign output_csv
         output_csv = model + '_summary.csv'
+
+        # Validate 'timestamp_meaning'
+        if timestamp_meaning not in ['end', 'beginning']:
+            return HttpResponseNotFound("<h1>Page not found</h1>"
+                                        "<h3>Non-valid 'timestamp_meaning' kwarg entered in URL: {0}</h3>"
+                                        "<h3>Valid 'timestamp_meaning' kwarg options: end, beginning"
+                                        .format(timestamp_meaning))
 
         # Create the streaming response object and output csv
         response = StreamingHttpResponse(stream(version, hash_lines, model_class, display_values, timestamp_meaning,
@@ -261,8 +272,6 @@ def get_aggregate_data(request, timestamp_meaning='', nodata='', **kwargs):
         except FieldError:
             return HttpResponseNotFound("<h1>Page not found</h1><h3>Non-existent parameter entered in URL: {0}</h3>"
                                         .format(parameter))
-        # except Exception as e:
-        #     raise FieldError('Exception: {0}'.format(e))
         return JsonResponse(queryset, safe=False)
 
 
