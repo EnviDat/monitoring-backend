@@ -12,7 +12,7 @@ from datetime import datetime, timedelta
 from io import StringIO
 
 from django.core.exceptions import FieldError
-from django.db.models import Func
+from django.db.models import Func, Min, Max, Avg
 
 from lwf.helpers import get_timestamp_iso_range_day_dict
 
@@ -403,26 +403,26 @@ def get_fields_string(database_fields_list):
     fields_dict = {
         'timestamp_iso': 'timestamp',
         'swin': 'ISWR',
-        'swin_max': 'ISWR_max',
+        'swin_maximum': 'ISWR_max',
         'swout': 'OSWR',
-        'swout_max': 'OSWR_max',
+        'swout_minimum': 'OSWR_max',
         'netrad': 'NSWR',
-        'netrad_max': 'NSWR_max',
+        'netrad_maximum': 'NSWR_max',
         'airtemp1': 'TA1',
-        'airtemp1_max': 'TA1_max',
-        'airtemp1_min': 'TA1_min',
+        'airtemp1_maximum': 'TA1_max',
+        'airtemp1_minimum': 'TA1_min',
         'airtemp2': 'TA2',
-        'airtemp2_max': 'TA2_max',
-        'airtemp2_min': 'TA2_min',
+        'airtemp2_maximum': 'TA2_max',
+        'airtemp2_minimum': 'TA2_min',
         'airtemp_cs500air1': 'TA3',
         'airtemp_cs500air2': 'TA4',
         'rh1': 'RH1',
         'rh2': 'RH2',
         'windspeed1': 'VW1',
-        'windspeed_u1_max': 'VW1_max',
+        'windspeed_u1_maximum': 'VW1_max',
         'windspeed_u1_stdev': 'VW1_stdev',
         'windspeed2': 'VW2',
-        'windspeed_u2_max': 'VW2_max',
+        'windspeed_u2_maximum': 'VW2_max',
         'windspeed_u2_stdev': 'VW2_stdev',
         'winddir1': 'DW1',
         'winddir2': 'DW2',
@@ -453,26 +453,26 @@ def get_add_value_string(database_fields_list):
     add_value_dict = {
         'timestamp_iso': 0,
         'swin': 0,
-        'swin_max': 0,
+        'swin_maximum': 0,
         'swout': 0,
-        'swout_max': 0,
+        'swout_minimum': 0,
         'netrad': 0,
-        'netrad_max': 0,
+        'netrad_maximum': 0,
         'airtemp1': 273.15,
-        'airtemp1_max': 273.15,
-        'airtemp1_min': 273.15,
+        'airtemp1_maximum': 273.15,
+        'airtemp1_minimum': 273.15,
         'airtemp2': 273.15,
-        'airtemp2_max': 273.15,
-        'airtemp2_min': 273.15,
+        'airtemp2_maximum': 273.15,
+        'airtemp2_minimum': 273.15,
         'airtemp_cs500air1': 273.15,
         'airtemp_cs500air2': 273.15,
         'rh1': 0,
         'rh2': 0,
         'windspeed1': 0,
-        'windspeed_u1_max': 0,
+        'windspeed_u1_maximum': 0,
         'windspeed_u1_stdev': 0,
         'windspeed2': 0,
-        'windspeed_u2_max': 0,
+        'windspeed_u2_maximum': 0,
         'windspeed_u2_stdev': 0,
         'winddir1': 0,
         'winddir2': 0,
@@ -507,26 +507,26 @@ def get_scale_factor_string(database_fields_list):
     scale_factor_dict = {
         'timestamp_iso': 1,
         'swin': 1,
-        'swin_max': 1,
+        'swin_maximum': 1,
         'swout': 1,
-        'swout_max': 1,
+        'swout_minimum': 1,
         'netrad': 1,
-        'netrad_max': 1,
+        'netrad_maximum': 1,
         'airtemp1': 1,
-        'airtemp1_max': 1,
-        'airtemp1_min': 1,
+        'airtemp1_maximum': 1,
+        'airtemp1_minimum': 1,
         'airtemp2': 1,
-        'airtemp2_max': 1,
-        'airtemp2_min': 1,
+        'airtemp2_maximum': 1,
+        'airtemp2_minimum': 1,
         'airtemp_cs500air1': 1,
         'airtemp_cs500air2': 1,
         'rh1': 0.01,
         'rh2': 0.01,
         'windspeed1': 1,
-        'windspeed_u1_max': 1,
+        'windspeed_u1_maximum': 1,
         'windspeed_u1_stdev': 1,
         'windspeed2': 1,
-        'windspeed_u2_max': 1,
+        'windspeed_u2_maximum': 1,
         'windspeed_u2_stdev': 1,
         'winddir1': 1,
         'winddir2': 1,
@@ -560,26 +560,26 @@ def get_units_string(database_fields_list):
     units_dict = {
         'timestamp_iso': 'time',
         'swin': 'W/m2',
-        'swin_max': 'W/m2',
+        'swin_maximum': 'W/m2',
         'swout': 'W/m2',
-        'swout_max': 'W/m2',
+        'swout_minimum': 'W/m2',
         'netrad': 'W/m2',
-        'netrad_max': 'W/m2',
+        'netrad_maximum': 'W/m2',
         'airtemp1': 'Degrees C',
-        'airtemp1_max': 'Degrees C',
-        'airtemp1_min': 'Degrees C',
+        'airtemp1_maximum': 'Degrees C',
+        'airtemp1_minimum': 'Degrees C',
         'airtemp2': 'Degrees C',
-        'airtemp2_max': 'Degrees C',
-        'airtemp2_min': 'Degrees C',
+        'airtemp2_maximum': 'Degrees C',
+        'airtemp2_minimum': 'Degrees C',
         'airtemp_cs500air1': 'Degrees C',
         'airtemp_cs500air2': 'Degrees C',
         'rh1': '%',
         'rh2': '%',
         'windspeed1': 'm/s',
-        'windspeed_u1_max': 'm/s',
+        'windspeed_u1_maximum': 'm/s',
         'windspeed_u1_stdev': 'm/s',
         'windspeed2': 'm/s',
-        'windspeed_u2_max': 'm/s',
+        'windspeed_u2_maximum': 'm/s',
         'windspeed_u2_stdev': 'm/s',
         'winddir1': 'Degrees',
         'winddir2': 'Degrees',
@@ -611,26 +611,26 @@ def get_database_fields_data_types_string(database_fields_list):
     database_fields_data_types_dict = {
         'timestamp_iso': 'timestamp',
         'swin': 'real',
-        'swin_max': 'real',
+        'swin_maximum': 'real',
         'swout': 'real',
-        'swout_max': 'real',
+        'swout_minimum': 'real',
         'netrad': 'real',
-        'netrad_max': 'real',
+        'netrad_maximum': 'real',
         'airtemp1': 'real',
-        'airtemp1_max': 'real',
-        'airtemp1_min': 'real',
+        'airtemp1_maximum': 'real',
+        'airtemp1_minimum': 'real',
         'airtemp2': 'real',
-        'airtemp2_max': 'real',
-        'airtemp2_min': 'real',
+        'airtemp2_maximum': 'real',
+        'airtemp2_minimum': 'real',
         'airtemp_cs500air1': 'real',
         'airtemp_cs500air2': 'real',
         'rh1': 'real',
         'rh2': 'real',
         'windspeed1': 'real',
-        'windspeed_u1_max': 'real',
+        'windspeed_u1_maximum': 'real',
         'windspeed_u1_stdev': 'real',
         'windspeed2': 'real',
-        'windspeed_u2_max': 'real',
+        'windspeed_u2_maximum': 'real',
         'windspeed_u2_stdev': 'real',
         'winddir1': 'real',
         'winddir2': 'real',
@@ -662,26 +662,26 @@ def get_display_description(database_fields_list):
     display_description_dict = {
         'timestamp_iso': 'timestamp_iso',
         'swin': 'shortwave_incoming_radiation',
-        'swin_max': 'shortwave_incoming_radiation_max',
+        'swin_maximum': 'shortwave_incoming_radiation_max',
         'swout': 'shortwave_outgoing_radiation',
-        'swout_max': 'shortwave_outgoing_radiation_max',
+        'swout_minimum': 'shortwave_outgoing_radiation_min',
         'netrad': 'net_radiation',
-        'netrad_max': 'net_radiation_max',
+        'netrad_maximum': 'net_radiation_max',
         'airtemp1': 'air_temperature_1',
-        'airtemp1_max': 'air_temperature_1_max',
-        'airtemp1_min': 'air_temperature_1_min',
+        'airtemp1_maximum': 'air_temperature_1_max',
+        'airtemp1_minimum': 'air_temperature_1_min',
         'airtemp2': 'air_temperature_2',
-        'airtemp2_max': 'air_temperature_2_max',
-        'airtemp2_min': 'air_temperature_2_min',
+        'airtemp2_maximum': 'air_temperature_2_max',
+        'airtemp2_minimum': 'air_temperature_2_min',
         'airtemp_cs500air1': 'air_temperature_cs500_air1',
         'airtemp_cs500air2': 'air_temperature_cs500_air2',
         'rh1': 'relative_humidity_1',
         'rh2': 'relative_humidity_2',
         'windspeed1': 'wind_speed_1',
-        'windspeed_u1_max': 'wind_speed_u1_max',
+        'windspeed_u1_maximum': 'wind_speed_u1_max',
         'windspeed_u1_stdev': 'wind_speed_u1_stdev',
         'windspeed2': 'wind_speed_2',
-        'windspeed_u2_max': 'wind_speed_u2_max',
+        'windspeed_u2_maximum': 'wind_speed_u2_max',
         'windspeed_u2_stdev': 'wind_speed_u2_stdev',
         'winddir1': 'wind_from_direction_1',
         'winddir2': 'wind_from_direction_2',
@@ -810,8 +810,8 @@ def get_hashed_lines(config_buffer):
 
 
 # Define a generator to stream GC-Net data directly to the client
-def stream(nead_version, hashed_lines, model_class, display_values, timestamp_meaning, null_value, start, end):
-
+def stream(nead_version, hashed_lines, model_class, display_values, timestamp_meaning, null_value, start, end,
+           dict_fields):
     # If kwargs 'start' and 'end' passed in URL validate and assign to dict_timestamps
     dict_timestamps = {}
     if len(start) > 0 and len(end) > 0:
@@ -832,14 +832,33 @@ def stream(nead_version, hashed_lines, model_class, display_values, timestamp_me
 
     # Generator expressions to write each row in the queryset by calculating each row as needed and not all at once
     # Write values that are null in database as the value assigned to 'null_value'
-    # If kwargs 'start' and 'end' passed then apply timestamps filter
-    if len(dict_timestamps) > 0:
+    # Check if 'dict_fields' passed, if so stream aggregate daily data
+    if len(dict_fields) > 0:
+
+        queryset = model_class.objects \
+            .values_list('day') \
+            .annotate(**dict_fields) \
+            .filter(**dict_timestamps) \
+            .order_by('day')
+
+        for row in queryset:
+            # Call write_row
+            write_row(timestamp_meaning, writer, null_value, row)
+
+            # Yield data (row from database)
+            buffer_.seek(0)
+            data = buffer_.read()
+            buffer_.seek(0)
+            buffer_.truncate()
+            yield data
+
+    # Elif kwargs 'start' and 'end' passed then apply timestamps filter
+    elif len(dict_timestamps) > 0:
         for row in model_class.objects \
                 .values_list(*display_values) \
                 .filter(**dict_timestamps) \
                 .order_by('timestamp_iso') \
                 .iterator():
-
             # Call write_row
             write_row(timestamp_meaning, writer, null_value, row)
 
@@ -850,13 +869,12 @@ def stream(nead_version, hashed_lines, model_class, display_values, timestamp_me
             buffer_.truncate()
             yield data
 
-    # Else retrieve all data currently in database table
-    else:
+    # Elif retrieve all data currently in database table if 'display_values' passed
+    elif len(display_values) > 0:
         for row in model_class.objects \
                 .values_list(*display_values) \
                 .order_by('timestamp_iso') \
                 .iterator():
-
             # Call write_row
             write_row(timestamp_meaning, writer, null_value, row)
 
@@ -866,6 +884,9 @@ def stream(nead_version, hashed_lines, model_class, display_values, timestamp_me
             buffer_.seek(0)
             buffer_.truncate()
             yield data
+
+    else:
+        raise FieldError("WARNING 'display_values' not passed")
 
 
 # Assign null_value
@@ -877,18 +898,8 @@ def get_null_value(nodata_kwargs):
     return null_value
 
 
-# # Get display_values
-# def get_display_values(parameter_kwarg):
-#     if parameter_kwarg == 'multiple':
-#         display_values = ['timestamp_iso'] + returned_parameters
-#     else:
-#         display_values = ['timestamp_iso'] + [parameter_kwarg]
-#     return display_values
-
-
 # Write row and adjust timestamp_meaning
 def write_row(timestamp_meaning, writer, null_value, row):
-
     # Write timestamps as they are in database if 'timestamp_meaning' == 'end'
     if timestamp_meaning == 'end':
         writer.writerow(null_value if x is None else x for x in row)
@@ -899,3 +910,16 @@ def write_row(timestamp_meaning, writer, null_value, row):
 
     else:
         raise FieldError("WARNING non-valid 'timestamp_meaning' kwarg. Must be either 'beginning' or 'end'")
+
+
+# Get 'dict_fields' for aggregate views
+def get_dict_fields(display_values):
+    dict_fields = {'timestamp_first': Min('timestamp_iso'),
+                   'timestamp_last': Max('timestamp_iso')}
+
+    for parameter in display_values:
+        dict_fields[parameter + '_min'] = Min(parameter)
+        dict_fields[parameter + '_max'] = Max(parameter)
+        dict_fields[parameter + '_avg'] = Round2(Avg(parameter))
+
+    return dict_fields

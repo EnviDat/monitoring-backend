@@ -1,9 +1,8 @@
 from django.core.exceptions import FieldError
-from django.db.models import Avg, Max, Min
-from django.http import JsonResponse, StreamingHttpResponse, HttpResponseNotFound
+from django.http import JsonResponse, StreamingHttpResponse, HttpResponseNotFound, HttpResponseServerError
 
-from gcnet.helpers import validate_date_gcnet, Round2, read_config, get_model, \
-    get_hashed_lines, stream, get_null_value
+from gcnet.helpers import validate_date_gcnet, read_config, get_model, \
+    get_hashed_lines, stream, get_null_value, get_dict_fields
 from gcnet.write_nead_config import write_nead_config
 
 # Returns list of stations in stations.ini config file by their 'model' (string that is the name of the station
@@ -50,7 +49,7 @@ def get_model_stations(request):
 
     # Check if stations_config exists
     if not stations_config:
-        return HttpResponseNotFound("<h1>Page not found</h1>")
+        return HttpResponseNotFound("<h1>Not found: station config doesn't exist</h1>")
 
     # Assign variable to contain model_id list for all stations in stations.ini
     model_stations = []
@@ -148,7 +147,7 @@ def get_json_data(request, **kwargs):
 
 # Returns aggregate data values by day: 'avg' (average), 'max' (maximum) and 'min' (minimum)
 # User customized view that returns data based parameter specified
-def get_aggregate_data(request, **kwargs):
+def get_aggregate_data(request, timestamp_meaning='', nodata='', **kwargs):
     # Assign kwargs from url to variables
     start = kwargs['start']
     end = kwargs['end']
@@ -162,14 +161,8 @@ def get_aggregate_data(request, **kwargs):
     else:
         parameters = [parameter]
 
-    # Assign dict_fields with fields and values to be displayed in json
-    dict_fields = {'timestamp_first': Min('timestamp_iso'),
-                   'timestamp_last': Max('timestamp_iso')}
-
-    for parameter in parameters:
-        dict_fields[parameter + '_min'] = Min(parameter)
-        dict_fields[parameter + '_max'] = Max(parameter)
-        dict_fields[parameter + '_avg'] = Round2(Avg(parameter))
+    # Assign 'dictionary_fields' with fields and values to be displayed
+    dictionary_fields = get_dict_fields(parameters)
 
     # Check if timestamps are in whole date format: YYYY-MM-DD ('2019-12-04')
     # or ISO timestamp: YYYY-MM-DDTHH:MM:SS+00:00 (2020-10-18T18:00:00+00:00)
@@ -183,6 +176,13 @@ def get_aggregate_data(request, **kwargs):
                                     "date format: YYYY-MM-DD ('2019-12-04')</h3>"
                                     "<h3>Or dates can be in ISO timestamp date and time "
                                     "format: YYYY-MM-DDTHH:MM:SS+00:00 (2020-10-18T18:00:00+00:00)</h3>")
+
+    # Get the model
+    try:
+        model_class = get_model(model)
+    except AttributeError:
+        return HttpResponseNotFound("<h1>Page not found</h1>"
+                                    "<h3>Non-valid 'model' (station) entered in URL: {0}</h3>".format(model))
 
     # NOTE: This section currently commented out because only daily aggregate values are currently returned
     # # Check which level of detail was passed
@@ -226,26 +226,44 @@ def get_aggregate_data(request, **kwargs):
     #                                 "<h3>Non-valid 'lod' (level of detail) entered in URL: {0}"
     #                                 "<h3>Valid 'lod' options: day, week, year".format(lod))
 
-    # Get the model
-    try:
-        model_class = get_model(model)
-    except AttributeError:
-        return HttpResponseNotFound("<h1>Page not found</h1>"
-                                    "<h3>Non-valid 'model' (station) entered in URL: {0}</h3>".format(model))
-
     # Get the queryset and return the response
-    try:
-        queryset = list(model_class.objects
-                        .values('day')
-                        .annotate(**dict_fields)
-                        .filter(**dict_timestamps)
-                        .order_by('day'))
-    # except FieldError:
-    #     return HttpResponseNotFound("<h1>Page not found</h1><h3>Non-existent parameter entered in URL: {0}</h3>"
-    #                                 .format(parameter))
-    except Exception as e:
-        raise FieldError('Exception: {0}'.format(e))
-    return JsonResponse(queryset, safe=False)
+
+    # Check if 'timestamp_meaning' and 'nodata' were passed, if so stream CSV
+    if len(timestamp_meaning) > 0 and len(nodata) > 0:
+        # ===================================  STREAM DATA ===========================================================
+        # Assign empty strings to 'version' and 'hash_lines' because they are not used in this view
+        version = ''
+        hash_lines = ''
+        # Check if 'empty' passed for 'nodata', if so assign 'nodata' to empty string: ''
+        if nodata == 'empty':
+            nodata = ''
+        # Assign 'display_values' to ['day'] + keys of 'dictionary_fields'
+        display_values = ['day'] + [*dictionary_fields]
+        print(display_values)
+        # Assign output_csv
+        output_csv = model + '_summary.csv'
+
+        # Create the streaming response object and output csv
+        response = StreamingHttpResponse(stream(version, hash_lines, model_class, display_values, timestamp_meaning,
+                                                nodata, start, end, dict_fields=dictionary_fields), content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename=' + output_csv
+        return response
+
+    # Else return JSON response
+    else:
+        # ===================================  RETURN JSON DATA========================================================
+        try:
+            queryset = list(model_class.objects
+                            .values('day')
+                            .annotate(**dictionary_fields)
+                            .filter(**dict_timestamps)
+                            .order_by('day'))
+        except FieldError:
+            return HttpResponseNotFound("<h1>Page not found</h1><h3>Non-existent parameter entered in URL: {0}</h3>"
+                                        .format(parameter))
+        # except Exception as e:
+        #     raise FieldError('Exception: {0}'.format(e))
+        return JsonResponse(queryset, safe=False)
 
 
 class Echo:
@@ -326,7 +344,7 @@ def streaming_csv_view_v1(request, start='', end='', **kwargs):
     # ===================================  STREAM NEAD DATA ===========================================================
     # Create the streaming response object and output csv
     response = StreamingHttpResponse(stream(version, hash_lines, model_class, display_values, timestamp_meaning,
-                                            null_value, start, end), content_type='text/csv')
+                                            null_value, start, end, dict_fields={}), content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename=' + output_csv
 
     return response
@@ -363,6 +381,7 @@ def get_csv(request, start='', end='', **kwargs):
     else:
         display_values = ['timestamp_iso'] + [kwargs['parameter']]
 
+
     # ================================  VALIDATE VARIABLES =========================================================
     # Get and validate the model_class
     try:
@@ -378,13 +397,10 @@ def get_csv(request, start='', end='', **kwargs):
                                     "<h3>Valid 'timestamp_meaning' kwarg options: end, beginning"
                                     .format(timestamp_meaning))
 
-    # Assign display_values 'returned_parameters'
-    # display_values = ['timestamp_iso'] + returned_parameters
-
     # ===================================  STREAM DATA ===============================================================
     # Create the streaming response object and output csv
     response = StreamingHttpResponse(stream(version, hash_lines, model_class, display_values, timestamp_meaning,
-                                            null_value, start, end), content_type='text/csv')
+                                            null_value, start, end, dict_fields={}), content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename=' + output_csv
 
     return response
