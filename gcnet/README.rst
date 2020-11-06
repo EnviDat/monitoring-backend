@@ -216,7 +216,7 @@ Each model is a separate table in the Postgres database. The test model may be u
 
     python manage.py makemigrations gcnet
 
-    python manage.py migrate gcnet
+    python manage.py migrate gcnet --database=gcnet
 
 
 2. Open database using PG Admin on local machine or server and verify that the tables in gcnet/models.py migrated correctly.
@@ -253,7 +253,7 @@ otherwise data could be imported into the wrong table.
 
 **Import .dat files with logging and .dat file data validator**
 
-NOTE: This import command does not check for existing records and should only be used during the initial database setup.
+WARNING: This import command does not check for existing records and should only be used during the initial database setup.
 Attempting to import records that have identical timestamps will result in unique constraint errors.
 
 The script for this command is importcommand.py
@@ -404,8 +404,7 @@ main.py has three arguments::
 
     -l (--localFolder) Load local .dat files from folder and skip processing
 
-Open terminal and navigate to project directory. During testing this script only worked when the virtual environment
-was not activated.
+Open terminal and navigate to project directory.
 
 Run python and import main::
 

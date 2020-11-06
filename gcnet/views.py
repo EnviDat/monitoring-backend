@@ -66,14 +66,12 @@ def get_model_stations(request):
 
 
 # User customized view that returns JSON data based on level of detail and parameter specified by station.
-# Levels of detail:  'all' (every hour), 'quarterday' (00:00, 06:00, 12:00, 18:00), 'halfday' (00:00, 12:00)
 # Parameter: if 'multiple' selected than several fields are returned rather than just a specific parameter
 # Accepts ISO timestamp ranges
 def get_json_data(request, **kwargs):
     # Assign kwargs from url to variables
     start = kwargs['start']
     end = kwargs['end']
-    lod = kwargs['lod']
     parameter = kwargs['parameter']
     model = kwargs['model']
 
@@ -104,45 +102,17 @@ def get_json_data(request, **kwargs):
     except AttributeError:
         return HttpResponseNotFound("<h1>Page not found</h1>"
                                     "<h3>Non-valid 'model' (station) entered in URL: {0}</h3>".format(model))
-    if lod == 'quarterday':
-        try:
-            queryset = list(model_class.objects
-                            .values(*display_values)
-                            .filter(quarterday=True)
-                            .filter(**dict_timestamps)
-                            .order_by('timestamp').all())
-        except FieldError:
-            return HttpResponseNotFound("<h1>Page not found</h1><h3>Non-valid parameter entered in URL: {0}</h3>"
-                                        .format(parameter))
-        return JsonResponse(queryset, safe=False)
 
-    elif lod == 'halfday':
-        try:
-            queryset = list(model_class.objects
-                            .values(*display_values)
-                            .filter(halfday=True)
-                            .filter(**dict_timestamps)
-                            .order_by('timestamp').all())
-        except FieldError:
-            return HttpResponseNotFound("<h1>Page not found</h1><h3>Non-valid parameter entered in URL: {0}</h3>"
+    # Return queryset as JsonReponse
+    try:
+        queryset = list(model_class.objects
+                        .values(*display_values)
+                        .filter(**dict_timestamps)
+                        .order_by('timestamp').all())
+    except FieldError:
+        return HttpResponseNotFound("<h1>Page not found</h1><h3>Non-valid parameter entered in URL: {0}</h3>"
                                         .format(parameter))
-        return JsonResponse(queryset, safe=False)
-
-    elif lod == 'all':
-        try:
-            queryset = list(model_class.objects
-                            .values(*display_values)
-                            .filter(**dict_timestamps)
-                            .order_by('timestamp').all())
-        except FieldError:
-            return HttpResponseNotFound("<h1>Page not found</h1><h3>Non-valid parameter entered in URL: {0}</h3>"
-                                        .format(parameter))
-        return JsonResponse(queryset, safe=False)
-
-    else:
-        return HttpResponseNotFound("<h1>Page not found</h1>"
-                                    "<h3>Non-valid 'lod' (level of detail) entered in URL: {0}"
-                                    "<h3>Valid 'lod' options: all, quarterday, halfday".format(lod))
+    return JsonResponse(queryset, safe=False)
 
 
 # Returns aggregate data values by day: 'avg' (average), 'max' (maximum) and 'min' (minimum)

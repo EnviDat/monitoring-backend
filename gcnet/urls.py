@@ -20,7 +20,7 @@ from gcnet.views import get_model_stations, streaming_csv_view_v1, get_aggregate
 urlpatterns = [
     path('models/', get_model_stations),
 
-    path('json/<str:model>/<str:lod>/<str:parameter>/<str:start>/<str:end>/', get_json_data),
+    path('json/<str:model>/<str:parameter>/<str:start>/<str:end>/', get_json_data),
     path('csv/<str:model>/<str:parameter>/<str:start>/<str:end>/<str:timestamp_meaning>/<str:nodata>/', get_csv),
 
     path('summary/daily/json/<str:model>/<str:parameter>/<str:start>/<str:end>/', get_aggregate_data),
