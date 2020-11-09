@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>GC-Net API</title>
+</head>
+<style>
+    h1   {color: darkblue}
+    h3   {color: darkgreen;}
+    body {font-family: Helvetica, serif;}
+</style>
+<body>
+    <div style="text-align: center;">
+        <h1>GC-Net API Documentation</h1>
+        <br>
+        <h2>General Overview</h2>
+        <br>
+    </div>
+{% block body_block %}
+    <h3 >Return list of stations by model (station): </h3>
+    <h4><ul>URL: <a href="https://www.envidat.ch/data-api/gcnet/models/" target="_blank">https://www.envidat.ch/data-api/gcnet/models/</a></ul></h4>
+    <br>
+    <h3>Return JSON DATA: </h3>
+    <h4><ul>URL: https://www.envidat.ch/data-api/gcnet/json/model/parameter/start/end/</ul></h4>
+    <h4><ul>Example Call: <a href="https://www.envidat.ch/data-api/gcnet/json/swisscamp_01d/airtemp2/2020-11-04T17:00:00/2020-11-10T00:00:00/" target="_blank">
+        https://www.envidat.ch/data-api/gcnet/json/swisscamp_01d/airtemp2/2020-11-04T17:00:00/2020-11-10T00:00:00/</a></ul></h4>
+    <h4><ul>Example Call Return Multiple Parameters: <a href="https://www.envidat.ch/data-api/gcnet/json/swisscamp_01d/multiple/2020-11-04T17:00:00/2020-11-10T00:00:00/" target="_blank">
+        https://www.envidat.ch/data-api/gcnet/json/swisscamp_01d/multiple/2020-11-04T17:00:00/2020-11-10T00:00:00/</a></ul></h4>
+{% endblock %}
+
+</body>
+
+</html>
+

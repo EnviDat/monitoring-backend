@@ -1,5 +1,8 @@
+import os
+
 from django.core.exceptions import FieldError
-from django.http import JsonResponse, StreamingHttpResponse, HttpResponseNotFound, HttpResponseServerError
+from django.http import JsonResponse, StreamingHttpResponse, HttpResponseNotFound, HttpResponseServerError, HttpResponse
+from django.shortcuts import render
 
 from gcnet.helpers import validate_date_gcnet, read_config, get_model, \
     get_hashed_lines, stream, get_null_value, get_dict_fields
@@ -43,8 +46,10 @@ returned_parameters = ['swin',
 
 
 def get_model_stations(request):
+
     # Read the stations config file
-    stations_path = 'gcnet/config/stations.ini'
+    local_dir = os.path.dirname(__file__)
+    stations_path = os.path.join(local_dir, 'config/stations.ini')
     stations_config = read_config(stations_path)
 
     # Check if stations_config exists
@@ -383,3 +388,8 @@ def get_csv(request, start='', end='', **kwargs):
     response['Content-Disposition'] = 'attachment; filename=' + output_csv
 
     return response
+
+
+# Return 'index.html' with API documentation
+def index(request):
+    return render(request, 'index.html')

@@ -15,6 +15,7 @@ Including another URLconf
 """
 from django.urls import path
 
+from gcnet import views
 from gcnet.views import get_model_stations, streaming_csv_view_v1, get_aggregate_data, get_json_data, get_csv
 
 urlpatterns = [
@@ -28,4 +29,6 @@ urlpatterns = [
 
     path('nead/<str:model>/<str:timestamp_meaning>/<str:nodata>/<str:start>/<str:end>', streaming_csv_view_v1),
     path('nead/<str:model>/<str:timestamp_meaning>/<str:nodata>/', streaming_csv_view_v1),
+
+    path('', views.index, name='index'),
 ]
