@@ -820,7 +820,7 @@ def stream(nead_version, hashed_lines, model_class, display_values, timestamp_me
 
     # Create buffer_ and writer objects
     buffer_ = StringIO()
-    writer = csv.writer(buffer_)
+    writer = csv.writer(buffer_, lineterminator="\n")
 
     # Check if values passed for 'nead_version' and 'hashed_lines'
     # If True: Write version and hash_lines to buffer_

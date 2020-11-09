@@ -12,7 +12,7 @@ class MonitoringRouter:
             print('WARNING (routers.py) non-valid model": {0}'.format(model))
             return -1
 
-    def db_for_write(self, model):
+    def db_for_write(self, model, **kwargs):
         if model._meta.app_label == 'lwf':
             # print("APP_LABEL: " + model._meta.app_label)
             return 'lwf'

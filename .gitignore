@@ -1,4 +1,5 @@
 /venv-monitor/*
+/venv
 .idea
 __pycache__/
 *.log
@@ -13,3 +14,4 @@ lwf/migrations/
 /gcnet/csv_output/
 /gcnet/csv_logs/
 /gcnet/temporary/
+/data/*
