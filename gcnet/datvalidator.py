@@ -37,6 +37,11 @@ def dat_validator(stations_config_path, row, dat_path):
     stations_config = configparser.ConfigParser()
     stations_config.read(stations_config_file)
 
+    # TODO perform a decent validation of the config
+    if len([str(item) for item in stations_config.items()]) < 2:
+        raise FileNotFoundError("Exception reading config file '{0}'".format(stations_config_path))
+
+
     # Iterate through some keys in the row with max or min values and call check_values()
     check_dict = {'SWin':     {'section': 'DEFAULT', 'minimum': "swmin",  'maximum': "swmax"},
                   'SWout':    {'section': 'DEFAULT', 'minimum': "swmin",  'maximum': "swmax"},
