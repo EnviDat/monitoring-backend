@@ -35,6 +35,8 @@ def csv_validator(stations_config_path, row, csv_path, line_count):
     # Load stations configuration file and assign it to stations_config
     stations_config = configparser.ConfigParser()
     stations_config.read(stations_config_file)
+    if len(stations_config.sections())<1:
+        raise FileNotFoundError("Cannot read config file: {0}".format(stations_config_path))
 
     # Iterate through some keys in the row with max or min values and call check_values()
     check_dict = {'SWin':     {'section': 'DEFAULT', 'minimum': "swmin",  'maximum': "swmax"},
