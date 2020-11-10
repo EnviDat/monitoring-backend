@@ -118,7 +118,7 @@ def get_csv_import_command_list(config_parser: configparser, station_type: str, 
             # Check to read either url or path from stations config file
             if input_type == ' path':
                 csv_data = stations_config.get(section, 'csv_data_dir')
-                csv_source_type = 'directory'
+                csv_source_type = 'file'
             elif input_type == ' url':
                 csv_data = stations_config.get(section, 'csv_data_url')
                 csv_source_type = 'web'
@@ -128,7 +128,7 @@ def get_csv_import_command_list(config_parser: configparser, station_type: str, 
                 return
 
             command_string = 'python manage.py csv_import -s {0} -c gcnet/config/stations.ini ' \
-                             '-i {1}/{2} -d gcnet/data -m {3} -t {4}' \
+                             '-i {1}/{2} -m {3} -t {4}' \
                 .format(csv_temporary, csv_data, csv_input, model, csv_source_type)
             commands.append(command_string)
 
