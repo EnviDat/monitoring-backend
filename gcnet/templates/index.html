@@ -3,16 +3,27 @@
 <head>
     <title>GC-Net API</title>
 </head>
+
 <style>
     body {font-family: Helvetica, serif;}
     body {background-color: #F1F1F1}
     body {padding-left: 30px;}
+    hr   {margin-right: 30px;}
     h1   {color: darkblue;}
     h2   {font-weight: 900}
     h3   {color: darkgreen;}
+    h4   {font-size: medium}
     hr   {color: lightblue;}
-    hr   {margin-right: 30px;}
+    .output {font-size: small;}
+    .output {color: green;}
+    .output {font-family: monospace, serif;}
+    .model_light  {background-color:lightyellow;}
+    .timestamp_meaning {background-color:#00FF00;}
+    .timestamp_meaning_light {background-color:lightgreen;}
+    .nodata {background-color:pink;}
+    .start_end {background-color:#00FEFE;}
 </style>
+
 <body>
     <div style="text-align: center;">
         <h1>GC-Net API Documentation</h1>
@@ -20,6 +31,7 @@
         <h2>General Overview</h2>
         <br>
     </div>
+
 {% block body_block %}
     <h3 >Return list of stations</h3>
     <h4><ul>URL: <a href="https://www.envidat.ch/data-api/gcnet/models/" target="_blank">https://www.envidat.ch/data-api/gcnet/models/</a></ul></h4>
@@ -65,7 +77,45 @@
     <h4><ul>Example returning multiple parameters: <a href="http://www.envidat.ch/data-api/gcnet/summary/daily/json/swisscamp_01d/multiple/2020-11-03/2020-11-06/" target="_blank">
         http://www.envidat.ch/data-api/gcnet/summary/daily/json/swisscamp_01d/multiple/2020-11-03/2020-11-06/</a></ul></h4>
     <br>
+    <br>
 
+    <div style="text-align: center;">
+        <hr>
+        <h2>Endpoint Explanation</h2>
+        <br>
+    </div>
+
+    <h3 >Return list of stations</h3>
+    <h4><ul>URL: <a href="https://www.envidat.ch/data-api/gcnet/models/" target="_blank">https://www.envidat.ch/data-api/gcnet/models/</a></ul></h4>
+    <p><ul>Returns list of stations referred to as 'model' in other endpoints.</ul>
+       <ul>Sample Output:</ul>
+           <ul><ul><span class="output">
+           [
+            <ul>"gits_04d",
+            <br>"humboldt_05d",
+            <br>"petermann_22d",
+            <br>"tunu_n_07d",
+            <br>"swisscamp_10m_tower_00d",
+            <br>"swisscamp_01d",
+            <br>"crawfordpoint_02d",
+            <br>"nasa_u_03d",
+            <br>"summit_06d",
+            <br>"dye2_08d",
+            <br>"jar1_09d",
+            <br>"saddle_10d",
+            <br>"southdome_11d",
+            <br>"nasa_east_12d",
+            <br>"nasa_southeast_15d",
+            <br>"neem_23d",
+            <br>"east_grip_24d"</ul>
+            ]
+       </span></ul></ul>
+    <br>
+
+    <h3>Download NEAD Data</h3>
+    <h4><ul>URL template with time range: https://www.envidat.ch/data-api/nead/<mark>model</mark>/<span class="timestamp_meaning">timestamp_meaning</span>/<span class="nodata">nodata</span>/<span class="start_end">start</span>/<span class="start_end">end</span></ul></h4>
+    <p><ul><ul><mark>model</mark> should correspond to a GC-Net Station model name listed in the 'https://www.envidat.ch/data-api/gcnet/models/' endpoint, for example <span class="model_light">swisscamp_01d</span> or <span class="model_light">summit_06d</span></ul></ul>
+       <ul><ul><span class="timestamp_meaning">timestamp_meaning</span> should be <span class="timestamp_meaning_light">end</span> or <span class="timestamp_meaning_light">beginning</span>
 {% endblock %}
 
 </body>
