@@ -10,6 +10,7 @@ from django.utils.timezone import make_aware
 
 from gcnet.csvvalidator import csv_validator
 from gcnet.helpers import quarter_day, half_day, year_day, year_week, gcnet_utc_timestamp, gcnet_utc_datetime
+from gcnet.util.constants import Columns
 
 # Setup logging
 import logging
@@ -107,18 +108,24 @@ class Command(BaseCommand):
             if 367 > float(row['Doyd']) >= 1:
                 # Process row and add new calculated fields
                 line_clean = self._clean_csv_line(row)
+                print(line_clean)
 
-                if line_clean['timestamp']:
+                if line_clean[Columns.TIMESTAMP.value]:
                     # Check if record with identical timestamp already exists in database, otherwise write record to
                     # temporary csv file after checking for record with duplicate timestamp
                     try:
-                        model_class.objects.get(timestamp_iso=line_clean['timestamp_iso'])
+                        model_class.objects.get(timestamp_iso=line_clean[Columns.TIMESTAMP_ISO.value])
                     except model_class.DoesNotExist:
                         model_class.objects.create(**line_clean)
                         records_written += 1
 
         # Log import message
         logger.info(
+            '{0} successfully imported, {1} lines read, {2} new record(s) written in {3}'.format(input_file,
+                                                                                                 line_number,
+                                                                                                 records_written,
+                                                                                                 model_class))
+        print(
             '{0} successfully imported, {1} lines read, {2} new record(s) written in {3}'.format(input_file,
                                                                                                  line_number,
                                                                                                  records_written,
@@ -137,28 +144,33 @@ class Command(BaseCommand):
         return {header[i]: line_array[i] for i in range(len(line_array))}
 
     def _clean_csv_line(self, row):
-        return {'timestamp_iso': make_aware(gcnet_utc_datetime(row['Year'], row['Doyd'])),
-                'timestamp': gcnet_utc_timestamp(row['Year'], row['Doyd']),
-                'year': row['Year'], 'julianday': row['Doyd'],
-                'quarterday': quarter_day(row['Doyd']), 'halfday': half_day(row['Doyd']),
-                'day': year_day(row['Year'], row['Doyd']),
-                'week': year_week(row['Year'], row['Doyd']),
-                'swin': row['SWin'], 'swout': row['SWout'],
-                'netrad': row['NetRad'], 'airtemp1': row['AirTC1'], 'airtemp2': row['AirTC2'],
-                'airtemp_cs500air1': row['AirT1'],
-                'airtemp_cs500air2': row['AirT2'],
-                'rh1': row['RH1'], 'rh2': row['RH2'], 'windspeed1': row['WS1'],
-                'windspeed2': row['WS2'], 'winddir1': row['WD1'],
-                'winddir2': row['WD2'], 'pressure': row['press'], 'sh1': row['Sheight1'],
-                'sh2': row['Sheight2'], 'battvolt': row['BattVolt'], 'swin_maximum': row['SWinMax'],
-                'swout_minimum': row['SWoutMin'], 'netrad_maximum': row['NetRadMax'],
-                'airtemp1_maximum': row['AirTC1Max'], 'airtemp2_maximum': row['AirTC2Max'],
-                'airtemp1_minimum': row['AirTC1Min'], 'airtemp2_minimum': row['AirTC2Min'],
-                'windspeed_u1_maximum': row['WS1Max'],
-                'windspeed_u2_maximum': row['WS2Max'],
-                'windspeed_u1_stdev': row['WS1Std'],
-                'windspeed_u2_stdev': row['WS2Std'],
-                'reftemp': row['TempRef']
+        return {Columns.TIMESTAMP_ISO.value: make_aware(gcnet_utc_datetime(row['Year'], row['Doyd'])),
+                Columns.TIMESTAMP.value: gcnet_utc_timestamp(row['Year'], row['Doyd']),
+                Columns.YEAR.value: row['Year'],
+                Columns.JULIANDAY.value: row['Doyd'],
+                Columns.QUARTERDAY.value: quarter_day(row['Doyd']),
+                Columns.HALFDAY.value: half_day(row['Doyd']),
+                Columns.DAY.value: year_day(row['Year'], row['Doyd']),
+                Columns.WEEK.value: year_week(row['Year'], row['Doyd']),
+                Columns.SWIN.value: row['SWin'], Columns.SWOUT.value: row['SWout'],
+                Columns.NETRAD.value: row['NetRad'],
+                Columns.AIRTEMP1.value: row['AirTC1'], Columns.AIRTEMP2.value: row['AirTC2'],
+                Columns.AIRTEMP_CS500AIR1.value: row['AirT1'],
+                Columns.AIRTEMP_CS500AIR2.value: row['AirT2'],
+                Columns.RH1.value: row['RH1'], Columns.RH2.value: row['RH2'],
+                Columns.WINDSPEED1.value: row['WS1'], Columns.WINDSPEED2.value: row['WS2'],
+                Columns.WINDDIR1.value: row['WD1'], Columns.WINDDIR2.value: row['WD2'],
+                Columns.PRESSURE.value: row['press'],
+                Columns.SH1.value: row['Sheight1'], Columns.SH2.value: row['Sheight2'],
+                Columns.BATTVOLT.value: row['BattVolt'], Columns.SWIN_MAX.value: row['SWinMax'],
+                Columns.SWOUT_MIN.value: row['SWoutMin'], Columns.NETRAD_MAX.value: row['NetRadMax'],
+                Columns.AIRTEMP1_MAX.value: row['AirTC1Max'], Columns.AIRTEMP2_MAX.value: row['AirTC2Max'],
+                Columns.AIRTEMP1_MIN.value: row['AirTC1Min'], Columns.AIRTEMP2_MIN.value: row['AirTC2Min'],
+                Columns.WINDSPEED_U1_MAX.value: row['WS1Max'],
+                Columns.WINDSPEED_U2_MAX.value: row['WS2Max'],
+                Columns.WINDSPEED_U1_STDEV.value: row['WS1Std'],
+                Columns.WINDSPEED_U2_STDEV.value: row['WS2Std'],
+                Columns.REFTEMP.value: row['TempRef']
                 }
 
     # Check if data source is from a directory or a url and assign input_file to selected option
@@ -179,6 +191,7 @@ class Command(BaseCommand):
                 source = open(input_file, 'r')
                 return source
             except FileNotFoundError as e:
-                raise FileNotFoundError('WARNING (csv_import.py) file not found {0}, exception {1}'.format(input_file, e))
+                raise FileNotFoundError(
+                    'WARNING (csv_import.py) file not found {0}, exception {1}'.format(input_file, e))
 
         return None
