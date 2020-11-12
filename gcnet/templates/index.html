@@ -14,6 +14,7 @@
     h3   {color: darkgreen;}
     h4   {font-size: medium}
     hr   {color: lightblue;}
+    .url    {color: saddlebrown;}
     .output {font-size: small;}
     .output {color: green;}
     .output {font-family: monospace, serif;}
@@ -32,24 +33,23 @@
         <br>
     </div>
 
-{% block body_block %}
     <h3 >Return list of stations</h3>
     <h4><ul>URL: <a href="https://www.envidat.ch/data-api/gcnet/models/" target="_blank">https://www.envidat.ch/data-api/gcnet/models/</a></ul></h4>
     <br>
 
     <h3>Download NEAD Data</h3>
-    <h4><ul>URL template with time range: https://www.envidat.ch/data-api/nead/model/timestamp_meaning/nodata/start/end/</ul></h4>
+    <h4><ul><span class="url">URL template with time range: https://www.envidat.ch/data-api/nead/model/timestamp_meaning/nodata/start/end/</span></ul></h4>
     <h4><ul>Example with time range, timestamp meaning 'end' and no data value '' (empty string): <a href="https://www.envidat.ch/data-api/gcnet/nead/swisscamp_01d/end/empty/2020-11-03/2020-11-06" target="_blank">
         https://www.envidat.ch/data-api/gcnet/nead/swisscamp_01d/end/empty/2020-11-03/2020-11-06</a></ul></h4>
     <h4><ul>Example with time range, timestamp meaning 'end' and no data value '-999': <a href="https://www.envidat.ch/data-api/gcnet/nead/swisscamp_01d/end/-999/2020-11-03/2020-11-06" target="_blank">
         https://www.envidat.ch/data-api/gcnet/nead/swisscamp_01d/end/-999/2020-11-03/2020-11-06</a></ul></h4>
-    <h4><ul>URL template returning all records: https://www.envidat.ch/data-api/gcnet/nead/model/timestamp_meaning/nodata/ </ul></h4>
+    <h4><ul><span class="url">URL template returning all records: https://www.envidat.ch/data-api/gcnet/nead/model/timestamp_meaning/nodata/</span></ul></h4>
     <h4><ul>Example returning all records, timestamp meaning 'end' and no data value '' (empty string): <a href="https://www.envidat.ch/data-api/gcnet/json/swisscamp_01d/multiple/2020-11-04T17:00:00/2020-11-10T00:00:00/" target="_blank">
         https://www.envidat.ch/data-api/gcnet/nead/swisscamp_01d/end/empty/</a></ul></h4>
     <br>
 
     <h3>Download CSV Data</h3>
-    <h4><ul>URL template: https://www.envidat.ch/data-api/gcnet/csv/model/parameter/start/end/timestamp_meaning/nodata/</ul></h4>
+    <h4><ul><span class="url">URL template: https://www.envidat.ch/data-api/gcnet/csv/model/parameter/start/end/timestamp_meaning/nodata/</span></ul></h4>
     <h4><ul>Example with timestamp meaning 'end' and no data value '-999': <a href="https://www.envidat.ch/data-api/gcnet/csv/swisscamp_01d/airtemp1/2020-11-04/2020-11-06/end/-999/" target="_blank">
         https://www.envidat.ch/data-api/gcnet/csv/swisscamp_01d/airtemp1/2020-11-04/2020-11-06/end/-999/</a></ul></h4>
     <h4><ul>Example returning multiple parameters with timestamp meaning 'end' and no data value '-999': <a href="https://www.envidat.ch/data-api/gcnet/csv/swisscamp_01d/multiple/2020-11-04/2020-11-06/end/-999/" target="_blank">
@@ -63,7 +63,7 @@
     <br>
 
     <h3>Return JSON Data</h3>
-    <h4><ul>URL template: https://www.envidat.ch/data-api/gcnet/json/model/parameter/start/end/</ul></h4>
+    <h4><ul><span class="url">URL template: https://www.envidat.ch/data-api/gcnet/json/model/parameter/start/end/</span></ul></h4>
     <h4><ul>Example: <a href="https://www.envidat.ch/data-api/gcnet/json/swisscamp_01d/airtemp2/2020-11-04T17:00:00/2020-11-10T00:00:00/" target="_blank">
         https://www.envidat.ch/data-api/gcnet/json/swisscamp_01d/airtemp2/2020-11-04T17:00:00/2020-11-10T00:00:00/</a></ul></h4>
     <h4><ul>Example returning multiple parameters: <a href="https://www.envidat.ch/data-api/gcnet/json/swisscamp_01d/multiple/2020-11-04T17:00:00/2020-11-10T00:00:00/" target="_blank">
@@ -71,7 +71,7 @@
     <br>
 
     <h3>Daily Summary JSON Data</h3>
-    <h4><ul>URL template: https://www.envidat.ch/data-api/summary/daily/json/model/parameter/start/end/</ul></h4>
+    <h4><ul><span class="url">URL template: https://www.envidat.ch/data-api/summary/daily/json/model/parameter/start/end/</span></ul></h4>
     <h4><ul>Example: <a href="http://www.envidat.ch/data-api/gcnet/summary/daily/json/swisscamp_01d/airtemp1/2020-11-03/2020-11-06/" target="_blank">
         http://www.envidat.ch/data-api/gcnet/summary/daily/json/swisscamp_01d/airtemp1/2020-11-03/2020-11-06/</a></ul></h4>
     <h4><ul>Example returning multiple parameters: <a href="http://www.envidat.ch/data-api/gcnet/summary/daily/json/swisscamp_01d/multiple/2020-11-03/2020-11-06/" target="_blank">
@@ -81,7 +81,7 @@
 
     <div style="text-align: center;">
         <hr>
-        <h2>Endpoint Explanation</h2>
+        <h2>Endpoints Explanation</h2>
         <br>
     </div>
 
@@ -113,10 +113,9 @@
     <br>
 
     <h3>Download NEAD Data</h3>
-    <h4><ul>URL template with time range: https://www.envidat.ch/data-api/nead/<mark>model</mark>/<span class="timestamp_meaning">timestamp_meaning</span>/<span class="nodata">nodata</span>/<span class="start_end">start</span>/<span class="start_end">end</span></ul></h4>
+    <h4><ul><span class="url">URL template with time range:</span> https://www.envidat.ch/data-api/nead/<mark>model</mark>/<span class="timestamp_meaning">timestamp_meaning</span>/<span class="nodata">nodata</span>/<span class="start_end">start</span>/<span class="start_end">end</span></ul></h4>
     <p><ul><ul><mark>model</mark> should correspond to a GC-Net Station model name listed in the 'https://www.envidat.ch/data-api/gcnet/models/' endpoint, for example <span class="model_light">swisscamp_01d</span> or <span class="model_light">summit_06d</span></ul></ul>
-       <ul><ul><span class="timestamp_meaning">timestamp_meaning</span> should be <span class="timestamp_meaning_light">end</span> or <span class="timestamp_meaning_light">beginning</span>
-{% endblock %}
+       <ul><ul><span class="timestamp_meaning">timestamp_meaning</span> should be <span class="timestamp_meaning_light">end</span> or <span class="timestamp_meaning_light">beginning</span></ul></ul>
 
 </body>
 
