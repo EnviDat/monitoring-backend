@@ -12,6 +12,6 @@ static/
 lwf/migrations/
 /gcnet/migrations/
 /gcnet/csv_output/
-/gcnet/csv_logs/*
+/gcnet/csv_logs/
 /gcnet/temporary/
 /data/*
