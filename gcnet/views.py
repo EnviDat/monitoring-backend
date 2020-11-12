@@ -5,7 +5,8 @@ from django.http import JsonResponse, StreamingHttpResponse, HttpResponseNotFoun
 from django.shortcuts import render
 
 from gcnet.helpers import validate_date_gcnet, read_config, get_model, \
-    get_hashed_lines, stream, get_null_value, get_dict_fields, model_http_error, parameter_http_error
+    get_hashed_lines, stream, get_null_value, get_dict_fields, model_http_error, parameter_http_error, \
+    timestamp_meaning_http_error
 from gcnet.write_nead_config import write_nead_config
 
 # Returns list of stations in stations.ini config file by their 'model' (string that is the name of the station
@@ -105,7 +106,7 @@ def get_json_data(request, **kwargs):
                                     "<h3>Or with an alternative timezone behind UTC: YYYY-MM-DDTHH:MM:SS-xx:00 ("
                                     "'2020-10-20T17:00:00-03:00')</h3>")
 
-    # Get the model
+    # Get and validate the model
     try:
         model_class = get_model(model)
     except AttributeError:
@@ -224,10 +225,7 @@ def get_aggregate_data(request, timestamp_meaning='', nodata='', **kwargs):
 
         # Validate 'timestamp_meaning'
         if timestamp_meaning not in ['end', 'beginning']:
-            return HttpResponseNotFound("<h1>Page not found</h1>"
-                                        "<h3>Non-valid 'timestamp_meaning' kwarg entered in URL: {0}</h3>"
-                                        "<h3>Valid 'timestamp_meaning' kwarg options: end, beginning"
-                                        .format(timestamp_meaning))
+            return timestamp_meaning_http_error(timestamp_meaning)
 
         # Create the streaming response object and output csv
         response = StreamingHttpResponse(stream(version, hash_lines, model_class, display_values, timestamp_meaning,
@@ -296,10 +294,19 @@ def streaming_csv_view_v1(request, start='', end='', **kwargs):
 
     # Check if timestamp_meaning is valid
     if timestamp_meaning not in ['end', 'beginning']:
-        return HttpResponseNotFound("<h1>Page not found</h1>"
-                                    "<h3>Non-valid 'timestamp_meaning' kwarg entered in URL: {0}</h3>"
-                                    "<h3>Valid 'timestamp_meaning' kwarg options: end, beginning"
-                                    .format(timestamp_meaning))
+        return timestamp_meaning_http_error(timestamp_meaning)
+
+    # Validate 'start' and 'end' if they are passed
+    if len(start) > 0 and len(end) > 0:
+        # Check if timestamps are in whole date format: YYYY-MM-DD ('2019-12-04')
+        try:
+           get_timestamp_iso_range_day_dict(start, end)
+        except ValueError:
+            return HttpResponseNotFound("<h1>Page not found</h1>"
+                                        "<h3>Incorrect date format for 'start' and/or 'end' timestamps.</h3>"
+                                        "<h3>Start and end dates should both be in ISO timestamp "
+                                        "date format: YYYY-MM-DD ('2019-12-04')</h3>")
+
 
     # =============================== PROCESS NEAD HEADER ===========================================================
     # Get NEAD header
@@ -308,11 +315,7 @@ def streaming_csv_view_v1(request, start='', end='', **kwargs):
                                                           ts_meaning=timestamp_meaning)
 
     # Check if config_buffer or nead_config_parser are None
-    if nead_config_parser is None:
-        return HttpResponseNotFound("<h1>Page not found</h1>"
-                                    "<h3>Check that valid 'model' (station) entered in URL: {0}</h3>"
-                                    .format(kwargs['model']))
-    if config_buffer is None:
+    if nead_config_parser is None or config_buffer is None:
         return HttpResponseNotFound("<h1>Page not found</h1>"
                                     "<h3>Check that valid 'model' (station) entered in URL: {0}</h3>"
                                     .format(kwargs['model']))
@@ -375,10 +378,7 @@ def get_csv(request, start='', end='', **kwargs):
 
     # Check if timestamp_meaning is valid
     if timestamp_meaning not in ['end', 'beginning']:
-        return HttpResponseNotFound("<h1>Page not found</h1>"
-                                    "<h3>Non-valid 'timestamp_meaning' kwarg entered in URL: {0}</h3>"
-                                    "<h3>Valid 'timestamp_meaning' kwarg options: end, beginning"
-                                    .format(timestamp_meaning))
+        return timestamp_meaning_http_error(timestamp_meaning)
 
     # ===================================  STREAM DATA ===============================================================
     # Create the streaming response object and output csv

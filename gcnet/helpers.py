@@ -822,6 +822,13 @@ def parameter_http_error(parameter):
                                 .format(parameter))
 
 
+def timestamp_meaning_http_error(timestamp_meaning):
+    return HttpResponseNotFound("<h1>Page not found</h1>"
+                         "<h3>Non-valid 'timestamp_meaning' kwarg entered in URL: {0}</h3>"
+                         "<h3>Valid 'timestamp_meaning' kwarg options: end, beginning"
+                         .format(timestamp_meaning))
+
+
 # Fill hash_lines with config_buffer lines prepended with '# '
 def get_hashed_lines(config_buffer):
     hash_lines = []
@@ -836,7 +843,7 @@ def stream(nead_version, hashed_lines, model_class, display_values, timestamp_me
            dict_fields):
     # If kwargs 'start' and 'end' passed in URL validate and assign to dict_timestamps
     dict_timestamps = {}
-    if len(start) > 0 and len(end) > 0:
+    if '' not in [start, end]:
         dict_timestamps = get_timestamp_iso_range_day_dict(start, end)
 
     # Create buffer_ and writer objects
