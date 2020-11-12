@@ -115,16 +115,16 @@ def get_csv_import_command_list(config_parser: configparser, station_type: str, 
             csv_input = stations_config.get(section, 'csv_input')
             model = stations_config.get(section, 'model')
 
-            # Check to read either url or path from stations config file
-            if input_type == ' path':
+            # Check to read either url or stations config file
+            if input_type == ' file':
                 csv_data = stations_config.get(section, 'csv_data_dir')
                 csv_source_type = 'file'
             elif input_type == ' url':
                 csv_data = stations_config.get(section, 'csv_data_url')
                 csv_source_type = 'web'
             else:
-                print('WARNING (csv_import.py) invalid argument "{0}" entered for inputType. Must enter'
-                      '"path" or "url"'.format(input_type))
+                print('WARNING (csv_import.py) invalid argument "{0}" entered for input_type. Must enter'
+                      '"file" or "url"'.format(input_type))
                 return
 
             command_string = 'python manage.py csv_import -s {0} -c gcnet/config/stations.ini ' \
