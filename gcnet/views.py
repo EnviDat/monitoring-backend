@@ -1,12 +1,11 @@
-import importlib
 import os
 
 from django.core.exceptions import FieldError
-from django.http import JsonResponse, StreamingHttpResponse, HttpResponseNotFound, HttpResponseServerError, HttpResponse
+from django.http import JsonResponse, StreamingHttpResponse, HttpResponseNotFound
 from django.shortcuts import render
 
 from gcnet.helpers import validate_date_gcnet, read_config, get_model, \
-    get_hashed_lines, stream, get_null_value, get_dict_fields
+    get_hashed_lines, stream, get_null_value, get_dict_fields, model_http_error, parameter_http_error
 from gcnet.write_nead_config import write_nead_config
 
 # Returns list of stations in stations.ini config file by their 'model' (string that is the name of the station
@@ -46,8 +45,12 @@ returned_parameters = ['swin',
                        'reftemp']
 
 
-def get_model_stations(request):
+# Return 'index.html' with API documentation
+def index(request):
+    return render(request, 'index.html')
 
+
+def get_model_stations(request):
     # Read the stations config file
     local_dir = os.path.dirname(__file__)
     stations_path = os.path.join(local_dir, 'config/stations.ini')
@@ -106,18 +109,16 @@ def get_json_data(request, **kwargs):
     try:
         model_class = get_model(model)
     except AttributeError:
-        return HttpResponseNotFound("<h1>Page not found</h1>"
-                                    "<h3>Non-valid 'model' (station) entered in URL: {0}</h3>".format(model))
+        return model_http_error(model)
 
-    # Return queryset as JsonReponse
+    # Return queryset as JsonResponse
     try:
         queryset = list(model_class.objects
                         .values(*display_values)
                         .filter(**dict_timestamps)
                         .order_by('timestamp').all())
     except FieldError:
-        return HttpResponseNotFound("<h1>Page not found</h1><h3>Non-valid parameter entered in URL: {0}</h3>"
-                                        .format(parameter))
+        return parameter_http_error(parameter)
     return JsonResponse(queryset, safe=False)
 
 
@@ -134,8 +135,7 @@ def get_aggregate_data(request, timestamp_meaning='', nodata='', **kwargs):
     try:
         model_class = get_model(model)
     except AttributeError:
-        return HttpResponseNotFound("<h1>Page not found</h1>"
-                                    "<h3>Non-valid 'model' (station) entered in URL: {0}</h3>".format(model))
+        return model_http_error(model)
 
     # If parameter == 'multiple' assign 'parameters' to values in 'returned_parameters'
     # Else assign parameters to parameter passed in URL after checking if parameter exists as field in database table
@@ -146,8 +146,7 @@ def get_aggregate_data(request, timestamp_meaning='', nodata='', **kwargs):
         if parameter in fields:
             parameters = [parameter]
         else:
-            return HttpResponseNotFound("<h1>Page not found</h1><h3>Non-existent parameter entered in URL: {0}</h3>"
-                                        .format(parameter))
+            return parameter_http_error(parameter)
 
     # Assign 'dictionary_fields' with fields and values to be displayed
     dictionary_fields = get_dict_fields(parameters)
@@ -232,7 +231,8 @@ def get_aggregate_data(request, timestamp_meaning='', nodata='', **kwargs):
 
         # Create the streaming response object and output csv
         response = StreamingHttpResponse(stream(version, hash_lines, model_class, display_values, timestamp_meaning,
-                                                nodata, start, end, dict_fields=dictionary_fields), content_type='text/csv')
+                                                nodata, start, end, dict_fields=dictionary_fields),
+                                         content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename=' + output_csv
         return response
 
@@ -246,8 +246,7 @@ def get_aggregate_data(request, timestamp_meaning='', nodata='', **kwargs):
                             .filter(**dict_timestamps)
                             .order_by('day'))
         except FieldError:
-            return HttpResponseNotFound("<h1>Page not found</h1><h3>Non-existent parameter entered in URL: {0}</h3>"
-                                        .format(parameter))
+            return parameter_http_error(parameter)
         return JsonResponse(queryset, safe=False)
 
 
@@ -293,8 +292,7 @@ def streaming_csv_view_v1(request, start='', end='', **kwargs):
     try:
         model_class = get_model(kwargs['model'])
     except AttributeError:
-        return HttpResponseNotFound("<h1>Page not found</h1>"
-                                    "<h3>Non-valid 'model' (station) entered in URL: {0}</h3>".format(kwargs['model']))
+        return model_http_error(kwargs['model'])
 
     # Check if timestamp_meaning is valid
     if timestamp_meaning not in ['end', 'beginning']:
@@ -360,20 +358,20 @@ def get_csv(request, start='', end='', **kwargs):
     version = ''
     hash_lines = ''
 
+    # TODO validate kwargs['parameter'], could call parameter_http_error(parameter)
+
     # Assign 'display_values'
     if kwargs['parameter'] == 'multiple':
         display_values = ['timestamp_iso'] + returned_parameters
     else:
         display_values = ['timestamp_iso'] + [kwargs['parameter']]
 
-
     # ================================  VALIDATE VARIABLES =========================================================
     # Get and validate the model_class
     try:
         model_class = get_model(kwargs['model'])
     except AttributeError:
-        return HttpResponseNotFound("<h1>Page not found</h1>"
-                                    "<h3>Non-valid 'model' (station) entered in URL: {0}</h3>".format(kwargs['model']))
+        return model_http_error(kwargs['model'])
 
     # Check if timestamp_meaning is valid
     if timestamp_meaning not in ['end', 'beginning']:
@@ -389,8 +387,3 @@ def get_csv(request, start='', end='', **kwargs):
     response['Content-Disposition'] = 'attachment; filename=' + output_csv
 
     return response
-
-
-# Return 'index.html' with API documentation
-def index(request):
-    return render(request, 'index.html')

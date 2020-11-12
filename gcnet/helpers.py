@@ -659,6 +659,7 @@ def get_database_fields_data_types_string(database_fields_list):
 
 # Returns 'display_description' comma separated string for header config by mapping 'database_fields_list' to
 # display_description_dict
+# TODO put all dictionaries in one place
 def get_display_description(database_fields_list):
     display_description_dict = {
         'timestamp_iso': 'timestamp_iso',
@@ -801,6 +802,26 @@ def get_model(model):
     return getattr(package, class_name)
 
 
+def model_http_error(model):
+    return HttpResponseNotFound("<h1>Page not found</h1>"
+                                "<h3>Non-valid 'model' (station) entered in URL: {0}</h3>"
+                                "<h3>Valid models are listed at: "
+                                "<a href=https://www.envidat.ch/data-api/gcnet/models/ target=_blank>"
+                                "https://www.envidat.ch/data-api/gcnet/models/</a></h3>".format(model))
+
+
+def parameter_http_error(parameter):
+    return HttpResponseNotFound("<h1>Page not found</h1>"
+                                "<h3>Non-valid parameter entered in URL: {0}</h3>"
+                                "<h3>Valid parameters are:</h3>"
+                                "<p>swin, swin_maximum, swout, swout_minimum, netrad, netrad_maximum, airtemp1, airtemp1_maximum,"
+                                " airtemp1_minimum, airtemp2, airtemp2_maximum, airtemp2_minimum, airtemp_cs500air1, "
+                                "airtemp_cs500air2, rh1, rh2, windspeed1, windspeed_u1_maximum, windspeed_u1_stdev,"
+                                "windspeed2, windspeed_u2_maximum, windspeed_u2_stdev, winddir1, winddir2, pressure,"
+                                " sh1, sh2, battvolt, reftemp"
+                                .format(parameter))
+
+
 # Fill hash_lines with config_buffer lines prepended with '# '
 def get_hashed_lines(config_buffer):
     hash_lines = []
@@ -835,7 +856,7 @@ def stream(nead_version, hashed_lines, model_class, display_values, timestamp_me
     # Write values that are null in database as the value assigned to 'null_value'
     # Check if 'dict_fields' passed, if so stream aggregate daily data
     if len(dict_fields) > 0:
-
+        # TODO see if this section can be simplified
         queryset = model_class.objects \
             .values_list('day') \
             .annotate(**dict_fields) \

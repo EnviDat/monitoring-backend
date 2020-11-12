@@ -77,7 +77,7 @@ class Command(BaseCommand):
         if file_extension == "csv":
             return CsvImporter().import_csv(input_source, kwargs['inputfile'], kwargs['config'], model_class)
         else:
-            print('WARNING (import_data.py) no avaliable converter for extension {0}'.format(file_extension))
+            print('WARNING (import_data.py) no available converter for extension {0}'.format(file_extension))
             return
 
     # Check if data source is from a directory or a url and assign input_file to selected option
