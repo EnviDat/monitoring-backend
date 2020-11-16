@@ -127,7 +127,7 @@ def get_csv_import_command_list(config_parser: configparser, station_type: str, 
                       '"file" or "url"'.format(input_type))
                 return
 
-            command_string = 'python manage.py csv_import -s {0} -c gcnet/config/stations.ini ' \
+            command_string = 'python manage.py import_data -s {0} -c gcnet/config/stations.ini ' \
                              '-i {1}/{2} -m {3} -t {4}' \
                 .format(csv_temporary, csv_data, csv_input, model, csv_source_type)
             commands.append(command_string)

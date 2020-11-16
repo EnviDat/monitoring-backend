@@ -1,6 +1,7 @@
 import configparser
 import os
 from pathlib import Path
+from gcnet.util.constants import Columns
 
 # Code to test locally
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "project.settings")
@@ -74,7 +75,9 @@ def csv_null_checker(rows_buffer, rows_before, rows_after, csv_path, line_count)
 
         current_row = rows_buffer[-(rows_after + 1)]
         for key, val in current_row.items():
-            if not(is_null(val)) and key not in ['Year', 'Doyd']:
+            if not(is_null(val)) and key not in [Columns.TIMESTAMP_ISO.value, Columns.TIMESTAMP.value,
+                                                 Columns.YEAR.value, Columns.JULIANDAY.value, Columns.QUARTERDAY.value,
+                                                 Columns.HALFDAY.value, Columns.DAY.value, Columns.WEEK.value]:
                 list_not_nulls = [1 for row in rows_buffer if not is_null(row[key])]
                 if len(list_not_nulls) <= 1:
                     logger_message = 'STATION INPUT FILE: {2}  LINE COUNT: {3}   UNEXPECTED VALUE for {0} (probably NULL):  {1}'.format(key, current_row, csv_path, line_count-1)

@@ -2,11 +2,13 @@
 #   python manage.py import_data -s 01_swisscamp -c gcnet/config/stations.ini -i gcnet/data/1_2019_min.csv -m swisscamp_01d -t file
 #   python manage.py import_data -s 01_swisscamp -c gcnet/config/stations.ini -i https://www.wsl.ch/gcnet/data/1_v.csv -m swisscamp_01d -t web
 
+#   python manage.py import_data -s 01_swisscamp -c gcnet/config/stations.ini -i gcnet/data/1_2019_min.csv  -m swisscamp_01d -l True -d gcnet/data/output -t file
+
 from pathlib import Path
 import requests
 from django.core.management.base import BaseCommand
 import importlib
-
+from datetime import datetime
 from .impl.csv_import import CsvImporter
 
 # Setup logging
@@ -39,7 +41,21 @@ class Command(BaseCommand):
             '-i',
             '--inputfile',
             required=True,
-            help='Path or URL to input csv file'
+            help='Path or URL to input csv/dat file'
+        )
+
+        parser.add_argument(
+            '-l',
+            '--loggeronly', type=bool,
+            required=False, default=False,
+            help='If set to True the csv will be validated and logged to a file in the -d directory'
+        )
+
+        parser.add_argument(
+            '-d',
+            '--directory',
+            required=False,
+            help='Path to directory which will contain output logger file when --loggeronly=True option'
         )
 
         parser.add_argument(
@@ -54,6 +70,13 @@ class Command(BaseCommand):
             '--typesource',
             required=True,
             help='Type of data source. Valid options are a file path: "file" or a url: "web"'
+        )
+
+        parser.add_argument(
+            '-f',
+            '--force', type=bool,
+            required=False, default=False,
+            help='Forces the import every valid row, skips the ones that fail. Defaults to False.'
         )
 
     def handle(self, *args, **kwargs):
@@ -75,7 +98,17 @@ class Command(BaseCommand):
         # call the appropriate converter depending on the extension
         file_extension = kwargs['inputfile'].rsplit('.')[-1].lower().strip()
         if file_extension == "csv":
-            return CsvImporter().import_csv(input_source, kwargs['inputfile'], kwargs['config'], model_class)
+            if kwargs['loggeronly']:
+                if kwargs.get('directory'):
+                    output_file = Path(kwargs['directory'] + '/' + kwargs['station'] + '_logger_{0}.csv'
+                                       .format(datetime.now().strftime("%Y%m%d_%H%M%S%f")))
+                    print('OUTPUT FILE: {0}'.format(output_file))
+                    return CsvImporter().logger_csv(input_source, kwargs['inputfile'], output_file, kwargs['config'])
+                else:
+                    print("ERROR: --loggeronly parameter requires to specify the --directory parameter for output")
+            else:
+                return CsvImporter().import_csv(input_source, kwargs['inputfile'], kwargs['config'],
+                                            model_class, force=force)
         else:
             print('WARNING (import_data.py) no available converter for extension {0}'.format(file_extension))
             return
