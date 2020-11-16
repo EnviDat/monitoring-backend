@@ -599,7 +599,7 @@ Parameters used in API call::
    airtemp_cs500air1    CS500 T Air 1 I Air Temperature [degC]
    airtemp_cs500air2    CS500 T Air 2 J Air Temperature [degC]
    rh1                  RH 1 K Relative Humidity [%]
-   rh2                  RH 2 L Relative Humidity
+   rh2                  RH 2 L Relative Humidity [%]
    windspeed1           U1 M Wind Speed [m/s]
    windspeed2           U2 N Wind Speed [m/s]
    winddir1             U Dir 1 O [deg]
@@ -608,7 +608,7 @@ Parameters used in API call::
    sh1                  Snow Height 1 R [m]
    sh2                  Snow Height 2 S [m]
    battvolt             Battery Voltage [V]
-   swin_maximum         [W m-2]
+   swin_maximum         SW Incoming Radiation Maximum [W m-2]
    swout_minimum        [W m-2]
    netrad_max           NetRadMax[W m-2]
    airtemp1_maximum     Max Air Temperature1 (TC) [degC]

@@ -149,7 +149,7 @@ class Station(models.Model):
         null=True,
     )
 
-    # Unit: [W m-2]
+    # Unit: SW Incoming Radiation Maximum [W m-2]
     swin_maximum = CustomFloatField(
         verbose_name='SWinMax',
         null=True,
