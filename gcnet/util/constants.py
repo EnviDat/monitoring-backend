@@ -41,5 +41,6 @@ class Columns(Enum):
     BATTVOLT = 'battvolt'
     REFTEMP = 'reftemp'
 
-    def get_columns(self):
-        return [name.value for name in self]
+    @staticmethod
+    def get_columns():
+        return [name.value for name in Columns]
