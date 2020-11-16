@@ -8,18 +8,23 @@
     body {font-family: Helvetica, serif;}
     body {background-color: #F1F1F1}
     body {padding-left: 30px;}
-    hr   {margin-right: 30px;}
     h1   {color: darkblue;}
     h2   {font-weight: 900}
     h3   {color: darkgreen;}
-    h4   {font-size: medium}
+    h4   {font-size: medium;}
     hr   {color: lightblue;}
     li   {font-size: small;}
     li::marker   {color: black;}
     table {border: solid thin;
            border-collapse: collapse;}
-    table th, td {border: solid thin;
+    table th  {border: solid medium dimgray;
+               padding: 0.5rem 2rem;}
+    table td {border: solid thin lightslategray;
                   padding: 0.5rem 2rem;}
+    table td {font-size: small;}
+    .special_notes {
+        border: medium solid darkred;
+        padding: 0.25rem 1rem;}
     .details_link {font-size: small;}
     .url    {color: saddlebrown;}
     .output {font-size: small;}
@@ -39,14 +44,21 @@
 <body>
     <div style="text-align: center;">
         <h1>GC-Net API Documentation</h1>
-        <hr>
-        <h2>General Overview</h2>
         <br>
     </div>
 
-    <p><span class="detail_link"><b>Special Notes: </b>
-        <ul>Downloading all records for a station can take a long time.</ul>
-        <ul>In this version values for 'swout_minimum' before 2020-11-05 are 'null' except for the station Swiss Camp. This will be corrected in a later version.</ul></span></p>
+    <div class="special_notes">
+        <p><span class="detail_link"><b><u>Special Notes</u></b>
+        <ul><li><i>Warning:</i> API may change at any time. Please refer to this website for updates to the API.</li></ul>
+        <ul><li><i>Warning:</i> Data have not been thoroughly quality checked. Please contact Derek Houtz at derek.houtz@wsl.ch before using data.</li></ul>
+        <ul><li>Downloading all records for a station can take a long time.</li></ul>
+        <ul><li>In this alpha version values for 'swout_minimum' before 2020-11-05 are 'null' except for the station Swiss Camp. This will be corrected in a later version.</li></ul></span></p>
+    </div>
+    <br>
+    <br>
+
+    <hr>
+    <h2 style="text-align: center;">General Overview</h2>
     <br>
 
     <h3>1. Return List of Stations</h3>
@@ -165,11 +177,11 @@
         <h4><ul>Example returning multiple parameters with timestamp meaning 'end' and no data value '-999': <a href="https://www.envidat.ch/data-api/gcnet/csv/swisscamp_01d/multiple/2020-11-04/2020-11-06/end/-999/" target="_blank">
         https://www.envidat.ch/data-api/gcnet/csv/swisscamp_01d/multiple/2020-11-04/2020-11-06/end/-999/</a> </ul></h4>
     <p><ul><ul><mark>model</mark> should correspond to a GC-Net Station model name listed in the 'https://www.envidat.ch/data-api/gcnet/models/' endpoint, for example <span class="model_light">swisscamp_01d</span> or <span class="model_light">summit_06d</span></ul></ul>
-        <ul><ul><span class="start_end">start</span> is the start date of the dataset</ul></ul>
         <ul><ul><span class="parameter">parameter</span> should be a type of measurement, for example <span class="parameter_light">airtemp1</span> or <span class="parameter_light">windspeed1</span></ul></ul>
              <ul><ul><ul><li>See "Parameter List" below for list of parameters</li></ul></ul></ul>
-    <ul><ul><ul><li><span class="parameter_light">multiple</span> means that multiple parameters will be included in the CSV</li></ul></ul></ul>
-        <ul><ul><span class="start_end">end</span> is the end date of the dataset (exclusive)</ul></ul>
+         <ul><ul><ul><li><span class="parameter_light">multiple</span> means that multiple parameters will be included in the CSV</li></ul></ul></ul>
+         <ul><ul><span class="start_end">start</span> is the start date of the dataset</ul></ul>
+         <ul><ul><span class="start_end">end</span> is the end date of the dataset (exclusive)</ul></ul>
            <ul><ul><ul><li><span class="start_end_light">start</span> and <span class="start_end_light">end</span> dates must be in in ISO timestamp date format: YYYY-MM-DD ('2019-12-04')</li></ul></ul></ul>
            <ul><ul><ul><li><span class="start_end_light">start</span> date must precede <span class="start_end_light">end</span> date</li></ul></ul></ul>
         <ul><ul><span class="timestamp_meaning">timestamp_meaning</span> should be <span class="timestamp_meaning_light">end</span> or <span class="timestamp_meaning_light">beginning</span></ul></ul>
@@ -191,44 +203,44 @@
 
            <tr>
               <td>swin</td>
-              <td>SW_down</td>
-              <td>W m-2</td>
+              <td>SW Incoming Radiation</td>
+              <td>W m<sup>-2</sup></td>
            </tr>
 
            <tr>
               <td>swout</td>
-              <td>SW_up</td>
-              <td>W m-2</td>
+              <td>SW Outgoing Radiation</td>
+              <td>W m<sup>-2</sup></td>
             </tr>
 
            <tr>
               <td>netrad</td>
               <td>Net Radiation F</td>
-              <td>W m-2</td>
+              <td>W m<sup>-2</sup></td>
            </tr>
 
            <tr>
               <td>airtemp1</td>
               <td>TC Air 1 G Air Temperature</td>
-              <td>degC</td>
+              <td>°C</td>
            </tr>
 
            <tr>
               <td>airtemp2</td>
               <td>TC Air 2 H Air Temperature</td>
-              <td>degC</td>
+              <td>°C</td>
            </tr>
 
            <tr>
               <td>airtemp_cs500air1</td>
               <td>CS500 T Air 1 I Air Temperature</td>
-              <td>degC</td>
+              <td>°C</td>
            </tr>
 
            <tr>
               <td>airtemp_cs500air2</td>
               <td>CS500 T Air 2 J Air Temperature</td>
-              <td>degC</td>
+              <td>°C</td>
            </tr>
 
            <tr>
@@ -258,13 +270,13 @@
            <tr>
               <td>winddir1</td>
               <td>U Dir 1 O</td>
-              <td>deg</td>
+              <td>degrees</td>
            </tr>
 
            <tr>
               <td>winddir2</td>
               <td>U Dir 2 P</td>
-              <td>deg</td>
+              <td>degrees</td>
            </tr>
 
            <tr>
@@ -288,13 +300,61 @@
            <tr>
               <td>battvolt</td>
               <td>Battery Voltage</td>
-              <td>V</td>
+              <td>Vdc</td>
            </tr>
 
            <tr>
               <td>swin_maximum</td>
               <td>SW Incoming Radiation Maximum</td>
-              <td>W m-2</td>
+              <td>W m<sup>-2</sup></td>
+           </tr>
+
+           <tr>
+              <td>swout_minimum</td>
+              <td>SW Outgoing Radiation Minimum</td>
+              <td>W m<sup>-2</sup></td>
+           </tr>
+
+           <tr>
+              <td>netrad_max</td>
+              <td>Net Radiation Maximum</td>
+              <td>W m<sup>-2</sup></td>
+           </tr>
+
+           <tr>
+              <td>airtemp1_maximum</td>
+              <td>Maximum Air Temperature1 (TC)</td>
+              <td>°C</td>
+           </tr>
+
+           <tr>
+              <td>airtemp2_maximum</td>
+              <td>Maximum Air Temperature2 (TC)</td>
+              <td>°C</td>
+           </tr>
+
+           <tr>
+              <td>airtemp1_minimum</td>
+              <td>Minimum Air Temperature1 (TC)</td>
+              <td>°C</td>
+           </tr>
+
+           <tr>
+              <td>airtemp2_minimum</td>
+              <td>Minimum Air Temperature2 (TC)</td>
+              <td>°C</td>
+           </tr>
+
+           <tr>
+              <td>windspeed_u1_maximum</td>
+              <td>Maximum Windspeed-U1</td>
+              <td>m/s</td>
+           </tr>
+
+           <tr>
+              <td>windspeed_u2_maximum</td>
+              <td>Maximum Windspeed-U2</td>
+              <td>m/s</td>
            </tr>
 
 
