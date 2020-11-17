@@ -25,7 +25,7 @@ class CsvImporter:
                       'AirTC1Min', 'AirTC2Min', 'WS1Max', 'WS2Max', 'WS1Std', 'WS2Std', 'TempRef']
 
     # @transaction.atomic(using='gcnet')
-    def import_csv(self, source, input_file, config, model_class, force=False, header=DEFAULT_HEADER):
+    def import_csv(self, source, input_file, config, model_class, force=False, header=DEFAULT_HEADER, verbose=True):
 
         # Write data in input_file into writer_no_duplicates with additional fields
         records_written = 0
@@ -70,8 +70,9 @@ class CsvImporter:
             # Log import message
             logger.info('{0} successfully imported, {1} lines read, {2} new record(s) written in {3}'
                         .format(input_file, line_number, records_written, model_class))
-            print('{0} successfully imported, {1} lines read, {2} new record(s) written in {3}'
-                  .format(input_file, line_number, records_written, model_class))
+            if verbose:
+                print('{0} successfully imported, {1} lines read, {2} new record(s) written in {3}'
+                      .format(input_file, line_number, records_written, model_class))
 
         except Exception as e:
             print("Nothing imported, ROLLBACK: exception ({1}):{0}".format(e, type(e)))
