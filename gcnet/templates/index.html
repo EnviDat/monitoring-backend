@@ -50,7 +50,7 @@
     <div class="special_notes">
         <p><span class="detail_link"><b><u>Special Notes</u></b>
         <ul><li><i>Warning:</i> API may change at any time. Please refer to this website for updates to the API.</li></ul>
-        <ul><li><i>Warning:</i> Data have not been thoroughly quality checked. Please contact Derek Houtz at derek.houtz@wsl.ch before using data.</li></ul>
+        <ul><li><i>Warning:</i> Data have not been thoroughly quality checked. Please contact Derek Houtz at derek.houtz<span style="display:none">foo</span>(at)wsl.ch before using data.</li></ul>
         <ul><li>Downloading all records for a station can take a long time.</li></ul>
         <ul><li>In this alpha version values for 'swout_minimum' before 2020-11-05 are 'null' except for the station Swiss Camp. This will be corrected in a later version.</li></ul></span></p>
     </div>
@@ -79,7 +79,7 @@
     <br>
 
     <h3>3. Download CSV</h3>
-     <p><span class="details_link"><a href="#details_csv">(Click here for more detailed explanation)</a></span></p>
+        <p><span class="details_link"><a href="#details_csv">(Click here for more detailed explanation)</a></span></p>
     <h4><ul><span class="url">URL template: https://www.envidat.ch/data-api/gcnet/csv/model/parameter/start/end/timestamp_meaning/nodata/</span></ul></h4>
     <h4><ul>Example with timestamp meaning 'end' and no data value '-999': <a href="https://www.envidat.ch/data-api/gcnet/csv/swisscamp_01d/airtemp1/2020-11-04/2020-11-06/end/-999/" target="_blank">
         https://www.envidat.ch/data-api/gcnet/csv/swisscamp_01d/airtemp1/2020-11-04/2020-11-06/end/-999/</a></ul></h4>
@@ -94,6 +94,7 @@
     <br>
 
     <h3>4. Return JSON Data</h3>
+        <p><span class="details_link"><a href="#details_json">(Click here for more detailed explanation)</a></span></p>
     <h4><ul><span class="url">URL template: https://www.envidat.ch/data-api/gcnet/json/model/parameter/start/end/</span></ul></h4>
     <h4><ul>Example: <a href="https://www.envidat.ch/data-api/gcnet/json/swisscamp_01d/airtemp2/2020-11-04T17:00:00/2020-11-10T00:00:00/" target="_blank">
         https://www.envidat.ch/data-api/gcnet/json/swisscamp_01d/airtemp2/2020-11-04T17:00:00/2020-11-10T00:00:00/</a></ul></h4>
@@ -190,6 +191,11 @@
        <ul><ul><span class="nodata">nodata</span> represents "null" values in the database</ul></ul>
            <ul><ul><ul><li><span class="nodata_light">-999</span> means that all "null" values will be "-999" in the NEAD file</li></ul></ul></ul>
            <ul><ul><ul><li><span class="nodata_light">empty</span> means that all "null" values will be "" (empty strings) in the NEAD file</li></ul></ul></ul>
+    <br>
+    <br>
+
+    <h3 id="details_json">4. Return JSON Data</h3>
+    <h4><ul><span class="url">URL template:</span> https://www.envidat.ch/data-api/csv/<mark>model</mark>/<span class="parameter">parameter</span>/<span class="start_end">start</span>/<span class="start_end">end</span>/<span class="timestamp_meaning">timestamp_meaning</span>/<span class="nodata">nodata</span>/</ul></h4>
     <br>
     <br>
 

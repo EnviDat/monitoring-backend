@@ -70,7 +70,7 @@ def get_model_stations(request):
     for section in stations_config.sections():
 
         if stations_config.get(section, 'api') == 'True':
-            model_id = stations_config.get(section, 'model')
+            model_id = stations_config.get(section, 'model_url')
             model_stations.append(model_id)
 
     return JsonResponse(model_stations, safe=False)

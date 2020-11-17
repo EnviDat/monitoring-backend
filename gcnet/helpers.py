@@ -710,7 +710,7 @@ def get_display_description(database_fields_list):
 
 # Returns 'station_id' from stations config by mapping kwargs['model'] to station_id_dict
 def get_station_id(model, stations_config):
-    station_id_dict = {stations_config.get(s, 'model', fallback=''): s
+    station_id_dict = {stations_config.get(s, 'model_url', fallback=''): s
                        for s in stations_config.sections() if s != 'DEFAULT'}
 
     try:
@@ -719,6 +719,7 @@ def get_station_id(model, stations_config):
     except KeyError:
         print('WARNING (helpers.py) {0} not a valid model'.format(model))
         return
+
 
 # Deletes a line from a file and returns the deleted line (if its length > 0)
 # Note that line_number is 0 indexed
@@ -803,15 +804,10 @@ def get_model_url_dict():
 
 
 def get_model_from_config(model_url):
-    # Get model dictionary from get_model_url_dict()
     model_dict = get_model_url_dict()
-
+    model = ''
     if model_url in model_dict:
         model = model_dict[model_url]
-    else:
-        print('WARNING (helpers.py) {0} not a valid model_url'.format(model_url))
-        return
-
     return model
 
 

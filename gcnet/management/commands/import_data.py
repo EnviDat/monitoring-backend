@@ -108,7 +108,7 @@ class Command(BaseCommand):
                     print("ERROR: --loggeronly parameter requires to specify the --directory parameter for output")
             else:
                 return CsvImporter().import_csv(input_source, kwargs['inputfile'], kwargs['config'],
-                                            model_class, force=force)
+                                            model_class, force=kwargs['force'])
         else:
             print('WARNING (import_data.py) no available converter for extension {0}'.format(file_extension))
             return
