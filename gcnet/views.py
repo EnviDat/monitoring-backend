@@ -101,11 +101,8 @@ def get_json_data(request, **kwargs):
         return HttpResponseNotFound("<h1>Page not found</h1>"
                                     "<h3>Incorrect date format for 'start' and/or 'end' timestamps.</h3>"
                                     "<h3>Start and end dates should both be in ISO timestamp "
-                                    "date format: YYYY-MM-DDTHH:MM:SS+00:00 ('2020-10-20T17:00:00+00:00')</h3>"
-                                    "<h3>Or with an alternative timezone beyond UTC: YYYY-MM-DDTHH:MM:SS+xx:00 ("
-                                    "'2020-10-20T17:00:00+02:00')</h3>"
-                                    "<h3>Or with an alternative timezone behind UTC: YYYY-MM-DDTHH:MM:SS-xx:00 ("
-                                    "'2020-10-20T17:00:00-03:00')</h3>")
+                                    "date and time format: YYYY-MM-DDTHH:MM:SS ('2020-10-20T17:00:00')</h3>"
+                                    )
 
     # Get and validate the model
     try:
