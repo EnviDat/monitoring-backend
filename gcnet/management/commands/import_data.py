@@ -10,6 +10,7 @@ from django.core.management.base import BaseCommand
 import importlib
 from datetime import datetime
 from .importers.csv_import import CsvImporter
+from .importers.dat_import import DatImporter
 
 from django.core.validators import URLValidator
 from django.core.exceptions import ValidationError
@@ -80,7 +81,7 @@ class Command(BaseCommand):
         # Check if data source is from a directory or a url and assign input_file to selected option
         input_source = self._get_input_source(kwargs['inputfile'])
         if not input_source:
-            print('WARNING (import_data.py) non-valid value entered for "inputfile": {0}'.format(kwargs['inputfile']))
+            print('ERROR (import_data.py) non-valid value entered for "inputfile": {0}'.format(kwargs['inputfile']))
             return
 
         # Get the model
@@ -88,7 +89,7 @@ class Command(BaseCommand):
         package = importlib.import_module("gcnet.models")
         model_class = getattr(package, class_name)
         if model_class is None:
-            print('WARNING (import_data.py) no data found for {0}'.format(kwargs['station']))
+            print('ERROR (import_data.py) no data found for {0}'.format(kwargs['station']))
             return
 
         # call the appropriate converter depending on the extension
@@ -104,6 +105,11 @@ class Command(BaseCommand):
                     print("ERROR: --loggeronly parameter requires to specify the --directory parameter for output")
             else:
                 return CsvImporter().import_csv(input_source, kwargs['inputfile'], kwargs['config'],
+                                                model_class, force=kwargs['force'])
+        elif file_extension == "dat":
+            if kwargs['loggeronly']:
+                print("ERROR: --loggeronly parameter not valid for dat import (only csv)")
+            return DatImporter().import_dat(input_source, kwargs['inputfile'], kwargs['config'],
                                                 model_class, force=kwargs['force'])
         else:
             print('WARNING (import_data.py) no available converter for extension {0}'.format(file_extension))

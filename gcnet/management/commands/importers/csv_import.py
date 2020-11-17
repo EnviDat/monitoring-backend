@@ -114,11 +114,11 @@ class CsvImporter:
 
                 line_clean = self._clean_csv_line(row)
 
-                if line_clean['timestamp_iso'] not in written_timestamps:
+                if line_clean[Columns.TIMESTAMP_ISO.value] not in written_timestamps:
 
                     # keep timestamps length small
                     written_timestamps = written_timestamps[(-1) * min(len(written_timestamps), 1000):]
-                    written_timestamps += [line_clean['timestamp_iso']]
+                    written_timestamps += [line_clean[Columns.TIMESTAMP_ISO.value]]
 
                     # slide the row buffer window
                     rows_buffer = rows_buffer[(-1) * min(len(rows_buffer), rows_before + rows_after):] + [line_clean]
@@ -127,7 +127,7 @@ class CsvImporter:
                     if len(rows_buffer) > rows_after:
                         csv_null_checker(rows_buffer, rows_before, rows_after, input_file, line_number)
                         sink.write(','.join(["{0}".format(v) for v in rows_buffer[-(1 + rows_after)].values()]) + '\n')
-            # save the last line
+            # save the last line #TODO: Depending on rows after
             sink.write(','.join(["{0}".format(v) for v in rows_buffer[-1].values()]) + '\n')
 
     def _dict_from_csv_line(self, line, header):
