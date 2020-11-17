@@ -68,6 +68,7 @@
     <br>
 
     <h3>2. Download NEAD</h3>
+    <p><span class="details_link"><a href="https://www.doi.org/10.16904/envidat.187" target="_blank">Click here for information about the NEAD format</a></span></p>
     <p><span class="details_link"><a href="#details_nead">(Click here for more detailed explanation)</a></span></p>
     <h4><ul><span class="url">URL template with time range: https://www.envidat.ch/data-api/gcnet/nead/model/timestamp_meaning/nodata/start/end/</span></ul></h4>
     <h4><ul>Example with time range, timestamp meaning 'end' and no data value '' (empty string): <a href="https://www.envidat.ch/data-api/gcnet/nead/swisscamp_01d/end/empty/2020-11-03/2020-11-06" target="_blank">
@@ -81,7 +82,7 @@
 
     <h3>3. Download CSV</h3>
         <p><span class="details_link"><a href="#details_csv">(Click here for more detailed explanation)</a></span></p>
-    <h4><ul><span class="url">URL template: https://www.envidat.ch/data-api/gcnet/csv/model/parameter/start/end/timestamp_meaning/nodata/</span></ul></h4>
+    <h4><ul><span class="url">URL template: https://www.envidat.ch/data-api/gcnet/csv/model/parameter/timestamp_meaning/nodata/start/end/</span></ul></h4>
     <h4><ul>Example with timestamp meaning 'end' and no data value '-999': <a href="https://www.envidat.ch/data-api/gcnet/csv/swisscamp_01d/airtemp1/2020-11-04/2020-11-06/end/-999/" target="_blank">
         https://www.envidat.ch/data-api/gcnet/csv/swisscamp_01d/airtemp1/2020-11-04/2020-11-06/end/-999/</a></ul></h4>
     <h4><ul>Example returning multiple parameters with timestamp meaning 'end' and no data value '-999': <a href="https://www.envidat.ch/data-api/gcnet/csv/swisscamp_01d/multiple/2020-11-04/2020-11-06/end/-999/" target="_blank">
@@ -114,7 +115,7 @@
 
     <h3>6. Download Daily Summary CSV</h3>
     <p><span class="details_link"><a href="#details_csv_daily_summary">(Click here for more detailed explanation)</a></span></p>
-    <h4><ul><span class="url">URL template: https://www.envidat.ch/data-api/gcnet/summary/daily/csv/model/parameter/start/end/timestamp_meaning/nodata/</span></ul></h4>
+    <h4><ul><span class="url">URL template: https://www.envidat.ch/data-api/gcnet/summary/daily/csv/model/parameter/timestamp_meaning/nodata/start/end/</span></ul></h4>
     <h4><ul>Example with timestamp meaning 'end' and no data value '-999': <a href="https://www.envidat.ch/data-api/gcnet/summary/daily/csv/swisscamp_01d/windspeed1/2020-11-01/2020-11-06/end/empty/" target="_blank">
         https://www.envidat.ch/data-api/gcnet/summary/daily/csv/swisscamp_01d/windspeed1/2020-11-01/2020-11-06/end/empty/</a></ul></h4>
     <h4><ul>Example returning multiple parameters with timestamp meaning 'end' and no data value '-999': <a href="https://www.envidat.ch/data-api/gcnet/summary/daily/csv/swisscamp_01d/multiple/2020-11-01/2020-11-06/end/empty/" target="_blank">
@@ -123,7 +124,7 @@
 
     <div style="text-align: center;">
         <hr>
-        <h2>Endpoints Explanation</h2>
+        <h2>API Usage Examples</h2>
         <br>
     </div>
 
@@ -156,6 +157,7 @@
     <br>
 
     <h3 id="details_nead">2. Download NEAD</h3>
+    <p><span class="details_link"><a href="https://www.doi.org/10.16904/envidat.187" target="_blank">Click here for information about the NEAD format</a></span></p>
     <h4><ul><span class="url">URL template with time range:</span> https://www.envidat.ch/data-api/gcnet/nead/<mark>model</mark>/<span class="timestamp_meaning">timestamp_meaning</span>/<span class="nodata">nodata</span>/<span class="start_end">start</span>/<span class="start_end">end</span></ul></h4>
      <h4><ul>Example with time range, timestamp meaning 'end' and no data value '' (empty string): <a href="https://www.envidat.ch/data-api/gcnet/nead/swisscamp_01d/end/empty/2020-11-03/2020-11-06" target="_blank">
         https://www.envidat.ch/data-api/gcnet/nead/swisscamp_01d/end/empty/2020-11-03/2020-11-06</a></ul></h4>
@@ -177,7 +179,7 @@
     <br>
 
     <h3 id="details_csv">3. Download CSV</h3>
-    <h4><ul><span class="url">URL template:</span> https://www.envidat.ch/data-api/gcnet/csv/<mark>model</mark>/<span class="parameter">parameter</span>/<span class="start_end">start</span>/<span class="start_end">end</span>/<span class="timestamp_meaning">timestamp_meaning</span>/<span class="nodata">nodata</span>/</ul></h4>
+    <h4><ul><span class="url">URL template:</span> https://www.envidat.ch/data-api/gcnet/csv/<mark>model</mark>/<span class="parameter">parameter</span>/<span class="timestamp_meaning">timestamp_meaning</span>/<span class="nodata">nodata</span>/<span class="start_end">start</span>/<span class="start_end">end</span>/</ul></h4>
         <h4><ul>Example with timestamp meaning 'end' and no data value '-999': <a href="https://www.envidat.ch/data-api/gcnet/csv/swisscamp_01d/airtemp1/2020-11-04/2020-11-06/end/-999/" target="_blank">
         https://www.envidat.ch/data-api/gcnet/csv/swisscamp_01d/airtemp1/2020-11-04/2020-11-06/end/-999/</a></ul></h4>
         <h4><ul>Example returning multiple parameters with timestamp meaning 'end' and no data value '-999': <a href="https://www.envidat.ch/data-api/gcnet/csv/swisscamp_01d/multiple/2020-11-04/2020-11-06/end/-999/" target="_blank">
@@ -185,17 +187,17 @@
     <p><ul><ul><mark>model</mark> should correspond to a GC-Net Station model name listed at <a href="https://www.envidat.ch/data-api/gcnet/models/" target="_blank">https://www.envidat.ch/data-api/gcnet/models/</a>, for example <span class="model_light">swisscamp</span> or <span class="model_light">summit</span></ul></ul>
         <ul><ul><span class="parameter">parameter</span> should be a type of measurement, for example <span class="parameter_light">airtemp1</span> or <span class="parameter_light">windspeed1</span></ul></ul>
              <ul><ul><ul><li><a href="#parameter_list">Click here for list of parameters</a></li></ul></ul></ul>
-         <ul><ul><ul><li><span class="parameter_light">multiple</span> means that multiple parameters will be included in the CSV</li></ul></ul></ul>
-         <ul><ul><span class="start_end">start</span> is the start date of the dataset</ul></ul>
-         <ul><ul><span class="start_end">end</span> is the end date of the dataset (exclusive)</ul></ul>
-           <ul><ul><ul><li><span class="start_end_light">start</span> and <span class="start_end_light">end</span> dates must be in in ISO timestamp date format: YYYY-MM-DD ('2019-12-04')</li></ul></ul></ul>
-           <ul><ul><ul><li><span class="start_end_light">start</span> date must precede <span class="start_end_light">end</span> date</li></ul></ul></ul>
         <ul><ul><span class="timestamp_meaning">timestamp_meaning</span> should be <span class="timestamp_meaning_light">end</span> or <span class="timestamp_meaning_light">beginning</span></ul></ul>
            <ul><ul><ul><li><span class="timestamp_meaning_light">end</span> means that timestamps are the "end" of a hour</li></ul></ul></ul>
            <ul><ul><ul><li><span class="timestamp_meaning_light">beginning</span> means that timestamps the "beginning" of a hour</li></ul></ul></ul>
        <ul><ul><span class="nodata">nodata</span> represents "null" values in the database</ul></ul>
            <ul><ul><ul><li><span class="nodata_light">-999</span> means that all "null" values will be "-999" in the CSV file</li></ul></ul></ul>
            <ul><ul><ul><li><span class="nodata_light">empty</span> means that all "null" values will be "" (empty strings) in the CSV file</li></ul></ul></ul>
+       <ul><ul><ul><li><span class="parameter_light">multiple</span> means that multiple parameters will be included in the CSV</li></ul></ul></ul>
+        <ul><ul><span class="start_end">start</span> is the start date of the dataset</ul></ul>
+        <ul><ul><span class="start_end">end</span> is the end date of the dataset (exclusive)</ul></ul>
+           <ul><ul><ul><li><span class="start_end_light">start</span> and <span class="start_end_light">end</span> dates must be in in ISO timestamp date format: YYYY-MM-DD ('2019-12-04')</li></ul></ul></ul>
+           <ul><ul><ul><li><span class="start_end_light">start</span> date must precede <span class="start_end_light">end</span> date</li></ul></ul></ul>
     <br>
     <br>
 
@@ -266,7 +268,7 @@
     <br>
 
     <h3 id="details_csv_daily_summary">6. Download Daily Summary CSV</h3>
-    <h4><ul><span class="url">URL template:</span> https://www.envidat.ch/data-api/gcnet/summary/daily/csv/<mark>model</mark>/<span class="parameter">parameter</span>/<span class="start_end">start</span>/<span class="start_end">end</span>/<span class="timestamp_meaning">timestamp_meaning</span>/<span class="nodata">nodata</span>/</ul></h4>
+    <h4><ul><span class="url">URL template:</span> https://www.envidat.ch/data-api/gcnet/summary/daily/csv/<mark>model</mark>/<span class="parameter">parameter</span>/<span class="timestamp_meaning">timestamp_meaning</span>/<span class="nodata">nodata</span>/<span class="start_end">start</span>/<span class="start_end">end</span>/</ul></h4>
     <h4><ul>Example with timestamp meaning 'end' and no data value '-999': <a href="https://www.envidat.ch/data-api/gcnet/summary/daily/csv/swisscamp_01d/windspeed1/2020-11-01/2020-11-06/end/empty/" target="_blank">
         https://www.envidat.ch/data-api/gcnet/summary/daily/csv/swisscamp_01d/windspeed1/2020-11-01/2020-11-06/end/empty/</a></ul></h4>
     <h4><ul>Example returning multiple parameters with timestamp meaning 'end' and no data value '-999': <a href="https://www.envidat.ch/data-api/gcnet/summary/daily/csv/swisscamp_01d/multiple/2020-11-01/2020-11-06/end/empty/" target="_blank">
