@@ -22,10 +22,10 @@ urlpatterns = [
     path('models/', get_model_stations),
 
     path('json/<str:model>/<str:parameter>/<str:start>/<str:end>/', get_json_data),
-    path('csv/<str:model>/<str:parameter>/<str:start>/<str:end>/<str:timestamp_meaning>/<str:nodata>/', get_csv),
+    path('csv/<str:model>/<str:parameter>/<str:timestamp_meaning>/<str:nodata>/<str:start>/<str:end>/', get_csv),
 
     path('summary/daily/json/<str:model>/<str:parameter>/<str:start>/<str:end>/', get_aggregate_data),
-    path('summary/daily/csv/<str:model>/<str:parameter>/<str:start>/<str:end>/<str:timestamp_meaning>/<str:nodata>/', get_aggregate_data),
+    path('summary/daily/csv/<str:model>/<str:parameter>/<str:timestamp_meaning>/<str:nodata>/<str:start>/<str:end>/', get_aggregate_data),
 
     path('nead/<str:model>/<str:timestamp_meaning>/<str:nodata>/<str:start>/<str:end>', streaming_csv_view_v1),
     path('nead/<str:model>/<str:timestamp_meaning>/<str:nodata>/', streaming_csv_view_v1),
