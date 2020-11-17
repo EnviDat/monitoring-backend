@@ -74,7 +74,7 @@ class Command(BaseCommand):
 
         parser.add_argument(
             '-f',
-            '--force', type=bool,
+            '--force', type=self.str2bool,
             required=False, default=False,
             help='Forces the import every valid row, skips the ones that fail. Defaults to False.'
         )
@@ -108,7 +108,7 @@ class Command(BaseCommand):
                     print("ERROR: --loggeronly parameter requires to specify the --directory parameter for output")
             else:
                 return CsvImporter().import_csv(input_source, kwargs['inputfile'], kwargs['config'],
-                                            model_class, force=kwargs['force'])
+                                                model_class, force=kwargs['force'])
         else:
             print('WARNING (import_data.py) no available converter for extension {0}'.format(file_extension))
             return
@@ -135,3 +135,14 @@ class Command(BaseCommand):
                     'WARNING (csv_import.py) file not found {0}, exception {1}'.format(input_file, e))
 
         return None
+
+    @staticmethod
+    def str2bool(v):
+        if isinstance(v, bool):
+            return v
+        if v.lower() in ('yes', 'true', 't', 'y', '1'):
+            return True
+        elif v.lower() in ('no', 'false', 'f', 'n', '0'):
+            return False
+        else:
+            raise argparse.ArgumentTypeError('Boolean value expected.')

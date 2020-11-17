@@ -24,7 +24,6 @@ class CsvImporter:
                       'SnowT10', 'BattVolt', 'SWinMax', 'SWoutMin', 'NetRadMax', 'AirTC1Max', 'AirTC2Max',
                       'AirTC1Min', 'AirTC2Min', 'WS1Max', 'WS2Max', 'WS1Std', 'WS2Std', 'TempRef']
 
-    # @transaction.atomic(using='gcnet')
     def import_csv(self, source, input_file, config, model_class, force=False, header=DEFAULT_HEADER, verbose=True):
 
         # Write data in input_file into writer_no_duplicates with additional fields
@@ -44,6 +43,13 @@ class CsvImporter:
                     # transform the line in a dictionary
                     row = self._dict_from_csv_line(line, header)
 
+                    if not row:
+                        error_msg = "Line {0} should have {1} columns as the header".format(line_number, len(header))
+                        if force:
+                            print(error_msg)
+                        else:
+                            raise ValueError(error_msg)
+
                     # Call csv_validator and log unexpected values
                     csv_validator(config, row, input_file, line_number)
 
@@ -55,17 +61,18 @@ class CsvImporter:
                         # print(line_clean)
 
                         if line_clean[Columns.TIMESTAMP.value]:
-                            # Check if record with identical timestamp already exists in database, otherwise write record to
-                            # temporary csv file after checking for record with duplicate timestamp
+                            # Check if record with identical timestamp already exists in database, otherwise write
+                            # record to temporary csv file after checking for record with duplicate timestamp
                             try:
-                                model_class.objects.create(**line_clean)
-                                records_written += 1
-                            except Exception as e:
-                                print("Duplicated row ({0}): {1}...".format(line_number, line[0:50]))
+                                created = True
                                 if force:
-                                    pass
+                                    obj, created = model_class.objects.get_or_create(**line_clean)
                                 else:
-                                    raise e
+                                    model_class.objects.create(**line_clean)
+                                if created:
+                                    records_written += 1
+                            except Exception as e:
+                                raise e
 
             # Log import message
             logger.info('{0} successfully imported, {1} lines read, {2} new record(s) written in {3}'
@@ -75,7 +82,7 @@ class CsvImporter:
                       .format(input_file, line_number, records_written, model_class))
 
         except Exception as e:
-            print("Nothing imported, ROLLBACK: exception ({1}):{0}".format(e, type(e)))
+            print("Nothing imported, ROLLING BACK: exception ({1}):{0}".format(e, type(e)))
 
     def logger_csv(self, source, input_file, output_file, config, header=DEFAULT_HEADER):
 
@@ -128,10 +135,7 @@ class CsvImporter:
         line_array = [v for v in line.strip().split(',') if len(v) > 0]
 
         if len(line_array) != len(header):
-            error_msg = "Line has {0} values, header {1} columns ".format(len(line_array),
-                                                                          len(header))
-            # logger.error(error_msg)
-            raise ValueError(error_msg)
+            return None
 
         return {header[i]: line_array[i] for i in range(len(line_array))}
 
