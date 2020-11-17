@@ -11,6 +11,9 @@ import importlib
 from datetime import datetime
 from .importers.csv_import import CsvImporter
 
+from django.core.validators import URLValidator
+from django.core.exceptions import ValidationError
+
 # Setup logging
 import logging
 
@@ -40,7 +43,7 @@ class Command(BaseCommand):
         parser.add_argument(
             '-i',
             '--inputfile',
-            required=True,
+            required=True, type=str,
             help='Path or URL to input csv/dat file'
         )
 
@@ -66,13 +69,6 @@ class Command(BaseCommand):
         )
 
         parser.add_argument(
-            '-t',
-            '--typesource',
-            required=True,
-            help='Type of data source. Valid options are a file path: "file" or a url: "web"'
-        )
-
-        parser.add_argument(
             '-f',
             '--force', type=self.str2bool,
             required=False, default=False,
@@ -82,9 +78,9 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
 
         # Check if data source is from a directory or a url and assign input_file to selected option
-        input_source = self._get_input_source(kwargs['typesource'], kwargs['inputfile'])
+        input_source = self._get_input_source(kwargs['inputfile'])
         if not input_source:
-            print('WARNING (import_data.py) non-valid value entered for "typesource": {0}'.format(kwargs['typesource']))
+            print('WARNING (import_data.py) non-valid value entered for "inputfile": {0}'.format(kwargs['inputfile']))
             return
 
         # Get the model
@@ -114,8 +110,8 @@ class Command(BaseCommand):
             return
 
     # Check if data source is from a directory or a url and assign input_file to selected option
-    def _get_input_source(self, typesource, inputfile):
-        if typesource == 'web':
+    def _get_input_source(self, inputfile):
+        if self.is_url(inputfile):
             # Write content from url into csv file
             url = str(inputfile)
             print('URL: {0}'.format(url))
@@ -124,7 +120,7 @@ class Command(BaseCommand):
                 req.encoding = 'utf-8'
             return req.iter_lines(decode_unicode=True)
 
-        elif typesource == 'file':
+        else:
             try:
                 input_file = Path(inputfile)
                 print('INPUT FILE: {0}'.format(input_file))
@@ -134,7 +130,14 @@ class Command(BaseCommand):
                 raise FileNotFoundError(
                     'WARNING (csv_import.py) file not found {0}, exception {1}'.format(input_file, e))
 
-        return None
+    @staticmethod
+    def is_url(text):
+        try:
+            URLValidator()(text)
+            return True
+        except ValidationError:
+            pass
+        return False
 
     @staticmethod
     def str2bool(v):
