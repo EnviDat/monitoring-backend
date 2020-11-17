@@ -3,7 +3,7 @@ from django.db import DatabaseError, transaction
 
 from pathlib import Path
 
-from gcnet.csvvalidator import csv_validator, csv_null_checker
+from .csvvalidator import csv_validator, csv_null_checker
 from gcnet.helpers import quarter_day, half_day, year_day, year_week, gcnet_utc_timestamp, gcnet_utc_datetime
 from gcnet.util.constants import Columns
 

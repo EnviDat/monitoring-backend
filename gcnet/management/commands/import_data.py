@@ -9,7 +9,7 @@ import requests
 from django.core.management.base import BaseCommand
 import importlib
 from datetime import datetime
-from .impl.csv_import import CsvImporter
+from .importers.csv_import import CsvImporter
 
 # Setup logging
 import logging

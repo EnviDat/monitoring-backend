@@ -13,6 +13,7 @@ import django
 django.setup()
 
 from gcnet.models import test as StationTest
+from gcnet.management.commands.importers.csv_import import CsvImporter
 
 
 class GCNetTestCase(TestCase):
@@ -73,5 +74,11 @@ class GCNetTestCase(TestCase):
         data = json.loads(response.content)
         print("Check data is not empty,  len is {0}".format(len(data)))
         self.assertGreater(len(data), 0, "Models list should not be empty")
+
+    def test_csv_import(self):
+        input_csv = "resources/test_input_01.csv"
+
+
+
 
 
