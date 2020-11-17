@@ -709,38 +709,16 @@ def get_display_description(database_fields_list):
 
 
 # Returns 'station_id' from stations config by mapping kwargs['model'] to station_id_dict
-def get_station_id(model):
-    station_id_dict = {
-        # ==== ARGOS Stations =====
-        'gits_04d': '107282',
-        'humboldt_05d': '107283',
-        'tunu_n_07d': '107285',
-        'petermann_22d': '107284',
+def get_station_id(model, stations_config):
+    station_id_dict = {stations_config.get(s, 'model', fallback=''): s
+                       for s in stations_config.sections() if s != 'DEFAULT'}
 
-        # ==== GOES Stations =====
-        'swisscamp_10m_tower_00d': '8030A1E0',
-        'swisscamp_01d': '80300118',
-        'crawfordpoint_02d': '8030126E',
-        'nasa_u_03d': '8030D770',
-        'summit_06d': '803027F4',
-        'dye2_08d': '803064FE',
-        'jar1_09d': '80303482',
-        'saddle_10d': '80307788',
-        'southdome_11d': '80305164',
-        'nasa_east_12d': '8030E2EA',
-        'nasa_southeast_15d': '8030870C',
-        'neem_23d': '8030C406',
-        'east_grip_24d': '8030947A'
-    }
-
-    if model in station_id_dict:
+    try:
         station_id = station_id_dict[model]
-    else:
+        return station_id
+    except KeyError:
         print('WARNING (helpers.py) {0} not a valid model'.format(model))
         return
-
-    return station_id
-
 
 # Deletes a line from a file and returns the deleted line (if its length > 0)
 # Note that line_number is 0 indexed

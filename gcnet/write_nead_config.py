@@ -15,7 +15,7 @@ def write_nead_config(config_path, model, stringnull='', delimiter=',', ts_meani
         stations_config = read_config('gcnet/config/stations.ini')
 
         # Assign station_id to model's corresponding station_id
-        station_id = get_station_id(model)
+        station_id = get_station_id(model, stations_config)
 
         # Set 'station_id'
         config.set('METADATA', 'station_id', str(station_id))
