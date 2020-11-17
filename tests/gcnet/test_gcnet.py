@@ -56,7 +56,7 @@ class GCNetTestCase(TestCase):
         print("Check models list is not empty,  len is {0}".format(len(stations_list)))
         self.assertGreater(len(stations_list), 0, "Models list should not be empty")
 
-    def test_api_models(self):
+    def test_api_data(self):
 
         #http://127.0.0.1:8000/api/gcnet/summary/daily/json/test/all/1996-01-01/1996-12-31/
         start_timestamp = datetime.fromisoformat(self.test_dataset[1]['timestamp_iso']).strftime("%Y-%m-%d")

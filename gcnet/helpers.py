@@ -804,6 +804,10 @@ def get_model_url_dict():
 
 
 def get_model_from_config(model_url):
+    # exception for the test model
+    if model_url == 'test':
+        return 'test'
+
     model_dict = get_model_url_dict()
     model = ''
     if model_url in model_dict:
