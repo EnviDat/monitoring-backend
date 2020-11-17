@@ -123,7 +123,7 @@ def get_csv_import_command_list(config_parser: configparser, station_type: str, 
                 csv_data = stations_config.get(section, 'csv_data_url')
                 csv_source_type = 'web'
             else:
-                print('WARNING (csv_import.py) invalid argument "{0}" entered for input_type. Must enter'
+                print('WARNING (import_data.py) invalid argument "{0}" entered for input_type. Must enter'
                       '"file" or "url"'.format(input_type))
                 return
 

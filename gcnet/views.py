@@ -52,6 +52,7 @@ def index(request):
 
 
 def get_model_stations(request):
+    # TODO make sure not repeated in get_model_url_dict()
     # Read the stations config file
     local_dir = os.path.dirname(__file__)
     stations_path = os.path.join(local_dir, 'config/stations.ini')

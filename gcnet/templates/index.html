@@ -21,7 +21,7 @@
                padding: 0.5rem 2rem;}
     table td {border: solid thin lightslategray;
                   padding: 0.5rem 2rem;}
-    table td {font-size: small;}
+    table td {font-size: smaller;}
     .special_notes {
         border: medium solid darkred;
         padding: 0.25rem 1rem;}
@@ -178,7 +178,7 @@
         https://www.envidat.ch/data-api/gcnet/csv/swisscamp_01d/multiple/2020-11-04/2020-11-06/end/-999/</a> </ul></h4>
     <p><ul><ul><mark>model</mark> should correspond to a GC-Net Station model name listed in the 'https://www.envidat.ch/data-api/gcnet/models/' endpoint, for example <span class="model_light">swisscamp_01d</span> or <span class="model_light">summit_06d</span></ul></ul>
         <ul><ul><span class="parameter">parameter</span> should be a type of measurement, for example <span class="parameter_light">airtemp1</span> or <span class="parameter_light">windspeed1</span></ul></ul>
-             <ul><ul><ul><li>See "Parameter List" below for list of parameters</li></ul></ul></ul>
+             <ul><ul><ul><li><a href="#parameter_list">Click here for list of parameters</a></li></ul></ul></ul>
          <ul><ul><ul><li><span class="parameter_light">multiple</span> means that multiple parameters will be included in the CSV</li></ul></ul></ul>
          <ul><ul><span class="start_end">start</span> is the start date of the dataset</ul></ul>
          <ul><ul><span class="start_end">end</span> is the end date of the dataset (exclusive)</ul></ul>
@@ -193,6 +193,7 @@
     <br>
     <br>
 
+    <hr>
     <h3 id="parameter_list">Parameter List</h3>
        <table>
           <tr>
@@ -258,13 +259,13 @@
            <tr>
               <td>windspeed1</td>
               <td>U1 M Wind Speed</td>
-              <td>m/s</td>
+             <td>m s<sup>-1</sup></td>
            </tr>
 
            <tr>
               <td>windspeed2</td>
               <td>U2 N Wind Speed</td>
-              <td>m/s</td>
+              <td>m s<sup>-1</sup></td>
            </tr>
 
            <tr>
@@ -348,13 +349,31 @@
            <tr>
               <td>windspeed_u1_maximum</td>
               <td>Maximum Windspeed-U1</td>
-              <td>m/s</td>
+              <td>m s<sup>-1</sup></td>
            </tr>
 
            <tr>
               <td>windspeed_u2_maximum</td>
               <td>Maximum Windspeed-U2</td>
-              <td>m/s</td>
+              <td>m s<sup>-1</sup></td>
+           </tr>
+
+           <tr>
+              <td>windspeed_u1_stdev</td>
+              <td>Standard Deviation Windspeed-U1</td>
+              <td>m s<sup>-1</sup></td>
+           </tr>
+
+           <tr>
+              <td>windspeed_u2_stdev</td>
+              <td>Standard Deviation Windspeed-U2</td>
+              <td>m s<sup>-1</sup></td>
+           </tr>
+
+           <tr>
+              <td>reftemp</td>
+              <td>Reference Temperature</td>
+              <td>°C</td>
            </tr>
 
 

@@ -797,9 +797,44 @@ def get_nead_queryset_value(x, null_value):
 
 
 def get_model(model):
-    class_name = model.rsplit('.', 1)[-1]
+    model_url = model.rsplit('.', 1)[-1]
+    class_name = get_model_from_config(model_url)
     package = importlib.import_module("gcnet.models")
     return getattr(package, class_name)
+
+
+def get_model_url_dict():
+    # Read the stations config file
+    local_dir = os.path.dirname(__file__)
+    stations_path = os.path.join(local_dir, 'config/stations.ini')
+    stations_config = read_config(stations_path)
+
+    # Check if stations_config exists
+    if not stations_config:
+        return HttpResponseNotFound("<h1>Not found: station config doesn't exist</h1>")
+
+    # Assign variables to stations_config values and loop through each station in stations_config, create dictionary of
+    # model_url:model key:value pairs
+    model_dict = {}
+    for section in stations_config.sections():
+        if stations_config.get(section, 'api') == 'True':
+            model_id = stations_config.get(section, 'model')
+            model_url = stations_config.get(section, 'model_url')
+            model_dict[model_url] = model_id
+    return model_dict
+
+
+def get_model_from_config(model_url):
+    # Get model dictionary from get_model_url_dict()
+    model_dict = get_model_url_dict()
+
+    if model_url in model_dict:
+        model = model_dict[model_url]
+    else:
+        print('WARNING (helpers.py) {0} not a valid model_url'.format(model_url))
+        return
+
+    return model
 
 
 def model_http_error(model):
@@ -824,9 +859,9 @@ def parameter_http_error(parameter):
 
 def timestamp_meaning_http_error(timestamp_meaning):
     return HttpResponseNotFound("<h1>Page not found</h1>"
-                         "<h3>Non-valid 'timestamp_meaning' kwarg entered in URL: {0}</h3>"
-                         "<h3>Valid 'timestamp_meaning' kwarg options: end, beginning"
-                         .format(timestamp_meaning))
+                                "<h3>Non-valid 'timestamp_meaning' kwarg entered in URL: {0}</h3>"
+                                "<h3>Valid 'timestamp_meaning' kwarg options: end, beginning"
+                                .format(timestamp_meaning))
 
 
 # Fill hash_lines with config_buffer lines prepended with '# '
