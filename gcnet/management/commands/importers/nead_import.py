@@ -26,6 +26,7 @@ class NeadImporter:
             print("Nothing imported, cannot read NEAD config from file {0}".format(input_file))
 
         sep = nead_config.get('METADATA', 'field_delimiter')
+        null_value = nead_config.get('METADATA', 'nodata')
         header = nead_config.get('FIELDS', 'fields').split(',')
 
         # Write data in input_file into writer_no_duplicates with additional fields
@@ -53,7 +54,7 @@ class NeadImporter:
                             raise ValueError(error_msg)
 
                     # Process row and add new calculated fields
-                    line_clean = self._clean_nead_line(row)
+                    line_clean = self._clean_nead_line(row, null_value)
                     # print(line_clean)
 
                     if line_clean[Columns.TIMESTAMP.value]:
@@ -96,36 +97,41 @@ class NeadImporter:
             return nead_config
         return None
 
-    def _clean_nead_line(self, row):
+    def _clean_nead_line(self, row, null_value):
 
         iso_date = datetime.fromisoformat(row['timestamp'])
-        return {Columns.TIMESTAMP_ISO.value: iso_date,
+        row = {Columns.TIMESTAMP_ISO.value: iso_date,
 
-                Columns.TIMESTAMP.value: iso_date.strftime("%s"),
-                Columns.YEAR.value: iso_date.year,
-                Columns.JULIANDAY.value: h.get_julian_day(row['timestamp']),
-                Columns.QUARTERDAY.value: h.get_quarter_day(iso_date),
-                Columns.HALFDAY.value: h.get_half_day(iso_date),
-                Columns.DAY.value: h.get_year_day(iso_date),
-                Columns.WEEK.value: h.get_year_week(iso_date),
+               Columns.TIMESTAMP.value: iso_date.strftime("%s"),
+               Columns.YEAR.value: iso_date.year,
+               Columns.JULIANDAY.value: h.get_julian_day(row['timestamp']),
+               Columns.QUARTERDAY.value: h.get_quarter_day(iso_date),
+               Columns.HALFDAY.value: h.get_half_day(iso_date),
+               Columns.DAY.value: h.get_year_day(iso_date),
+               Columns.WEEK.value: h.get_year_week(iso_date),
 
-                Columns.SWIN.value: row['ISWR'], Columns.SWOUT.value: row['OSWR'],
-                Columns.NETRAD.value: row['NSWR'],
-                Columns.AIRTEMP1.value: row['TA1'], Columns.AIRTEMP2.value: row['TA2'],
-                Columns.AIRTEMP_CS500AIR1.value: row['TA3'],
-                Columns.AIRTEMP_CS500AIR2.value: row['TA4'],
-                Columns.RH1.value: row['RH1'], Columns.RH2.value: row['RH2'],
-                Columns.WINDSPEED1.value: row['VW1'], Columns.WINDSPEED2.value: row['VW2'],
-                Columns.WINDDIR1.value: row['DW1'], Columns.WINDDIR2.value: row['DW2'],
-                Columns.PRESSURE.value: row['P'],
-                Columns.SH1.value: row['HS1'], Columns.SH2.value: row['HS2'],
-                Columns.BATTVOLT.value: row['V'], Columns.SWIN_MAX.value: row['ISWR_max'],
-                Columns.SWOUT_MIN.value: row['OSWR_min'], Columns.NETRAD_MAX.value: row['NSWR_max'],
-                Columns.AIRTEMP1_MAX.value: row['TA1_max'], Columns.AIRTEMP2_MAX.value: row['TA2_max'],
-                Columns.AIRTEMP1_MIN.value: row['TA1_min'], Columns.AIRTEMP2_MIN.value: row['TA2_min'],
-                Columns.WINDSPEED_U1_MAX.value: row['VW1_max'],
-                Columns.WINDSPEED_U2_MAX.value: row['VW2_max'],
-                Columns.WINDSPEED_U1_STDEV.value: row['VW1_stdev'],
-                Columns.WINDSPEED_U2_STDEV.value: row['VW2_stdev'],
-                Columns.REFTEMP.value: row['TA5']
-                }
+               Columns.SWIN.value: row['ISWR'], Columns.SWOUT.value: row['OSWR'],
+               Columns.NETRAD.value: row['NSWR'],
+               Columns.AIRTEMP1.value: row['TA1'], Columns.AIRTEMP2.value: row['TA2'],
+               Columns.AIRTEMP_CS500AIR1.value: row['TA3'],
+               Columns.AIRTEMP_CS500AIR2.value: row['TA4'],
+               Columns.RH1.value: row['RH1'], Columns.RH2.value: row['RH2'],
+               Columns.WINDSPEED1.value: row['VW1'], Columns.WINDSPEED2.value: row['VW2'],
+               Columns.WINDDIR1.value: row['DW1'], Columns.WINDDIR2.value: row['DW2'],
+               Columns.PRESSURE.value: row['P'],
+               Columns.SH1.value: row['HS1'], Columns.SH2.value: row['HS2'],
+               Columns.BATTVOLT.value: row['V'], Columns.SWIN_MAX.value: row['ISWR_max'],
+               Columns.SWOUT_MIN.value: row['OSWR_min'], Columns.NETRAD_MAX.value: row['NSWR_max'],
+               Columns.AIRTEMP1_MAX.value: row['TA1_max'], Columns.AIRTEMP2_MAX.value: row['TA2_max'],
+               Columns.AIRTEMP1_MIN.value: row['TA1_min'], Columns.AIRTEMP2_MIN.value: row['TA2_min'],
+               Columns.WINDSPEED_U1_MAX.value: row['VW1_max'],
+               Columns.WINDSPEED_U2_MAX.value: row['VW2_max'],
+               Columns.WINDSPEED_U1_STDEV.value: row['VW1_stdev'],
+               Columns.WINDSPEED_U2_STDEV.value: row['VW2_stdev'],
+               Columns.REFTEMP.value: row['TA5']
+               }
+
+        for k, v in row.items():
+            if v == null_value:
+                row[k] = None
+        return row

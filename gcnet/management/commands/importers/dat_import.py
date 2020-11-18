@@ -27,7 +27,7 @@ from django.core.management.base import BaseCommand
 from django.utils.timezone import make_aware
 from django.db import DatabaseError, transaction
 
-from .datvalidator import null_checker
+from .datvalidator import null_checker, is_null
 from gcnet.helpers import quarter_day, half_day, year_day, year_week, gcnet_utc_timestamp, gcnet_utc_datetime
 from gcnet.util.constants import Columns
 
@@ -147,28 +147,34 @@ class DatImporter:
         return {header[i]: line_array[i] for i in range(len(line_array))}
 
     def _clean_dat_line(self, row):
-        return {Columns.TIMESTAMP_ISO.value: make_aware(gcnet_utc_datetime(row['Year'], row['Doyd'])),
-                Columns.TIMESTAMP.value: gcnet_utc_timestamp(row['Year'], row['Doyd']),
-                Columns.YEAR.value: row['Year'], Columns.JULIANDAY.value: row['Doyd'],
-                Columns.QUARTERDAY.value: quarter_day(row['Doyd']), Columns.HALFDAY.value: half_day(row['Doyd']),
-                Columns.DAY.value: year_day(row['Year'], row['Doyd']),
-                Columns.WEEK.value: year_week(row['Year'], row['Doyd']),
-                Columns.SWIN.value: row['SWin'], Columns.SWOUT.value: row['SWout'],
-                Columns.NETRAD.value: row['NetRad'], Columns.AIRTEMP1.value: row['AirTC1'],
-                Columns.AIRTEMP2.value: row['AirTC2'],
-                Columns.AIRTEMP_CS500AIR1.value: row['AirT1'], Columns.AIRTEMP_CS500AIR2.value: row['AirT2'],
-                Columns.RH1.value: row['RH1'], Columns.RH2.value: row['RH2'], Columns.WINDSPEED1.value: row['WS1'],
-                Columns.WINDSPEED2.value: row['WS2'], Columns.WINDDIR1.value: row['WD1'],
-                Columns.WINDDIR2.value: row['WD2'], Columns.PRESSURE.value: row['press'],
-                Columns.SH1.value: row['Sheight1'],
-                Columns.SH2.value: row['Sheight2'], Columns.BATTVOLT.value: row['BattVolt'],
-                Columns.SWIN_MAX.value: row['SWinMax'],
-                Columns.SWOUT_MIN.value: row['SWoutMin'], Columns.NETRAD_MAX.value: row['NetRadMax'],
-                Columns.AIRTEMP1_MAX.value: row['AirTC1Max'], Columns.AIRTEMP2_MAX.value: row['AirTC2Max'],
-                Columns.AIRTEMP1_MIN.value: row['AirTC1Min'], Columns.AIRTEMP2_MIN.value: row['AirTC2Min'],
-                Columns.WINDSPEED_U1_MAX.value: row['WS1Max'],
-                Columns.WINDSPEED_U2_MAX.value: row['WS2Max'],
-                Columns.WINDSPEED_U1_STDEV.value: row['WS1Std'],
-                Columns.WINDSPEED_U2_STDEV.value: row['WS2Std'],
-                Columns.REFTEMP.value: row['TempRef']
-                }
+        row = {Columns.TIMESTAMP_ISO.value: make_aware(gcnet_utc_datetime(row['Year'], row['Doyd'])),
+               Columns.TIMESTAMP.value: gcnet_utc_timestamp(row['Year'], row['Doyd']),
+               Columns.YEAR.value: row['Year'], Columns.JULIANDAY.value: row['Doyd'],
+               Columns.QUARTERDAY.value: quarter_day(row['Doyd']), Columns.HALFDAY.value: half_day(row['Doyd']),
+               Columns.DAY.value: year_day(row['Year'], row['Doyd']),
+               Columns.WEEK.value: year_week(row['Year'], row['Doyd']),
+               Columns.SWIN.value: row['SWin'], Columns.SWOUT.value: row['SWout'],
+               Columns.NETRAD.value: row['NetRad'], Columns.AIRTEMP1.value: row['AirTC1'],
+               Columns.AIRTEMP2.value: row['AirTC2'],
+               Columns.AIRTEMP_CS500AIR1.value: row['AirT1'], Columns.AIRTEMP_CS500AIR2.value: row['AirT2'],
+               Columns.RH1.value: row['RH1'], Columns.RH2.value: row['RH2'], Columns.WINDSPEED1.value: row['WS1'],
+               Columns.WINDSPEED2.value: row['WS2'], Columns.WINDDIR1.value: row['WD1'],
+               Columns.WINDDIR2.value: row['WD2'], Columns.PRESSURE.value: row['press'],
+               Columns.SH1.value: row['Sheight1'],
+               Columns.SH2.value: row['Sheight2'], Columns.BATTVOLT.value: row['BattVolt'],
+               Columns.SWIN_MAX.value: row['SWinMax'],
+               Columns.SWOUT_MIN.value: row['SWoutMin'], Columns.NETRAD_MAX.value: row['NetRadMax'],
+               Columns.AIRTEMP1_MAX.value: row['AirTC1Max'], Columns.AIRTEMP2_MAX.value: row['AirTC2Max'],
+               Columns.AIRTEMP1_MIN.value: row['AirTC1Min'], Columns.AIRTEMP2_MIN.value: row['AirTC2Min'],
+               Columns.WINDSPEED_U1_MAX.value: row['WS1Max'],
+               Columns.WINDSPEED_U2_MAX.value: row['WS2Max'],
+               Columns.WINDSPEED_U1_STDEV.value: row['WS1Std'],
+               Columns.WINDSPEED_U2_STDEV.value: row['WS2Std'],
+               Columns.REFTEMP.value: row['TempRef']
+               }
+
+        for k, v in row.items():
+            if is_null(v):
+                row[k] = None
+        return row
+

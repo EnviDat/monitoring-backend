@@ -1,8 +1,9 @@
 # Example command:
-#   python manage.py import_data -s 01_swisscamp -c gcnet/config/stations.ini -i gcnet/data/1_2019_min.csv -m swisscamp_01d -t file
-#   python manage.py import_data -s 01_swisscamp -c gcnet/config/stations.ini -i https://www.wsl.ch/gcnet/data/1_v.csv -m swisscamp_01d -t web
-
-#   python manage.py import_data -s 01_swisscamp -c gcnet/config/stations.ini -i gcnet/data/1_2019_min.csv  -m swisscamp_01d -l True -d gcnet/data/output -t file
+#   python manage.py import_data -s 01_swisscamp -c gcnet/config/stations.ini -i gcnet/data/1_2019_min.csv -m swisscamp_01d
+#   python manage.py import_data -s 01_swisscamp -c gcnet/config/stations.ini -i https://www.wsl.ch/gcnet/data/1_v.csv -m swisscamp_01d
+#   python manage.py import_data -s 01_swisscamp -c gcnet/config/stations.ini -i gcnet/data/1_2019_min.csv  -m swisscamp_01d -l True -d gcnet/data/output
+#   python manage.py import_data -s 01_swisscamp -c gcnet/config/stations.ini -i gcnet/data/1_1996_30lines.dat -m swisscamp_01d
+#   python manage.py import_data -s 08_dye2 -c gcnet/config/stations.ini -i gcnet/data/8_nead_min.csv  -m dye2_08d -f 1
 
 from pathlib import Path
 import requests
@@ -124,11 +125,12 @@ class Command(BaseCommand):
             return
 
     # Check if data source is from a directory or a url and assign input_file to selected option
-    def _get_input_source(self, inputfile):
+    def _get_input_source(self, inputfile, verbose=True):
         if self.is_url(inputfile):
             # Write content from url into csv file
             url = str(inputfile)
-            print('URL: {0}'.format(url))
+            if verbose:
+                print('URL: {0}'.format(url))
             req = requests.get(url, stream=True)
             if req.encoding is None:
                 req.encoding = 'utf-8'
@@ -137,18 +139,17 @@ class Command(BaseCommand):
         else:
             try:
                 input_file = Path(inputfile)
-                print('INPUT FILE: {0}'.format(input_file))
+                if verbose:
+                    print('INPUT FILE: {0}'.format(input_file))
                 source = open(input_file, 'r')
                 return source
             except FileNotFoundError as e:
                 raise FileNotFoundError(
                     'WARNING (csv_import.py) file not found {0}, exception {1}'.format(input_file, e))
 
-    @staticmethod
-    def is_nead_source(inputfile):
-        input_file = Path(inputfile)
-        with open(input_file) as f:
-            first_line = f.readline()
+    def is_nead_source(self, inputfile):
+        source = self._get_input_source(inputfile, verbose=False)
+        for first_line in source:
             return first_line.startswith('#') and (first_line.upper().find('NEAD') >= 0)
 
     @staticmethod
