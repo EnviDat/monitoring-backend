@@ -2,6 +2,8 @@ from datetime import datetime, timedelta
 import random
 import pytz
 
+from gcnet.util.constants import Columns
+
 
 def get_julian_day(iso_timestamp):
     date = datetime.fromisoformat(iso_timestamp)
@@ -14,7 +16,6 @@ def get_quarter_day(date):
         return True
     else:
         return False
-
 
 def get_half_day(date):
     gmt_date = date.astimezone(pytz.timezone('GMT0'))
@@ -38,17 +39,18 @@ class GCNetTestDataGenerator():
         while id < 100:
             date = start_date + timedelta(hours=(id - 1))
 
-
             iso_timestamp = date.isoformat()
             date = datetime.fromisoformat(iso_timestamp)
-            data = {'id': id, 'timestamp_iso': iso_timestamp, 'timestamp': date.strftime("%s"),
-                    'year': date.year, 'julianday': get_julian_day(iso_timestamp),
-                    'quarterday': get_quarter_day(date), 'halfday': get_half_day(date),
-                    'day': "{0}-{1}".format(date.year, date.timetuple().tm_yday),
-                    'week': "{0}-{1}".format(date.year, date.isocalendar()[1]),
-                    'swin': round(random.uniform(0, 5.0), 2), 'swout': round(random.uniform(0, 5.0), 2),
-                    'netrad': round(random.uniform(-10.0, 1.0), 2),
-                    'airtemp1': round(random.uniform(-20.0, 5.0), 2), 'airtemp2': round(random.uniform(-20.0, 5.0), 2)}
+            data = {'id': id, Columns.TIMESTAMP_ISO.value: iso_timestamp, Columns.TIMESTAMP.value: date.strftime("%s"),
+                    Columns.YEAR.value: date.year, Columns.JULIANDAY.value: get_julian_day(iso_timestamp),
+                    Columns.QUARTERDAY.value: get_quarter_day(date), Columns.HALFDAY.value: get_half_day(date),
+                    Columns.DAY.value: "{0}-{1}".format(date.year, date.timetuple().tm_yday),
+                    Columns.WEEK.value: "{0}-{1}".format(date.year, date.isocalendar()[1]),
+                    Columns.SWIN.value: round(random.uniform(0, 5.0), 2),
+                    Columns.SWOUT.value: round(random.uniform(0, 5.0), 2),
+                    Columns.NETRAD.value: round(random.uniform(-10.0, 1.0), 2),
+                    Columns.AIRTEMP1.value: round(random.uniform(-20.0, 5.0), 2),
+                    Columns.AIRTEMP2.value: round(random.uniform(-20.0, 5.0), 2)}
 
             test_dataset[id] = data
             id += 1
