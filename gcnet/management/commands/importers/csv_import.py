@@ -4,6 +4,7 @@ from django.db import DatabaseError, transaction
 from pathlib import Path
 
 from .csvvalidator import csv_validator, csv_null_checker
+from .import_helpers import dict_from_csv_line
 from gcnet.helpers import quarter_day, half_day, year_day, year_week, gcnet_utc_timestamp, gcnet_utc_datetime
 from gcnet.util.constants import Columns
 
@@ -41,7 +42,7 @@ class CsvImporter:
                     line_number += 1
 
                     # transform the line in a dictionary
-                    row = self._dict_from_csv_line(line, header)
+                    row = dict_from_csv_line(line, header)
 
                     if not row:
                         error_msg = "Line {0} should have {1} columns as the header".format(line_number, len(header))
@@ -107,7 +108,7 @@ class CsvImporter:
                 if line.startswith('#'):
                     continue
 
-                row = self._dict_from_csv_line(line, header)
+                row = dict_from_csv_line(line, header)
 
                 # Call csv_validator and log unexpected values
                 csv_validator(config, row, input_file, line_number)
@@ -129,15 +130,6 @@ class CsvImporter:
                         sink.write(','.join(["{0}".format(v) for v in rows_buffer[-(1 + rows_after)].values()]) + '\n')
             # save the last line #TODO: Depending on rows after
             sink.write(','.join(["{0}".format(v) for v in rows_buffer[-1].values()]) + '\n')
-
-    def _dict_from_csv_line(self, line, header):
-
-        line_array = [v for v in line.strip().split(',') if len(v) > 0]
-
-        if len(line_array) != len(header):
-            return None
-
-        return {header[i]: line_array[i] for i in range(len(line_array))}
 
     def _clean_csv_line(self, row):
         return {Columns.TIMESTAMP_ISO.value: make_aware(gcnet_utc_datetime(row['Year'], row['Doyd'])),

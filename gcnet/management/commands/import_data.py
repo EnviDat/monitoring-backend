@@ -11,6 +11,7 @@ import importlib
 from datetime import datetime
 from .importers.csv_import import CsvImporter
 from .importers.dat_import import DatImporter
+from .importers.nead_import import NeadImporter
 
 from django.core.validators import URLValidator
 from django.core.exceptions import ValidationError
@@ -95,7 +96,13 @@ class Command(BaseCommand):
         # call the appropriate converter depending on the extension
         file_extension = kwargs['inputfile'].rsplit('.')[-1].lower().strip()
         if file_extension == "csv":
-            if kwargs['loggeronly']:
+            if self.is_nead_source(kwargs['inputfile']):
+                if kwargs['loggeronly']:
+                    print("ERROR: --loggeronly parameter not valid for NEAD import (only csv)")
+                    return
+                return NeadImporter().import_nead(input_source, kwargs['inputfile'], kwargs['config'],
+                                           model_class, force=kwargs['force'])
+            elif kwargs['loggeronly']:
                 if kwargs.get('directory'):
                     output_file = Path(kwargs['directory'] + '/' + kwargs['station'] + '_logger_{0}.csv'
                                        .format(datetime.now().strftime("%Y%m%d_%H%M%S%f")))
@@ -109,6 +116,7 @@ class Command(BaseCommand):
         elif file_extension == "dat":
             if kwargs['loggeronly']:
                 print("ERROR: --loggeronly parameter not valid for dat import (only csv)")
+                return
             return DatImporter().import_dat(input_source, kwargs['inputfile'], kwargs['config'],
                                                 model_class, force=kwargs['force'])
         else:
@@ -137,6 +145,13 @@ class Command(BaseCommand):
                     'WARNING (csv_import.py) file not found {0}, exception {1}'.format(input_file, e))
 
     @staticmethod
+    def is_nead_source(inputfile):
+        input_file = Path(inputfile)
+        with open(input_file) as f:
+            first_line = f.readline()
+            return first_line.startswith('#') and (first_line.upper().find('NEAD') >= 0)
+
+    @staticmethod
     def is_url(text):
         try:
             URLValidator()(text)
@@ -155,3 +170,4 @@ class Command(BaseCommand):
             return False
         else:
             raise argparse.ArgumentTypeError('Boolean value expected.')
+

@@ -9,7 +9,7 @@ import importlib
 
 from gcnet.management.commands.importers.csv_import import CsvImporter
 from gcnet.management.commands.importers.dat_import import DatImporter
-#from gcnet.management.commands.importers.nead_import import NeadImporter
+from gcnet.management.commands.importers.nead_import import NeadImporter
 from gcnet.util.constants import Columns
 
 from .gcnet_data_generator import GCNetTestDataGenerator
@@ -27,7 +27,7 @@ class GCNetTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.client = Client()
-        cls.test_dataset = GCNetTestDataGenerator().generateTestData()
+        cls.test_dataset = GCNetTestDataGenerator().generate_test_data()
 
         for data in cls.test_dataset.values():
             cls.station = StationTest.objects.create(**data)
@@ -110,7 +110,7 @@ class GCNetTestCase(TestCase):
 
         # Check that the response is 200 OK.
         data = json.loads(response.content)
-        print("Check 10 days data imported from csv, got {0}".format(len(data)))
+        print("Check 10 days data imported from CSV, got {0}".format(len(data)))
         self.assertEqual(len(data), 10, "Models list should not be empty. Ensure gcnet_test_id_seq set to 200")
 
     def test_dat_import(self):
@@ -149,49 +149,49 @@ class GCNetTestCase(TestCase):
 
         # Check that the response is 200 OK.
         data = json.loads(response.content)
-        print("Check 7 days data imported from dat, got {0}".format(len(data)))
+        print("Check 7 days data imported from DAT, got {0}".format(len(data)))
         self.assertEqual(len(data), 7, "Models list should not be empty. Ensure gcnet_test_id_seq set to 200")
 
-    # def test_nead_import(self):
-    #
-    #     local_dir = os.path.dirname(__file__)
-    #
-    #     # source
-    #     input_csv = "resources/test_input_08_nead.csv"
-    #     input_path = os.path.join(local_dir, input_csv)
-    #     source = open(input_path, 'r')
-    #
-    #     # config file
-    #     test_config = "resources/stations_test.ini"
-    #     config = os.path.join(local_dir, test_config)
-    #
-    #     # model
-    #     package = importlib.import_module("gcnet.models")
-    #     model_class = getattr(package, 'test')
-    #
-    #     # perform import
-    #     NeadImporter().import_nead(source, input_csv, config, model_class, verbose=False)
-    #
-    #     # retrieve data
-    #     start_timestamp = "2014-01-01"
-    #     end_timestamp = "2014-12-31"
-    #
-    #     path = '/api/gcnet/summary/daily/json/test/multiple/{0}/{1}/'.format(start_timestamp, end_timestamp)
-    #
-    #     # Issue a GET request.
-    #     response = self.client.get(path)
-    #
-    #     # Check that the response is 200 OK.
-    #     self.assertEqual(response.status_code, 200)
-    #
-    #     # TODO: Set option for defining id's in the import so we do not affect the sequence in the database
-    #
-    #     # Check that the response is 200 OK.
-    #     data = json.loads(response.content)
-    #     print("Check 6 days data imported from dat, got {0}".format(len(data)))
-    #     self.assertEqual(len(data), 6, "Models list should not be empty. Ensure gcnet_test_id_seq set to 200")
-    #
-    #
-    #
-    #
-    #
+    def test_nead_import(self):
+
+        local_dir = os.path.dirname(__file__)
+
+        # source
+        input_csv = "resources/test_input_08_nead.csv"
+        input_path = os.path.join(local_dir, input_csv)
+        source = open(input_path, 'r')
+
+        # config file
+        test_config = "resources/stations_test.ini"
+        config = os.path.join(local_dir, test_config)
+
+        # model
+        package = importlib.import_module("gcnet.models")
+        model_class = getattr(package, 'test')
+
+        # perform import
+        NeadImporter().import_nead(source, input_csv, config, model_class, verbose=False)
+
+        # retrieve data
+        start_timestamp = "2014-01-01"
+        end_timestamp = "2014-12-31"
+
+        path = '/api/gcnet/summary/daily/json/test/multiple/{0}/{1}/'.format(start_timestamp, end_timestamp)
+
+        # Issue a GET request.
+        response = self.client.get(path)
+
+        # Check that the response is 200 OK.
+        self.assertEqual(response.status_code, 200)
+
+        # TODO: Set option for defining id's in the import so we do not affect the sequence in the database
+
+        # Check that the response is 200 OK.
+        data = json.loads(response.content)
+        print("Check 6 days data imported from NEAD, got {0}".format(len(data)))
+        self.assertEqual(len(data), 6, "Models list should not be empty. Ensure gcnet_test_id_seq set to 200")
+
+
+
+
+
