@@ -3,7 +3,7 @@ import pytz
 
 
 def dict_from_csv_line(line, header, sep=','):
-    line_array = [v.strip() for v in line.strip().split(sep) if len(v.strip()) > 0]
+    line_array = [v.strip() for v in line.strip().split(sep)]
 
     if len(line_array) != len(header):
         return None
