@@ -87,6 +87,8 @@ class NeadImporter:
             # Skip header lines that start with '#'
             if line.startswith('#') and (line.find('[DATA]') < 0):
                 config_lines += [line[1:].strip()]
+            elif len(line.strip()) == 0:
+                continue
             else:
                 break
 
