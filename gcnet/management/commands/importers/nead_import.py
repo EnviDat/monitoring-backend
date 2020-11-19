@@ -25,9 +25,9 @@ class NeadImporter:
         if not nead_config:
             print("Nothing imported, cannot read NEAD config from file {0}".format(input_file))
 
-        sep = nead_config.get('METADATA', 'field_delimiter')
-        null_value = nead_config.get('METADATA', 'nodata')
-        header = nead_config.get('FIELDS', 'fields').split(',')
+        sep = nead_config.get('METADATA', 'field_delimiter', fallback=',')
+        null_value = nead_config.get('METADATA', 'nodata', fallback='')
+        header = nead_config.get('FIELDS', 'fields').split(sep)
 
         # Write data in input_file into writer_no_duplicates with additional fields
         records_written = 0
