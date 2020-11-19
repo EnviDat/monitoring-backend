@@ -64,16 +64,14 @@ class CsvImporter:
                         if line_clean[Columns.TIMESTAMP.value]:
                             # Check if record with identical timestamp already exists in database, otherwise write
                             # record to temporary csv file after checking for record with duplicate timestamp
-                            try:
-                                created = True
-                                if force:
-                                    obj, created = model_class.objects.get_or_create(**line_clean)
-                                else:
-                                    model_class.objects.create(**line_clean)
-                                if created:
-                                    records_written += 1
-                            except Exception as e:
-                                raise e
+                            created = True
+                            if force:
+                                key_dict = {Columns.TIMESTAMP.value: line_clean[Columns.TIMESTAMP.value]}
+                                obj, created = model_class.objects.get_or_create(**key_dict, defaults=line_clean)
+                            else:
+                                model_class.objects.create(**line_clean)
+                            if created:
+                                records_written += 1
 
             # Log import message
             logger.info('{0} successfully imported, {1} lines read, {2} new record(s) written in {3}'
