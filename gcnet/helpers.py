@@ -406,7 +406,7 @@ def get_fields_string(database_fields_list):
         'swin': 'ISWR',
         'swin_maximum': 'ISWR_max',
         'swout': 'OSWR',
-        'swout_minimum': 'OSWR_max',
+        'swout_minimum': 'OSWR_min',
         'netrad': 'NSWR',
         'netrad_maximum': 'NSWR_max',
         'airtemp1': 'TA1',

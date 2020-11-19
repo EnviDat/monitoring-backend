@@ -404,25 +404,25 @@ main.py has three arguments::
 
     -l (--localFolder) Load local .dat files from folder and skip processing
 
-Open terminal and navigate to project directory.
+Open terminal and navigate to project directory. Make sure virtual environment is activated.
 
 Run python and import main::
 
     python
-    import gcnet.main
+    from gcnet.main import main
 
 
 Then run main.py
 
 Example commands running every 15 minutes::
 
-    Import data from URL:         gcnet.main.main(['-r 15', '-i url'])
-    Import data from directory:   gcnet.main.main(['-r 15', '-i file'])
+    Import data from URL:         main(['-r 15', '-i url'])
+    Import data from directory:   main(['-r 15', '-i file'])
 
 
 - **-l <folder>**: For Unix and OSX environments, you can use this option to provide locally stored dat files that should be present in the designated folder with the exact names *argos_decoded.dat* or *goes_decoded.dat*. For example if you place the input dat files in a subfolder called *input* in the project root directory the command should be::
 
-     gcnet.main.main(['-r 15', '-i url', '-l input'])
+     main(['-r 15', '-i url', '-l input'])
 
 
 ----------------------
