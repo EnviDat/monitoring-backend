@@ -850,6 +850,10 @@ def get_hashed_lines(config_buffer):
 # Define a generator to stream GC-Net data directly to the client
 def stream(nead_version, hashed_lines, model_class, display_values, timestamp_meaning, null_value, start, end,
            dict_fields):
+
+    # TODO remove test line
+    # start_time = time.time()
+
     # If kwargs 'start' and 'end' passed in URL validate and assign to dict_timestamps
     dict_timestamps = {}
     if '' not in [start, end]:
@@ -872,12 +876,38 @@ def stream(nead_version, hashed_lines, model_class, display_values, timestamp_me
     # Write values that are null in database as the value assigned to 'null_value'
     # Check if 'dict_fields' passed, if so stream aggregate daily data
     if len(dict_fields) > 0:
-        # TODO see if this section can be simplified
+
         queryset = model_class.objects \
             .values_list('day') \
             .annotate(**dict_fields) \
             .filter(**dict_timestamps) \
-            .order_by('day')
+            .order_by('timestamp_first') \
+            .iterator()
+
+        # TODO see if this section can no longer be duplicated
+        for row in queryset:
+            # Call write_row
+            write_row(timestamp_meaning, writer, null_value, row)
+
+            # Yield data (row from database)
+            buffer_.seek(0)
+            data = buffer_.read()
+            buffer_.seek(0)
+            buffer_.truncate()
+            yield data
+
+        # TODO remove test line
+        # exec_time = int(time.time() - start_time)
+        # print('FINISHED. That took {} seconds'.format(exec_time))
+
+    # Elif kwargs 'start' and 'end' passed then apply timestamps filter
+    elif len(dict_timestamps) > 0:
+
+        queryset = model_class.objects \
+                .values_list(*display_values) \
+                .filter(**dict_timestamps) \
+                .order_by('timestamp_iso') \
+                .iterator()
 
         for row in queryset:
             # Call write_row
@@ -890,29 +920,19 @@ def stream(nead_version, hashed_lines, model_class, display_values, timestamp_me
             buffer_.truncate()
             yield data
 
-    # Elif kwargs 'start' and 'end' passed then apply timestamps filter
-    elif len(dict_timestamps) > 0:
-        for row in model_class.objects \
-                .values_list(*display_values) \
-                .filter(**dict_timestamps) \
-                .order_by('timestamp_iso') \
-                .iterator():
-            # Call write_row
-            write_row(timestamp_meaning, writer, null_value, row)
-
-            # Yield data (row from database)
-            buffer_.seek(0)
-            data = buffer_.read()
-            buffer_.seek(0)
-            buffer_.truncate()
-            yield data
+        # TODO remove test line
+        # exec_time = int(time.time() - start_time)
+        # print('FINISHED. That took {} seconds'.format(exec_time))
 
     # Elif retrieve all data currently in database table if 'display_values' passed
     elif len(display_values) > 0:
-        for row in model_class.objects \
+
+        queryset = model_class.objects \
                 .values_list(*display_values) \
                 .order_by('timestamp_iso') \
-                .iterator():
+                .iterator()
+
+        for row in queryset:
             # Call write_row
             write_row(timestamp_meaning, writer, null_value, row)
 
@@ -922,6 +942,10 @@ def stream(nead_version, hashed_lines, model_class, display_values, timestamp_me
             buffer_.seek(0)
             buffer_.truncate()
             yield data
+
+        # TODO remove test line
+        # exec_time = int(time.time() - start_time)
+        # print('FINISHED. That took {} seconds'.format(exec_time))
 
     else:
         raise FieldError("WARNING 'display_values' not passed")

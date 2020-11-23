@@ -359,14 +359,6 @@ def get_csv(request, start='', end='', **kwargs):
     version = ''
     hash_lines = ''
 
-    # TODO validate kwargs['parameter'], could call parameter_http_error(parameter)
-
-    # Assign 'display_values'
-    if kwargs['parameter'] == 'multiple':
-        display_values = ['timestamp_iso'] + returned_parameters
-    else:
-        display_values = ['timestamp_iso'] + [kwargs['parameter']]
-
     # ================================  VALIDATE VARIABLES =========================================================
     # Get and validate the model_class
     try:
@@ -377,6 +369,17 @@ def get_csv(request, start='', end='', **kwargs):
     # Check if timestamp_meaning is valid
     if timestamp_meaning not in ['end', 'beginning']:
         return timestamp_meaning_http_error(timestamp_meaning)
+
+    # If parameter == 'multiple' assign 'display_values' to values in 'timestamp_iso' + 'returned_parameters'
+    # Else assign 'display_values' to parameter passed in URL after checking if parameter exists as field in db table
+    if kwargs['parameter'] == 'multiple':
+        display_values = ['timestamp_iso'] + returned_parameters
+    else:
+        fields = [field.name for field in model_class._meta.get_fields()]
+        if kwargs['parameter'] in fields:
+            display_values = ['timestamp_iso'] + [kwargs['parameter']]
+        else:
+            return parameter_http_error(kwargs['parameter'])
 
     # ===================================  STREAM DATA ===============================================================
     # Create the streaming response object and output csv
