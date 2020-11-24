@@ -298,13 +298,12 @@ def streaming_csv_view_v1(request, start='', end='', **kwargs):
     if len(start) > 0 and len(end) > 0:
         # Check if timestamps are in whole date format: YYYY-MM-DD ('2019-12-04')
         try:
-           get_timestamp_iso_range_day_dict(start, end)
+            get_timestamp_iso_range_day_dict(start, end)
         except ValueError:
             return HttpResponseNotFound("<h1>Page not found</h1>"
                                         "<h3>Incorrect date format for 'start' and/or 'end' timestamps.</h3>"
                                         "<h3>Start and end dates should both be in ISO timestamp "
                                         "date format: YYYY-MM-DD ('2019-12-04')</h3>")
-
 
     # =============================== PROCESS NEAD HEADER ===========================================================
     # Get NEAD header
