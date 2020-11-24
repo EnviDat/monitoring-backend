@@ -9,6 +9,19 @@
 <body>
     <h1>404 Page Not Found</h1>
     <h2>Redirecting in 5 seconds to the Data-API documentation</h2>
+    <p>If page does not redirect please click this link: <a href="https://www.envidat.ch/data-api/gcnet/">https://www.envidat.ch/data-api/gcnet/</a></p>
+
+    <div id="counter" hidden>5</div><script>
+        setInterval(function() {
+            var div = document.querySelector("#counter");
+            var count = div.textContent * 1 - 1;
+            div.textContent = count;
+            if (count <= 0) {
+                window.location.replace("https://www.envidat.ch/data-api/gcnet/");
+            }
+        }, 1000);
+    </script>
+
 </body>
 
 </html>
