@@ -1,9 +1,9 @@
-from django.test import TestCase
+import unittest
 
 from gcnet.helpers import validate_date_gcnet
 
 
-class TestGcnetHelpers(TestCase):
+class TestGcnetHelpers(unittest.TestCase):
 
     def test_validate_date_gcnet(self):
         try:
