@@ -15,6 +15,7 @@ from gcnet.util.constants import Columns
 from .gcnet_data_generator import GCNetTestDataGenerator
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "project.settings")
+
 import django
 django.setup()
 
@@ -190,8 +191,3 @@ class GCNetTestCase(TestCase):
         data = json.loads(response.content)
         print("Check 6 days data imported from NEAD, got {0}".format(len(data)))
         self.assertEqual(len(data), 6, "Models list should not be empty. Ensure gcnet_test_id_seq set to 200")
-
-
-
-
-

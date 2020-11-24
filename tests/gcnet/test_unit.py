@@ -1,8 +1,9 @@
-import unittest
+from django.test import TestCase
 
 from gcnet.helpers import validate_date_gcnet
 
-class TestGcnetHelpers(unittest.TestCase):
+
+class TestGcnetHelpers(TestCase):
 
     def test_validate_date_gcnet(self):
         try:
@@ -11,6 +12,7 @@ class TestGcnetHelpers(unittest.TestCase):
         except:
             date_range = ()
         self.assertEqual(len(date_range), 2, "Dates should be correct")
+
 
 if __name__ == '__main__':
     unittest.main()
