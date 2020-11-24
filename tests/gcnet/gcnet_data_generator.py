@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from django.utils.timezone import make_aware
 import random
 import pytz
 
@@ -16,12 +17,16 @@ class GCNetTestDataGenerator:
 
         id = 1
 
+        W_EPOCH = make_aware(datetime(1601, 1, 1))
+
         while id < 100:
             date = start_date + timedelta(hours=(id - 1))
 
             iso_timestamp = date.isoformat()
             date = datetime.fromisoformat(iso_timestamp)
-            data = {'id': id, Columns.TIMESTAMP_ISO.value: iso_timestamp, Columns.TIMESTAMP.value: date.strftime("%s"),
+            linux_time = round(((date - W_EPOCH).total_seconds())/10)
+            data = {'id': id, Columns.TIMESTAMP_ISO.value: iso_timestamp,
+                    Columns.TIMESTAMP.value: linux_time,
                     Columns.YEAR.value: date.year, Columns.JULIANDAY.value: h.get_julian_day(iso_timestamp),
                     Columns.QUARTERDAY.value: h.get_quarter_day(date), Columns.HALFDAY.value: h.get_half_day(date),
                     Columns.DAY.value: h.get_year_day(date),
@@ -30,7 +35,8 @@ class GCNetTestDataGenerator:
                     Columns.SWOUT.value: round(random.uniform(0, 5.0), 2),
                     Columns.NETRAD.value: round(random.uniform(-10.0, 1.0), 2),
                     Columns.AIRTEMP1.value: round(random.uniform(-20.0, 5.0), 2),
-                    Columns.AIRTEMP2.value: round(random.uniform(-20.0, 5.0), 2)}
+                    Columns.AIRTEMP2.value: round(random.uniform(-20.0, 5.0), 2)
+                    }
 
             test_dataset[id] = data
             id += 1
