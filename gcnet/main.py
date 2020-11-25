@@ -10,8 +10,8 @@ import time
 from datetime import datetime
 import subprocess
 
-from gcnet.fortranprocessor import FortranProcessorFactory
-from gcnet.cleaner import CleanerFactory
+from gcnet.management.commands.importers.processor.fortranprocessor import FortranProcessorFactory
+from gcnet.management.commands.importers.processor.cleaner import CleanerFactory
 from gcnet.writer import Writer
 
 import logging
