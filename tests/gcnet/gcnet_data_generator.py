@@ -1,9 +1,8 @@
 from datetime import datetime, timedelta
 import random
-import pytz
 
 from gcnet.util.constants import Columns
-import gcnet.management.commands.importers.import_helpers as h
+import gcnet.management.commands.importers.helpers.import_date_helpers as h
 
 
 class GCNetTestDataGenerator:

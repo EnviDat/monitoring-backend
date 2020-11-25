@@ -23,11 +23,10 @@
 
 from pathlib import Path
 
-from django.core.management.base import BaseCommand
 from django.utils.timezone import make_aware
-from django.db import DatabaseError, transaction
+from django.db import transaction
 
-from .datvalidator import null_checker, is_null
+from gcnet.management.commands.importers.helpers.datvalidator import null_checker, is_null
 from gcnet.helpers import quarter_day, half_day, year_day, year_week, gcnet_utc_timestamp, gcnet_utc_datetime
 from gcnet.util.constants import Columns
 
