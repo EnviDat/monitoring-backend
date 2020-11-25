@@ -1,6 +1,6 @@
 from io import StringIO
 
-from gcnet.helpers import read_config, get_station_id, get_gcnet_geometry, get_list_comma_delimited, get_fields_string, \
+from gcnet.util.helpers import read_config, get_station_id, get_gcnet_geometry, get_list_comma_delimited, get_fields_string, \
     get_add_value_string, get_scale_factor_string, get_units_string, get_database_fields_data_types_string, \
     get_display_description
 

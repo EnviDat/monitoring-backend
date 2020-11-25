@@ -1,6 +1,6 @@
 import unittest
 
-from gcnet.helpers import validate_date_gcnet
+from gcnet.util.helpers import validate_date_gcnet
 
 
 class TestGcnetHelpers(unittest.TestCase):

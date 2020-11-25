@@ -3,7 +3,7 @@ import numpy as np
 import configparser
 from datetime import datetime
 
-from gcnet.writer import Writer
+from gcnet.util.writer import Writer
 
 import logging
 

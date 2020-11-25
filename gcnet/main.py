@@ -12,7 +12,7 @@ import subprocess
 
 from gcnet.management.commands.importers.processor.fortranprocessor import FortranProcessorFactory
 from gcnet.management.commands.importers.processor.cleaner import CleanerFactory
-from gcnet.writer import Writer
+from gcnet.util.writer import Writer
 
 import logging
 
