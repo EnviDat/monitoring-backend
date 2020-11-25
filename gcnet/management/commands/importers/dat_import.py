@@ -134,7 +134,10 @@ class DatImporter:
                       .format(input_file, line_number, records_written, model_class))
 
         except Exception as e:
+            records_written = 0
             print("Nothing imported, ROLLING BACK: exception ({1}):{0}".format(e, type(e)))
+
+        return str(records_written)
 
     def _dict_from_dat_line(self, line, header):
 

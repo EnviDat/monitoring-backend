@@ -1,11 +1,11 @@
 from django.test import TestCase
 from django.test import Client
 from django.urls import resolve
+from django.db import connection
 import os
 
 from datetime import datetime, timedelta
 import json
-import importlib
 
 from gcnet.management.commands.importers.csv_import import CsvImporter
 from gcnet.management.commands.importers.dat_import import DatImporter
@@ -19,26 +19,32 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "project.settings")
 import django
 django.setup()
 
-from gcnet.models import test as StationTest
+from gcnet.models import test as station_test
 
 
 class GCNetImportTestCase(TestCase):
     databases = '__all__'
 
     @classmethod
-    def setUpTestData(cls):
+    def setUp(cls):
         cls.client = Client()
 
     def tearDown(self):
+        # reset sequence and clean db
+        with connection.cursor() as c:
+            c.execute("DELETE FROM gcnet.gcnet_test;")
+            c.execute("SELECT setval('gcnet.gcnet_test_id_seq', 1, true);")
         pass
 
     def test_csv_import(self):
 
         local_dir = os.path.dirname(__file__)
 
-        # source
+        # set input path
         input_csv = "resources/test_input_01.csv"
         input_path = os.path.join(local_dir, input_csv)
+
+        # get source
         source = open(input_path, 'r')
 
         # config file
@@ -46,11 +52,15 @@ class GCNetImportTestCase(TestCase):
         config = os.path.join(local_dir, test_config)
 
         # model
-        package = importlib.import_module("gcnet.models")
-        model_class = StationTest # getattr(package, 'test')
+        model_class = station_test
 
         # perform import
-        CsvImporter().import_csv(source, input_csv, config, model_class, verbose=False)
+        written_rows = CsvImporter().import_csv(source, input_csv, config, model_class, verbose=False)
+
+        # assert all rows were imported
+        num_lines = self._count_input_lines(input_path)
+        self.assertEqual(num_lines, int(written_rows), "Should retrieve {0} written rows, got {1}."
+                         .format(num_lines, written_rows))
 
         # retrieve data
         start_timestamp = "2019-01-01"
@@ -64,12 +74,10 @@ class GCNetImportTestCase(TestCase):
         # Check that the response is 200 OK.
         self.assertEqual(response.status_code, 200)
 
-        # TODO: Set option for defining id's in the import so we do not affect the sequence in the database
-
         # Check that the response is 200 OK.
         data = json.loads(response.content)
         print("Check 10 days data imported from CSV, got {0}".format(len(data)))
-        self.assertEqual(len(data), 10, "Should retrieve 10 imported rows. Ensure gcnet_test_id_seq set to 200")
+        self.assertEqual(len(data), 10, "Should retrieve 10 imported rows.")
 
     def test_dat_import(self):
 
@@ -85,11 +93,15 @@ class GCNetImportTestCase(TestCase):
         config = os.path.join(local_dir, test_config)
 
         # model
-        package = importlib.import_module("gcnet.models")
-        model_class = StationTest # getattr(package, 'test')
+        model_class = station_test
 
         # perform import
-        DatImporter().import_dat(source, input_csv, config, model_class, verbose=False)
+        written_rows = DatImporter().import_dat(source, input_csv, config, model_class, verbose=False)
+
+        # assert all rows were imported
+        num_lines = self._count_input_lines(input_path)
+        self.assertEqual(num_lines, int(written_rows), "Should retrieve {0} written rows, got {1}."
+                         .format(num_lines, written_rows))
 
         # retrieve data
         start_timestamp = "1996-01-01"
@@ -103,12 +115,10 @@ class GCNetImportTestCase(TestCase):
         # Check that the response is 200 OK.
         self.assertEqual(response.status_code, 200)
 
-        # TODO: Set option for defining id's in the import so we do not affect the sequence in the database
-
         # Check that the response is 200 OK.
         data = json.loads(response.content)
         print("Check 7 days data imported from DAT, got {0}".format(len(data)))
-        self.assertEqual(len(data), 7, "Should retrieve 7 imported rows. Ensure gcnet_test_id_seq set to 200")
+        self.assertEqual(len(data), 7, "Should retrieve 7 imported rows.")
 
     def test_nead_import(self):
 
@@ -124,11 +134,15 @@ class GCNetImportTestCase(TestCase):
         config = os.path.join(local_dir, test_config)
 
         # model
-        package = importlib.import_module("gcnet.models")
-        model_class = getattr(package, 'test')
+        model_class = station_test
 
         # perform import
-        NeadImporter().import_nead(source, input_csv, config, model_class, verbose=False)
+        written_rows = NeadImporter().import_nead(source, input_csv, config, model_class, verbose=False)
+
+        # assert all rows were imported
+        num_lines = self._count_input_lines(input_path)
+        self.assertEqual(num_lines, int(written_rows), "Should retrieve {0} written rows, got {1}."
+                         .format(num_lines, written_rows))
 
         # retrieve data
         start_timestamp = "2014-01-01"
@@ -142,9 +156,13 @@ class GCNetImportTestCase(TestCase):
         # Check that the response is 200 OK.
         self.assertEqual(response.status_code, 200)
 
-        # TODO: Set option for defining id's in the import so we do not affect the sequence in the database
-
         # Check that the response is 200 OK.
         data = json.loads(response.content)
         print("Check 6 days data imported from NEAD, got {0}".format(len(data)))
-        self.assertEqual(len(data), 6, "Should retrieve 6 imported rows. Ensure gcnet_test_id_seq set to 200")
+        self.assertEqual(len(data), 6, "Should retrieve 6 imported rows.")
+
+    @staticmethod
+    def _count_input_lines(input_path):
+        with open(input_path) as f:
+            num_lines = sum(1 for l in f if not (l.startswith('#')) and (len(l.strip()) > 0))
+        return num_lines

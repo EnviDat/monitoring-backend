@@ -62,7 +62,9 @@ class NeadImporter:
                         try:
                             created = True
                             if force:
-                                obj, created = model_class.objects.get_or_create(**line_clean)
+                                key_dict = {Columns.TIMESTAMP.value: line_clean[Columns.TIMESTAMP.value],
+                                            Columns.TIMESTAMP_ISO.value: line_clean[Columns.TIMESTAMP_ISO.value]}
+                                obj, created = model_class.objects.get_or_create(**key_dict, defaults=line_clean)
                             else:
                                 model_class.objects.create(**line_clean)
                             if created:
@@ -78,7 +80,10 @@ class NeadImporter:
                       .format(input_file, line_number, records_written, model_class))
 
         except Exception as e:
+            records_written = 0
             print("Nothing imported, ROLLING BACK: exception ({1}):{0}".format(e, type(e)))
+
+        return str(records_written)
 
     def read_nead_header(self, source):
         config_lines = []

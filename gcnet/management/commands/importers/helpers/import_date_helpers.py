@@ -42,6 +42,5 @@ def get_year_day(date):
 
 
 def get_linux_timestamp(date):
-    W_EPOCH = make_aware(datetime(1601, 1, 1))
-    linux_time = round(((date - W_EPOCH).total_seconds()) / 10)
+    linux_time = round(date.timestamp())
     return linux_time

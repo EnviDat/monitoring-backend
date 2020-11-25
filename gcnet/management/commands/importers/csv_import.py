@@ -81,7 +81,10 @@ class CsvImporter:
                       .format(input_file, line_number, records_written, model_class))
 
         except Exception as e:
+            records_written = 0
             print("Nothing imported, ROLLING BACK: exception ({1}):{0}".format(e, type(e)))
+
+        return str(records_written)
 
     def logger_csv(self, source, input_file, output_file, config, header=DEFAULT_HEADER):
 
