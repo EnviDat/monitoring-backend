@@ -104,7 +104,7 @@ class NeadImporter:
         iso_date = datetime.fromisoformat(row['timestamp'])
         row = {Columns.TIMESTAMP_ISO.value: iso_date,
 
-               Columns.TIMESTAMP.value: iso_date.strftime("%s"),
+               Columns.TIMESTAMP.value: h.get_linux_timestamp(iso_date),
                Columns.YEAR.value: iso_date.year,
                Columns.JULIANDAY.value: h.get_julian_day(row['timestamp']),
                Columns.QUARTERDAY.value: h.get_quarter_day(iso_date),

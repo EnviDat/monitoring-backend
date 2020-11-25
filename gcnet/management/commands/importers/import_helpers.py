@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from django.utils.timezone import make_aware
 import pytz
 
 
@@ -39,3 +40,8 @@ def get_year_week(date):
 def get_year_day(date):
     return "{0}-{1}".format(date.year, date.timetuple().tm_yday)
 
+
+def get_linux_timestamp(date):
+    W_EPOCH = make_aware(datetime(1601, 1, 1))
+    linux_time = round(((date - W_EPOCH).total_seconds()) / 10)
+    return linux_time
