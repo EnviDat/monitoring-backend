@@ -785,7 +785,7 @@ def get_model(model):
 def get_model_url_dict():
     # Read the stations config file
     local_dir = os.path.dirname(__file__)
-    stations_path = os.path.join(local_dir, 'config/stations.ini')
+    stations_path = os.path.join(local_dir, '../config/stations.ini')
     stations_config = read_config(stations_path)
 
     # Check if stations_config exists
