@@ -73,7 +73,9 @@ def execute_process(station_type: str, config_dict: dict, local_dat_file: str):
 
     # Assign input to data returned from raw_to_dat call
     processor = FortranProcessorFactory.get_processor(station_type=station_type, data_url=data_url, raw_path=raw_file,
-                                                      command=process_command, dat_path="gcnet/exec/", start_year=start_year)
+                                                      command=process_command,
+                                                      dat_path="gcnet/management/commands/importers/processor/exec/",
+                                                      start_year=start_year)
     if not processor:
         logger.error("No processor for station type '{0}'".format(station_type))
         return -1

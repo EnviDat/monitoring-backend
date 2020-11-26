@@ -1,18 +1,13 @@
 from django.test import TestCase
 from django.test import Client
-from django.urls import resolve
 from django.db import connection
 import os
 
-from datetime import datetime, timedelta
 import json
 
 from gcnet.management.commands.importers.csv_import import CsvImporter
 from gcnet.management.commands.importers.dat_import import DatImporter
 from gcnet.management.commands.importers.nead_import import NeadImporter
-from gcnet.util.constants import Columns
-
-from .gcnet_data_generator import GCNetTestDataGenerator
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "project.settings")
 
