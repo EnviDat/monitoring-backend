@@ -12,9 +12,6 @@ The GC-Net API is a Django project that imports .dat and pre-processed csv files
 station data, processes and copies the data into a Postgres database, and serves the data
 with a dynamic web API.
 
-NOTE: This version is configured to use two databases to provide redundancy in the event of a
-primary database server failure.
-
 .. image:: ./gc_net_overview.jpg
 
 -------------------------------------
@@ -26,61 +23,6 @@ in Greenland on August 8, 2020 in an accident.
 His dedication made GC-Net possible and he encouraged the developers of this API to ensure
 that the application was robust to guarantee access to the meteorological data.
 Prof. Dr. Steffen was a committed scientist and generous friend and is deeply missed.
-
-----------------------
-Important Information
-----------------------
-
-This version assumes that there are two deployed instances of the project and two databases. There is a
-primary instance and a backup instance. Each instance independently writes new data into its database.
-This allows the project to be "bulletproof" so that if the primary database is down the backup database
-can be read.
-
-Most of the steps in this documentation should be duplicated (one for the primary instance and one for the
-secondary instance.) The exception is the database setup and .env file configuration.
-
-WARNING: gcnet/settings.py LINE 32 DEBUG setting should be False for security reasons before production deployment.
-Leaving this setting at True is only ok during testing and development.
-
-------------
-Installation
-------------
-
-This software requires Python 3.8 and Django, it was developed using PyCharm IDE.
-
-To install gcnet-backend follow these steps:
-
-1. Clone the gcnet-backend repo from Github::
-
-    https://github.com/EnviDat/gcnet-backend.git
-
-
-
-2. It is recommended to create a virtual environment for this project.
-
-   For example::
-
-    python -m venv <path/to/project/<venv-name>
-
-
-3. Activate new virtual environment::
-
-    On macOS and Linux:
-    source <venv_name>/bin/activate
-
-    On Windows:
-    .\<venv_name>\Scripts\activate
-
-
-4. Install the dependencies into your virtual environment::
-
-     pip install -r requirements.txt
-
-
-5. Verify dependencies are installed correctly by running::
-
-    pip list --local
-
 
 ----------------------
 Configuration
@@ -110,9 +52,6 @@ Be sure to modify as needed the directory and/or URL with the input data in stat
 
     csv_data_dir = path/to/input/csv/files
     csv_data_url = https://www.wsl.ch/gcnet/data
-
-    max and min values can be changed for each parameter if using management/commands/importcommand.py .dat file
-    validator and logging
 
 
 **[<STATION ID NUMBER>]**
@@ -156,53 +95,6 @@ Station configuration explanation::
     model = <model to import data into, must match name of model used in gcnet/models.py>
     api = <True> (should be used in API) or <False> (should not be used in API)
 
---------------------
-.env Configuration
---------------------
-
-A .env file must be added to the gcnet directory so that that database and NGINX server operate securely and correctly.
-gcnet/settings.py reads the values from this .env file. This project was developed using a Postgres database.
-If using a local Postgres database the port number will probably be 5432.
-
-**Primary Instance**
-
-1. Create a .env file at gcnet/.env and enter your secret key and database settings ("db" means database).
-The secondary database should use the database settings in the backup instance::
-
-    SECRET_KEY=<secret key>
-
-    DATABASE_NAME=<db_name>
-    DATABASE_USER=<db_user>
-    DATABASE_PASSWORD=<db_password>
-    DATABASE_HOST=<localhost or IP address of server where DB is hosted>
-    DATABASE_PORT=<5432 or whichever port is assigned to DB>
-
-    DB_SECONDARY_NAME=<db_name_backup>
-    DB_SECONDARY_USER=<db_name_backup>
-    DB_SECONDARY_PASSWORD=<db_name_backup>
-    DB_SECONDARY_HOST=<localhost or IP address of server where backup DB is hosted>
-    DB_SECONDARY_PORT=<5432 or whichever port is assigned to backup DB>
-
-**Backup Instance**
-
-1. Create a .env file at gcnet/.env and enter your secret key and database settings
-(db means database). This file is similar to the .env file in the primary database except the settings for
-the two databases must be switched! The first set of database settings should correspond with the backup
-database settings. The secondary database should use the database settings in the primary instance::
-
-    SECRET_KEY=<secret key>
-
-    DATABASE_NAME=<db_name_backup>
-    DATABASE_USER=<db_name_backup>
-    DATABASE_PASSWORD=<db_name_backup>
-    DATABASE_HOST=<localhost or IP address of server where DB is hosted>
-    DATABASE_PORT=<port number that is assigned to DB>
-
-    DB_SECONDARY_NAME=<db_name>
-    DB_SECONDARY_USER=<db_user>
-    DB_SECONDARY_PASSWORD=<db_password>
-    DB_SECONDARY_HOST=<localhost or IP address of server where primary DB is hosted>
-    DB_SECONDARY_PORT=<port number that is assigned to primary DB>
 
 -----------------------
 Create/Modify Database
@@ -226,7 +118,8 @@ gcnet/config/stations.ini
 
 4. Add or remove models from models.py and then rerun the commands listed in number 1 of this section.
 This project assumes that any new stations will inherit fields from the "Station" parent class. The source data
-for the new station must use one the field structures listed in dat_import.py or csv_import.py
+for the new station must use one the field structures listed in the DEFAULT_HEADER of
+gcnet/management/commands/importers/processor/dat_import.py or gcnet/management/commands/importers/processor/csv_import.py
 
 Example new station model in models.py::
 
@@ -242,7 +135,7 @@ After creating Postgres database there are several options for importing data in
 using the commands in the gcnet/management/commands directory. Continuous data imports are documented in the
 section "Continuous Data Processing and Import".
 
-During data imports values that were assigned in the source files as errors or missing  are converted to null
+During data imports values that were assigned in the source files as errors or missing  are converted to null, to change this modify gcnet/fields.py
 
     The erroneous values are: '999', '999.0', '999.00', '999.000', '999.0000', '-999', NaN'
 
@@ -402,7 +295,7 @@ main.py has three arguments::
                 "path" = directory path (csv_data_dir in stations.ini)
                 "url" = URL address hosting files (csv_data_url in stations.ini)
 
-    -l (--localFolder) Load local .dat files from folder and skip processing
+    -l (--localFolder) Load local .dat files from folder and skip processing. Optional argument.
 
 Open terminal and navigate to project directory. Make sure virtual environment is activated.
 
@@ -443,25 +336,10 @@ with Django and other dependencies is activated. Run::
 
     A list of station values by the 'model' keys in the config/stations.ini file should be returned.
 
-    An overview of the API is in the section "API" and in greater detail in "API-Documentation.html".
+    An overview of the API is in the section "API".
 
-    Example valid API calls to "test" table database::
-
-        Data from the 1_v_test.csv import:
-            http://localhost:8000/api/dynamic/test/all/windspeed1/2020-07-27T00:00:00/2020-07-28T00:00:00/
-            http://localhost:8000/api/dynamic/test/quarterday/airtemp1/2020-07-27T00:00:00/2020-07-28T00:00:00/
-
-        Data from the 01c_test.dat import:
-            http://localhost:8000/api/dynamic/test/halfday/netrad/1996-01-01T00:00:00/1996-01-02T00:00:00/
-            http://localhost:8000/api/dynamic/test/all/airtemp2/1996-01-01T00:00:00/1996-01-02T00:00:00/
-
-
-    Other example valid API calls::
-
-        http://localhost:8000/api/dynamic/east_grip_24d/all/windspeed1/1594227600/1596092400/
-
-        http://localhost:8000/api/dynamic/swisscamp_01d/all/windspeed1/2020-07-08T17:00:00/2020-07-09T03:00:00/
-        (do not include the "Z" at the end if an ISO timestamp in Zulu (UTC) time)
+    For a detailed explanation of the API please see https://www.envidat.ch/data-api/gcnet/
+    (The source code for the API documentation website is at gcnet/templates/index.html)
 
 --------------------
 NGINX Configuration
@@ -474,14 +352,14 @@ A helpful guide can be found at (scroll to "NGINX and Waitress")
 https://github.com/Johnnyboycurtis/webproject and accompanying tutorial video at
 https://www.youtube.com/watch?v=BBKq6H9Rm5g
 
-1. Edit ALLOWED_HOSTS in gcnet/settings.py if needed to include server domain name. For example::
+1. Edit ALLOWED_HOST_2  in project/.env if needed to include server domain name. For example::
 
-    ALLOWED_HOSTS = ['localhost', 'wunderbar.server.ch']
+    ALLOWED_HOST_2 = ['wunderbar.server.ch']
 
-2. Edit nginx_waitress/gcnet_nginx.conf::
+2. Edit nginx_waitress/monitoring_nginx.conf::
 
     LINE 8: Edit the port number the site will be served on,
-            it should not be the same port that the database uses in gcnet/.env
+            it should not be the same port that the database uses in project/.env
 
     LINE 11: Edit the server_name to your machine's IP address or FQDN
 
@@ -499,24 +377,20 @@ https://www.youtube.com/watch?v=BBKq6H9Rm5g
         LINE 8:  listen      60;
         LINE 29: proxy_pass http://localhost:8060;
 
-    Then runserver.py should have these settings:
-        LINE 8:  serve(application, host = 'localhost', port='8060')
-
-
 4. Create two directories inside of C:/nginx/ or wherever you downloaded nginx::
 
     Create directories:
         sites-enabled
         sites-available
 
-    Copy gcnet_nginx.conf into the two directories
+    Copy monitoring_nginx.conf into the two directories
 
 
 5. Edit C:/nginx/conf/nginx.conf (or wherever the nginx parent directory is stored on your machine)::
 
     Insert after line with "default_type  application/octet-stream;"
     (the syntax must have the exact gap between include and the path!):
-    include         C:/nginx-1.19.1/sites-enabled/gcnet_nginx.conf;
+    include         C:/nginx-1.19.1/sites-enabled/monitoring_nginx.conf;
 
 
     After line with " #gzip  on;" change the port in this section:
@@ -561,33 +435,15 @@ with Django and other dependencies is activated. Run the server::
 
     http://localhost (or the IP address or domain name used in the conf files)
 
-    To test if the server is working properly browse to a valid API URL: http://<host>/api/models/
-    A list of stations by the 'model' key in config/stations.ini file should be returned.
-
-
 -----
 API
 -----
 
 The API has separate documentation.
 
-Open API-Documentation.html in a browser to view documentation.
+Visit https://www.envidat.ch/data-api/gcnet/ or open gcnet/templates/index.html in a browser to view documentation.
 
-Brief overview::
-
-    Return list of stations by model
-    GET   /api/models/
-
-    Return dynamic data
-    GET   /api/dynamic/{model}/{lod}/{parameter}/{start}/{end}/
-
-    Return derived data
-    GET   /api/derived/{model}/{lod}/{parameter}/{calc}/{start}/{end}/
-
-    Example valid API call:
-    http://<host>/api/dynamic/swisscamp_01d/all/windspeed1/2002-07-08T17:00:00/2002-07-09T03:00:00/
-
-Parameters used in API call::
+Parameters used in API calls::
 
    {parameter}          NAME [UNITS]
 
