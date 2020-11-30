@@ -57,9 +57,9 @@ To install gcnet-backend follow these steps:
     pip list --local
 
 
---------------------
-.env Configuration
---------------------
+--------------------------------------
+Database Setup and .env Configuration
+--------------------------------------
 
 WARNING: Never commit the .env file to GitHub!
 
