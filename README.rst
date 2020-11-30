@@ -11,6 +11,12 @@ Important Information
 WARNING: project/settings.py LINE 30 DEBUG setting should be False for security reasons before production deployment.
 Leaving this setting at True is only ok during testing and development.
 
+-----------------------------------------
+Application Configuration and Operation
+-----------------------------------------
+
+For details on how to operate the GC-Net application, please see the README documentation at gcnet/README.rst
+
 ------------
 Installation
 ------------
@@ -102,13 +108,4 @@ in the database used in the GCNET_DB_xxx settings.
     GCNET_DB_HOST=<localhost or IP address of server where DB is hosted>
     GCNET_DB_PORT=<5432 or whichever port is assigned to DB>
 
-
-
-
-
------------------------------------------
-Application Configuration and Operation
------------------------------------------
-
-For details on how to operate the GC-Net application, please see the README documentation at gcnet/README.rst
 
