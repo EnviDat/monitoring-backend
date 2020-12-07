@@ -156,6 +156,9 @@ To import a file, copy it to the gcnet/data directory and navigate to project di
         
         # import a local NEAD file forcing the import to ignore duplicated records instead breaking on error and rolling back.
         python manage.py import_data -s 08_dye2 -c gcnet/config/stations.ini -i gcnet/data/8_nead_min.csv  -m dye2_08d -f 1
+        
+
+WARNING: Always make sure that the input source data file and model used in an import command are for the same station, otherwise data could be imported into the wrong table.
 
 
 PARAMETERS
