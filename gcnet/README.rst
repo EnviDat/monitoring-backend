@@ -139,138 +139,45 @@ During data imports values that were assigned in the source files as errors or m
 
     The erroneous values are: '999', '999.0', '999.00', '999.000', '999.0000', '-999', NaN'
 
-WARNING: Always make sure that the input source data file and model used in an import command are for the same station,
-otherwise data could be imported into the wrong table.
+
+To import a file, copy it to the gcnet/data directory and navigate to project directory in terminal and run import command (see parameter description below). For example::
+
+        # import a local csv file
+        python manage.py import_data -s 01_swisscamp -c gcnet/config/stations.ini -i gcnet/data/1_2019_min.csv -m swisscamp_01d
+        
+        # import csv from a URL endpoint
+        python manage.py import_data -s 01_swisscamp -c gcnet/config/stations.ini -i https://www.wsl.ch/gcnet/data/1_v.csv -m swisscamp_01d
+        
+        # validate (logging-only) a csv local file
+        python manage.py import_data -s 01_swisscamp -c gcnet/config/stations.ini -i gcnet/data/1_2019_min.csv  -m swisscamp_01d -l True -d gcnet/data/output
+        
+        # import a local dat file
+        python manage.py import_data -s 01_swisscamp -c gcnet/config/stations.ini -i gcnet/data/1_1996_30lines.dat -m swisscamp_01d
+        
+        # import a local NEAD file forcing the import to ignore duplicated records instead breaking on error and rolling back.
+        python manage.py import_data -s 08_dye2 -c gcnet/config/stations.ini -i gcnet/data/8_nead_min.csv  -m dye2_08d -f 1
 
 
+_PARAMETERS_
 
-**Import .dat files with logging and .dat file data validator**
+* **parameter -s, station name** Station number and name, for example "02_crawford".
 
-WARNING: This import command does not check for existing records and should only be used during the initial database setup.
-Attempting to import records that have identical timestamps will result in unique constraint errors.
+* **parameter -m, model name** Django Model to map data import to.
 
-The script for this command is importcommand.py
+* **parameter -c, config file** Path to stations config file (.ini).
 
-1. To import .dat files with logging first create a file called import.log in the gcnet/logs directory.
+* **parameter -i, input file** The supported formats are DAT (.dat), CSV (.csv) and NEAD (.csv) described at https://www.envidat.ch/#/metadata/new-environmental-data-archive-nead-format . The format will be guessed form the input so please use the proper extension for the file name to import. It can be a path to a local file or a URI.
 
-2. Navigate to project directory in terminal and run import command. For example::
+* **parameter -f, force import** Duplicated records (according to timestamp) will lead to complete abort and rollback of the import process ('-f False' by default). If the parameter force is specified as "-f True" then the duplicated records will be ignored and the rest of the rows imported.
 
-        python manage.py importcommand -s 01_swisscamp -c config/stations.ini -i gcnet/data/01c.dat -d gcnet/data -m swisscamp_01d
+The following parameters are **only available for CSV** file format import:
 
-        Be sure the input file is in the gcnet/data directory, otherwise change the argument accordingly.
+* **parameter -l, logging only** If set to True, it will just validate the csv rows to import without saving any data to the database. Information will be shown in the console and written to a temporary file in the indicated output directory ('-d' parameter below).
 
-        Arguments description from parser:
-
-        parser.add_argument(
-            '-s',
-            '--station',
-            required=True,
-            help='Station number and name, for example "02_crawford"'
-        )
-
-        parser.add_argument(
-            '-c',
-            '--config',
-            required=True,
-            help='Path to stations config file'
-        )
-
-        parser.add_argument(
-            '-i',
-            '--inputfile',
-            required=True,
-            help='Path to input file'
-        )
-
-        parser.add_argument(
-            '-d',
-            '--directory',
-            required=True,
-            help='Path to directory which will contain intermediate cleaned csv file'
-        )
-
-        parser.add_argument(
-            '-m',
-            '--model',
-            required=True,
-            help='Django Model to map data import to'
-        )
+* **parameter -d, output directory** If logging only is selected, then the output will be written to a temporary file in this directory.
 
 
-
-**Import .dat files without logging**
-
-The script for this command is dat_import.py
-
-This command only imports records that do not have an existing identical timestamp in the database.
-
-To initially test .dat data import you can use the test data file "01c_test.dat" in the "test" directory.
-The data can be imported into the "test" table of the database::
-
-    python manage.py dat_import -s 01_swisscamp -c config/stations.ini -i test/01c_test.dat -d gcnet/data -m test
-
-    Then open the "test" table to verify the data imported correctly.
-
-
-1. To import .dat files without logging or validation navigate to project directory in terminal. Example command::
-
-    python manage.py dat_import -s 01_swisscamp -c config/stations.ini -i gcnet/data/01c.dat -d gcnet/data -m swisscamp_01d
-
-    Be sure the input file is in the gcnet/data directory, otherwise change the argument accordingly.
-
-    The arguments used in dat_import.py are identical to the arguments used in importcommand.py (see description above).
-
-2. To run several dat_import commands edit the first line in batch/dat_import.bat to the path of your project directory.
-Be sure that the .dat files are in gcnet/data. Otherwise modify the inputfile arguments accordingly.
-Then open a file explorer window and navigate to the project's batch directory, double click on dat_import.bat to execute.
-
-
-**Import csv files**
-
-The script for this command is csv_import.py
-
-This command only imports records that do not have an existing identical timestamp in the database.
-
-To implement logging create csv_import.log in gcnet/logs and uncomment out these lines in csv_import.py::
-
-    # dat_validator(kwargs['config'], row, kwargs['inputfile'])
-
-    # logger.info('{0} successfully imported, {1} new record(s) written in {2}'.format((kwargs['inputfile']),
-    #                                                                                  records_written,
-    #                                                                                  (kwargs['model'])))
-
-To initially test csv data import you can use the test data file "1_v_test.csv" in the "test" directory.
-The data can be imported into the "test" table of the database::
-
-    directory:
-    python manage.py csv_import -s 01_swisscamp -c config/stations.ini -i test/1_v_test.csv -d gcnet/data -m test -t directory
-
-    Then open the "test" table to verify the data imported correctly.
-
-
-1. To import csv files navigate to project directory in terminal. There are two valid (-t) typesource arguments:
-"directory" (file path for (-i) inputfile argument) and "web" (URL for (-i) inputfile argument).
-
-Example commands::
-
-    directory:
-    python manage.py csv_import -s 00_swisscamp_10m -c config/stations.ini -i gcnet/data/0.csv -d gcnet/data -m swisscamp_10m_tower_00d -t directory
-    (Verify the input file is in the gcnet/data directory, otherwise change the argument accordingly.)
-
-    web:
-    python manage.py csv_import -s 23_neem -c config/stations.ini -i https://www.wsl.ch/gcnet/data/23_v.csv -d gcnet/data -m neem_23d -t web
-
-    The arguments used in csv_import.py are almost identical to the arguments used in importcommand.py (see description above)
-    except for an additional "typesource" argument:
-
-    parser.add_argument(
-            '-t',
-            '--typesource',
-            required=True,
-            help='Type of data source. Valid options are a file path: "directory" or a url: "web"'
-        )
-
-2. There are two batch files to run several csv_import commands.
+There are two batch files to run several csv_import commands.
 
     inputfile in directory: Edit the first line in batch/csv_import_directory.bat to the path of your project directory.
     Be sure that the csv files are in gcnet/data. Otherwise modify the inputfile (-i) arguments accordingly.
