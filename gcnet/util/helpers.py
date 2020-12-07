@@ -1,50 +1,20 @@
 import configparser
-import csv
 import importlib
 import os
-import re
 import time
 from pathlib import Path
 import datetime
 from datetime import timezone
 import math
-from datetime import datetime, timedelta
-from io import StringIO
-
-from django.core.exceptions import FieldError
+from datetime import datetime
 from django.db.models import Func, Min, Max, Avg
 from django.http import HttpResponseNotFound
-
-from lwf.helpers import get_timestamp_iso_range_day_dict
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "project.settings")
 
 import django
 
 django.setup()
-
-
-def save_comments(config_file):
-    """Save index and content of comments in config file and return dictionary thereof"""
-    comment_map = {}
-    with open(config_file, 'r') as file:
-        i = 0
-        lines = file.readlines()
-        for line in lines:
-            if re.match(r'^\s*#.*?$', line):
-                comment_map[i] = line
-            i += 1
-    return comment_map
-
-
-def restore_comments(config_file, comment_map):
-    """Write comments to config file at their original indices"""
-    with open(config_file, 'r') as file:
-        lines = file.readlines()
-    for (index, comment) in sorted(comment_map.items()):
-        lines.insert(index, comment)
-    with open(config_file, 'w') as file:
-        file.write(''.join(lines))
 
 
 def read_config(config_path: str):
@@ -249,80 +219,10 @@ def fields_parser(filename, field_phrase='fields', split_str='= '):
                 return fields_list
 
 
-def meteoio_reader(filename, temporary_text):
-    reader = open(filename, 'r')
-    write_text = open(temporary_text, 'r+')
-
-    data_line = data_line_num(filename)
-    for i in range(data_line):
-        reader.readline()
-
-    for line in reader:
-        write_text.write(line)
-
-    reader.close()
-    write_text.close()
-
-
-def meteoio_writer(filename, temporary_csv, temporary_text):
-    field_names = fields_parser(filename)
-
-    # Call text reader
-    meteoio_reader(filename, temporary_text)
-
-    write_file = open(temporary_csv, 'w', newline='\n')
-    writer = csv.writer(write_file)
-    csv_writer = csv.DictWriter(write_file, fieldnames=field_names)
-    csv_writer.writeheader()
-
-    with open(temporary_text, 'r', newline='\n') as reader:
-        for line in reader.readlines():
-            writer.writerow(line.split())
-
-
 def write_file_to_list(file_path):
     with open(file_path, 'r', newline='') as sink:
         file_list = sink.read().splitlines()
     return file_list
-
-
-# Prepend file with multiple lines. All newly inserted lines will begin with '# '
-def prepend_multiple_lines_version(file_name, list_of_lines, version):
-    """Insert given list of strings as a new lines at the beginning of a file"""
-    # Define name of temporary file
-    temp_file = str(file_name) + '.temp'
-    # Open given original file in read mode and temp file in write mode
-    with open(file_name, 'r', newline='\n') as read_obj, open(temp_file, 'w', newline='\n') as write_obj:
-        # Write version as first line
-        write_obj.write('# ' + version + '\n')
-        # Iterate over the given list of strings and write them to temp file as lines, start each line with '#'
-        for line in list_of_lines:
-            write_obj.write('# ' + line + '\n')
-        # Read lines from original file one by one and append them to the temp file
-        for line in read_obj:
-            write_obj.write(line)
-    # Remove original file
-    os.remove(file_name)
-    # Rename temp file as the original file
-    os.rename(temp_file, file_name)
-
-
-# Prepend file with line
-def prepend_line(file_name, line):
-    """ Insert given string as a new line at the beginning of a file """
-    # Define name of temporary file
-    temp_file = file_name + '.temp'
-    # Open original file in read mode and temp file in write mode
-    with open(file_name, 'r', newline='\n') as read_obj, open(temp_file, 'w', newline='\n') as write_obj:
-        # Write given line to the temp file
-        write_obj.write(line)
-        # Read lines from original file one by one and append them to the temp file
-        for line in read_obj:
-            write_obj.write(line)
-    # Remove original file
-    os.remove(file_name)
-    # Rename temp file as the original file
-    os.rename(temp_file, file_name)
 
 
 # Return model fields as comma separated string. Model passed must be model as a class, not just a string.
@@ -330,64 +230,6 @@ def get_model_fields(model):
     fields_list = [f.name for f in model._meta.get_fields()]
     fields_string = ','.join(fields_list)
     return fields_string
-
-
-# Replace substring in a string and return modified string, 'old' is substring to replace with 'new'
-def replace_substring(string, old, new):
-    return string.replace(old, new)
-
-
-# Returns string in between parentheses
-# Example inputting 'latlon (69.5647, 49.3308, 1176)' outputs '69.5647, 49.3308, 1176'
-def get_string_in_parentheses(input_string):
-    start = input_string.find('(') + len('(')
-    end = input_string.find(')')
-    substring = input_string[start:end]
-    return substring
-
-
-# Returns comma delimited string as list
-def convert_string_to_list(string):
-    new_list = [item.strip() for item in string.split(',')]
-    return new_list
-
-
-# Switch two elements of list by index
-def switch_two_elements(input_list, a, b):
-    input_list[a], input_list[b] = input_list[b], input_list[a]
-    return input_list
-
-
-# Returns list of strings to string with space
-def convert_list_to_string(input_list, separator=' '):
-    return separator.join(input_list)
-
-
-# Returns new geometry string in format POINTZ (49.3308 69.5647 1176) i.e. POINTZ (longitude, latidute, altitude)
-# Input strings must starts with 'latlon' and have two or three values in between parentheses.
-# Acceptable input formats:
-# latlon (69.5647, 49.3308, 1176)
-# latlon (69.5647, 49.3308)
-def get_gcnet_geometry(position_string):
-    latlon_string = get_string_in_parentheses(position_string)
-    latlon_list = convert_string_to_list(latlon_string)
-
-    # Switch latitude and longitude from source data
-    longlat_list = switch_two_elements(latlon_list, 0, 1)
-    longlat_string = convert_list_to_string(longlat_list)
-    position_longlat = replace_substring(position_string, latlon_string, longlat_string)
-
-    if len(latlon_list) == 3:
-        point_geometry = replace_substring(position_longlat, 'latlon', 'POINTZ')
-        geometry_no_commas = replace_substring(point_geometry, ',', '')
-        return geometry_no_commas
-    elif len(latlon_list) == 2:
-        point_geometry = replace_substring(position_longlat, 'latlon', 'POINT')
-        geometry_no_commas = replace_substring(point_geometry, ',', '')
-        return geometry_no_commas
-    else:
-        print('WARNING (helpers.py) "{0}" must have two or three items in between parentheses'.format(position_string))
-        return
 
 
 def get_field_value_timestamp(fields_dict):
@@ -721,58 +563,9 @@ def get_station_id(model, stations_config):
         return
 
 
-# Deletes a line from a file and returns the deleted line (if its length > 0)
-# Note that line_number is 0 indexed
-def delete_line(original_file, line_number):
-    """ Delete a line from a file at the given line number """
-    is_skipped = False
-    current_index = 0
-    temp_file = original_file + '.temp'
-    skipped_line = ''
-
-    # Open original file in read only mode and temp file in write mode
-    with open(original_file, 'r') as read_obj, open(temp_file, 'w') as write_obj:
-        # Line by line copy data from original file to dummy file
-        for line in read_obj:
-            # If current line number matches the given line number then skip copying
-            if current_index != line_number:
-                write_obj.write(line)
-            else:
-                is_skipped = True
-                skipped_line = line
-            current_index += 1
-
-    # If any line is skipped then rename temp file as original file
-    if is_skipped:
-        os.remove(original_file)
-        os.rename(temp_file, original_file)
-    else:
-        os.remove(temp_file)
-
-    # If skipped_line has content (length > 1) then return it
-    if len(skipped_line) > 1:
-        return skipped_line
-    else:
-        print('WARNING (helpers.py) line {0} in {1} has no content'.format(line_number, original_file))
-        return
-
-
 def get_unix_timestamp():
     timestamp = int(time.time())
     return timestamp
-
-
-def dt_minus_hour(dt_obj):
-    dt_obj_minus_hour = dt_obj - timedelta(hours=1)
-    return dt_obj_minus_hour
-
-
-def get_nead_queryset_value(x, null_value):
-    if type(x) is datetime:
-        x = dt_minus_hour(x)
-    if x is None:
-        x = null_value
-    return x
 
 
 def get_model(model):
@@ -811,33 +604,6 @@ def get_model_from_config(model_url):
     return model
 
 
-def model_http_error(model):
-    return HttpResponseNotFound("<h1>Page not found</h1>"
-                                "<h3>Non-valid 'model' (station) entered in URL: {0}</h3>"
-                                "<h3>Valid models are listed at: "
-                                "<a href=https://www.envidat.ch/data-api/gcnet/models/ target=_blank>"
-                                "https://www.envidat.ch/data-api/gcnet/models/</a></h3>".format(model))
-
-
-def parameter_http_error(parameter):
-    return HttpResponseNotFound("<h1>Page not found</h1>"
-                                "<h3>Non-valid parameter entered in URL: {0}</h3>"
-                                "<h3>Valid parameters are:</h3>"
-                                "<p>swin, swin_maximum, swout, swout_minimum, netrad, netrad_maximum, airtemp1, airtemp1_maximum,"
-                                " airtemp1_minimum, airtemp2, airtemp2_maximum, airtemp2_minimum, airtemp_cs500air1, "
-                                "airtemp_cs500air2, rh1, rh2, windspeed1, windspeed_u1_maximum, windspeed_u1_stdev,"
-                                "windspeed2, windspeed_u2_maximum, windspeed_u2_stdev, winddir1, winddir2, pressure,"
-                                " sh1, sh2, battvolt, reftemp"
-                                .format(parameter))
-
-
-def timestamp_meaning_http_error(timestamp_meaning):
-    return HttpResponseNotFound("<h1>Page not found</h1>"
-                                "<h3>Non-valid 'timestamp_meaning' kwarg entered in URL: {0}</h3>"
-                                "<h3>Valid 'timestamp_meaning' kwarg options: end, beginning"
-                                .format(timestamp_meaning))
-
-
 # Fill hash_lines with config_buffer lines prepended with '# '
 def get_hashed_lines(config_buffer):
     hash_lines = []
@@ -847,110 +613,6 @@ def get_hashed_lines(config_buffer):
     return hash_lines
 
 
-# Define a generator to stream GC-Net data directly to the client
-def stream(nead_version, hashed_lines, model_class, display_values, timestamp_meaning, null_value, start, end,
-           dict_fields):
-
-    # TODO remove test line
-    # start_time = time.time()
-
-    # If kwargs 'start' and 'end' passed in URL validate and assign to dict_timestamps
-    dict_timestamps = {}
-    if '' not in [start, end]:
-        dict_timestamps = get_timestamp_iso_range_day_dict(start, end)
-
-    # Create buffer_ and writer objects
-    buffer_ = StringIO()
-    writer = csv.writer(buffer_, lineterminator="\n")
-
-    # Check if values passed for 'nead_version' and 'hashed_lines'
-    # If True: Write version and hash_lines to buffer_
-    if len(nead_version) > 0 and len(hashed_lines) > 0:
-        buffer_.writelines(nead_version)
-        buffer_.writelines(hashed_lines)
-    # Else: Write 'display_values' to buffer_
-    else:
-        buffer_.writelines(','.join(display_values) + '\n')
-
-    # Generator expressions to write each row in the queryset by calculating each row as needed and not all at once
-    # Write values that are null in database as the value assigned to 'null_value'
-    # Check if 'dict_fields' passed, if so stream aggregate daily data
-    if len(dict_fields) > 0:
-
-        queryset = model_class.objects \
-            .values_list('day') \
-            .annotate(**dict_fields) \
-            .filter(**dict_timestamps) \
-            .order_by('timestamp_first') \
-            .iterator()
-
-        # TODO see if this section can no longer be duplicated
-        for row in queryset:
-            # Call write_row
-            write_row(timestamp_meaning, writer, null_value, row)
-
-            # Yield data (row from database)
-            buffer_.seek(0)
-            data = buffer_.read()
-            buffer_.seek(0)
-            buffer_.truncate()
-            yield data
-
-        # TODO remove test line
-        # exec_time = int(time.time() - start_time)
-        # print('FINISHED. That took {} seconds'.format(exec_time))
-
-    # Elif kwargs 'start' and 'end' passed then apply timestamps filter
-    elif len(dict_timestamps) > 0:
-
-        queryset = model_class.objects \
-                .values_list(*display_values) \
-                .filter(**dict_timestamps) \
-                .order_by('timestamp_iso') \
-                .iterator()
-
-        for row in queryset:
-            # Call write_row
-            write_row(timestamp_meaning, writer, null_value, row)
-
-            # Yield data (row from database)
-            buffer_.seek(0)
-            data = buffer_.read()
-            buffer_.seek(0)
-            buffer_.truncate()
-            yield data
-
-        # TODO remove test line
-        # exec_time = int(time.time() - start_time)
-        # print('FINISHED. That took {} seconds'.format(exec_time))
-
-    # Elif retrieve all data currently in database table if 'display_values' passed
-    elif len(display_values) > 0:
-
-        queryset = model_class.objects \
-                .values_list(*display_values) \
-                .order_by('timestamp_iso') \
-                .iterator()
-
-        for row in queryset:
-            # Call write_row
-            write_row(timestamp_meaning, writer, null_value, row)
-
-            # Yield data (row from database)
-            buffer_.seek(0)
-            data = buffer_.read()
-            buffer_.seek(0)
-            buffer_.truncate()
-            yield data
-
-        # TODO remove test line
-        # exec_time = int(time.time() - start_time)
-        # print('FINISHED. That took {} seconds'.format(exec_time))
-
-    else:
-        raise FieldError("WARNING 'display_values' not passed")
-
-
 # Assign null_value
 def get_null_value(nodata_kwargs):
     if nodata_kwargs == 'empty':
@@ -958,21 +620,6 @@ def get_null_value(nodata_kwargs):
     else:
         null_value = nodata_kwargs
     return null_value
-
-
-# Write row and adjust timestamp_meaning
-def write_row(timestamp_meaning, writer, null_value, row):
-    # Write timestamps as they are in database if 'timestamp_meaning' == 'end'
-    if timestamp_meaning == 'end':
-        writer.writerow(null_value if x is None else x for x in row)
-
-    # Write timestamps one hour behind how they are in database if 'timestamp_meaning' == 'beginning'
-    elif timestamp_meaning == 'beginning':
-        writer.writerow(get_nead_queryset_value(x, null_value) for x in row)
-
-    else:
-        return HttpResponseNotFound("<h1>WARNING non-valid 'timestamp_meaning' kwarg. Must be either 'beginning' or "
-                                    "'end'</h3>")
 
 
 # Get 'dict_fields' for aggregate views
