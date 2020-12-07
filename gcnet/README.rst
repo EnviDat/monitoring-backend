@@ -158,23 +158,23 @@ To import a file, copy it to the gcnet/data directory and navigate to project di
         python manage.py import_data -s 08_dye2 -c gcnet/config/stations.ini -i gcnet/data/8_nead_min.csv  -m dye2_08d -f 1
 
 
-_PARAMETERS_
+PARAMETERS
+----------
+* **parameter -s, station name:** Station number and name, for example "02_crawford".
 
-* **parameter -s, station name** Station number and name, for example "02_crawford".
+* **parameter -m, model name:** Django Model to map data import to.
 
-* **parameter -m, model name** Django Model to map data import to.
+* **parameter -c, config file:** Path to stations config file (.ini).
 
-* **parameter -c, config file** Path to stations config file (.ini).
+* **parameter -i, input file:** The supported formats are DAT (.dat), CSV (.csv) and NEAD (.csv) described at https://www.envidat.ch/#/metadata/new-environmental-data-archive-nead-format . The format will be guessed form the input so please use the proper extension for the file name to import. It can be a path to a local file or a URI.
 
-* **parameter -i, input file** The supported formats are DAT (.dat), CSV (.csv) and NEAD (.csv) described at https://www.envidat.ch/#/metadata/new-environmental-data-archive-nead-format . The format will be guessed form the input so please use the proper extension for the file name to import. It can be a path to a local file or a URI.
-
-* **parameter -f, force import** Duplicated records (according to timestamp) will lead to complete abort and rollback of the import process ('-f False' by default). If the parameter force is specified as "-f True" then the duplicated records will be ignored and the rest of the rows imported.
+* **parameter -f, force import:** Duplicated records (according to timestamp) will lead to complete abort and rollback of the import process ('-f False' by default). If the parameter force is specified as "-f True" then the duplicated records will be ignored and the rest of the rows imported.
 
 The following parameters are **only available for CSV** file format import:
 
-* **parameter -l, logging only** If set to True, it will just validate the csv rows to import without saving any data to the database. Information will be shown in the console and written to a temporary file in the indicated output directory ('-d' parameter below).
+* **parameter -l, logging only:** If set to True, it will just validate the csv rows to import without saving any data to the database. Information will be shown in the console and written to a temporary file in the indicated output directory ('-d' parameter below).
 
-* **parameter -d, output directory** If logging only is selected, then the output will be written to a temporary file in this directory.
+* **parameter -d, output directory:** If logging only is selected, then the output will be written to a temporary file in this directory.
 
 
 There are two batch files to run several csv_import commands.
