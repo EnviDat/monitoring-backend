@@ -169,7 +169,7 @@ PARAMETERS
 
 * **parameter -c, config file:** Path to stations config file (.ini).
 
-* **parameter -i, input file:** The supported formats are DAT (.dat), CSV (.csv) and NEAD (.csv) described at https://www.envidat.ch/#/metadata/new-environmental-data-archive-nead-format . The format will be guessed form the input so please use the proper extension for the file name to import. It can be a path to a local file or a URI.
+* **parameter -i, input file:** The supported formats are DAT (.dat), CSV (.csv) and NEAD (.csv) described at https://www.envidat.ch/#/metadata/new-environmental-data-archive-nead-format . The format will be guessed from the input so please use the proper extension for the file name to import. It can be a path to a local file or a URL.
 
 * **parameter -f, force import:** Duplicated records (according to timestamp) will lead to complete abort and rollback of the import process ('-f False' by default). If the parameter force is specified as "-f True" then the duplicated records will be ignored and the rest of the rows imported.
 
