@@ -131,7 +131,7 @@ Example new station model in models.py::
 Data Import Commands
 --------------------
 
-After creating Postgres database there are several options for importing data into the GC-Net Django Postgres database
+After creating a Postgres database there are several options for importing data into the GC-Net Django Postgres database
 using the commands in the gcnet/management/commands directory. Continuous data imports are documented in the
 section "Continuous Data Processing and Import".
 
