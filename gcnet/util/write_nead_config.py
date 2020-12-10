@@ -1,9 +1,10 @@
 from io import StringIO
 
 from gcnet.util.geometry import get_gcnet_geometry
-from gcnet.util.helpers import read_config, get_station_id, get_list_comma_delimited, get_fields_string, \
-    get_add_value_string, get_scale_factor_string, get_units_string, get_database_fields_data_types_string, \
-    get_display_description
+from gcnet.util.helpers import get_station_id, get_list_comma_delimited
+from gcnet.util.nead_header_strings import get_fields_string, get_add_value_string, get_scale_factor_string, \
+    get_units_string, get_display_description, get_database_fields_data_types_string
+from gcnet.util.views_helpers import read_config
 
 
 def write_nead_config(config_path, model, stringnull='', delimiter=',', ts_meaning='end'):
