@@ -11,7 +11,7 @@ def read_config(config_path: str):
     config.read(config_file)
 
     if len(config.sections()) < 1:
-        print("Invalid config file, missing sections")
+        print("WARNING (write_nead.py): Invalid config file, missing sections")
         return None
 
     return config
@@ -65,3 +65,22 @@ def write_nead(data_frame, nead_config, output_path):
     # Append data to header, omit indices, omit dataframe header, and output columns in fields_list
     with open(nead_output, 'a') as nead:
         data_frame.to_csv(nead, index=False, header=False, columns=fields_list, line_terminator='\n')
+
+
+# Function returns list of float values from 'config_key' in the 'FIELDS' section of 'nead_config'
+# Limitation: Should be used for numeric values only
+# Arguments:
+#   nead_config   string with Path to NEAD configuration file, ex. r'C:\Users\Icy\gcnet\config\nead_header.ini'
+#   config_key    string with NEAD configuration file key in 'FIElDS' section, for example 'add_value' or 'scale_factor'
+def get_config_list(nead_config, config_key):
+
+    # Read nead_config into conf
+    conf = read_config(Path(nead_config))
+
+    # Assign values from nead_config 'config_key', convert to list in values_list
+    values_string = conf.get('FIELDS', config_key)
+    values_list = values_string.split(',')
+
+    values_list_float = [float(elem) for elem in values_list]
+
+    return values_list_float
