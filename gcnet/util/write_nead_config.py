@@ -1,10 +1,27 @@
 from io import StringIO
 
 from gcnet.util.geometry import get_gcnet_geometry
-from gcnet.util.helpers import get_station_id, get_list_comma_delimited
 from gcnet.util.nead_header_strings import get_fields_string, get_add_value_string, get_scale_factor_string, \
     get_units_string, get_display_description, get_database_fields_data_types_string
 from gcnet.util.views_helpers import read_config
+
+
+# Returns 'station_id' from stations config by mapping kwargs['model'] to station_id_dict
+def get_station_id(model, stations_config):
+    station_id_dict = {stations_config.get(s, 'model_url', fallback=''): s
+                       for s in stations_config.sections() if s != 'DEFAULT'}
+
+    try:
+        station_id = station_id_dict[model]
+        return station_id
+    except KeyError:
+        print('WARNING (write_nead_config.py) {0} not a valid model'.format(model))
+        return
+
+
+def get_list_comma_delimited(string):
+    comma_delimited_list = string.split(',')
+    return comma_delimited_list
 
 
 def write_nead_config(config_path, model, stringnull='', delimiter=',', ts_meaning='end'):

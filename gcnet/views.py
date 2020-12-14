@@ -4,16 +4,12 @@ from django.core.exceptions import FieldError
 from django.http import JsonResponse, StreamingHttpResponse, HttpResponseNotFound
 from django.shortcuts import render
 
-from gcnet.util.helpers import get_hashed_lines, get_null_value, get_dict_fields
 from gcnet.util.http_errors import model_http_error, parameter_http_error, timestamp_meaning_http_error
-from gcnet.util.stream import stream
-from gcnet.util.views_helpers import validate_date_gcnet, read_config, get_model
+from gcnet.util.stream import stream, get_timestamp_iso_range_day_dict
+from gcnet.util.views_helpers import validate_date_gcnet, read_config, get_model, get_hashed_lines, get_null_value, \
+    get_dict_fields
 from gcnet.util.write_nead_config import write_nead_config
 
-# Returns list of stations in stations.ini config file by their 'model' (string that is the name of the station
-# model in gcnet/models.py)
-# These model strings are used in the API calls (<str:model>): get_dynamic_data() and get_derived_data()
-from lwf.helpers import get_timestamp_iso_range_day_dict
 
 # Declare variable 'returned_parameters' to specify which fields should be return from database table
 returned_parameters = ['swin',
@@ -52,6 +48,9 @@ def index(request):
     return render(request, 'index.html')
 
 
+# Returns list of stations in stations.ini config file by their 'model' (string that is the name of the station
+# model in gcnet/models.py)
+# These model strings are used in the API calls (<str:model>): get_dynamic_data() and get_derived_data()
 def get_model_stations(request):
     # TODO make sure not repeated in get_model_url_dict()
     # Read the stations config file

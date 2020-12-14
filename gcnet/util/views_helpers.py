@@ -1,14 +1,16 @@
 # ==========================================  VIEWS HELPERS ===========================================================
+
 import os
 from datetime import datetime
 import importlib
-
+from django.db.models import Min, Max, Avg, Func
 from django.http import HttpResponseNotFound
 from pathlib import Path
 import configparser
 
 
 # ------------------------------------------- Read Config ------------------------------------------------------------
+
 def read_config(config_path: str):
     config_file = Path(config_path)
 
@@ -90,3 +92,43 @@ def get_model_from_config(model_url):
     if model_url in model_dict:
         model = model_dict[model_url]
     return model
+
+
+# ----------------------------------------  Streaming Helpers ---------------------------------------------------------
+
+# Assign null_value
+def get_null_value(nodata_kwargs):
+    if nodata_kwargs == 'empty':
+        null_value = ''
+    else:
+        null_value = nodata_kwargs
+    return null_value
+
+
+# Fill hash_lines with config_buffer lines prepended with '# '
+def get_hashed_lines(config_buffer):
+    hash_lines = []
+    for line in config_buffer.replace('\r\n', '\n').split('\n'):
+        line = '# ' + line + '\n'
+        hash_lines.append(line)
+    return hash_lines
+
+
+# --------------------------------------- Aggregate View Helpers ------------------------------------------------------
+
+class Round2(Func):
+    function = "ROUND"
+    template = "%(function)s(%(expressions)s::numeric, 2)"
+
+
+# Get 'dict_fields' for aggregate views
+def get_dict_fields(display_values):
+    dict_fields = {'timestamp_first': Min('timestamp_iso'),
+                   'timestamp_last': Max('timestamp_iso')}
+
+    for parameter in display_values:
+        dict_fields[parameter + '_min'] = Min(parameter)
+        dict_fields[parameter + '_max'] = Max(parameter)
+        dict_fields[parameter + '_avg'] = Round2(Avg(parameter))
+
+    return dict_fields

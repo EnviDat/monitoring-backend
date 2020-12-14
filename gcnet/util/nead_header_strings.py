@@ -42,7 +42,7 @@ def get_fields_string(database_fields_list):
         if item in fields_dict:
             fields_list.append(fields_dict[item])
         else:
-            print('WARNING (helpers.py) "{0}" not a valid key in fields_dict'.format(item))
+            print('WARNING (nead_header_strings.py) "{0}" not a valid key in fields_dict'.format(item))
             return
 
     fields_string = ','.join(fields_list)
@@ -92,7 +92,7 @@ def get_add_value_string(database_fields_list):
         if item in add_value_dict:
             add_value_list.append(add_value_dict[item])
         else:
-            print('WARNING (helpers.py) "{0}" not a valid key in add_value_dict'.format(item))
+            print('WARNING (nead_header_strings.py) "{0}" not a valid key in add_value_dict'.format(item))
             return
 
     # Convert numbers in add_value_list into strings and assign to converted_list
@@ -146,7 +146,7 @@ def get_scale_factor_string(database_fields_list):
         if item in scale_factor_dict:
             scale_factor_list.append(scale_factor_dict[item])
         else:
-            print('WARNING (helpers.py) "{0}" not a valid key in scale_factor_dict'.format(item))
+            print('WARNING (nead_header_strings.py) "{0}" not a valid key in scale_factor_dict'.format(item))
             return
 
     # Convert numbers in scale_factor_list into strings and assign to converted_list
@@ -199,7 +199,7 @@ def get_units_string(database_fields_list):
         if item in units_dict:
             units_list.append(units_dict[item])
         else:
-            print('WARNING (helpers.py) "{0}" not a valid key in units_dict'.format(item))
+            print('WARNING (nead_header_strings.py) "{0}" not a valid key in units_dict'.format(item))
             return
 
     # Create comma separated string from display_units_list
@@ -250,7 +250,7 @@ def get_database_fields_data_types_string(database_fields_list):
         if item in database_fields_data_types_dict:
             database_fields_data_types_list.append(database_fields_data_types_dict[item])
         else:
-            print('WARNING (helpers.py) "{0}" not a valid key in database_fields_data_types_dict'.format(item))
+            print('WARNING (nead_header_strings.py) "{0}" not a valid key in database_fields_data_types_dict'.format(item))
             return
 
     # Create comma separated string from display_units_list
@@ -301,7 +301,7 @@ def get_display_description(database_fields_list):
         if item in display_description_dict:
             display_description_list.append(display_description_dict[item])
         else:
-            print('WARNING (helpers.py) "{0}" not a valid key in display_description_dict'.format(item))
+            print('WARNING (nead_header_strings.py) "{0}" not a valid key in display_description_dict'.format(item))
             return
 
     display_description_string = ','.join(display_description_list)
