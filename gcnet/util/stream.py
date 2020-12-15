@@ -40,7 +40,6 @@ def stream(nead_version, hashed_lines, model_class, display_values, timestamp_me
             .order_by('timestamp_first') \
             .iterator()
 
-        # TODO see if this section can no longer be duplicated
         for row in queryset:
             # Call write_row
             write_row(timestamp_meaning, writer, null_value, row)
