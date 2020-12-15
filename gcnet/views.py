@@ -4,7 +4,8 @@ from django.core.exceptions import FieldError
 from django.http import JsonResponse, StreamingHttpResponse, HttpResponseNotFound
 from django.shortcuts import render
 
-from gcnet.util.http_errors import model_http_error, parameter_http_error, timestamp_meaning_http_error
+from gcnet.util.http_errors import model_http_error, parameter_http_error, timestamp_meaning_http_error, \
+    station_http_error, timestamp_http_error, date_http_error
 from gcnet.util.stream import stream, get_timestamp_iso_range_day_dict
 from gcnet.util.views_helpers import validate_date_gcnet, read_config, get_model, get_hashed_lines, get_null_value, \
     get_dict_fields
@@ -52,7 +53,6 @@ def index(request):
 # model in gcnet/models.py)
 # These model strings are used in the API calls (<str:model>): get_dynamic_data() and get_derived_data()
 def get_model_stations(request):
-    # TODO make sure not repeated in get_model_url_dict()
     # Read the stations config file
     local_dir = os.path.dirname(__file__)
     stations_path = os.path.join(local_dir, 'config/stations.ini')
@@ -60,7 +60,7 @@ def get_model_stations(request):
 
     # Check if stations_config exists
     if not stations_config:
-        return HttpResponseNotFound("<h1>Not found: station config doesn't exist</h1>")
+        return station_http_error()
 
     # Assign variable to contain model_id list for all stations in stations.ini
     model_stations = []
@@ -68,7 +68,6 @@ def get_model_stations(request):
     # Assign variables to stations_config values and loop through each station in stations_config, create list of
     # model_id strings for each station
     for section in stations_config.sections():
-
         if stations_config.get(section, 'api') == 'True':
             model_id = stations_config.get(section, 'model_url')
             model_stations.append(model_id)
@@ -98,11 +97,7 @@ def get_json_data(request, **kwargs):
     try:
         dict_timestamps = validate_date_gcnet(start, end)
     except ValueError:
-        return HttpResponseNotFound("<h1>Page not found</h1>"
-                                    "<h3>Incorrect date format for 'start' and/or 'end' timestamps.</h3>"
-                                    "<h3>Start and end dates should both be in ISO timestamp "
-                                    "date and time format: YYYY-MM-DDTHH:MM:SS ('2020-10-20T17:00:00')</h3>"
-                                    )
+        return timestamp_http_error()
 
     # Get and validate the model
     try:
@@ -155,10 +150,7 @@ def get_aggregate_data(request, timestamp_meaning='', nodata='', **kwargs):
         dict_timestamps = get_timestamp_iso_range_day_dict(start, end)
         # print(dict_timestamps)
     except ValueError:
-        return HttpResponseNotFound("<h1>Page not found</h1>"
-                                    "<h3>Incorrect date format for 'start' and/or 'end' timestamps.</h3>"
-                                    "<h3>Start and end dates should both be in either ISO timestamp "
-                                    "date format: YYYY-MM-DD ('2019-12-04')</h3>")
+        return date_http_error()
 
     # NOTE: This section currently commented out because only daily aggregate values are currently returned
     # # Check which level of detail was passed
@@ -246,16 +238,6 @@ def get_aggregate_data(request, timestamp_meaning='', nodata='', **kwargs):
         return JsonResponse(queryset, safe=False)
 
 
-class Echo:
-    """An object that implements just the write method of the file-like
-    interface.
-    """
-
-    def write(self, value):
-        """Write the value by returning it, instead of storing in a buffer."""
-        return value
-
-
 # Streams GC-Net station data to csv file in NEAD format
 # kwargs['model'] corresponds to the station names that are listed in models.py
 # kwargs['nodata'] assigns string to populate null values in database
@@ -300,10 +282,7 @@ def streaming_csv_view_v1(request, start='', end='', **kwargs):
         try:
             get_timestamp_iso_range_day_dict(start, end)
         except ValueError:
-            return HttpResponseNotFound("<h1>Page not found</h1>"
-                                        "<h3>Incorrect date format for 'start' and/or 'end' timestamps.</h3>"
-                                        "<h3>Start and end dates should both be in ISO timestamp "
-                                        "date format: YYYY-MM-DD ('2019-12-04')</h3>")
+            return date_http_error()
 
     # =============================== PROCESS NEAD HEADER ===========================================================
     # Get NEAD header

@@ -1,6 +1,30 @@
 # =================================  NEAD HEADER STRINGS ==============================================================
 
 
+# Returns comma separated string that will be written in a NEAD header
+# Arguments:
+#   db_fields_list    list of database_fields from the NEAD config file that are compared to the keys in nead_dict
+#   nead_dict         dictionary used to retrieve values whose keys match the elements in db_fields_list
+def get_nead_string(db_fields_list, nead_dict):
+
+    nead_list = []
+
+    for item in db_fields_list:
+        if item in nead_dict:
+            nead_list.append(nead_dict[item])
+        else:
+            print('WARNING (nead_header_strings.py) "{0}" not a valid key in {1}'.format(item, nead_dict))
+            return
+
+    # Convert any numbers in nead_list into strings and assign to converted_list
+    converted_list = [str(element) for element in nead_list]
+
+    # Create comma separated string from converted_list
+    nead_string = ','.join(converted_list)
+
+    return nead_string
+
+
 # Returns 'fields' comma separated string for header config by mapping 'database_fields_list' to fields_dict
 def get_fields_string(database_fields_list):
     fields_dict = {
@@ -36,16 +60,7 @@ def get_fields_string(database_fields_list):
         'reftemp': 'TA5'
     }
 
-    fields_list = []
-
-    for item in database_fields_list:
-        if item in fields_dict:
-            fields_list.append(fields_dict[item])
-        else:
-            print('WARNING (nead_header_strings.py) "{0}" not a valid key in fields_dict'.format(item))
-            return
-
-    fields_string = ','.join(fields_list)
+    fields_string = get_nead_string(database_fields_list, fields_dict)
 
     return fields_string
 
@@ -86,20 +101,7 @@ def get_add_value_string(database_fields_list):
         'reftemp': 273.15
     }
 
-    add_value_list = []
-
-    for item in database_fields_list:
-        if item in add_value_dict:
-            add_value_list.append(add_value_dict[item])
-        else:
-            print('WARNING (nead_header_strings.py) "{0}" not a valid key in add_value_dict'.format(item))
-            return
-
-    # Convert numbers in add_value_list into strings and assign to converted_list
-    converted_list = [str(element) for element in add_value_list]
-
-    # Create comma separated string from converted_list
-    add_value_string = ','.join(converted_list)
+    add_value_string = get_nead_string(database_fields_list, add_value_dict)
 
     return add_value_string
 
@@ -140,20 +142,7 @@ def get_scale_factor_string(database_fields_list):
         'reftemp': 1
     }
 
-    scale_factor_list = []
-
-    for item in database_fields_list:
-        if item in scale_factor_dict:
-            scale_factor_list.append(scale_factor_dict[item])
-        else:
-            print('WARNING (nead_header_strings.py) "{0}" not a valid key in scale_factor_dict'.format(item))
-            return
-
-    # Convert numbers in scale_factor_list into strings and assign to converted_list
-    converted_list = [str(element) for element in scale_factor_list]
-
-    # Create comma separated string from converted_list
-    scale_factor_string = ','.join(converted_list)
+    scale_factor_string = get_nead_string(database_fields_list, scale_factor_dict)
 
     return scale_factor_string
 
@@ -193,17 +182,7 @@ def get_units_string(database_fields_list):
         'reftemp': 'Degrees C'
     }
 
-    units_list = []
-
-    for item in database_fields_list:
-        if item in units_dict:
-            units_list.append(units_dict[item])
-        else:
-            print('WARNING (nead_header_strings.py) "{0}" not a valid key in units_dict'.format(item))
-            return
-
-    # Create comma separated string from display_units_list
-    units_string = ','.join(units_list)
+    units_string = get_nead_string(database_fields_list, units_dict)
 
     return units_string
 
@@ -244,17 +223,7 @@ def get_database_fields_data_types_string(database_fields_list):
         'reftemp': 'real'
     }
 
-    database_fields_data_types_list = []
-
-    for item in database_fields_list:
-        if item in database_fields_data_types_dict:
-            database_fields_data_types_list.append(database_fields_data_types_dict[item])
-        else:
-            print('WARNING (nead_header_strings.py) "{0}" not a valid key in database_fields_data_types_dict'.format(item))
-            return
-
-    # Create comma separated string from display_units_list
-    display_units_string = ','.join(database_fields_data_types_list)
+    display_units_string = get_nead_string(database_fields_list, database_fields_data_types_dict)
 
     return display_units_string
 
@@ -295,15 +264,6 @@ def get_display_description(database_fields_list):
         'reftemp': 'ref_temperature'
     }
 
-    display_description_list = []
-
-    for item in database_fields_list:
-        if item in display_description_dict:
-            display_description_list.append(display_description_dict[item])
-        else:
-            print('WARNING (nead_header_strings.py) "{0}" not a valid key in display_description_dict'.format(item))
-            return
-
-    display_description_string = ','.join(display_description_list)
+    display_description_string = get_nead_string(database_fields_list, display_description_dict)
 
     return display_description_string
