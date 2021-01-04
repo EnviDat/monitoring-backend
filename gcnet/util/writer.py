@@ -11,6 +11,7 @@ logging.basicConfig()
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
+
 # TODO Review variable names and replace by more intuitive names and use underscores
 class Writer(object):
 
@@ -115,14 +116,13 @@ class Writer(object):
             "rad": ['timestamp_iso', 'timestamp', 'SWin', 'SWout', 'NetRad'],
             "sheight": ['timestamp_iso', 'timestamp', 'Sheight1', 'Sheight2'],
             "stemp": ['timestamp_iso', 'timestamp', 'SnowT1', 'SnowT2', 'SnowT3', 'SnowT4', 'SnowT5',
-                    'SnowT6', 'SnowT7', 'SnowT8', 'SnowT9', 'SnowT10'],
+                      'SnowT6', 'SnowT7', 'SnowT8', 'SnowT9', 'SnowT10'],
             "ws": ['timestamp_iso', 'timestamp', 'WS1', 'WS2'],
             "wd": ['timestamp_iso', 'timestamp', 'WD1', 'WD2'],
             "press": ['timestamp_iso', 'timestamp', 'press'],
             "battvolt": ['timestamp_iso', 'timestamp', 'BattVolt']
         }
         for group in self.groups:
-
             cols = cols_dict[group]
 
             # Limit data_subset to particular columns
@@ -218,7 +218,12 @@ class Writer(object):
                     if doy_now > csv_short_days:
                         time_range = time_range[(doyv >= doy_now - csv_short_days) & (yrv == yearn), :]
                     else:
-                        time_range = time_range[(doyv >= 365 - csv_short_days + doy_now) & (yrv >= yearn - 1), :]
+                        # TODO fix 365 to account for leap years which have 366 days
+                        time_range = time_range[(  # last days in year within csv_short_days range
+                                                   (doyv >= 365 - csv_short_days + doy_now)
+                                                    # first days in year within csv_short_days range
+                                                   | (doyv <= csv_short_days - doy_now)
+                                                   & (yrv >= yearn - 1)), :]
                 else:
                     time_range = np.array([])
                 new_filename = Path(self.csv_file_path + str(stations[i]) + '_v.csv')
