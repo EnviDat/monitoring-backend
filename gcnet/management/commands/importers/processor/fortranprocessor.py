@@ -1,8 +1,9 @@
 import subprocess
+import urllib.request
+
 from pathlib import Path
 import warnings
 import numpy as np
-import requests
 
 import logging
 
@@ -29,9 +30,11 @@ class FortranProcessor(object):
         if dat_file_path:
             logger.info("Skipping raw file processing, reading dat file from {0}".format(dat_file_path))
         else:
-            # Download ARGOS data and write 'LATEST_<station_type>.raw' to raw_path directory
-            r = requests.get(self.data_url, allow_redirects=True)
-            open(self.raw_path, 'wb').write(r.content)
+            # Download RAW data and write 'LATEST_<station_type>.raw' to raw_path directory
+            with urllib.request.urlopen(self.data_url) as response:
+                data = response.read()
+            open(self.raw_path, 'wb').write(data)
+
             logger.info("Wrote {0} raw file".format(self.station_type))
 
             try:
@@ -87,8 +90,9 @@ class ArgosFortranProcessor(FortranProcessor):
     def _filter_by_year(self, np_array):
         logger.info("Filtering outputs from year {0}".format(self.start_year))
         np_array_filtered = np_array[np.where(np_array[:, 0] >= float(self.start_year))]
-        logger.info("Removed {0} records older than year {1} (originally {2})".format(len(np_array) - len(np_array_filtered),
-                                                                     self.start_year, len(np_array)))
+        logger.info(
+            "Removed {0} records older than year {1} (originally {2})".format(len(np_array) - len(np_array_filtered),
+                                                                              self.start_year, len(np_array)))
         return np_array_filtered
 
 
@@ -103,9 +107,11 @@ class GoesFortranProcessor(FortranProcessor):
     def _filter_by_year(self, np_array):
         logger.info("Filtering outputs from year {0}".format(self.start_year))
         np_array_filtered = np_array[np.where(np_array[:, 2] >= float(self.start_year))]
-        logger.info("Removed {0} records older than year {1} (originally {2})".format(len(np_array) - len(np_array_filtered),
-                                                                     self.start_year, len(np_array)))
+        logger.info(
+            "Removed {0} records older than year {1} (originally {2})".format(len(np_array) - len(np_array_filtered),
+                                                                              self.start_year, len(np_array)))
         return np_array_filtered
+
 
 class FortranProcessorFactory(object):
 

@@ -222,7 +222,7 @@ class Writer(object):
                         time_range = time_range[(  # last days in year within csv_short_days range
                                                    (doyv >= 365 - csv_short_days + doy_now)
                                                     # first days in year within csv_short_days range
-                                                   | (doyv <= csv_short_days - doy_now)
+                                                   | (doyv <= (csv_short_days - doy_now) + 1)
                                                    & (yrv >= yearn - 1)), :]
                 else:
                     time_range = np.array([])
