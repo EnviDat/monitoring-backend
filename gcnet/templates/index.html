@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <title>GC-Net API</title>
 </head>
@@ -39,6 +40,36 @@
     .start_end_light {background-color: lightblue;}
     .parameter  {background-color: #B689DC;}
     .parameter_light  {background-color: #DAC5F7}
+
+    #toc_container {
+    background: #f9f9f9 none repeat scroll 0 0;
+    border: 1px solid #aaa;
+    display: table;
+    font-size: 95%;
+    margin-bottom: 1em;
+    padding: 20px;
+    width: auto;
+}
+
+    .toc_title {
+    font-weight: 700;
+    text-align: center;
+    font-size: x-large;
+    }
+
+    #toc_container li, #toc_container ul, #toc_container ul li {
+    list-style: outside none none !important;
+    }
+
+    #toc_container ul {
+    margin-left: 0;
+    }
+
+     #toc_container li {
+    font-size: medium;
+    margin-right: 2em;
+    }
+
 </style>
 
 <body>
@@ -46,6 +77,19 @@
         <h1>GC-Net API Documentation</h1>
         <br>
     </div>
+
+    <div>
+       <p> Greenland Climate Network (GC-Net) Automated Weather Stations (AWS) collect climate information on
+           Greenland's ice sheet. They are equipped with communication satellite transmitters that enable near real time
+           monitoring of weather conditions on the Greenland ice sheet. Transmission latency is typically 1-2 hours,
+           and occasionally as long as 48 hours. All times displayed are in UTC (Coordinated Universal Time).
+           Hourly average data are transmitted via a satellite link (GOES or ARGOS) throughout the year.
+           In addition, measurements are stored in solid state memory. The system is powered with two 100 Ah batteries,
+           charged by 10 W or 20 W solar panels. The satellite data-link is powered by two separate 100 Ah batteries
+           connected to a 20 W solar panel. This setup guarantees continuous data recordings and storage,
+           even in the case of satellite transmission failure.</p>
+    </div>
+    <br>
 
     <div><i>
        <h3 style="text-align: center;">In Honor of Prof. Dr. Konrad Steffen</h3>
@@ -68,16 +112,46 @@
     <br>
     <br>
 
-    <hr>
-    <h2 style="text-align: center;">General Overview</h2>
+    <div id="toc_container">
+        <p class="toc_title"><b>Table of Contents</b></p>
+        <ul class="toc_list">
+            <li style="font-size: larger"><a href="#General_Overview"><b>General Overview</b></a>
+            <ul>
+                <li><a href="#Stations_List">1. Return List of Stations</a></li>
+                <li><a href="#Download_NEAD">2. Download NEAD</a></li>
+                <li><a href="#Download_CSV">3. Download CSV</a></li>
+                <li><a href="#JSON_Data">4. Return JSON Data</a></li>
+                <li><a href="#JSON_Daily_Data">5. Return Daily Summary JSON Data</a></li>
+                <li><a href="#Download_Daily_CSV">6. Download Daily Summary CSV</a></li>
+            </ul>
+            <br>
+            <li style="font-size: larger"><a href="#API_Examples"><b>API Examples and Explanations</b></a>
+            <ul>
+                <li><a href="#details_stations">1. Return List of Stations</a></li>
+                <li><a href="#details_nead">2. Download NEAD</a></li>
+                <li><a href="#details_csv">3. Download CSV</a></li>
+                <li><a href="#details_json">4. Return JSON Data</a></li>
+                <li><a href="#details_json_daily_summary">5. Return Daily Summary JSON Data</a></li>
+                <li><a href="#details_csv_daily_summary">6. Download Daily Summary CSV</a></li>
+            </ul>
+            <br>
+            <li style="font-size: larger"><a href="#parameter_list"><b>Parameter List</b></a>
+        <br>
+
+    </div>
+    <br>
     <br>
 
-    <h3>1. Return List of Stations</h3>
+    <hr>
+    <h2 id="General_Overview" style="text-align: center;">General Overview</h2>
+    <br>
+
+    <h3 id="Stations_List">1. Return List of Stations</h3>
     <p><span class="details_link"><a href="#details_stations">(Click here for more detailed explanation)</a></span></p>
     <h4><ul>URL: <a href="https://www.envidat.ch/data-api/gcnet/models/" target="_blank">https://www.envidat.ch/data-api/gcnet/models/</a></ul></h4>
     <br>
 
-    <h3>2. Download NEAD</h3>
+    <h3 id="Download_NEAD">2. Download NEAD</h3>
     <p><span class="details_link"><a href="https://www.doi.org/10.16904/envidat.187" target="_blank">Click here for information about the NEAD format</a></span></p>
     <p><span class="details_link"><a href="#details_nead">(Click here for more detailed explanation)</a></span></p>
     <h4><ul><span class="url">URL template with time range: https://www.envidat.ch/data-api/gcnet/nead/model/timestamp_meaning/nodata/start/end/</span></ul></h4>
@@ -90,7 +164,7 @@
         https://www.envidat.ch/data-api/gcnet/nead/swisscamp/end/empty/</a></ul></h4>
     <br>
 
-    <h3>3. Download CSV</h3>
+    <h3 id="Download_CSV">3. Download CSV</h3>
         <p><span class="details_link"><a href="#details_csv">(Click here for more detailed explanation)</a></span></p>
     <h4><ul><span class="url">URL template: https://www.envidat.ch/data-api/gcnet/csv/model/parameter/timestamp_meaning/nodata/start/end/</span></ul></h4>
     <h4><ul>Example with timestamp meaning 'end' and no data value '-999': <a href="https://www.envidat.ch/data-api/gcnet/csv/swisscamp/airtemp1/end/-999/2020-11-04/2020-11-06/" target="_blank">
@@ -105,7 +179,7 @@
         https://www.envidat.ch/data-api/gcnet/csv/swisscamp/airtemp1/beginning/empty/2020-11-04/2020-11-06/</a></ul></h4>
     <br>
 
-    <h3>4. Return JSON Data</h3>
+    <h3 id="JSON_Data">4. Return JSON Data</h3>
     <p><span class="details_link"><a href="#details_json">(Click here for more detailed explanation)</a></span></p>
     <h4><ul><span class="url">URL template: https://www.envidat.ch/data-api/gcnet/json/model/parameter/start/end/</span></ul></h4>
     <h4><ul>Example: <a href="https://www.envidat.ch/data-api/gcnet/json/swisscamp/airtemp2/2020-11-04T17:00:00/2020-11-10T00:00:00/" target="_blank">
@@ -114,7 +188,7 @@
         https://www.envidat.ch/data-api/gcnet/json/swisscamp/multiple/2020-11-04T17:00:00/2020-11-10T00:00:00/</a></ul></h4>
     <br>
 
-    <h3>5. Return Daily Summary JSON Data</h3>
+    <h3 id="JSON_Daily_Data">5. Return Daily Summary JSON Data</h3>
     <p><span class="details_link"><a href="#details_json_daily_summary">(Click here for more detailed explanation)</a></span></p>
     <h4><ul><span class="url">URL template: https://www.envidat.ch/data-api/gcnet/summary/daily/json/model/parameter/start/end/</span></ul></h4>
     <h4><ul>Example: <a href="http://www.envidat.ch/data-api/gcnet/summary/daily/json/swisscamp/airtemp1/2020-11-03/2020-11-06/" target="_blank">
@@ -123,7 +197,7 @@
         http://www.envidat.ch/data-api/gcnet/summary/daily/json/swisscamp/multiple/2020-11-03/2020-11-06/</a></ul></h4>
     <br>
 
-    <h3>6. Download Daily Summary CSV</h3>
+    <h3 id="Download_Daily_CSV">6. Download Daily Summary CSV</h3>
     <p><span class="details_link"><a href="#details_csv_daily_summary">(Click here for more detailed explanation)</a></span></p>
     <h4><ul><span class="url">URL template: https://www.envidat.ch/data-api/gcnet/summary/daily/csv/model/parameter/timestamp_meaning/nodata/start/end/</span></ul></h4>
     <h4><ul>Example with timestamp meaning 'end' and no data value '-999': <a href="https://www.envidat.ch/data-api/gcnet/summary/daily/csv/swisscamp/windspeed1/end/empty/2020-11-01/2020-11-06/" target="_blank">
@@ -134,7 +208,7 @@
 
     <div style="text-align: center;">
         <hr>
-        <h2>API Examples and Explanations</h2>
+        <h2 id="API_Examples">API Examples and Explanations</h2>
         <br>
     </div>
 
