@@ -48,8 +48,7 @@
     font-size: 95%;
     margin-bottom: 1em;
     padding: 20px;
-    width: auto;
-}
+    }
 
     .toc_title {
     font-weight: 700;
@@ -70,6 +69,19 @@
     margin-right: 2em;
     }
 
+    .header {
+        display: grid;
+        grid-template-columns: 1fr 4fr;
+    }
+
+    .intro {
+        padding: 0 25px;
+    }
+
+    .honorableMention {
+        padding: 30px 0;
+    }
+
 </style>
 
 <body>
@@ -78,67 +90,90 @@
         <br>
     </div>
 
-    <div>
-       <p> Greenland Climate Network (GC-Net) Automated Weather Stations (AWS) collect climate information on
-           Greenland's ice sheet. They are equipped with communication satellite transmitters that enable near real time
-           monitoring of weather conditions on the Greenland ice sheet. Transmission latency is typically 1-2 hours,
-           and occasionally as long as 48 hours. All times displayed are in UTC (Coordinated Universal Time).
-           Hourly average data are transmitted via a satellite link (GOES or ARGOS) throughout the year.
-           In addition, measurements are stored in solid state memory. The system is powered with two 100 Ah batteries,
-           charged by 10 W or 20 W solar panels. The satellite data-link is powered by two separate 100 Ah batteries
-           connected to a 20 W solar panel. This setup guarantees continuous data recordings and storage,
-           even in the case of satellite transmission failure.</p>
+    <div class="header">
+        <div id="toc_container">
+            <p class="toc_title"><b>Table of Contents</b></p>
+            <ul class="toc_list">
+                <li style="font-size: larger"><a href="#General_Overview"><b>General Overview</b></a>
+                    <ul>
+                        <li><a href="#Stations_List">1. Return List of Stations</a></li>
+                        <li><a href="#Download_NEAD">2. Download NEAD</a></li>
+                        <li><a href="#Download_CSV">3. Download CSV</a></li>
+                        <li><a href="#JSON_Data">4. Return JSON Data</a></li>
+                        <li><a href="#JSON_Daily_Data">5. Return Daily Summary JSON Data</a></li>
+                        <li><a href="#Download_Daily_CSV">6. Download Daily Summary CSV</a></li>
+                    </ul>
+                    <br>
+                <li style="font-size: larger"><a href="#API_Examples"><b>API Examples and Explanations</b></a>
+                    <ul>
+                        <li><a href="#details_stations">1. Return List of Stations</a></li>
+                        <li><a href="#details_nead">2. Download NEAD</a></li>
+                        <li><a href="#details_csv">3. Download CSV</a></li>
+                        <li><a href="#details_json">4. Return JSON Data</a></li>
+                        <li><a href="#details_json_daily_summary">5. Return Daily Summary JSON Data</a></li>
+                        <li><a href="#details_csv_daily_summary">6. Download Daily Summary CSV</a></li>
+                    </ul>
+                    <br>
+                <li style="font-size: larger"><a href="#parameter_list"><b>Parameter List</b></a>
+                    <br>
+        
+        </div>
+
+        <div class="intro">
+        <p> Greenland Climate Network (GC-Net) Automated Weather Stations (AWS) collect climate information on
+            Greenland's ice sheet. They are equipped with communication satellite transmitters that enable near real time
+            monitoring of weather conditions on the Greenland ice sheet. Transmission latency is typically 1-2 hours,
+            and occasionally as long as 48 hours. All times displayed are in UTC (Coordinated Universal Time).
+            Hourly average data are transmitted via a satellite link (GOES or ARGOS) throughout the year.
+            In addition, measurements are stored in solid state memory. The system is powered with two 100 Ah batteries,
+            charged by 10 W or 20 W solar panels. The satellite data-link is powered by two separate 100 Ah batteries
+            connected to a 20 W solar panel. This setup guarantees continuous data recordings and storage,
+            even in the case of satellite transmission failure.</p>
+
+            <div class="honorableMention">
+                <i>
+                    <h3 style="text-align: center;">In Honor of Prof. Dr. Konrad Steffen</h3>
+                    <p>Prof. Dr. Konrad Steffen was the principal investigator of GC-Net and tragically died during a research
+                        expedition in Greenland on August 8, 2020 in an accident. His dedication made GC-Net possible and he
+                        encouraged the developers of this API to ensure that the application was robust to guarantee access to the
+                        meteorological data. Prof. Dr. Steffen was a committed scientist and generous friend and is deeply missed.
+                    </p>
+                </i>
+            </div>
+
+            <div class="special_notes">
+                <p><span class="detail_link"><b><u>Special Notes</u></b>
+                        <ul>
+                            <li><i>Warning:</i> API may change at any time. Please refer to this website for updates to the API.
+                            </li>
+                        </ul>
+                        <ul>
+                            <li><i>Warning:</i> Data have not been thoroughly quality checked. Please contact Derek Houtz at
+                                derek.houtz<span style="display:none">foo</span>(at)wsl.ch before using data.</li>
+                        </ul>
+                        <ul>
+                            <li>Timestamps are in UTC (Universal Time Coordinated).</li>
+                        </ul>
+                        <ul>
+                            <li>Downloading all records for a station can take a long time.</li>
+                        </ul>
+                        <ul>
+                            <li>In this alpha version values for 'swout_minimum' before 2020-11-05 are 'null' except for the station
+                                Swiss Camp. This will be corrected in a later version.</li>
+                        </ul>
+                    </span></p>
+            </div>
+
+        </div>
+
     </div>
-    <br>
 
-    <div><i>
-       <h3 style="text-align: center;">In Honor of Prof. Dr. Konrad Steffen</h3>
-       <p>Prof. Dr. Konrad Steffen was the principal investigator of GC-Net and tragically died during a research
-          expedition in Greenland on August 8, 2020 in an accident. His dedication made GC-Net possible and he
-          encouraged the developers of this API to ensure that the application was robust to guarantee access to the
-          meteorological data. Prof. Dr. Steffen was a committed scientist and generous friend and is deeply missed.</p>
-    </i></div>
     <br>
     <br>
 
-    <div class="special_notes">
-        <p><span class="detail_link"><b><u>Special Notes</u></b>
-        <ul><li><i>Warning:</i> API may change at any time. Please refer to this website for updates to the API.</li></ul>
-        <ul><li><i>Warning:</i> Data have not been thoroughly quality checked. Please contact Derek Houtz at derek.houtz<span style="display:none">foo</span>(at)wsl.ch before using data.</li></ul>
-        <ul><li>Timestamps are in UTC (Universal Time Coordinated).</li></ul>
-        <ul><li>Downloading all records for a station can take a long time.</li></ul>
-        <ul><li>In this alpha version values for 'swout_minimum' before 2020-11-05 are 'null' except for the station Swiss Camp. This will be corrected in a later version.</li></ul></span></p>
-    </div>
     <br>
     <br>
 
-    <div id="toc_container">
-        <p class="toc_title"><b>Table of Contents</b></p>
-        <ul class="toc_list">
-            <li style="font-size: larger"><a href="#General_Overview"><b>General Overview</b></a>
-            <ul>
-                <li><a href="#Stations_List">1. Return List of Stations</a></li>
-                <li><a href="#Download_NEAD">2. Download NEAD</a></li>
-                <li><a href="#Download_CSV">3. Download CSV</a></li>
-                <li><a href="#JSON_Data">4. Return JSON Data</a></li>
-                <li><a href="#JSON_Daily_Data">5. Return Daily Summary JSON Data</a></li>
-                <li><a href="#Download_Daily_CSV">6. Download Daily Summary CSV</a></li>
-            </ul>
-            <br>
-            <li style="font-size: larger"><a href="#API_Examples"><b>API Examples and Explanations</b></a>
-            <ul>
-                <li><a href="#details_stations">1. Return List of Stations</a></li>
-                <li><a href="#details_nead">2. Download NEAD</a></li>
-                <li><a href="#details_csv">3. Download CSV</a></li>
-                <li><a href="#details_json">4. Return JSON Data</a></li>
-                <li><a href="#details_json_daily_summary">5. Return Daily Summary JSON Data</a></li>
-                <li><a href="#details_csv_daily_summary">6. Download Daily Summary CSV</a></li>
-            </ul>
-            <br>
-            <li style="font-size: larger"><a href="#parameter_list"><b>Parameter List</b></a>
-        <br>
-
-    </div>
     <br>
     <br>
 
