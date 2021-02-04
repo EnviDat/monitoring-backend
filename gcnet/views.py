@@ -111,6 +111,10 @@ def get_json_data(request, **kwargs):
                         .values(*display_values)
                         .filter(**dict_timestamps)
                         .order_by('timestamp').all())
+        # TODO remove the following two lines that converts unix timestamps
+        #  from whole seconds into milliseconds after data re-imported
+        for record in queryset:
+            record['timestamp'] = record['timestamp'] * 1000
     except FieldError:
         return parameter_http_error(parameter)
     return JsonResponse(queryset, safe=False)
