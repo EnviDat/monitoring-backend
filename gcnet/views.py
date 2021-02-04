@@ -88,9 +88,9 @@ def get_json_data(request, **kwargs):
     # If parameter == 'multiple' assign 'parameters' to values in 'returned_parameters'
     # Else assign parameters to parameter passed in URL
     if kwargs['parameter'] == 'multiple':
-        display_values = ['timestamp_iso'] + returned_parameters
+        display_values = ['timestamp_iso'] + ['timestamp'] + returned_parameters
     else:
-        display_values = ['timestamp_iso'] + [parameter]
+        display_values = ['timestamp_iso'] + ['timestamp'] + [parameter]
 
     # Check if 'start' and 'end' kwargs are in ISO format or unix timestamp format, assign filter to corresponding
     # timestamp field in dict_timestamps
