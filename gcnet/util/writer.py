@@ -111,16 +111,16 @@ class Writer(object):
         # ds = ds.drop(['Year', 'Doyd', 'doy', 'hour', 'date'], axis=1)
 
         cols_dict = {
-            "temp": ['timestamp_iso', 'timestamp', 'AirTC1', 'AirTC2', 'AirT1', 'AirT2'],
-            "rh": ['timestamp_iso', 'timestamp', 'RH1', 'RH2'],
-            "rad": ['timestamp_iso', 'timestamp', 'SWin', 'SWout', 'NetRad'],
-            "sheight": ['timestamp_iso', 'timestamp', 'Sheight1', 'Sheight2'],
+            "temp": ['timestamp_iso', 'timestamp', 'airtemp1', 'airtemp2'],
+            "rh": ['timestamp_iso', 'timestamp', 'rh1', 'rh2'],
+            "rad": ['timestamp_iso', 'timestamp', 'swin', 'swout', 'netrad'],
+            "sheight": ['timestamp_iso', 'timestamp', 'sh1', 'sh2'],
             "stemp": ['timestamp_iso', 'timestamp', 'SnowT1', 'SnowT2', 'SnowT3', 'SnowT4', 'SnowT5',
                       'SnowT6', 'SnowT7', 'SnowT8', 'SnowT9', 'SnowT10'],
-            "ws": ['timestamp_iso', 'timestamp', 'WS1', 'WS2'],
-            "wd": ['timestamp_iso', 'timestamp', 'WD1', 'WD2'],
-            "press": ['timestamp_iso', 'timestamp', 'press'],
-            "battvolt": ['timestamp_iso', 'timestamp', 'BattVolt']
+            "ws": ['timestamp_iso', 'timestamp', 'windspeed1', 'windspeed2'],
+            "wd": ['timestamp_iso', 'timestamp', 'winddir1', 'winddir2'],
+            "press": ['timestamp_iso', 'timestamp', 'pressure'],
+            "battvolt": ['timestamp_iso', 'timestamp', 'battvolt']
         }
         for group in self.groups:
             cols = cols_dict[group]
@@ -222,7 +222,7 @@ class Writer(object):
                         time_range = time_range[(  # last days in year within csv_short_days range
                                                    (doyv >= 365 - csv_short_days + doy_now)
                                                     # first days in year within csv_short_days range
-                                                   | (doyv <= csv_short_days)
+                                                   | (doyv < csv_short_days + 1)
                                                    & (yrv >= yearn - 1)), :]
                 else:
                     time_range = np.array([])
