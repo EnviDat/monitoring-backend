@@ -9,7 +9,7 @@ from gcnet.util.http_errors import model_http_error, parameter_http_error, times
     station_http_error, timestamp_http_error, date_http_error, no_valid_parameter_http_error
 from gcnet.util.stream import stream, get_timestamp_iso_range_day_dict
 from gcnet.util.views_helpers import validate_date_gcnet, read_config, get_model, get_hashed_lines, get_null_value, \
-    get_dict_fields
+    get_dict_fields, get_display_values
 from gcnet.util.write_nead_config import write_nead_config
 
 
@@ -76,22 +76,17 @@ def get_model_stations(request):
     return JsonResponse(model_stations, safe=False)
 
 
-# User customized view that returns JSON data based on parameter specified by station
+# User customized view that returns JSON data based on parameter(s) specified by station
+# Users can enter as many parameters as desired by using a comma separated string for kwargs['parameters']
 # Parameter: if 'multiple' selected than several fields are returned rather than just a specific parameter
 # Accepts ISO timestamp ranges
 def get_json_data(request, **kwargs):
+
     # Assign kwargs from url to variables
     start = kwargs['start']
     end = kwargs['end']
-    parameter = kwargs['parameter']
     model = kwargs['model']
-
-    # If parameter == 'multiple' assign 'parameters' to values in 'returned_parameters'
-    # Else assign parameters to parameter passed in URL
-    if kwargs['parameter'] == 'multiple':
-        display_values = ['timestamp_iso'] + ['timestamp'] + returned_parameters
-    else:
-        display_values = ['timestamp_iso'] + ['timestamp'] + [parameter]
+    parameters = kwargs['parameters']
 
     # Check if 'start' and 'end' kwargs are in ISO format or unix timestamp format, assign filter to corresponding
     # timestamp field in dict_timestamps
@@ -106,6 +101,21 @@ def get_json_data(request, **kwargs):
     except AttributeError:
         return model_http_error(model)
 
+    # If kwargs['parameters] == multiple assign display_values to values in returned_parameters
+    # Else validate assign display_values to parameter(s) passed in URL
+    if kwargs['parameters'] == 'multiple':
+        display_values = ['timestamp_iso'] + ['timestamp'] + returned_parameters
+    else:
+        # Validate parameters and get display_values list
+        display_values = get_display_values(parameters, model_class)
+
+        # Check if display_values has at least one valid parameter
+        if not display_values:
+            return no_valid_parameter_http_error(parameters)
+
+        # Add timestamp_iso and timestamp to display_values
+        display_values = ['timestamp_iso'] + ['timestamp'] + display_values
+
     # Return queryset as JsonResponse
     try:
         queryset = list(model_class.objects
@@ -117,9 +127,9 @@ def get_json_data(request, **kwargs):
         #  from whole seconds into milliseconds after data re-imported
         for record in queryset:
             record['timestamp'] = record['timestamp'] * 1000
-    except FieldError:
-        return parameter_http_error(parameter)
-    return JsonResponse(queryset, safe=False)
+        return JsonResponse(queryset, safe=False)
+    except Exception as e:
+        print('ERROR (views.py): {0}'.format(e))
 
 
 # User customized view that returns JSON data based on level of detail and parameter(s) specified by station
@@ -147,17 +157,8 @@ def get_dynamic_data(request, **kwargs):
     except AttributeError:
         return model_http_error(model)
 
-    # Split parameters comma separated string into parameter_list
-    parameters_list = convert_string_to_list(parameters)
-
-    # Validate parameters in parameters_list and add to display_values
-    display_values = []
-    for parameter in parameters_list:
-        try:
-            model_class._meta.get_field(parameter)
-            display_values = display_values + [parameter]
-        except FieldDoesNotExist:
-            pass
+    # Validate parameters and get display_values list
+    display_values = get_display_values(parameters, model_class)
 
     # Check if display_values has at least one valid parameter
     if not display_values:
@@ -180,7 +181,6 @@ def get_dynamic_data(request, **kwargs):
     except Exception as e:
         print('ERROR (views.py): {0}'.format(e))
     return JsonResponse(queryset, safe=False)
-
 
 # Returns aggregate data values by day: 'avg' (average), 'max' (maximum) and 'min' (minimum)
 # User customized view that returns data based parameter specified
