@@ -3,6 +3,8 @@
 import os
 from datetime import datetime
 import importlib
+
+from django.core.exceptions import FieldDoesNotExist
 from django.db.models import Min, Max, Avg, Func
 from django.http import HttpResponseNotFound
 from pathlib import Path
@@ -10,6 +12,9 @@ import configparser
 
 
 # ------------------------------------------- Read Config ------------------------------------------------------------
+from gcnet.util.geometry import convert_string_to_list
+from gcnet.util.http_errors import no_valid_parameter_http_error
+
 
 def read_config(config_path: str):
     config_file = Path(config_path)
@@ -132,3 +137,25 @@ def get_dict_fields(display_values):
         dict_fields[parameter + '_avg'] = Round2(Avg(parameter))
 
     return dict_fields
+
+
+# --------------------------------------- Dynamic Parameters Helper ----------------------------------------------------
+
+# Validate parameters and return them as display_values list
+# parameters  - comma separated string from kwargs['parameters']
+# model_class  - validated model as a class
+def get_display_values(parameters, model_class):
+
+    # Split parameters comma separated string into parameter_list
+    parameters_list = convert_string_to_list(parameters)
+
+    # Validate parameters in parameters_list and add to display_values
+    display_values = []
+    for parameter in parameters_list:
+        try:
+            model_class._meta.get_field(parameter)
+            display_values = display_values + [parameter]
+        except FieldDoesNotExist:
+            pass
+
+    return display_values
