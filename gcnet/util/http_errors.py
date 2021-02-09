@@ -24,6 +24,18 @@ def parameter_http_error(parameter):
                                 .format(parameter))
 
 
+def no_valid_parameter_http_error(parameters):
+    return HttpResponseNotFound("<h1>Page not found</h1>"
+                                "<h3>No valid parameters entered in URL: {0}</h3>"
+                                "<h3>Valid parameters are:</h3>"
+                                "<p>swin, swin_maximum, swout, swout_minimum, netrad, netrad_maximum, airtemp1, airtemp1_maximum,"
+                                " airtemp1_minimum, airtemp2, airtemp2_maximum, airtemp2_minimum, airtemp_cs500air1, "
+                                "airtemp_cs500air2, rh1, rh2, windspeed1, windspeed_u1_maximum, windspeed_u1_stdev,"
+                                "windspeed2, windspeed_u2_maximum, windspeed_u2_stdev, winddir1, winddir2, pressure,"
+                                " sh1, sh2, battvolt, reftemp"
+                                .format(parameters))
+
+
 def timestamp_meaning_http_error(timestamp_meaning):
     return HttpResponseNotFound("<h1>Page not found</h1>"
                                 "<h3>Non-valid 'timestamp_meaning' kwarg entered in URL: {0}</h3>"
