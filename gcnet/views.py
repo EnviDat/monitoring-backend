@@ -184,13 +184,13 @@ def get_aggregate_data(request, timestamp_meaning='', nodata='', **kwargs):
         if nodata == 'empty':
             nodata = ''
 
-        # Assign 'display_values' to ['day'] + keys of 'dictionary_fields'
+        # Assign display_values to ['day'] + keys of dictionary_fields
         display_values = ['day'] + [*dictionary_fields]
 
         # Assign output_csv
         output_csv = model + '_summary.csv'
 
-        # Validate 'timestamp_meaning'
+        # Validate timestamp_meaning
         if timestamp_meaning not in ['end', 'beginning']:
             return timestamp_meaning_http_error(timestamp_meaning)
 
@@ -224,22 +224,11 @@ def get_aggregate_data(request, timestamp_meaning='', nodata='', **kwargs):
 # Format is "NEAD 1.0 UTF-8"
 def streaming_csv_view_v1(request, start='', end='', **kwargs):
     # ===================================== ASSIGN VARIABLES ========================================================
-    # Assign version
     version = "# NEAD 1.0 UTF-8\n"
-
-    # Assign nead_config
     nead_config = 'gcnet/config/nead_header.ini'
-
-    # Assign null_value
     null_value = get_null_value(kwargs['nodata'])
-
-    # Assign station_model
     station_model = kwargs['model']
-
-    # Assign timestamp_meaning
     timestamp_meaning = kwargs['timestamp_meaning']
-
-    # Assign output_csv
     output_csv = station_model + '.csv'
 
     # ================================  VALIDATE VARIABLES =========================================================
