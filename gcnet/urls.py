@@ -16,23 +16,20 @@ Including another URLconf
 from django.urls import path
 
 from gcnet import views
-from gcnet.views import get_model_stations, streaming_csv_view_v1, get_aggregate_data, get_json_data, get_csv, \
-    get_dynamic_data
+from gcnet.views import get_model_stations, streaming_csv_view_v1, get_aggregate_data, get_json_data, get_csv
 
 urlpatterns = [
     path('models/', get_model_stations),
 
     path('json/<str:model>/<str:parameters>/<str:start>/<str:end>/', get_json_data),
-    path('csv/<str:model>/<str:parameter>/<str:timestamp_meaning>/<str:nodata>/<str:start>/<str:end>/', get_csv),
+    path('csv/<str:model>/<str:parameters>/<str:timestamp_meaning>/<str:nodata>/<str:start>/<str:end>/', get_csv),
 
-    path('summary/daily/json/<str:model>/<str:parameter>/<str:start>/<str:end>/', get_aggregate_data),
-    path('summary/daily/csv/<str:model>/<str:parameter>/<str:timestamp_meaning>/<str:nodata>/<str:start>/<str:end>/',
+    path('summary/daily/json/<str:model>/<str:parameters>/<str:start>/<str:end>/', get_aggregate_data),
+    path('summary/daily/csv/<str:model>/<str:parameters>/<str:timestamp_meaning>/<str:nodata>/<str:start>/<str:end>/',
          get_aggregate_data),
 
     path('nead/<str:model>/<str:timestamp_meaning>/<str:nodata>/<str:start>/<str:end>', streaming_csv_view_v1),
     path('nead/<str:model>/<str:timestamp_meaning>/<str:nodata>/', streaming_csv_view_v1),
-
-    path('json-dynamic/<str:model>/<str:parameters>/<str:start>/<str:end>/', get_dynamic_data),
 
     path('', views.index, name='index'),
 ]

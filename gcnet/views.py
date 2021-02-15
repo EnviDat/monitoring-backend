@@ -1,48 +1,15 @@
 import os
 
-from django.core.exceptions import FieldError, FieldDoesNotExist
+from django.core.exceptions import FieldError
 from django.http import JsonResponse, StreamingHttpResponse, HttpResponseNotFound
 from django.shortcuts import render
 
-from gcnet.util.geometry import convert_string_to_list
 from gcnet.util.http_errors import model_http_error, parameter_http_error, timestamp_meaning_http_error, \
-    station_http_error, timestamp_http_error, date_http_error, no_valid_parameter_http_error
+    station_http_error, timestamp_http_error, date_http_error
 from gcnet.util.stream import stream, get_timestamp_iso_range_day_dict
 from gcnet.util.views_helpers import validate_date_gcnet, read_config, get_model, get_hashed_lines, get_null_value, \
-    get_dict_fields, get_display_values
+    get_dict_fields, validate_display_values, KWARG_RETURNED_PARAMETERS, returned_parameters, get_display_values
 from gcnet.util.write_nead_config import write_nead_config
-
-
-# Declare variable 'returned_parameters' to specify which fields should be return from database table
-returned_parameters = ['swin',
-                       'swin_maximum',
-                       'swout',
-                       'swout_minimum',
-                       'netrad',
-                       'netrad_maximum',
-                       'airtemp1',
-                       'airtemp1_maximum',
-                       'airtemp1_minimum',
-                       'airtemp2',
-                       'airtemp2_maximum',
-                       'airtemp2_minimum',
-                       'airtemp_cs500air1',
-                       'airtemp_cs500air2',
-                       'rh1',
-                       'rh2',
-                       'windspeed1',
-                       'windspeed_u1_maximum',
-                       'windspeed_u1_stdev',
-                       'windspeed2',
-                       'windspeed_u2_maximum',
-                       'windspeed_u2_stdev',
-                       'winddir1',
-                       'winddir2',
-                       'pressure',
-                       'sh1',
-                       'sh2',
-                       'battvolt',
-                       'reftemp']
 
 
 # Return 'index.html' with API documentation
@@ -78,7 +45,7 @@ def get_model_stations(request):
 
 # User customized view that returns JSON data based on parameter(s) specified by station
 # Users can enter as many parameters as desired by using a comma separated string for kwargs['parameters']
-# Parameter: if 'multiple' selected than several fields are returned rather than just a specific parameter
+# Parameter: if KWARG_RETURNED_PARAMETERS selected then returns returned_parameters
 # Accepts ISO timestamp ranges
 def get_json_data(request, **kwargs):
 
@@ -88,6 +55,7 @@ def get_json_data(request, **kwargs):
     model = kwargs['model']
     parameters = kwargs['parameters']
 
+    # ===================================  VALIDATE KWARGS ============================================================
     # Check if 'start' and 'end' kwargs are in ISO format or unix timestamp format, assign filter to corresponding
     # timestamp field in dict_timestamps
     try:
@@ -95,28 +63,23 @@ def get_json_data(request, **kwargs):
     except ValueError:
         return timestamp_http_error()
 
-    # Get and validate the model
+    # Validate the model
     try:
         model_class = get_model(model)
     except AttributeError:
         return model_http_error(model)
 
-    # If kwargs['parameters] == multiple assign display_values to values in returned_parameters
-    # Else validate assign display_values to parameter(s) passed in URL
-    if kwargs['parameters'] == 'multiple':
-        display_values = ['timestamp_iso'] + ['timestamp'] + returned_parameters
-    else:
-        # Validate parameters and get display_values list
-        display_values = get_display_values(parameters, model_class)
+    # Get display_values by validating passed parameters
+    display_values = get_display_values(parameters, model_class)
 
-        # Check if display_values has at least one valid parameter
-        if not display_values:
-            return no_valid_parameter_http_error(parameters)
+    # Check if display_values has at least one valid parameter
+    if not display_values:
+        return parameter_http_error(parameters)
 
-        # Add timestamp_iso and timestamp to display_values
-        display_values = ['timestamp_iso'] + ['timestamp'] + display_values
+    # Add timestamp_iso and timestamp to display_values
+    display_values = ['timestamp_iso'] + ['timestamp'] + display_values
 
-    # Return queryset as JsonResponse
+    # ===================================  RETURN JSON RESPONSE =======================================================
     try:
         queryset = list(model_class.objects
                         .values(*display_values)
@@ -132,89 +95,37 @@ def get_json_data(request, **kwargs):
         print('ERROR (views.py): {0}'.format(e))
 
 
-# User customized view that returns JSON data based on level of detail and parameter(s) specified by station
-# Invalid parameters entered in URL are ignored
-# At least one valid parameter must be entered in URL
-# Accepts ISO timestamp ranges
-def get_dynamic_data(request, **kwargs):
-
-    # Assign kwargs from url to variables
-    start = kwargs['start']
-    end = kwargs['end']
-    model = kwargs['model']
-    parameters = kwargs['parameters']
-
-    # Check if 'start' and 'end' kwargs are in ISO format or unix timestamp format, assign filter to corresponding
-    # timestamp field in dict_timestamps
-    try:
-        dict_timestamps = validate_date_gcnet(start, end)
-    except ValueError:
-        return timestamp_http_error()
-
-    # Get and validate the model
-    try:
-        model_class = get_model(model)
-    except AttributeError:
-        return model_http_error(model)
-
-    # Validate parameters and get display_values list
-    display_values = get_display_values(parameters, model_class)
-
-    # Check if display_values has at least one valid parameter
-    if not display_values:
-        return no_valid_parameter_http_error(parameters)
-
-    # Add timestamp_iso and timestamp to display_values
-    display_values = ['timestamp_iso'] + ['timestamp'] + display_values
-
-    # Return queryset as JsonResponse
-    try:
-        queryset = list(model_class.objects
-                        .values(*display_values)
-                        .filter(**dict_timestamps)
-                        .order_by('timestamp').all())
-
-        # TODO remove the following two lines that converts unix timestamps
-        #  from whole seconds into milliseconds after data re-imported
-        for record in queryset:
-            record['timestamp'] = record['timestamp'] * 1000
-    except Exception as e:
-        print('ERROR (views.py): {0}'.format(e))
-    return JsonResponse(queryset, safe=False)
-
 # Returns aggregate data values by day: 'avg' (average), 'max' (maximum) and 'min' (minimum)
+# Users can enter as many parameters as desired by using a comma separated string for kwargs['parameters']
 # User customized view that returns data based parameter specified
 def get_aggregate_data(request, timestamp_meaning='', nodata='', **kwargs):
+
     # Assign kwargs from url to variables
     start = kwargs['start']
     end = kwargs['end']
-    parameter = kwargs['parameter']
+    parameters = kwargs['parameters']
     model = kwargs['model']
 
+    # ===================================  VALIDATE KWARGS ===========================================================
     # Get the model
     try:
         model_class = get_model(model)
     except AttributeError:
         return model_http_error(model)
 
-    # If parameter == 'multiple' assign 'parameters' to values in 'returned_parameters'
-    # Else assign parameters to parameter passed in URL after checking if parameter exists as field in database table
-    if parameter == 'multiple':
-        parameters = returned_parameters
-    else:
-        fields = [field.name for field in model_class._meta.get_fields()]
-        if parameter in fields:
-            parameters = [parameter]
-        else:
-            return parameter_http_error(parameter)
+    # Get display_values by validating passed parameters
+    display_values = get_display_values(parameters, model_class)
 
-    # Assign 'dictionary_fields' with fields and values to be displayed
-    dictionary_fields = get_dict_fields(parameters)
+    # Check if display_values has at least one valid parameter
+    if not display_values:
+        return parameter_http_error(parameters)
+
+    # Assign dictionary_fields with fields and values to be displayed
+    dictionary_fields = get_dict_fields(display_values)
 
     # Check if timestamps are in whole date format: YYYY-MM-DD ('2019-12-04')
     try:
         dict_timestamps = get_timestamp_iso_range_day_dict(start, end)
-        # print(dict_timestamps)
     except ValueError:
         return date_http_error()
 
@@ -262,9 +173,9 @@ def get_aggregate_data(request, timestamp_meaning='', nodata='', **kwargs):
 
     # Get the queryset and return the response
 
+    # ===================================  STREAM DATA ===========================================================
     # Check if 'timestamp_meaning' and 'nodata' were passed, if so stream CSV
     if len(timestamp_meaning) > 0 and len(nodata) > 0:
-        # ===================================  STREAM DATA ===========================================================
         # Assign empty strings to 'version' and 'hash_lines' because they are not used in this view
         version = ''
         hash_lines = ''
@@ -290,17 +201,17 @@ def get_aggregate_data(request, timestamp_meaning='', nodata='', **kwargs):
         response['Content-Disposition'] = 'attachment; filename=' + output_csv
         return response
 
+    # ===================================  RETURN JSON RESPONSE =======================================================
     # Else return JSON response
     else:
-        # ===================================  RETURN JSON DATA========================================================
         try:
             queryset = list(model_class.objects
                             .values('day')
                             .annotate(**dictionary_fields)
                             .filter(**dict_timestamps)
-                            .order_by('day'))
+                            .order_by('timestamp_first'))
         except FieldError:
-            return parameter_http_error(parameter)
+            return parameter_http_error(parameters)
         return JsonResponse(queryset, safe=False)
 
 
@@ -387,23 +298,18 @@ def streaming_csv_view_v1(request, start='', end='', **kwargs):
 def get_csv(request, start='', end='', **kwargs):
     # ===================================== ASSIGN VARIABLES ========================================================
 
-    # Assign null_value
-    null_value = get_null_value(kwargs['nodata'])
-
-    # Assign station_model
+    # Assign kwargs from url to variables
     station_model = kwargs['model']
-
-    # Assign timestamp_meaning
     timestamp_meaning = kwargs['timestamp_meaning']
-
-    # Assign output_csv
+    parameters = kwargs['parameters']
+    null_value = get_null_value(kwargs['nodata'])
     output_csv = station_model + '.csv'
 
     # Assign 'version' and 'hash_lines' as empty strings because they are not used in stream()
     version = ''
     hash_lines = ''
 
-    # ================================  VALIDATE VARIABLES =========================================================
+    # ================================  VALIDATE KWARGS ===============================================================
     # Get and validate the model_class
     try:
         model_class = get_model(kwargs['model'])
@@ -414,16 +320,15 @@ def get_csv(request, start='', end='', **kwargs):
     if timestamp_meaning not in ['end', 'beginning']:
         return timestamp_meaning_http_error(timestamp_meaning)
 
-    # If parameter == 'multiple' assign 'display_values' to values in 'timestamp_iso' + 'returned_parameters'
-    # Else assign 'display_values' to parameter passed in URL after checking if parameter exists as field in db table
-    if kwargs['parameter'] == 'multiple':
-        display_values = ['timestamp_iso'] + returned_parameters
-    else:
-        fields = [field.name for field in model_class._meta.get_fields()]
-        if kwargs['parameter'] in fields:
-            display_values = ['timestamp_iso'] + [kwargs['parameter']]
-        else:
-            return parameter_http_error(kwargs['parameter'])
+    # Get display_values by validating passed parameters
+    display_values = get_display_values(parameters, model_class)
+
+    # Check if display_values has at least one valid parameter
+    if not display_values:
+        return parameter_http_error(parameters)
+
+    # Add timestamp_iso to display_values
+    display_values = ['timestamp_iso'] + display_values
 
     # ===================================  STREAM DATA ===============================================================
     # Create the streaming response object and output csv

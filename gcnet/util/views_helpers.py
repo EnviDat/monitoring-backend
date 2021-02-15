@@ -10,11 +10,49 @@ from django.http import HttpResponseNotFound
 from pathlib import Path
 import configparser
 
+from gcnet.util.geometry import convert_string_to_list
+
+
+# =========================================== CONSTANTS ===============================================================
+
+# String passed in kwargs['parameters'] that is used to return returned_parameters
+KWARG_RETURNED_PARAMETERS = 'multiple'
+
+# Specifies which fields to return from database table
+returned_parameters = ['swin',
+                       'swin_maximum',
+                       'swout',
+                       'swout_minimum',
+                       'netrad',
+                       'netrad_maximum',
+                       'airtemp1',
+                       'airtemp1_maximum',
+                       'airtemp1_minimum',
+                       'airtemp2',
+                       'airtemp2_maximum',
+                       'airtemp2_minimum',
+                       'airtemp_cs500air1',
+                       'airtemp_cs500air2',
+                       'rh1',
+                       'rh2',
+                       'windspeed1',
+                       'windspeed_u1_maximum',
+                       'windspeed_u1_stdev',
+                       'windspeed2',
+                       'windspeed_u2_maximum',
+                       'windspeed_u2_stdev',
+                       'winddir1',
+                       'winddir2',
+                       'pressure',
+                       'sh1',
+                       'sh2',
+                       'battvolt',
+                       'reftemp']
+
+
+# =========================================== FUNCTIONS ===============================================================
 
 # ------------------------------------------- Read Config ------------------------------------------------------------
-from gcnet.util.geometry import convert_string_to_list
-from gcnet.util.http_errors import no_valid_parameter_http_error
-
 
 def read_config(config_path: str):
     config_file = Path(config_path)
@@ -139,13 +177,12 @@ def get_dict_fields(display_values):
     return dict_fields
 
 
-# --------------------------------------- Dynamic Parameters Helper ----------------------------------------------------
+# --------------------------------------- Dynamic Parameters Validators -----------------------------------------------
 
 # Validate parameters and return them as display_values list
 # parameters  - comma separated string from kwargs['parameters']
 # model_class  - validated model as a class
-def get_display_values(parameters, model_class):
-
+def validate_display_values(parameters, model_class):
     # Split parameters comma separated string into parameter_list
     parameters_list = convert_string_to_list(parameters)
 
@@ -157,5 +194,18 @@ def get_display_values(parameters, model_class):
             display_values = display_values + [parameter]
         except FieldDoesNotExist:
             pass
+
+    return display_values
+
+
+# Get display_values by validating passed parameters
+# If parameters == KWARG_RETURNED_PARAMETERS assign display_values to values in returned_parameters
+# Else validate parameter(s) passed in URL
+def get_display_values(parameters, model_class):
+    if parameters == KWARG_RETURNED_PARAMETERS:
+        display_values = returned_parameters
+    else:
+        # Validate parameters and get display_values list
+        display_values = validate_display_values(parameters, model_class)
 
     return display_values
