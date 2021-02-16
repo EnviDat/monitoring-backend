@@ -8,7 +8,7 @@ from gcnet.util.http_errors import model_http_error, parameter_http_error, times
     station_http_error, timestamp_http_error, date_http_error
 from gcnet.util.stream import stream, get_timestamp_iso_range_day_dict
 from gcnet.util.views_helpers import validate_date_gcnet, read_config, get_model, get_hashed_lines, get_null_value, \
-    get_dict_fields, validate_display_values, KWARG_RETURNED_PARAMETERS, returned_parameters, get_display_values
+    get_dict_fields, get_display_values
 from gcnet.util.write_nead_config import write_nead_config
 
 
@@ -71,7 +71,6 @@ def get_json_data(request, **kwargs):
 
     # Get display_values by validating passed parameters
     display_values = get_display_values(parameters, model_class)
-
     # Check if display_values has at least one valid parameter
     if not display_values:
         return parameter_http_error(parameters)
@@ -115,7 +114,6 @@ def get_aggregate_data(request, timestamp_meaning='', nodata='', **kwargs):
 
     # Get display_values by validating passed parameters
     display_values = get_display_values(parameters, model_class)
-
     # Check if display_values has at least one valid parameter
     if not display_values:
         return parameter_http_error(parameters)
@@ -311,7 +309,6 @@ def get_csv(request, start='', end='', **kwargs):
 
     # Get display_values by validating passed parameters
     display_values = get_display_values(parameters, model_class)
-
     # Check if display_values has at least one valid parameter
     if not display_values:
         return parameter_http_error(parameters)

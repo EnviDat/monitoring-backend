@@ -16,10 +16,10 @@ from gcnet.util.geometry import convert_string_to_list
 # =========================================== CONSTANTS ===============================================================
 
 # String passed in kwargs['parameters'] that is used to return returned_parameters
-KWARG_RETURNED_PARAMETERS = 'multiple'
+ALL_DISPLAY_VALUES_STRING = 'multiple'
 
 # Specifies which fields to return from database table
-returned_parameters = ['swin',
+ALL_DISPLAY_VALUES = ['swin',
                        'swin_maximum',
                        'swout',
                        'swout_minimum',
@@ -199,13 +199,11 @@ def validate_display_values(parameters, model_class):
 
 
 # Get display_values by validating passed parameters
-# If parameters == KWARG_RETURNED_PARAMETERS assign display_values to values in returned_parameters
+# If parameters == ALL_DISPLAY_VALUES_STRING assign display_values to values in returned_parameters
 # Else validate parameter(s) passed in URL
 def get_display_values(parameters, model_class):
-    if parameters == KWARG_RETURNED_PARAMETERS:
-        display_values = returned_parameters
-    else:
-        # Validate parameters and get display_values list
-        display_values = validate_display_values(parameters, model_class)
 
-    return display_values
+    if parameters == ALL_DISPLAY_VALUES_STRING:
+        return ALL_DISPLAY_VALUES
+
+    return validate_display_values(parameters, model_class)
