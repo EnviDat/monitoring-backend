@@ -7,15 +7,31 @@
 
 <style>
     body {font-family: Helvetica, serif;}
-    body {background-color: #F1F1F1}
+    body {background-color: #F3F3F3}
     body {padding-left: 30px;}
-    h1   {color: darkblue;}
-    h2   {font-weight: 900}
-    h3   {color: darkgreen;}
-    h4   {font-size: medium;}
+    h1   {color: darkblue;
+          font-weight: bolder;}
+    h2   {font-weight: bolder;
+          color: darkgreen;
+          font-size: xx-large;}
+    h3   {color: darkgreen;
+          font-size: x-large;}
+    h4   {font-size: large;}
     hr   {color: lightblue;}
     li   {font-size: small;}
     li::marker   {color: black;}
+    p {line-height: 1.4;}
+
+    a {text-decoration: none;
+       color: darkblue;
+    }
+    a:hover {
+        background-color: lightgray;
+    }
+    a:active {
+        background-color: darkgray;
+    }
+
     table {border: solid thin;
            border-collapse: collapse;}
     table th  {border: solid medium dimgray;
@@ -26,10 +42,10 @@
     .special_notes {
         border: medium solid darkred;
         padding: 0.25rem 1rem;}
-    .details_link {font-size: small;}
+
+    .details_link {font-size: medium;}
     .url    {color: saddlebrown;}
-    .output {font-size: small;}
-    .output {color: green;}
+    .output {color: darkgreen;}
     .output {font-family: monospace, serif;}
     .model_light  {background-color:lightyellow;}
     .timestamp_meaning {background-color:#00FF00;}
@@ -41,41 +57,65 @@
     .parameter  {background-color: #B689DC;}
     .parameter_light  {background-color: #DAC5F7}
 
-    #toc_container {
-    background: #f9f9f9 none repeat scroll 0 0;
-    border: 1px solid #aaa;
-    display: table;
-    font-size: 95%;
-    margin-bottom: 1em;
-    padding: 20px;
+    .main_content {
+    margin-left: 16%; /* 0.5% more than the width of the sidebar */
+    padding: 0 10px;
     }
 
-    .toc_title {
-    font-weight: 700;
-    text-align: center;
-    font-size: x-large;
+    #toc_container {
+        height: 100%; /* Full-height: remove this if you want "auto" height */
+        width: 15.5%; /* Set the width of the sidebar */
+        position: fixed; /* Fixed Sidebar (stay in place on scroll) */
+        z-index: 1; /* Stay on top */
+        top: 0; /* Stay at the top */
+        left: 0;
+        overflow-x: hidden; /* Disable horizontal scroll */
+        background: #f9f9f9 none repeat scroll 0 0;
+        border: 1px solid #aaa;
+        display: table;
+        font-size: 95%;
+        margin-bottom: 1em;
+        padding: 5px;
     }
 
     #toc_container li, #toc_container ul, #toc_container ul li {
-    list-style: outside none none !important;
+        list-style: outside none none !important;
     }
 
     #toc_container ul {
-    margin-left: 0;
+        margin-left: 0;
     }
+
 
      #toc_container li {
-    font-size: medium;
-    margin-right: 0.5em;
+        font-size: large;
+        margin-bottom: 0.5em;
+        {#margin-right: 0.5em;#}
     }
 
+     #toc_container a {
+         color: darkgreen;
+         margin: 1em 0;
+         text-decoration: none;
+     }
+
+     #toc_container a:hover {
+         background-color: lightgray;
+     }
+
+     #toc_container a:active {
+         background-color: darkgray;
+     }
+
+
     .header {
-        display: grid;
-        grid-template-columns: 1fr 4fr;
+    {#display: grid;#}
+    {#grid-template-columns: 1fr 4fr;#}
     }
 
     .intro {
-        padding: 0 25px;
+    {#margin-left: 18%; /* 2% more than the width of the sidebar */#}
+    {#padding: 0 10px;#}
     }
 
     .honorableMention {
@@ -85,532 +125,466 @@
 </style>
 
 <body>
-    <div style="text-align: center;">
-        <h1>GC-Net API Documentation</h1>
-        <br>
-    </div>
 
     <div class="header">
+
         <div id="toc_container">
-            <p class="toc_title"><b>Table of Contents</b></p>
             <ul class="toc_list">
-                <li style="font-size: larger"><a href="#General_Overview"><b>General Overview</b></a>
-                    <ul>
-                        <li><a href="#Stations_List">1. Return List of Stations</a></li>
-                        <li><a href="#Download_NEAD">2. Download NEAD</a></li>
-                        <li><a href="#Download_CSV">3. Download CSV</a></li>
-                        <li><a href="#JSON_Data">4. Return JSON Data</a></li>
-                        <li><a href="#JSON_Daily_Data">5. Return Daily Summary JSON Data</a></li>
-                        <li><a href="#Download_Daily_CSV">6. Download Daily Summary CSV</a></li>
-                    </ul>
-                    <br>
-                <li style="font-size: larger"><a href="#API_Examples"><b>API Examples and Explanations</b></a>
-                    <ul>
-                        <li><a href="#details_stations">1. Return List of Stations</a></li>
-                        <li><a href="#details_nead">2. Download NEAD</a></li>
-                        <li><a href="#details_csv">3. Download CSV</a></li>
-                        <li><a href="#details_json">4. Return JSON Data</a></li>
-                        <li><a href="#details_json_daily_summary">5. Return Daily Summary JSON Data</a></li>
-                        <li><a href="#details_csv_daily_summary">6. Download Daily Summary CSV</a></li>
-                    </ul>
-                    <br>
-                <li style="font-size: larger"><a href="#parameter_list"><b>Parameter List</b></a>
-                    <br>
-        
+
+                <li style="font-size: x-large; margin-top: 1em;"><a href="#Introduction"><b>Introduction</b></a>
+                <br>
+                <br>
+
+                <li style="font-size: x-large; margin-bottom: 0.5em;"><a href="#API_Examples"><b>API Endpoints</b></a>
+                <br>
+                        <li><a href="#details_stations">1. Stations</a></li>
+                        <li><a href="#details_nead">2. NEAD</a></li>
+                        <li><a href="#details_csv">3. CSV</a></li>
+                        <li><a href="#details_json">4. JSON</a></li>
+                        <li><a href="#details_json_daily_summary">5. Daily JSON</a></li>
+                        <li><a href="#details_csv_daily_summary">6. Daily CSV</a></li>
+                <br>
+                <br>
+
+                <li style="font-size: x-large"><a href="#parameter_list"><b>Parameter List</b></a></li>
+                <br>
+
+            </ul>
         </div>
 
-        <div class="intro">
-        <p> Greenland Climate Network (GC-Net) Automated Weather Stations (AWS) collect climate information on
-            Greenland's ice sheet. They are equipped with communication satellite transmitters that enable near real time
-            monitoring of weather conditions on the Greenland ice sheet. Transmission latency is typically 1-2 hours,
-            and occasionally as long as 48 hours. All times displayed are in UTC (Coordinated Universal Time).
-            Hourly average data are transmitted via a satellite link (GOES or ARGOS) throughout the year.
-            In addition, measurements are stored in solid state memory. The system is powered with two 100 Ah batteries,
-            charged by 10 W or 20 W solar panels. The satellite data-link is powered by two separate 100 Ah batteries
-            connected to a 20 W solar panel. This setup guarantees continuous data recordings and storage,
-            even in the case of satellite transmission failure.</p>
+        <div class="main_content" id="Introduction">
 
-            <div class="honorableMention">
-                <i>
-                    <h3 style="text-align: center;">In Honor of Prof. Dr. Konrad Steffen</h3>
-                    <p>Prof. Dr. Konrad Steffen was the principal investigator of GC-Net and tragically died during a research
-                        expedition in Greenland on August 8, 2020 in an accident. His dedication made GC-Net possible and he
-                        encouraged the developers of this API to ensure that the application was robust to guarantee access to the
-                        meteorological data. Prof. Dr. Steffen was a committed scientist and generous friend and is deeply missed.
-                    </p>
-                </i>
+            <div style="text-align: center;">
+                <h1>GC-Net API Documentation</h1>
+                <br>
             </div>
 
-            <div class="special_notes">
-                <p><span class="detail_link"><b><u>Special Notes</u></b>
-                        <ul>
-                            <li><i>Warning:</i> API may change at any time. Please refer to this website for updates to the API.
-                            </li>
-                        </ul>
-                        <ul>
-                            <li><i>Warning:</i> Data have not been thoroughly quality checked. Please contact Derek Houtz at
-                                derek.houtz<span style="display:none">foo</span>(at)wsl.ch before using data.</li>
-                        </ul>
-                        <ul>
-                            <li>Timestamps are in UTC (Universal Time Coordinated).</li>
-                        </ul>
-                        <ul>
-                            <li>Downloading all records for a station can take a long time.</li>
-                        </ul>
-                        <ul>
-                            <li>In this alpha version values for 'swout_minimum' before 2020-11-05 are 'null' except for the station
-                                Swiss Camp. This will be corrected in a later version.</li>
-                        </ul>
-                    </span></p>
-            </div>
+            <div class="intro">
+                <p> Greenland Climate Network (GC-Net) Automated Weather Stations (AWS) collect climate information on
+                    Greenland's ice sheet. They are equipped with communication satellite transmitters that enable near real time
+                    monitoring of weather conditions on the Greenland ice sheet. Transmission latency is typically 1-2 hours,
+                    and occasionally as long as 48 hours. All times displayed are in UTC (Coordinated Universal Time).
+                    Hourly average data are transmitted via a satellite link (GOES or ARGOS) throughout the year.
+                    In addition, measurements are stored in solid state memory. The system is powered with two 100 Ah batteries,
+                    charged by 10 W or 20 W solar panels. The satellite data-link is powered by two separate 100 Ah batteries
+                    connected to a 20 W solar panel. This setup guarantees continuous data recordings and storage,
+                    even in the case of satellite transmission failure.</p>
 
+                <div class="honorableMention">
+                    <i>
+                        <h4 style="text-align: center; color: darkgreen"><b>In Honor of Prof. Dr. Konrad Steffen</b></h4>
+                        <p>Prof. Dr. Konrad Steffen was the principal investigator of GC-Net and tragically died during a research
+                            expedition in Greenland on August 8, 2020 in an accident. His dedication made GC-Net possible and he
+                            encouraged the developers of this API to ensure that the application was robust to guarantee access to the
+                            meteorological data. Prof. Dr. Steffen was a committed scientist and generous friend and is deeply missed.
+                        </p>
+                    </i>
+                </div>
+
+                <div class="special_notes">
+                    <p><span class="detail_link"><b><u>Special Notes</u></b>
+                            <ul>
+                                <li><i>Warning:</i> API may change at any time. Please refer to this website for updates to the API.
+                                </li>
+                            </ul>
+                            <ul>
+                                <li><i>Warning:</i> Data have not been thoroughly quality checked. Please contact Derek Houtz at
+                                    derek.houtz<span style="display:none">foo</span>(at)wsl.ch before using data.</li>
+                            </ul>
+                            <ul>
+                                <li>Timestamps are in UTC (Universal Time Coordinated).</li>
+                            </ul>
+                            <ul>
+                                <li>Downloading all records for a station can take a long time.</li>
+                            </ul>
+                            <ul>
+                                <li>In this alpha version values for 'swout_minimum' before 2020-11-05 are 'null' except for the station
+                                    Swiss Camp. This will be corrected in a later version.</li>
+                            </ul>
+                        </span></p>
+                </div>
+
+            </div>
         </div>
-
     </div>
 
     <br>
     <br>
-
-    <br>
     <br>
 
-    <br>
-    <br>
 
-    <hr>
-    <h2 id="General_Overview" style="text-align: center;">General Overview</h2>
-    <br>
+    <div class="main_content">
 
-    <h3 id="Stations_List">1. Return List of Stations</h3>
-    <p><span class="details_link"><a href="#details_stations">(Click here for more detailed explanation)</a></span></p>
-    <h4><ul>URL: <a href="https://www.envidat.ch/data-api/gcnet/models/" target="_blank">https://www.envidat.ch/data-api/gcnet/models/</a></ul></h4>
-    <br>
+        <div style="text-align: center;">
+            <hr>
+            <h2 id="API_Examples">API Endpoints</h2>
+            <br>
+        </div>
 
-    <h3 id="Download_NEAD">2. Download NEAD</h3>
-    <p><span class="details_link"><a href="https://www.doi.org/10.16904/envidat.187" target="_blank">Click here for information about the NEAD format</a></span></p>
-    <p><span class="details_link"><a href="#details_nead">(Click here for more detailed explanation)</a></span></p>
-    <h4><ul><span class="url">URL template with time range: https://www.envidat.ch/data-api/gcnet/nead/model/timestamp_meaning/nodata/start/end/</span></ul></h4>
-    <h4><ul>Example with time range, timestamp meaning 'end' and no data value '' (empty string): <a href="https://www.envidat.ch/data-api/gcnet/nead/swisscamp/end/empty/2020-11-03/2020-11-06" target="_blank">
-        https://www.envidat.ch/data-api/gcnet/nead/swisscamp/end/empty/2020-11-03/2020-11-06</a></ul></h4>
-    <h4><ul>Example with time range, timestamp meaning 'end' and no data value '-999': <a href="https://www.envidat.ch/data-api/gcnet/nead/swisscamp/end/-999/2020-11-03/2020-11-06" target="_blank">
-        https://www.envidat.ch/data-api/gcnet/nead/swisscamp/end/-999/2020-11-03/2020-11-06</a></ul></h4>
-    <h4><ul><span class="url">URL template returning all records: https://www.envidat.ch/data-api/gcnet/nead/model/timestamp_meaning/nodata/</span></ul></h4>
-    <h4><ul>Example returning all records, timestamp meaning 'end' and no data value '' (empty string): <a href="https://www.envidat.ch/data-api/gcnet/nead/swisscamp/end/empty/" target="_blank">
-        https://www.envidat.ch/data-api/gcnet/nead/swisscamp/end/empty/</a></ul></h4>
-    <br>
-
-    <h3 id="Download_CSV">3. Download CSV</h3>
-        <p><span class="details_link"><a href="#details_csv">(Click here for more detailed explanation)</a></span></p>
-    <h4><ul><span class="url">URL template: https://www.envidat.ch/data-api/gcnet/csv/model/parameter/timestamp_meaning/nodata/start/end/</span></ul></h4>
-    <h4><ul>Example with timestamp meaning 'end' and no data value '-999': <a href="https://www.envidat.ch/data-api/gcnet/csv/swisscamp/airtemp1/end/-999/2020-11-04/2020-11-06/" target="_blank">
-        https://www.envidat.ch/data-api/gcnet/csv/swisscamp/airtemp1/end/-999/2020-11-04/2020-11-06/</a></ul></h4>
-    <h4><ul>Example returning multiple parameters with timestamp meaning 'end' and no data value '-999': <a href="https://www.envidat.ch/data-api/gcnet/csv/swisscamp/multiple/end/-999/2020-11-04/2020-11-06/" target="_blank">
-        https://www.envidat.ch/data-api/gcnet/csv/swisscamp/multiple/end/-999/2020-11-04/2020-11-06/</a> </ul></h4>
-    <h4><ul>Example with timestamp meaning 'end' and no data value '' (empty string): <a href="https://www.envidat.ch/data-api/gcnet/csv/swisscamp/airtemp1/end/empty/2020-11-04/2020-11-06/" target="_blank">
-        https://www.envidat.ch/data-api/gcnet/csv/swisscamp/airtemp1/end/empty/2020-11-04/2020-11-06/</a></ul></h4>
-    <h4><ul>Example with timestamp meaning 'beginning' and no data value '-999': <a href="https://www.envidat.ch/data-api/gcnet/csv/swisscamp/airtemp1/beginning/-999/2020-11-04/2020-11-06/" target="_blank">
-        https://www.envidat.ch/data-api/gcnet/csv/swisscamp/airtemp1/beginning/-999/2020-11-04/2020-11-06/</a></ul></h4>
-    <h4><ul>Example with timestamp meaning 'beginning' and no data value '' (empty string): <a href="https://www.envidat.ch/data-api/gcnet/csv/swisscamp/airtemp1/beginning/empty/2020-11-04/2020-11-06/" target="_blank">
-        https://www.envidat.ch/data-api/gcnet/csv/swisscamp/airtemp1/beginning/empty/2020-11-04/2020-11-06/</a></ul></h4>
-    <br>
-
-    <h3 id="JSON_Data">4. Return JSON Data</h3>
-    <p><span class="details_link"><a href="#details_json">(Click here for more detailed explanation)</a></span></p>
-    <h4><ul><span class="url">URL template: https://www.envidat.ch/data-api/gcnet/json/model/parameter/start/end/</span></ul></h4>
-    <h4><ul>Example: <a href="https://www.envidat.ch/data-api/gcnet/json/swisscamp/airtemp2/2020-11-04T17:00:00/2020-11-10T00:00:00/" target="_blank">
-        https://www.envidat.ch/data-api/gcnet/json/swisscamp/airtemp2/2020-11-04T17:00:00/2020-11-10T00:00:00/</a></ul></h4>
-    <h4><ul>Example returning multiple parameters: <a href="https://www.envidat.ch/data-api/gcnet/json/swisscamp/multiple/2020-11-04T17:00:00/2020-11-10T00:00:00/" target="_blank">
-        https://www.envidat.ch/data-api/gcnet/json/swisscamp/multiple/2020-11-04T17:00:00/2020-11-10T00:00:00/</a></ul></h4>
-    <br>
-
-    <h3 id="JSON_Daily_Data">5. Return Daily Summary JSON Data</h3>
-    <p><span class="details_link"><a href="#details_json_daily_summary">(Click here for more detailed explanation)</a></span></p>
-    <h4><ul><span class="url">URL template: https://www.envidat.ch/data-api/gcnet/summary/daily/json/model/parameter/start/end/</span></ul></h4>
-    <h4><ul>Example: <a href="http://www.envidat.ch/data-api/gcnet/summary/daily/json/swisscamp/airtemp1/2020-11-03/2020-11-06/" target="_blank">
-        http://www.envidat.ch/data-api/gcnet/summary/daily/json/swisscamp/airtemp1/2020-11-03/2020-11-06/</a></ul></h4>
-    <h4><ul>Example returning multiple parameters: <a href="http://www.envidat.ch/data-api/gcnet/summary/daily/json/swisscamp/multiple/2020-11-03/2020-11-06/" target="_blank">
-        http://www.envidat.ch/data-api/gcnet/summary/daily/json/swisscamp/multiple/2020-11-03/2020-11-06/</a></ul></h4>
-    <br>
-
-    <h3 id="Download_Daily_CSV">6. Download Daily Summary CSV</h3>
-    <p><span class="details_link"><a href="#details_csv_daily_summary">(Click here for more detailed explanation)</a></span></p>
-    <h4><ul><span class="url">URL template: https://www.envidat.ch/data-api/gcnet/summary/daily/csv/model/parameter/timestamp_meaning/nodata/start/end/</span></ul></h4>
-    <h4><ul>Example with timestamp meaning 'end' and no data value '-999': <a href="https://www.envidat.ch/data-api/gcnet/summary/daily/csv/swisscamp/windspeed1/end/empty/2020-11-01/2020-11-06/" target="_blank">
-        https://www.envidat.ch/data-api/gcnet/summary/daily/csv/swisscamp/windspeed1/end/empty/2020-11-01/2020-11-06/</a></ul></h4>
-    <h4><ul>Example returning multiple parameters with timestamp meaning 'end' and no data value '' (empty string): <a href="https://www.envidat.ch/data-api/gcnet/summary/daily/csv/swisscamp/multiple/end/empty/2020-11-01/2020-11-06/" target="_blank">
-        https://www.envidat.ch/data-api/gcnet/summary/daily/csv/swisscamp/multiple/end/empty/2020-11-01/2020-11-06/</a></ul></h4>
-    <br>
-
-    <div style="text-align: center;">
-        <hr>
-        <h2 id="API_Examples">API Examples and Explanations</h2>
-        <br>
-    </div>
-
-    <h3 id="details_stations">1. Return List of Stations</h3>
-    <h4><ul>URL: <a href="https://www.envidat.ch/data-api/gcnet/models/" target="_blank">https://www.envidat.ch/data-api/gcnet/models/</a></ul></h4>
-    <p><ul>Returns list of stations referred to as 'model' in other endpoints.</ul>
-       <ul>Sample Output:</ul>
-           <ul><ul><span class="output">
-           [
-            <ul>"gits",
-            <br>"humboldt",
-            <br>"petermann",
-            <br>"tunu_n",
-            <br>"swisscamp_10m_tower",
-            <br>"swisscamp",
-            <br>"crawfordpoint",
-            <br>"nasa_u",
-            <br>"summit",
-            <br>"dye2",
-            <br>"jar1",
-            <br>"saddle",
-            <br>"southdome",
-            <br>"nasa_east",
-            <br>"nasa_southeast",
-            <br>"neem",
-            <br>"east_grip"</ul>
-            ]
-       </span></ul></ul>
-    <br>
-    <br>
-
-    <h3 id="details_nead">2. Download NEAD</h3>
-    <p><span class="details_link"><a href="https://www.doi.org/10.16904/envidat.187" target="_blank">Click here for information about the NEAD format</a></span></p>
-    <h4><ul><span class="url">URL template with time range:</span> https://www.envidat.ch/data-api/gcnet/nead/<mark>model</mark>/<span class="timestamp_meaning">timestamp_meaning</span>/<span class="nodata">nodata</span>/<span class="start_end">start</span>/<span class="start_end">end</span></ul></h4>
-     <h4><ul>Example with time range, timestamp meaning 'end' and no data value '' (empty string): <a href="https://www.envidat.ch/data-api/gcnet/nead/swisscamp/end/empty/2020-11-03/2020-11-06" target="_blank">
-        https://www.envidat.ch/data-api/gcnet/nead/swisscamp/end/empty/2020-11-03/2020-11-06</a></ul></h4>
-    <h4><ul><span class="url">URL template returning all records:</span> https://www.envidat.ch/data-api/gcnet/nead/<mark>model</mark>/<span class="timestamp_meaning">timestamp_meaning</span>/<span class="nodata">nodata/</span></ul></h4>
-    <h4><ul>Example returning all records, timestamp meaning 'end' and no data value '' (empty string): <a href="https://www.envidat.ch/data-api/gcnet/nead/swisscamp/end/empty/" target="_blank">
-        https://www.envidat.ch/data-api/gcnet/nead/swisscamp/end/empty/</a></ul></h4>
-    <p><ul><ul><mark>model</mark> should correspond to a GC-Net Station model name listed at <a href="https://www.envidat.ch/data-api/gcnet/models/" target="_blank">https://www.envidat.ch/data-api/gcnet/models/</a>, for example <span class="model_light">swisscamp</span> or <span class="model_light">summit</span></ul></ul>
-       <ul><ul><span class="timestamp_meaning">timestamp_meaning</span> should be <span class="timestamp_meaning_light">end</span> or <span class="timestamp_meaning_light">beginning</span></ul></ul>
-           <ul><ul><ul><li><span class="timestamp_meaning_light">end</span> means that timestamps are at the "end" of a hour long averaging period</li></ul></ul></ul>
-           <ul><ul><ul><li><span class="timestamp_meaning_light">beginning</span> means that timestamps are at the "beginning" of a hour long averaging period</li></ul></ul></ul>
-       <ul><ul><span class="nodata">nodata</span> represents "null" values in the database</ul></ul>
-           <ul><ul><ul><li><span class="nodata_light">-999</span> means that all "null" values will be "-999" in the NEAD file</li></ul></ul></ul>
-           <ul><ul><ul><li><span class="nodata_light">empty</span> means that all "null" values will be "" (empty strings) in the NEAD file</li></ul></ul></ul>
-       <ul><ul><span class="start_end">start</span> is the start date of the dataset</ul></ul>
-       <ul><ul><span class="start_end">end</span> is the end date of the dataset (exclusive)</ul></ul>
-           <ul><ul><ul><li><span class="start_end_light">start</span> and <span class="start_end_light">end</span> dates must be in in ISO timestamp date format: YYYY-MM-DD ('2019-12-20')</li></ul></ul></ul>
-           <ul><ul><ul><li><span class="start_end_light">start</span> date must precede <span class="start_end_light">end</span> date</li></ul></ul></ul>
-    <br>
-    <br>
-
-    <h3 id="details_csv">3. Download CSV</h3>
-    <h4><ul><span class="url">URL template:</span> https://www.envidat.ch/data-api/gcnet/csv/<mark>model</mark>/<span class="parameter">parameter</span>/<span class="timestamp_meaning">timestamp_meaning</span>/<span class="nodata">nodata</span>/<span class="start_end">start</span>/<span class="start_end">end</span>/</ul></h4>
-        <h4><ul>Example with timestamp meaning 'end' and no data value '-999': <a href="https://www.envidat.ch/data-api/gcnet/csv/swisscamp/airtemp1/end/-999/2020-11-04/2020-11-06/" target="_blank">
-        https://www.envidat.ch/data-api/gcnet/csv/swisscamp/airtemp1/end/-999/2020-11-04/2020-11-06/</a></ul></h4>
-        <h4><ul>Example returning several parameters with timestamp meaning 'end' and no data value '-999': <a href="https://www.envidat.ch/data-api/gcnet/csv/swisscamp/airtemp1,airtemp2,swin,rh1/end/-999/2020-11-04/2020-11-06/" target="_blank">
-        https://www.envidat.ch/data-api/gcnet/csv/swisscamp/airtemp1,airtemp2,swin,rh1/end/-999/2020-11-04/2020-11-06/</a></ul></h4>
-        <h4><ul>Example returning multiple parameters with timestamp meaning 'end' and no data value '-999': <a href="https://www.envidat.ch/data-api/gcnet/csv/swisscamp/multiple/end/-999/2020-11-04/2020-11-06/" target="_blank">
-        https://www.envidat.ch/data-api/gcnet/csv/swisscamp/multiple/end/-999/2020-11-04/2020-11-06/</a> </ul></h4>
-    <p><ul><ul><mark>model</mark> should correspond to a GC-Net Station model name listed at <a href="https://www.envidat.ch/data-api/gcnet/models/" target="_blank">https://www.envidat.ch/data-api/gcnet/models/</a>, for example <span class="model_light">swisscamp</span> or <span class="model_light">summit</span></ul></ul>
-        <ul><ul><span class="parameter">parameter</span> should be a type of measurement, for example <span class="parameter_light">airtemp1</span> or <span class="parameter_light">windspeed1</span></ul></ul>
-        <ul><ul><span class="parameter">parameter</span> can also be several types of measurements separated by commas, for example <span class="parameter_light">airtemp1,airtemp2,swin,rh1</span></ul></ul>
-             <ul><ul><ul><li><a href="#parameter_list" target="_blank">Click here for list of parameters</a></li></ul></ul></ul>
-             <ul><ul><ul><li><span class="parameter_light">multiple</span> means that all parameters will be included in the CSV</li></ul></ul></ul>
-        <ul><ul><span class="timestamp_meaning">timestamp_meaning</span> should be <span class="timestamp_meaning_light">end</span> or <span class="timestamp_meaning_light">beginning</span></ul></ul>
-           <ul><ul><ul><li><span class="timestamp_meaning_light">end</span> means that timestamps are at the "end" of a hour long averaging period</li></ul></ul></ul>
-           <ul><ul><ul><li><span class="timestamp_meaning_light">beginning</span> means that timestamps are at the "beginning" of a hour long averaging period</li></ul></ul></ul>
-       <ul><ul><span class="nodata">nodata</span> represents "null" values in the database</ul></ul>
-           <ul><ul><ul><li><span class="nodata_light">-999</span> means that all "null" values will be "-999" in the CSV file</li></ul></ul></ul>
-           <ul><ul><ul><li><span class="nodata_light">empty</span> means that all "null" values will be "" (empty strings) in the CSV file</li></ul></ul></ul>
-       <ul><ul><span class="start_end">start</span> is the start date of the dataset</ul></ul>
-       <ul><ul><span class="start_end">end</span> is the end date of the dataset (exclusive)</ul></ul>
-           <ul><ul><ul><li><span class="start_end_light">start</span> and <span class="start_end_light">end</span> dates must be in in ISO timestamp date format: YYYY-MM-DD ('2019-12-20')</li></ul></ul></ul>
-           <ul><ul><ul><li><span class="start_end_light">start</span> date must precede <span class="start_end_light">end</span> date</li></ul></ul></ul>
-    <br>
-    <br>
-
-    <h3 id="details_json">4. Return JSON Data</h3>
-    <h4><ul><span class="url">URL template:</span> https://www.envidat.ch/data-api/gcnet/json/<mark>model</mark>/<span class="parameter">parameter</span>/<span class="start_end">start</span>/<span class="start_end">end</span>/</ul></h4>
-    <h4><ul>Example: <a href="https://www.envidat.ch/data-api/gcnet/json/swisscamp/airtemp2/2020-11-04T17:00:00/2020-11-10T00:00:00/" target="_blank">
-        https://www.envidat.ch/data-api/gcnet/json/swisscamp/airtemp2/2020-11-04T17:00:00/2020-11-10T00:00:00/</a></ul></h4>
-    <h4><ul>Example returning several parameters: <a href="https://www.envidat.ch/data-api/gcnet/json/swisscamp/airtemp1,airtemp2,windspeed1/2020-11-04T17:00:00/2020-11-10T00:00:00/" target="_blank">
-        https://www.envidat.ch/data-api/gcnet/json/swisscamp/airtemp1,airtemp2,windspeed1/2020-11-04T17:00:00/2020-11-10T00:00:00/</a></ul></h4>
-    <h4><ul>Example returning multiple parameters: <a href="https://www.envidat.ch/data-api/gcnet/json/swisscamp/multiple/2020-11-04T17:00:00/2020-11-10T00:00:00/" target="_blank">
-        https://www.envidat.ch/data-api/gcnet/json/swisscamp/multiple/2020-11-04T17:00:00/2020-11-10T00:00:00/</a></ul></h4>
-    <p><ul><ul><mark>model</mark> should correspond to a GC-Net Station model name listed at <a href="https://www.envidat.ch/data-api/gcnet/models/" target="_blank">https://www.envidat.ch/data-api/gcnet/models/</a>, for example <span class="model_light">swisscamp</span> or <span class="model_light">summit</span></ul></ul>
-        <ul><ul><span class="parameter">parameter</span> should be a type of measurement, for example <span class="parameter_light">airtemp1</span> or <span class="parameter_light">windspeed1</span></ul></ul>
-        <ul><ul><span class="parameter">parameter</span> can also be several types of measurements separated by commas, for example <span class="parameter_light">airtemp1,airtemp2,windspeed1</span></ul></ul>
-             <ul><ul><ul><li><a href="#parameter_list" target="_blank">Click here for list of parameters</a></li></ul></ul></ul>
-        <ul><ul><ul><li><span class="parameter_light">multiple</span> means that all parameters will be included in the returned JSON data</li></ul></ul></ul>
-        <ul><ul><span class="start_end">start</span> is the start date and time of the dataset</ul></ul>
-        <ul><ul><span class="start_end">end</span> is the end date and time of the dataset</ul></ul>
-             <ul><ul><ul><li><span class="start_end_light">start</span> date must precede <span class="start_end_light">end</span> date</li></ul></ul></ul>
-             <ul><ul><ul><li><span class="start_end_light">start</span> and <span class="start_end_light">end</span> must be in in ISO timestamp date and time format: YYYY-MM-DDTHH:MM:SS ('2020-10-20T17:00:00)</li></ul></ul></ul>
-    <br>
-    <br>
-
-    <h3 id="details_json_daily_summary">5. Return Daily Summary JSON Data</h3>
-    <h4><ul><span class="url">URL template:</span> https://www.envidat.ch/data-api/gcnet/summary/daily/json/<mark>model</mark>/<span class="parameter">parameter</span>/<span class="start_end">start</span>/<span class="start_end">end</span>/</ul></h4>
-    <h4><ul>Example: <a href="http://www.envidat.ch/data-api/gcnet/summary/daily/json/swisscamp/airtemp1/2020-11-03/2020-11-06/" target="_blank">
-        http://www.envidat.ch/data-api/gcnet/summary/daily/json/swisscamp/airtemp1/2020-11-03/2020-11-06/</a></ul></h4>
-    <h4><ul>Example returning several parameters: <a href="http://www.envidat.ch/data-api/gcnet/summary/daily/json/swisscamp/airtemp1,airtemp2,rh1/2020-11-03/2020-11-06/" target="_blank">
-        http://www.envidat.ch/data-api/gcnet/summary/daily/json/swisscamp/airtemp1,airtemp2,rh1/2020-11-03/2020-11-06/</a></ul></h4>
-    <h4><ul>Example returning multiple parameters: <a href="http://www.envidat.ch/data-api/gcnet/summary/daily/json/swisscamp/multiple/2020-11-03/2020-11-06/" target="_blank">
-        http://www.envidat.ch/data-api/gcnet/summary/daily/json/swisscamp/multiple/2020-11-03/2020-11-06/</a></ul></h4>
-    <p><ul><ul><mark>model</mark> should correspond to a GC-Net Station model name listed at <a href="https://www.envidat.ch/data-api/gcnet/models/" target="_blank">https://www.envidat.ch/data-api/gcnet/models/</a>, for example <span class="model_light">swisscamp</span> or <span class="model_light">summit</span></ul></ul>
-        <ul><ul><span class="parameter">parameter</span> should be a type of measurement, for example <span class="parameter_light">airtemp1</span> or <span class="parameter_light">windspeed1</span></ul></ul>
-        <ul><ul><span class="parameter">parameter</span> can also be several types of measurements separated by commas, for example <span class="parameter_light">airtemp1,airtemp2,rh1</span></ul></ul>
-             <ul><ul><ul><li><a href="#parameter_list" target="_blank">Click here for list of parameters</a></li></ul></ul></ul>
-        <ul><ul><ul><li><span class="parameter_light">multiple</span> means that all parameters and their aggregated values will be included in the returned JSON data</li></ul></ul></ul>
-        <ul><ul><span class="start_end">start</span> is the start date of the dataset</ul></ul>
-        <ul><ul><span class="start_end">end</span> is the end date of the dataset (exclusive)</ul></ul>
-           <ul><ul><ul><li><span class="start_end_light">start</span> and <span class="start_end_light">end</span> dates must be in in ISO timestamp date format: YYYY-MM-DD ('2019-12-20')</li></ul></ul></ul>
-           <ul><ul><ul><li><span class="start_end_light">start</span> date must precede <span class="start_end_light">end</span> date</li></ul></ul></ul>
-        <ul><ul>Parameters are aggregated daily for the following derived values: minimum ('_min'), maximum ('_max'), and average ('_avg)</ul></ul>
-        <ul><ul>'day' values are in "year-"day number" format</ul></ul>
-        <ul><ul>'timestamp_first' and 'timestamp_last' are the range of timestamps (inclusive) used for calculating the daily aggregated values</ul></ul>
-        <ul>Sample Output:</ul>
+        <h3 id="details_stations">1. Return List of Stations</h3>
+        <h4><ul>URL: <a href="https://www.envidat.ch/data-api/gcnet/models/" target="_blank">https://www.envidat.ch/data-api/gcnet/models/</a></ul></h4>
+        <p><ul>Returns list of stations referred to as 'model' in other endpoints.</ul>
+           <ul>Sample Output:</ul>
                <ul><ul><span class="output">
                [
-                    <ul>{
-                        <ul>day: "2020-308",
-                        <br>timestamp_first: "2020-11-03T00:00:00Z",
-                        <br>timestamp_last: "2020-11-03T23:00:00Z",
-                        <br>airtemp1_min: -21.93,
-                        <br>airtemp1_max: -3.15,
-                        <br>airtemp1_avg: -12.93
-                        </ul>},
-                        <br>{
-                        <ul>day: "2020-309",
-                        <br>timestamp_first: "2020-11-04T00:00:00Z",
-                        <br>timestamp_last: "2020-11-04T23:00:00Z",
-                        <br>airtemp1_min: -10.47,
-                        <br>airtemp1_max: -4.15,
-                        <br>airtemp1_avg: -7.59
-                        </ul>},
-                        <br>{
-                        <ul>day: "2020-310",
-                        <br>timestamp_first: "2020-11-05T00:00:00Z",
-                        <br>timestamp_last: "2020-11-05T23:00:00Z",
-                        <br>airtemp1_min: -20.21,
-                        <br>airtemp1_max: -10.65,
-                        <br>airtemp1_avg: -14.39
-                        </ul>}</ul>
+                <ul>"gits",
+                <br>"humboldt",
+                <br>"petermann",
+                <br>"tunu_n",
+                <br>"swisscamp_10m_tower",
+                <br>"swisscamp",
+                <br>"crawfordpoint",
+                <br>"nasa_u",
+                <br>"summit",
+                <br>"dye2",
+                <br>"jar1",
+                <br>"saddle",
+                <br>"southdome",
+                <br>"nasa_east",
+                <br>"nasa_southeast",
+                <br>"neem",
+                <br>"east_grip"</ul>
                 ]
            </span></ul></ul>
-    <br>
-    <br>
+        <br>
+        <br>
 
-    <h3 id="details_csv_daily_summary">6. Download Daily Summary CSV</h3>
-    <h4><ul><span class="url">URL template:</span> https://www.envidat.ch/data-api/gcnet/summary/daily/csv/<mark>model</mark>/<span class="parameter">parameter</span>/<span class="timestamp_meaning">timestamp_meaning</span>/<span class="nodata">nodata</span>/<span class="start_end">start</span>/<span class="start_end">end</span>/</ul></h4>
-    <h4><ul>Example with timestamp meaning 'end' and no data value '' (empty string): <a href="https://www.envidat.ch/data-api/gcnet/summary/daily/csv/swisscamp/windspeed1/end/empty/2020-11-01/2020-11-06/" target="_blank">
-        https://www.envidat.ch/data-api/gcnet/summary/daily/csv/swisscamp/windspeed1/end/empty/2020-11-01/2020-11-06/</a></ul></h4>
-    <h4><ul>Example returning several parameters with timestamp meaning 'end' and no data value '' (empty string): <a href="https://www.envidat.ch/data-api/gcnet/summary/daily/csv/swisscamp/swin,swout,netrad/end/empty/2020-11-01/2020-11-06/" target="_blank">
-        https://www.envidat.ch/data-api/gcnet/summary/daily/csv/swisscamp/swin,swout,netrad/end/empty/2020-11-01/2020-11-06/</a></ul></h4>
-    <h4><ul>Example returning multiple parameters with timestamp meaning 'end' and no data value '' (empty string): <a href="https://www.envidat.ch/data-api/gcnet/summary/daily/csv/swisscamp/multiple/end/empty/2020-11-01/2020-11-06/" target="_blank">
-        https://www.envidat.ch/data-api/gcnet/summary/daily/csv/swisscamp/multiple/end/empty/2020-11-01/2020-11-06/</a></ul></h4>
-    <p><ul><ul><mark>model</mark> should correspond to a GC-Net Station model name listed at <a href="https://www.envidat.ch/data-api/gcnet/models/" target="_blank">https://www.envidat.ch/data-api/gcnet/models/</a>, for example <span class="model_light">swisscamp</span> or <span class="model_light">summit</span></ul></ul>
-        <ul><ul><span class="parameter">parameter</span> should be a type of measurement, for example <span class="parameter_light">airtemp1</span> or <span class="parameter_light">windspeed1</span></ul></ul>
-        <ul><ul><span class="parameter">parameter</span> can also be several types of measurements separated by commas, for example <span class="parameter_light">swin,swout,netrad</span></ul></ul>
-             <ul><ul><ul><li><a href="#parameter_list" target="_blank">Click here for list of parameters</a></li></ul></ul></ul>
-             <ul><ul><ul><li><span class="parameter_light">multiple</span> means that all parameters will be included in the CSV</li></ul></ul></ul>
-        <ul><ul><span class="timestamp_meaning">timestamp_meaning</span> should be <span class="timestamp_meaning_light">end</span> or <span class="timestamp_meaning_light">beginning</span></ul></ul>
-           <ul><ul><ul><li><span class="timestamp_meaning_light">end</span> means that timestamps are at the "end" of a hour long averaging period</li></ul></ul></ul>
-           <ul><ul><ul><li><span class="timestamp_meaning_light">beginning</span> means that timestamps are at the "beginning" of a hour long averaging period</li></ul></ul></ul>
-       <ul><ul><span class="nodata">nodata</span> represents "null" values in the database</ul></ul>
-           <ul><ul><ul><li><span class="nodata_light">-999</span> means that all "null" values will be "-999" in the CSV file</li></ul></ul></ul>
-           <ul><ul><ul><li><span class="nodata_light">empty</span> means that all "null" values will be "" (empty strings) in the CSV file</li></ul></ul></ul>
-       <ul><ul><span class="start_end">start</span> is the start date of the dataset</ul></ul>
+        <h3 id="details_nead">2. Download NEAD</h3>
+        <p><span class="details_link"><a href="https://www.doi.org/10.16904/envidat.187" target="_blank">Click here for information about the NEAD format</a></span></p>
+        <h4><ul><span class="url">URL template with time range:</span> https://www.envidat.ch/data-api/gcnet/nead/<mark>model</mark>/<span class="timestamp_meaning">timestamp_meaning</span>/<span class="nodata">nodata</span>/<span class="start_end">start</span>/<span class="start_end">end</span></ul></h4>
+         <h4><ul>Example with time range, timestamp meaning 'end' and no data value '' (empty string): <a href="https://www.envidat.ch/data-api/gcnet/nead/swisscamp/end/empty/2020-11-03/2020-11-06" target="_blank">
+            <br>https://www.envidat.ch/data-api/gcnet/nead/swisscamp/end/empty/2020-11-03/2020-11-06</a></ul></h4>
+        <h4><ul><span class="url">URL template returning all records:</span> https://www.envidat.ch/data-api/gcnet/nead/<mark>model</mark>/<span class="timestamp_meaning">timestamp_meaning</span>/<span class="nodata">nodata/</span></ul></h4>
+        <h4><ul>Example returning all records, timestamp meaning 'end' and no data value '' (empty string): <a href="https://www.envidat.ch/data-api/gcnet/nead/swisscamp/end/empty/" target="_blank">
+            <br>https://www.envidat.ch/data-api/gcnet/nead/swisscamp/end/empty/</a></ul></h4>
+        <p><ul><ul><mark>model</mark> should correspond to a GC-Net Station model name listed at <a href="https://www.envidat.ch/data-api/gcnet/models/" target="_blank">https://www.envidat.ch/data-api/gcnet/models/</a>, for example <span class="model_light">swisscamp</span> or <span class="model_light">summit</span></ul></ul>
+           <ul><ul><span class="timestamp_meaning">timestamp_meaning</span> should be <span class="timestamp_meaning_light">end</span> or <span class="timestamp_meaning_light">beginning</span></ul></ul>
+               <ul><ul><ul><li><span class="timestamp_meaning_light">end</span> means that timestamps are at the "end" of a hour long averaging period</li></ul></ul></ul>
+               <ul><ul><ul><li><span class="timestamp_meaning_light">beginning</span> means that timestamps are at the "beginning" of a hour long averaging period</li></ul></ul></ul>
+           <ul><ul><span class="nodata">nodata</span> represents "null" values in the database</ul></ul>
+               <ul><ul><ul><li><span class="nodata_light">-999</span> means that all "null" values will be "-999" in the NEAD file</li></ul></ul></ul>
+               <ul><ul><ul><li><span class="nodata_light">empty</span> means that all "null" values will be "" (empty strings) in the NEAD file</li></ul></ul></ul>
+           <ul><ul><span class="start_end">start</span> is the start date of the dataset</ul></ul>
            <ul><ul><span class="start_end">end</span> is the end date of the dataset (exclusive)</ul></ul>
-           <ul><ul><ul><li><span class="start_end_light">start</span> and <span class="start_end_light">end</span> dates must be in in ISO timestamp date format: YYYY-MM-DD ('2019-12-20')</li></ul></ul></ul>
-           <ul><ul><ul><li><span class="start_end_light">start</span> date must precede <span class="start_end_light">end</span> date</li></ul></ul></ul>
-       <ul><ul>Parameters are aggregated daily for the following derived values: minimum ('_min'), maximum ('_max'), and average ('_avg)</ul></ul>
-        <ul><ul>'day' values are in "year-"day number" format</ul></ul>
-        <ul><ul>'timestamp_first' and 'timestamp_last' are the range of timestamps (inclusive) used for calculating the daily aggregated values</ul></ul>
-    <br>
-    <br>
+               <ul><ul><ul><li><span class="start_end_light">start</span> and <span class="start_end_light">end</span> dates must be in in ISO timestamp date format: YYYY-MM-DD ('2019-12-20')</li></ul></ul></ul>
+               <ul><ul><ul><li><span class="start_end_light">start</span> date must precede <span class="start_end_light">end</span> date</li></ul></ul></ul>
+        <br>
+        <br>
 
-    <hr>
-    <h3 id="parameter_list">Parameter List</h3>
-       <table>
-          <tr>
-              <th>Parameter</th>
-              <th>Name</th>
-              <th>Units</th>
-          </tr>
+        <h3 id="details_csv">3. Download CSV</h3>
+        <h4><ul><span class="url">URL template:</span> https://www.envidat.ch/data-api/gcnet/csv/<mark>model</mark>/<span class="parameter">parameter</span>/<span class="timestamp_meaning">timestamp_meaning</span>/<span class="nodata">nodata</span>/<span class="start_end">start</span>/<span class="start_end">end</span>/</ul></h4>
+            <h4><ul>Example with timestamp meaning 'end' and no data value '-999': <a href="https://www.envidat.ch/data-api/gcnet/csv/swisscamp/airtemp1/end/-999/2020-11-04/2020-11-06/" target="_blank">
+            <br>https://www.envidat.ch/data-api/gcnet/csv/swisscamp/airtemp1/end/-999/2020-11-04/2020-11-06/</a></ul></h4>
+            <h4><ul>Example returning several parameters with timestamp meaning 'end' and no data value '-999': <a href="https://www.envidat.ch/data-api/gcnet/csv/swisscamp/airtemp1,airtemp2,swin,rh1/end/-999/2020-11-04/2020-11-06/" target="_blank">
+            <br>https://www.envidat.ch/data-api/gcnet/csv/swisscamp/airtemp1,airtemp2,swin,rh1/end/-999/2020-11-04/2020-11-06/</a></ul></h4>
+            <h4><ul>Example returning multiple parameters with timestamp meaning 'end' and no data value '-999': <a href="https://www.envidat.ch/data-api/gcnet/csv/swisscamp/multiple/end/-999/2020-11-04/2020-11-06/" target="_blank">
+            <br>https://www.envidat.ch/data-api/gcnet/csv/swisscamp/multiple/end/-999/2020-11-04/2020-11-06/</a> </ul></h4>
+        <p><ul><ul><mark>model</mark> should correspond to a GC-Net Station model name listed at <a href="https://www.envidat.ch/data-api/gcnet/models/" target="_blank">https://www.envidat.ch/data-api/gcnet/models/</a>, for example <span class="model_light">swisscamp</span> or <span class="model_light">summit</span></ul></ul>
+            <ul><ul><span class="parameter">parameter</span> should be a type of measurement, for example <span class="parameter_light">airtemp1</span> or <span class="parameter_light">windspeed1</span></ul></ul>
+            <ul><ul><span class="parameter">parameter</span> can also be several types of measurements separated by commas, for example <span class="parameter_light">airtemp1,airtemp2,swin,rh1</span></ul></ul>
+                 <ul><ul><ul><li><a href="#parameter_list" target="_blank">Click here for list of parameters</a></li></ul></ul></ul>
+                 <ul><ul><ul><li><span class="parameter_light">multiple</span> means that all parameters will be included in the CSV</li></ul></ul></ul>
+            <ul><ul><span class="timestamp_meaning">timestamp_meaning</span> should be <span class="timestamp_meaning_light">end</span> or <span class="timestamp_meaning_light">beginning</span></ul></ul>
+               <ul><ul><ul><li><span class="timestamp_meaning_light">end</span> means that timestamps are at the "end" of a hour long averaging period</li></ul></ul></ul>
+               <ul><ul><ul><li><span class="timestamp_meaning_light">beginning</span> means that timestamps are at the "beginning" of a hour long averaging period</li></ul></ul></ul>
+           <ul><ul><span class="nodata">nodata</span> represents "null" values in the database</ul></ul>
+               <ul><ul><ul><li><span class="nodata_light">-999</span> means that all "null" values will be "-999" in the CSV file</li></ul></ul></ul>
+               <ul><ul><ul><li><span class="nodata_light">empty</span> means that all "null" values will be "" (empty strings) in the CSV file</li></ul></ul></ul>
+           <ul><ul><span class="start_end">start</span> is the start date of the dataset</ul></ul>
+           <ul><ul><span class="start_end">end</span> is the end date of the dataset (exclusive)</ul></ul>
+               <ul><ul><ul><li><span class="start_end_light">start</span> and <span class="start_end_light">end</span> dates must be in in ISO timestamp date format: YYYY-MM-DD ('2019-12-20')</li></ul></ul></ul>
+               <ul><ul><ul><li><span class="start_end_light">start</span> date must precede <span class="start_end_light">end</span> date</li></ul></ul></ul>
+        <br>
+        <br>
 
-           <tr>
-              <td>swin</td>
-              <td>Shortwave Incoming Radiation</td>
-              <td>W m<sup>-2</sup></td>
-           </tr>
+        <h3 id="details_json">4. Return JSON Data</h3>
+        <h4><ul><span class="url">URL template:</span> https://www.envidat.ch/data-api/gcnet/json/<mark>model</mark>/<span class="parameter">parameter</span>/<span class="start_end">start</span>/<span class="start_end">end</span>/</ul></h4>
+        <h4><ul>Example: <a href="https://www.envidat.ch/data-api/gcnet/json/swisscamp/airtemp2/2020-11-04T17:00:00/2020-11-10T00:00:00/" target="_blank">
+            https://www.envidat.ch/data-api/gcnet/json/swisscamp/airtemp2/2020-11-04T17:00:00/2020-11-10T00:00:00/</a></ul></h4>
+        <h4><ul>Example returning several parameters: <a href="https://www.envidat.ch/data-api/gcnet/json/swisscamp/airtemp1,airtemp2,windspeed1/2020-11-04T17:00:00/2020-11-10T00:00:00/" target="_blank">
+            <br>https://www.envidat.ch/data-api/gcnet/json/swisscamp/airtemp1,airtemp2,windspeed1/2020-11-04T17:00:00/2020-11-10T00:00:00/</a></ul></h4>
+        <h4><ul>Example returning multiple parameters: <a href="https://www.envidat.ch/data-api/gcnet/json/swisscamp/multiple/2020-11-04T17:00:00/2020-11-10T00:00:00/" target="_blank">
+            <br>https://www.envidat.ch/data-api/gcnet/json/swisscamp/multiple/2020-11-04T17:00:00/2020-11-10T00:00:00/</a></ul></h4>
+        <p><ul><ul><mark>model</mark> should correspond to a GC-Net Station model name listed at <a href="https://www.envidat.ch/data-api/gcnet/models/" target="_blank">https://www.envidat.ch/data-api/gcnet/models/</a>, for example <span class="model_light">swisscamp</span> or <span class="model_light">summit</span></ul></ul>
+            <ul><ul><span class="parameter">parameter</span> should be a type of measurement, for example <span class="parameter_light">airtemp1</span> or <span class="parameter_light">windspeed1</span></ul></ul>
+            <ul><ul><span class="parameter">parameter</span> can also be several types of measurements separated by commas, for example <span class="parameter_light">airtemp1,airtemp2,windspeed1</span></ul></ul>
+                 <ul><ul><ul><li><a href="#parameter_list" target="_blank">Click here for list of parameters</a></li></ul></ul></ul>
+            <ul><ul><ul><li><span class="parameter_light">multiple</span> means that all parameters will be included in the returned JSON data</li></ul></ul></ul>
+            <ul><ul><span class="start_end">start</span> is the start date and time of the dataset</ul></ul>
+            <ul><ul><span class="start_end">end</span> is the end date and time of the dataset</ul></ul>
+                 <ul><ul><ul><li><span class="start_end_light">start</span> date must precede <span class="start_end_light">end</span> date</li></ul></ul></ul>
+                 <ul><ul><ul><li><span class="start_end_light">start</span> and <span class="start_end_light">end</span> must be in in ISO timestamp date and time format: YYYY-MM-DDTHH:MM:SS ('2020-10-20T17:00:00)</li></ul></ul></ul>
+        <br>
+        <br>
 
-           <tr>
-              <td>swout</td>
-              <td>Shortwave Outgoing Radiation</td>
-              <td>W m<sup>-2</sup></td>
-            </tr>
+        <h3 id="details_json_daily_summary">5. Return Daily Summary JSON Data</h3>
+        <h4><ul><span class="url">URL template:</span> https://www.envidat.ch/data-api/gcnet/summary/daily/json/<mark>model</mark>/<span class="parameter">parameter</span>/<span class="start_end">start</span>/<span class="start_end">end</span>/</ul></h4>
+        <h4><ul>Example: <a href="http://www.envidat.ch/data-api/gcnet/summary/daily/json/swisscamp/airtemp1/2020-11-03/2020-11-06/" target="_blank">
+            http://www.envidat.ch/data-api/gcnet/summary/daily/json/swisscamp/airtemp1/2020-11-03/2020-11-06/</a></ul></h4>
+        <h4><ul>Example returning several parameters: <a href="http://www.envidat.ch/data-api/gcnet/summary/daily/json/swisscamp/airtemp1,airtemp2,rh1/2020-11-03/2020-11-06/" target="_blank">
+            <br>http://www.envidat.ch/data-api/gcnet/summary/daily/json/swisscamp/airtemp1,airtemp2,rh1/2020-11-03/2020-11-06/</a></ul></h4>
+        <h4><ul>Example returning multiple parameters: <a href="http://www.envidat.ch/data-api/gcnet/summary/daily/json/swisscamp/multiple/2020-11-03/2020-11-06/" target="_blank">
+            <br>http://www.envidat.ch/data-api/gcnet/summary/daily/json/swisscamp/multiple/2020-11-03/2020-11-06/</a></ul></h4>
+        <p><ul><ul><mark>model</mark> should correspond to a GC-Net Station model name listed at <a href="https://www.envidat.ch/data-api/gcnet/models/" target="_blank">https://www.envidat.ch/data-api/gcnet/models/</a>, for example <span class="model_light">swisscamp</span> or <span class="model_light">summit</span></ul></ul>
+            <ul><ul><span class="parameter">parameter</span> should be a type of measurement, for example <span class="parameter_light">airtemp1</span> or <span class="parameter_light">windspeed1</span></ul></ul>
+            <ul><ul><span class="parameter">parameter</span> can also be several types of measurements separated by commas, for example <span class="parameter_light">airtemp1,airtemp2,rh1</span></ul></ul>
+                 <ul><ul><ul><li><a href="#parameter_list" target="_blank">Click here for list of parameters</a></li></ul></ul></ul>
+            <ul><ul><ul><li><span class="parameter_light">multiple</span> means that all parameters and their aggregated values will be included in the returned JSON data</li></ul></ul></ul>
+            <ul><ul><span class="start_end">start</span> is the start date of the dataset</ul></ul>
+            <ul><ul><span class="start_end">end</span> is the end date of the dataset (exclusive)</ul></ul>
+               <ul><ul><ul><li><span class="start_end_light">start</span> and <span class="start_end_light">end</span> dates must be in in ISO timestamp date format: YYYY-MM-DD ('2019-12-20')</li></ul></ul></ul>
+               <ul><ul><ul><li><span class="start_end_light">start</span> date must precede <span class="start_end_light">end</span> date</li></ul></ul></ul>
+            <ul><ul>Parameters are aggregated daily for the following derived values: minimum ('_min'), maximum ('_max'), and average ('_avg)</ul></ul>
+            <ul><ul>'day' values are in "year-"day number" format</ul></ul>
+            <ul><ul>'timestamp_first' and 'timestamp_last' are the range of timestamps (inclusive) used for calculating the daily aggregated values</ul></ul>
+            <ul>Sample Output:</ul>
+                   <ul><ul><span class="output">
+                   [
+                        <ul>{
+                            <ul>day: "2020-308",
+                            <br>timestamp_first: "2020-11-03T00:00:00Z",
+                            <br>timestamp_last: "2020-11-03T23:00:00Z",
+                            <br>airtemp1_min: -21.93,
+                            <br>airtemp1_max: -3.15,
+                            <br>airtemp1_avg: -12.93
+                            </ul>},
+                            <br>{
+                            <ul>day: "2020-309",
+                            <br>timestamp_first: "2020-11-04T00:00:00Z",
+                            <br>timestamp_last: "2020-11-04T23:00:00Z",
+                            <br>airtemp1_min: -10.47,
+                            <br>airtemp1_max: -4.15,
+                            <br>airtemp1_avg: -7.59
+                            </ul>},
+                            <br>{
+                            <ul>day: "2020-310",
+                            <br>timestamp_first: "2020-11-05T00:00:00Z",
+                            <br>timestamp_last: "2020-11-05T23:00:00Z",
+                            <br>airtemp1_min: -20.21,
+                            <br>airtemp1_max: -10.65,
+                            <br>airtemp1_avg: -14.39
+                            </ul>}</ul>
+                    ]
+               </span></ul></ul>
+        <br>
+        <br>
 
-           <tr>
-              <td>netrad</td>
-              <td>Net Radiation</td>
-              <td>W m<sup>-2</sup></td>
-           </tr>
+        <h3 id="details_csv_daily_summary">6. Download Daily Summary CSV</h3>
+        <h4><ul><span class="url">URL template:</span> https://www.envidat.ch/data-api/gcnet/summary/daily/csv/<mark>model</mark>/<span class="parameter">parameter</span>/<span class="timestamp_meaning">timestamp_meaning</span>/<span class="nodata">nodata</span>/<span class="start_end">start</span>/<span class="start_end">end</span>/</ul></h4>
+        <h4><ul>Example with timestamp meaning 'end' and no data value '' (empty string): <a href="https://www.envidat.ch/data-api/gcnet/summary/daily/csv/swisscamp/windspeed1/end/empty/2020-11-01/2020-11-06/" target="_blank">
+            <br>https://www.envidat.ch/data-api/gcnet/summary/daily/csv/swisscamp/windspeed1/end/empty/2020-11-01/2020-11-06/</a></ul></h4>
+        <h4><ul>Example returning several parameters with timestamp meaning 'end' and no data value '' (empty string): <a href="https://www.envidat.ch/data-api/gcnet/summary/daily/csv/swisscamp/swin,swout,netrad/end/empty/2020-11-01/2020-11-06/" target="_blank">
+            <br>https://www.envidat.ch/data-api/gcnet/summary/daily/csv/swisscamp/swin,swout,netrad/end/empty/2020-11-01/2020-11-06/</a></ul></h4>
+        <h4><ul>Example returning multiple parameters with timestamp meaning 'end' and no data value '' (empty string): <a href="https://www.envidat.ch/data-api/gcnet/summary/daily/csv/swisscamp/multiple/end/empty/2020-11-01/2020-11-06/" target="_blank">
+            <br>https://www.envidat.ch/data-api/gcnet/summary/daily/csv/swisscamp/multiple/end/empty/2020-11-01/2020-11-06/</a></ul></h4>
+        <p><ul><ul><mark>model</mark> should correspond to a GC-Net Station model name listed at <a href="https://www.envidat.ch/data-api/gcnet/models/" target="_blank">https://www.envidat.ch/data-api/gcnet/models/</a>, for example <span class="model_light">swisscamp</span> or <span class="model_light">summit</span></ul></ul>
+            <ul><ul><span class="parameter">parameter</span> should be a type of measurement, for example <span class="parameter_light">airtemp1</span> or <span class="parameter_light">windspeed1</span></ul></ul>
+            <ul><ul><span class="parameter">parameter</span> can also be several types of measurements separated by commas, for example <span class="parameter_light">swin,swout,netrad</span></ul></ul>
+                 <ul><ul><ul><li><a href="#parameter_list" target="_blank">Click here for list of parameters</a></li></ul></ul></ul>
+                 <ul><ul><ul><li><span class="parameter_light">multiple</span> means that all parameters will be included in the CSV</li></ul></ul></ul>
+            <ul><ul><span class="timestamp_meaning">timestamp_meaning</span> should be <span class="timestamp_meaning_light">end</span> or <span class="timestamp_meaning_light">beginning</span></ul></ul>
+               <ul><ul><ul><li><span class="timestamp_meaning_light">end</span> means that timestamps are at the "end" of a hour long averaging period</li></ul></ul></ul>
+               <ul><ul><ul><li><span class="timestamp_meaning_light">beginning</span> means that timestamps are at the "beginning" of a hour long averaging period</li></ul></ul></ul>
+           <ul><ul><span class="nodata">nodata</span> represents "null" values in the database</ul></ul>
+               <ul><ul><ul><li><span class="nodata_light">-999</span> means that all "null" values will be "-999" in the CSV file</li></ul></ul></ul>
+               <ul><ul><ul><li><span class="nodata_light">empty</span> means that all "null" values will be "" (empty strings) in the CSV file</li></ul></ul></ul>
+           <ul><ul><span class="start_end">start</span> is the start date of the dataset</ul></ul>
+               <ul><ul><span class="start_end">end</span> is the end date of the dataset (exclusive)</ul></ul>
+               <ul><ul><ul><li><span class="start_end_light">start</span> and <span class="start_end_light">end</span> dates must be in in ISO timestamp date format: YYYY-MM-DD ('2019-12-20')</li></ul></ul></ul>
+               <ul><ul><ul><li><span class="start_end_light">start</span> date must precede <span class="start_end_light">end</span> date</li></ul></ul></ul>
+           <ul><ul>Parameters are aggregated daily for the following derived values: minimum ('_min'), maximum ('_max'), and average ('_avg)</ul></ul>
+            <ul><ul>'day' values are in "year-"day number" format</ul></ul>
+            <ul><ul>'timestamp_first' and 'timestamp_last' are the range of timestamps (inclusive) used for calculating the daily aggregated values</ul></ul>
+        <br>
+        <br>
 
-           <tr>
-              <td>airtemp1</td>
-              <td>Thermocouple Air Temperature 1</td>
-              <td>&deg;C</td>
-           </tr>
+        <hr>
+        <h3 id="parameter_list">Parameter List</h3>
+           <table>
+              <tr>
+                  <th>Parameter</th>
+                  <th>Name</th>
+                  <th>Units</th>
+              </tr>
 
-           <tr>
-              <td>airtemp2</td>
-              <td>Thermocouple Air Temperature 2</td>
-              <td>&deg;C</td>
-           </tr>
+               <tr>
+                  <td>swin</td>
+                  <td>Shortwave Incoming Radiation</td>
+                  <td>W m<sup>-2</sup></td>
+               </tr>
 
-           <tr>
-              <td>airtemp_cs500air1</td>
-              <td>CS500 Air Temperature 1</td>
-              <td>&deg;C</td>
-           </tr>
+               <tr>
+                  <td>swout</td>
+                  <td>Shortwave Outgoing Radiation</td>
+                  <td>W m<sup>-2</sup></td>
+                </tr>
 
-           <tr>
-              <td>airtemp_cs500air2</td>
-              <td>CS500 Air Temperature 2</td>
-              <td>&deg;C</td>
-           </tr>
+               <tr>
+                  <td>netrad</td>
+                  <td>Net Radiation</td>
+                  <td>W m<sup>-2</sup></td>
+               </tr>
 
-           <tr>
-              <td>rh1</td>
-              <td>Relative Humidity 1</td>
-              <td>%</td>
-           </tr>
+               <tr>
+                  <td>airtemp1</td>
+                  <td>Thermocouple Air Temperature 1</td>
+                  <td>&deg;C</td>
+               </tr>
 
-           <tr>
-              <td>rh2</td>
-              <td>Relative Humidity 2</td>
-              <td>%</td>
-           </tr>
+               <tr>
+                  <td>airtemp2</td>
+                  <td>Thermocouple Air Temperature 2</td>
+                  <td>&deg;C</td>
+               </tr>
 
-           <tr>
-              <td>windspeed1</td>
-              <td>Wind Speed 1</td>
-             <td>m s<sup>-1</sup></td>
-           </tr>
+               <tr>
+                  <td>airtemp_cs500air1</td>
+                  <td>CS500 Air Temperature 1</td>
+                  <td>&deg;C</td>
+               </tr>
 
-           <tr>
-              <td>windspeed2</td>
-              <td>Wind Speed 2</td>
-              <td>m s<sup>-1</sup></td>
-           </tr>
+               <tr>
+                  <td>airtemp_cs500air2</td>
+                  <td>CS500 Air Temperature 2</td>
+                  <td>&deg;C</td>
+               </tr>
 
-           <tr>
-              <td>winddir1</td>
-              <td>Wind Direction 1</td>
-              <td>degrees</td>
-           </tr>
+               <tr>
+                  <td>rh1</td>
+                  <td>Relative Humidity 1</td>
+                  <td>%</td>
+               </tr>
 
-           <tr>
-              <td>winddir2</td>
-              <td>Wind Direction 2</td>
-              <td>degrees</td>
-           </tr>
+               <tr>
+                  <td>rh2</td>
+                  <td>Relative Humidity 2</td>
+                  <td>%</td>
+               </tr>
 
-           <tr>
-              <td>pressure</td>
-              <td>Atmospheric Pressure</td>
-              <td>mb</td>
-           </tr>
+               <tr>
+                  <td>windspeed1</td>
+                  <td>Wind Speed 1</td>
+                 <td>m s<sup>-1</sup></td>
+               </tr>
 
-           <tr>
-              <td>sh1</td>
-              <td>Snow Surface Distance 1</td>
-              <td>m</td>
-           </tr>
+               <tr>
+                  <td>windspeed2</td>
+                  <td>Wind Speed 2</td>
+                  <td>m s<sup>-1</sup></td>
+               </tr>
 
-           <tr>
-              <td>sh2</td>
-              <td>Snow Surface Distance 2</td>
-              <td>m</td>
-           </tr>
+               <tr>
+                  <td>winddir1</td>
+                  <td>Wind Direction 1</td>
+                  <td>degrees</td>
+               </tr>
 
-           <tr>
-              <td>battvolt</td>
-              <td>Battery Voltage</td>
-              <td>V</td>
-           </tr>
+               <tr>
+                  <td>winddir2</td>
+                  <td>Wind Direction 2</td>
+                  <td>degrees</td>
+               </tr>
 
-           <tr>
-              <td>swin_maximum</td>
-              <td>Shortwave Incoming Radiation Maximum</td>
-              <td>W m<sup>-2</sup></td>
-           </tr>
+               <tr>
+                  <td>pressure</td>
+                  <td>Atmospheric Pressure</td>
+                  <td>mb</td>
+               </tr>
 
-           <tr>
-              <td>swout_minimum</td>
-              <td>Shortwave Outgoing Radiation Minimum</td>
-              <td>W m<sup>-2</sup></td>
-           </tr>
+               <tr>
+                  <td>sh1</td>
+                  <td>Snow Surface Distance 1</td>
+                  <td>m</td>
+               </tr>
 
-           <tr>
-              <td>netrad_max</td>
-              <td>Net Radiation Maximum</td>
-              <td>W m<sup>-2</sup></td>
-           </tr>
+               <tr>
+                  <td>sh2</td>
+                  <td>Snow Surface Distance 2</td>
+                  <td>m</td>
+               </tr>
 
-           <tr>
-              <td>airtemp1_maximum</td>
-              <td>Thermocouple Air Temperature 1 Maximum</td>
-              <td>&deg;C</td>
-           </tr>
+               <tr>
+                  <td>battvolt</td>
+                  <td>Battery Voltage</td>
+                  <td>V</td>
+               </tr>
 
-           <tr>
-              <td>airtemp2_maximum</td>
-              <td>Thermocouple Air Temperature 2 Maximum</td>
-              <td>&deg;C</td>
-           </tr>
+               <tr>
+                  <td>swin_maximum</td>
+                  <td>Shortwave Incoming Radiation Maximum</td>
+                  <td>W m<sup>-2</sup></td>
+               </tr>
 
-           <tr>
-              <td>airtemp1_minimum</td>
-              <td>Thermocouple Air Temperature 1 Minimum</td>
-              <td>&deg;C</td>
-           </tr>
+               <tr>
+                  <td>swout_minimum</td>
+                  <td>Shortwave Outgoing Radiation Minimum</td>
+                  <td>W m<sup>-2</sup></td>
+               </tr>
 
-           <tr>
-              <td>airtemp2_minimum</td>
-              <td>Thermocouple Air Temperature 2 Minimum</td>
-              <td>&deg;C</td>
-           </tr>
+               <tr>
+                  <td>netrad_max</td>
+                  <td>Net Radiation Maximum</td>
+                  <td>W m<sup>-2</sup></td>
+               </tr>
 
-           <tr>
-              <td>windspeed_u1_maximum</td>
-              <td>Wind Speed 1 Maximum</td>
-              <td>m s<sup>-1</sup></td>
-           </tr>
+               <tr>
+                  <td>airtemp1_maximum</td>
+                  <td>Thermocouple Air Temperature 1 Maximum</td>
+                  <td>&deg;C</td>
+               </tr>
 
-           <tr>
-              <td>windspeed_u2_maximum</td>
-              <td>Wind Speed 2 Maximum</td>
-              <td>m s<sup>-1</sup></td>
-           </tr>
+               <tr>
+                  <td>airtemp2_maximum</td>
+                  <td>Thermocouple Air Temperature 2 Maximum</td>
+                  <td>&deg;C</td>
+               </tr>
 
-           <tr>
-              <td>windspeed_u1_stdev</td>
-              <td>Wind Speed 1 Standard Deviation</td>
-              <td>m s<sup>-1</sup></td>
-           </tr>
+               <tr>
+                  <td>airtemp1_minimum</td>
+                  <td>Thermocouple Air Temperature 1 Minimum</td>
+                  <td>&deg;C</td>
+               </tr>
 
-           <tr>
-              <td>windspeed_u2_stdev</td>
-              <td>Wind Speed 2 Standard Deviation</td>
-              <td>m s<sup>-1</sup></td>
-           </tr>
+               <tr>
+                  <td>airtemp2_minimum</td>
+                  <td>Thermocouple Air Temperature 2 Minimum</td>
+                  <td>&deg;C</td>
+               </tr>
 
-           <tr>
-              <td>reftemp</td>
-              <td>Reference Temperature</td>
-              <td>&deg;C</td>
-           </tr>
+               <tr>
+                  <td>windspeed_u1_maximum</td>
+                  <td>Wind Speed 1 Maximum</td>
+                  <td>m s<sup>-1</sup></td>
+               </tr>
+
+               <tr>
+                  <td>windspeed_u2_maximum</td>
+                  <td>Wind Speed 2 Maximum</td>
+                  <td>m s<sup>-1</sup></td>
+               </tr>
+
+               <tr>
+                  <td>windspeed_u1_stdev</td>
+                  <td>Wind Speed 1 Standard Deviation</td>
+                  <td>m s<sup>-1</sup></td>
+               </tr>
+
+               <tr>
+                  <td>windspeed_u2_stdev</td>
+                  <td>Wind Speed 2 Standard Deviation</td>
+                  <td>m s<sup>-1</sup></td>
+               </tr>
+
+               <tr>
+                  <td>reftemp</td>
+                  <td>Reference Temperature</td>
+                  <td>&deg;C</td>
+               </tr>
 
 
-        </table>
+           </table>
+    </div>
 
 </body>
 
 </html>
-
