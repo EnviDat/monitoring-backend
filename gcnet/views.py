@@ -1,6 +1,7 @@
 import os
 
 from django.core.exceptions import FieldError
+from django.db.models import Max, Min
 from django.http import JsonResponse, StreamingHttpResponse, HttpResponseNotFound
 from django.shortcuts import render
 
@@ -8,7 +9,7 @@ from gcnet.util.http_errors import model_http_error, parameter_http_error, times
     station_http_error, timestamp_http_error, date_http_error
 from gcnet.util.stream import stream, get_timestamp_iso_range_day_dict
 from gcnet.util.views_helpers import validate_date_gcnet, read_config, get_model, get_hashed_lines, get_null_value, \
-    get_dict_fields, get_display_values
+    get_dict_fields, get_display_values, get_model_from_config
 from gcnet.util.write_nead_config import write_nead_config
 
 
@@ -45,15 +46,20 @@ def get_model_stations(request):
 
 # Return metadata about a station
 def get_station_metadata(request, **kwargs):
+    # Assign variables
+    model_url = kwargs['model']
+    section_id = ''
 
-    # Assign kwarg from url to variable
-    model = kwargs['model']
-
+    # ===================================  VALIDATE KWARG and GET SECTION ID ===========================================
     # Validate the model
     try:
-        model_class = get_model(model)
+        model_class = get_model(model_url)
     except AttributeError:
-        return model_http_error(model)
+        return model_http_error(model_url)
+
+    # Assign model from model_url
+    model = get_model_from_config(model_url)
+    # print('MODEL ' + model)
 
     # Read the stations config file
     local_dir = os.path.dirname(__file__)
@@ -64,19 +70,43 @@ def get_station_metadata(request, **kwargs):
     if not stations_config:
         return station_http_error()
 
-    # Assign variable to contain name of station
-    station_name = ''
-
     # Find section_id for section with model passed in url kwarg
     for section in stations_config.sections():
         if stations_config.has_option(section, 'model') and stations_config.get(section, 'model') == model:
             section_id = section
-            print(section_id)
 
-    print('TEST ' + str(section_id))
+    # Get fields (parameters)
+    swin = {"short_name": "swin", "full_name" : "Shortwave Incoming Radiation", "unit": "W m-2"}
+    swout = {"short_name": "swout", "full_name": "Shortwave Outgoing Radiation", "unit": "W m-2"}
+    # test = {"short_name": "test", "full_name": "test name", "unit": "test W m-2"}
+    fields = [field.name for field in model_class._meta.get_fields()]
+    dicts_parameters = [swin, swout]
+    # print(fields)
 
-    return JsonResponse(station_name, safe=False)
+    # ===================================  RETURN JSON RESPONSE ========================================================
+    try:
+        queryset = model_class.objects.all() \
+            .aggregate(Max('timestamp_iso'), Max('timestamp'), Min('timestamp_iso'), Min('timestamp'))
 
+        # TODO remove the following two lines that converts unix timestamps
+        #  from whole seconds into milliseconds after data re-imported
+        queryset['timestamp__max'] = queryset['timestamp__max'] * 1000
+        queryset['timestamp__min'] = queryset['timestamp__min'] * 1000
+
+        # Append station_name to queryset
+        queryset['station_name'] = stations_config.get(section_id, 'name')
+
+        # TEST
+        for parameter in dicts_parameters:
+            if parameter['short_name'] in fields:
+                queryset[parameter['short_name']] = parameter
+            
+        # queryset['swin'] = swin
+        # queryset['swout'] = swout
+
+        return JsonResponse(queryset, safe=False)
+    except Exception as e:
+        print('ERROR (views.py): {0}'.format(e))
 
 
 # User customized view that returns JSON data based on parameter(s) specified by station
@@ -84,7 +114,6 @@ def get_station_metadata(request, **kwargs):
 # Parameter: if KWARG_RETURNED_PARAMETERS selected then returns returned_parameters
 # Accepts ISO timestamp ranges
 def get_json_data(request, **kwargs):
-
     # Assign kwargs from url to variables
     start = kwargs['start']
     end = kwargs['end']
@@ -134,7 +163,6 @@ def get_json_data(request, **kwargs):
 # Users can enter as many parameters as desired by using a comma separated string for kwargs['parameters']
 # User customized view that returns data based parameter specified
 def get_aggregate_data(request, timestamp_meaning='', nodata='', **kwargs):
-
     # Assign kwargs from url to variables
     start = kwargs['start']
     end = kwargs['end']
