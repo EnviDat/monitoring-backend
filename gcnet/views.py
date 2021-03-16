@@ -43,6 +43,42 @@ def get_model_stations(request):
     return JsonResponse(model_stations, safe=False)
 
 
+# Return metadata about a station
+def get_station_metadata(request, **kwargs):
+
+    # Assign kwarg from url to variable
+    model = kwargs['model']
+
+    # Validate the model
+    try:
+        model_class = get_model(model)
+    except AttributeError:
+        return model_http_error(model)
+
+    # Read the stations config file
+    local_dir = os.path.dirname(__file__)
+    stations_path = os.path.join(local_dir, 'config/stations.ini')
+    stations_config = read_config(stations_path)
+
+    # Check if stations_config exists
+    if not stations_config:
+        return station_http_error()
+
+    # Assign variable to contain name of station
+    station_name = ''
+
+    # Find section_id for section with model passed in url kwarg
+    for section in stations_config.sections():
+        if stations_config.has_option(section, 'model') and stations_config.get(section, 'model') == model:
+            section_id = section
+            print(section_id)
+
+    print('TEST ' + str(section_id))
+
+    return JsonResponse(station_name, safe=False)
+
+
+
 # User customized view that returns JSON data based on parameter(s) specified by station
 # Users can enter as many parameters as desired by using a comma separated string for kwargs['parameters']
 # Parameter: if KWARG_RETURNED_PARAMETERS selected then returns returned_parameters
