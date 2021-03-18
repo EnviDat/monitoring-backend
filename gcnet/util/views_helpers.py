@@ -12,7 +12,6 @@ import configparser
 
 from gcnet.util.geometry import convert_string_to_list
 
-
 # =========================================== CONSTANTS ===============================================================
 
 # String passed in kwargs['parameters'] that is used to return returned_parameters
@@ -20,34 +19,34 @@ ALL_DISPLAY_VALUES_STRING = 'multiple'
 
 # Specifies which fields to return from database table
 ALL_DISPLAY_VALUES = ['swin',
-                       'swin_maximum',
-                       'swout',
-                       'swout_minimum',
-                       'netrad',
-                       'netrad_maximum',
-                       'airtemp1',
-                       'airtemp1_maximum',
-                       'airtemp1_minimum',
-                       'airtemp2',
-                       'airtemp2_maximum',
-                       'airtemp2_minimum',
-                       'airtemp_cs500air1',
-                       'airtemp_cs500air2',
-                       'rh1',
-                       'rh2',
-                       'windspeed1',
-                       'windspeed_u1_maximum',
-                       'windspeed_u1_stdev',
-                       'windspeed2',
-                       'windspeed_u2_maximum',
-                       'windspeed_u2_stdev',
-                       'winddir1',
-                       'winddir2',
-                       'pressure',
-                       'sh1',
-                       'sh2',
-                       'battvolt',
-                       'reftemp']
+                      'swin_maximum',
+                      'swout',
+                      'swout_minimum',
+                      'netrad',
+                      'netrad_maximum',
+                      'airtemp1',
+                      'airtemp1_maximum',
+                      'airtemp1_minimum',
+                      'airtemp2',
+                      'airtemp2_maximum',
+                      'airtemp2_minimum',
+                      'airtemp_cs500air1',
+                      'airtemp_cs500air2',
+                      'rh1',
+                      'rh2',
+                      'windspeed1',
+                      'windspeed_u1_maximum',
+                      'windspeed_u1_stdev',
+                      'windspeed2',
+                      'windspeed_u2_maximum',
+                      'windspeed_u2_stdev',
+                      'winddir1',
+                      'winddir2',
+                      'pressure',
+                      'sh1',
+                      'sh2',
+                      'battvolt',
+                      'reftemp']
 
 
 # =========================================== FUNCTIONS ===============================================================
@@ -104,6 +103,11 @@ def validate_unix_timestamp(date_text):
 def get_model(model):
     model_url = model.rsplit('.', 1)[-1]
     class_name = get_model_from_config(model_url)
+    package = importlib.import_module("gcnet.models")
+    return getattr(package, class_name)
+
+
+def get_model_class(class_name):
     package = importlib.import_module("gcnet.models")
     return getattr(package, class_name)
 
@@ -202,7 +206,6 @@ def validate_display_values(parameters, model_class):
 # If parameters == ALL_DISPLAY_VALUES_STRING assign display_values to values in returned_parameters
 # Else validate parameter(s) passed in URL
 def get_display_values(parameters, model_class):
-
     if parameters == ALL_DISPLAY_VALUES_STRING:
         return ALL_DISPLAY_VALUES
 

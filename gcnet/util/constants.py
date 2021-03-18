@@ -2,7 +2,6 @@ from enum import Enum
 
 
 class Columns(Enum):
-
     TIMESTAMP_ISO = 'timestamp_iso'
     TIMESTAMP = 'timestamp'
     YEAR = 'year'
@@ -44,3 +43,11 @@ class Columns(Enum):
     @staticmethod
     def get_columns():
         return [name.value for name in Columns]
+
+    @staticmethod
+    def get_parameters():
+        parameters = [name for name in Columns]
+        time_fields = [Columns.TIMESTAMP_ISO, Columns.TIMESTAMP, Columns.YEAR, Columns.JULIANDAY, Columns.QUARTERDAY,
+                       Columns.HALFDAY, Columns.DAY, Columns.WEEK]
+        parameters = [elem.value for elem in parameters if elem not in time_fields]
+        return parameters
