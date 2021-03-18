@@ -21,7 +21,7 @@ from gcnet.views import get_model_stations, streaming_csv_view_v1, get_aggregate
 
 urlpatterns = [
     path('models/', get_model_stations),
-    path('metadata/<str:model>/', get_station_metadata),
+    path('metadata/', get_station_metadata),
 
     path('json/<str:model>/<str:parameters>/<str:start>/<str:end>/', get_json_data),
     path('csv/<str:model>/<str:parameters>/<str:timestamp_meaning>/<str:nodata>/<str:start>/<str:end>/', get_csv),

@@ -5,11 +5,12 @@ from django.db.models import Max, Min
 from django.http import JsonResponse, StreamingHttpResponse, HttpResponseNotFound
 from django.shortcuts import render
 
+from gcnet.util.constants import Columns
 from gcnet.util.http_errors import model_http_error, parameter_http_error, timestamp_meaning_http_error, \
     station_http_error, timestamp_http_error, date_http_error
 from gcnet.util.stream import stream, get_timestamp_iso_range_day_dict
 from gcnet.util.views_helpers import validate_date_gcnet, read_config, get_model, get_hashed_lines, get_null_value, \
-    get_dict_fields, get_display_values, get_model_from_config
+    get_dict_fields, get_display_values, get_model_from_config, get_model_class
 from gcnet.util.write_nead_config import write_nead_config
 
 
@@ -46,21 +47,6 @@ def get_model_stations(request):
 
 # Return metadata about a station
 def get_station_metadata(request, **kwargs):
-    # Assign variables
-    model_url = kwargs['model']
-    section_id = ''
-
-    # ===================================  VALIDATE KWARG and GET SECTION ID ===========================================
-    # Validate the model
-    try:
-        model_class = get_model(model_url)
-    except AttributeError:
-        return model_http_error(model_url)
-
-    # Assign model from model_url
-    model = get_model_from_config(model_url)
-    # print('MODEL ' + model)
-
     # Read the stations config file
     local_dir = os.path.dirname(__file__)
     stations_path = os.path.join(local_dir, 'config/stations.ini')
@@ -70,41 +56,56 @@ def get_station_metadata(request, **kwargs):
     if not stations_config:
         return station_http_error()
 
-    # Find section_id for section with model passed in url kwarg
+    # loop through each station in stations_config, create section-model key-pair for each station currently in API
+    section_models = {}
     for section in stations_config.sections():
-        if stations_config.has_option(section, 'model') and stations_config.get(section, 'model') == model:
-            section_id = section
+        if stations_config.get(section, 'api') == 'True':
+            model = stations_config.get(section, 'model')
+            section_models[section] = model
 
-    # Get fields (parameters)
-    swin = {"short_name": "swin", "full_name" : "Shortwave Incoming Radiation", "unit": "W m-2"}
-    swout = {"short_name": "swout", "full_name": "Shortwave Outgoing Radiation", "unit": "W m-2"}
-    # test = {"short_name": "test", "full_name": "test name", "unit": "test W m-2"}
-    fields = [field.name for field in model_class._meta.get_fields()]
-    dicts_parameters = [swin, swout]
-    # print(fields)
+    # Convert model strings into model classes
+    for section, model in section_models.items():
+        section_models[section] = get_model_class(model)
 
     # ===================================  RETURN JSON RESPONSE ========================================================
     try:
-        queryset = model_class.objects.all() \
-            .aggregate(Max('timestamp_iso'), Max('timestamp'), Min('timestamp_iso'), Min('timestamp'))
+        metadata = {}
+        for section, model in section_models.items():
 
-        # TODO remove the following two lines that converts unix timestamps
-        #  from whole seconds into milliseconds after data re-imported
-        queryset['timestamp__max'] = queryset['timestamp__max'] * 1000
-        queryset['timestamp__min'] = queryset['timestamp__min'] * 1000
+            model_name = model.__name__
 
-        # Append station_name to queryset
-        queryset['station_name'] = stations_config.get(section_id, 'name')
+            queryset = {'name': stations_config.get(section, 'name'),
+                        'timestamp_iso_earliest': stations_config.get(section, 'timestamp_iso_earliest'),
+                        'timestamp_earliest': stations_config.get(section, 'timestamp_earliest')}
 
-        # TEST
-        for parameter in dicts_parameters:
-            if parameter['short_name'] in fields:
-                queryset[parameter['short_name']] = parameter
-            
-        # queryset['swin'] = swin
-        # queryset['swout'] = swout
+            parameters = Columns.get_parameters()
 
-        return JsonResponse(queryset, safe=False)
+            for parameter in parameters:
+
+                filter_dict = {f'{parameter}__isnull': False}
+
+                queryset[parameter] = (model.objects
+                                       .filter(**filter_dict)
+                                       .all()
+                                       .aggregate(Max('timestamp_iso'), Max('timestamp'), Min('timestamp_iso'),
+                                                  Min('timestamp')))
+
+                # print('{2} {0} {1}'.format(parameter, queryset[parameter].get('timestamp__max'), model_name))
+
+                timestamp_max = queryset[parameter].get('timestamp__max')
+                timestamp_min = queryset[parameter].get('timestamp__min')
+
+                # TODO remove the following block that converts unix timestamps
+                #  from whole seconds into milliseconds after data re-imported
+                if timestamp_max is not None and timestamp_min is not None:
+                    timestamp_max_dict = {'timestamp__max': timestamp_max * 1000}
+                    queryset[parameter].update(timestamp_max_dict)
+                    timestamp_min_dict = {'timestamp__min': timestamp_min * 1000}
+                    queryset[parameter].update(timestamp_min_dict)
+
+            metadata[model_name] = queryset
+
+        return JsonResponse(metadata, safe=False)
     except Exception as e:
         print('ERROR (views.py): {0}'.format(e))
 
