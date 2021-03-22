@@ -86,22 +86,22 @@ def get_station_metadata(request, **kwargs):
 
                 queryset[parameter] = (model.objects
                                        .filter(**filter_dict)
-                                       .all()
-                                       .aggregate(Max('timestamp_iso'), Max('timestamp'), Min('timestamp_iso'),
-                                                  Min('timestamp')))
+                                       .aggregate(timestamp_iso_latest=Max('timestamp_iso'),
+                                                  timestamp_latest=Max('timestamp'),
+                                                  timestamp_iso_earliest=Min('timestamp_iso'),
+                                                  timestamp_earliest=Min('timestamp')))
 
-                # print('{2} {0} {1}'.format(parameter, queryset[parameter].get('timestamp__max'), model_name))
-
-                timestamp_max = queryset[parameter].get('timestamp__max')
-                timestamp_min = queryset[parameter].get('timestamp__min')
+                # print('{2} {0} {1}'.format(parameter, queryset[parameter].get('timestamp_latest'), model_name))
 
                 # TODO remove the following block that converts unix timestamps
                 #  from whole seconds into milliseconds after data re-imported
-                if timestamp_max is not None and timestamp_min is not None:
-                    timestamp_max_dict = {'timestamp__max': timestamp_max * 1000}
-                    queryset[parameter].update(timestamp_max_dict)
-                    timestamp_min_dict = {'timestamp__min': timestamp_min * 1000}
-                    queryset[parameter].update(timestamp_min_dict)
+                timestamp_latest = queryset[parameter].get('timestamp_latest')
+                timestamp_earliest = queryset[parameter].get('timestamp_earliest')
+                if timestamp_latest is not None and timestamp_earliest is not None:
+                    timestamp_latest_dict = {'timestamp_latest': timestamp_latest * 1000}
+                    queryset[parameter].update(timestamp_latest_dict)
+                    timestamp_earliest_dict = {'timestamp_earliest': timestamp_earliest * 1000}
+                    queryset[parameter].update(timestamp_earliest_dict)
 
             metadata[model_name] = queryset
 
