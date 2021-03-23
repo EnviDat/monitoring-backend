@@ -181,6 +181,17 @@ def get_dict_fields(display_values):
     return dict_fields
 
 
+# Get dict_timestamps for metadata view
+def get_dict_timestamps():
+
+    dict_timestamps = {'timestamp_iso_latest': Max('timestamp_iso'),
+                       'timestamp_latest': Max('timestamp'),
+                       'timestamp_iso_earliest': Min('timestamp_iso'),
+                       'timestamp_earliest': Min('timestamp')}
+
+    return dict_timestamps
+
+
 # --------------------------------------- Dynamic Parameters Validators -----------------------------------------------
 
 # Validate parameters and return them as display_values list

@@ -10,7 +10,7 @@ from gcnet.util.http_errors import model_http_error, parameter_http_error, times
     station_http_error, timestamp_http_error, date_http_error
 from gcnet.util.stream import stream, get_timestamp_iso_range_day_dict
 from gcnet.util.views_helpers import validate_date_gcnet, read_config, get_model, get_hashed_lines, get_null_value, \
-    get_dict_fields, get_display_values, get_model_from_config, get_model_class
+    get_dict_fields, get_display_values, get_model_class, get_dict_timestamps
 from gcnet.util.write_nead_config import write_nead_config
 
 
@@ -46,7 +46,13 @@ def get_model_stations(request):
 
 
 # Return metadata about a station
-def get_station_metadata(request, **kwargs):
+def get_metadata(request, **kwargs):
+
+    # Assign variables
+    metadata = {}
+    parameters = Columns.get_parameters()
+    dict_timestamps = get_dict_timestamps()
+
     # Read the stations config file
     local_dir = os.path.dirname(__file__)
     stations_path = os.path.join(local_dir, 'config/stations.ini')
@@ -69,29 +75,23 @@ def get_station_metadata(request, **kwargs):
 
     # ===================================  RETURN JSON RESPONSE ========================================================
     try:
-        metadata = {}
+
         for section, model in section_models.items():
 
-            model_name = model.__name__
+            model_objects = model.objects.all()
 
             queryset = {'name': stations_config.get(section, 'name'),
                         'timestamp_iso_earliest': stations_config.get(section, 'timestamp_iso_earliest'),
                         'timestamp_earliest': stations_config.get(section, 'timestamp_earliest')}
 
-            parameters = Columns.get_parameters()
-
             for parameter in parameters:
 
                 filter_dict = {f'{parameter}__isnull': False}
 
-                queryset[parameter] = (model.objects
+                queryset[parameter] = (model_objects
+                                       .values(parameter)
                                        .filter(**filter_dict)
-                                       .aggregate(timestamp_iso_latest=Max('timestamp_iso'),
-                                                  timestamp_latest=Max('timestamp'),
-                                                  timestamp_iso_earliest=Min('timestamp_iso'),
-                                                  timestamp_earliest=Min('timestamp')))
-
-                # print('{2} {0} {1}'.format(parameter, queryset[parameter].get('timestamp_latest'), model_name))
+                                       .aggregate(**dict_timestamps))
 
                 # TODO remove the following block that converts unix timestamps
                 #  from whole seconds into milliseconds after data re-imported
@@ -103,9 +103,12 @@ def get_station_metadata(request, **kwargs):
                     timestamp_earliest_dict = {'timestamp_earliest': timestamp_earliest * 1000}
                     queryset[parameter].update(timestamp_earliest_dict)
 
+            model_name = model.__name__
+
             metadata[model_name] = queryset
 
         return JsonResponse(metadata, safe=False)
+
     except Exception as e:
         print('ERROR (views.py): {0}'.format(e))
 
