@@ -45,9 +45,70 @@ def get_model_stations(request):
     return JsonResponse(model_stations, safe=False)
 
 
-# Return metadata about a station
-def get_metadata(request, **kwargs):
+# Return metadata about one station
+def get_station_metadata(request, **kwargs):
+    # Validate model and assign model_class
+    model = kwargs['model']
+    try:
+        model_class = get_model(model)
+    except AttributeError:
+        return model_http_error(model)
 
+    # Assign variables
+    parameters = Columns.get_parameters()
+    dict_timestamps = get_dict_timestamps()
+
+    # Read the stations config file
+    local_dir = os.path.dirname(__file__)
+    stations_path = os.path.join(local_dir, 'config/stations.ini')
+    stations_config = read_config(stations_path)
+
+    # Check if stations_config exists
+    if not stations_config:
+        return station_http_error()
+
+    # loop through each station in stations_config and assign corresponding section number
+    section_num = ''
+    for section in stations_config.sections():
+        if stations_config.get(section, 'api') == 'True' and stations_config.get(section, 'model_url') == model:
+            section_num = section
+
+    # ===================================  RETURN JSON RESPONSE ========================================================
+    try:
+
+        model_objects = model_class.objects.all()
+
+        queryset = {'name': stations_config.get(section_num, 'name'),
+                    'timestamp_iso_earliest': stations_config.get(section_num, 'timestamp_iso_earliest'),
+                    'timestamp_earliest': stations_config.get(section_num, 'timestamp_earliest')}
+
+        for parameter in parameters:
+
+            filter_dict = {f'{parameter}__isnull': False}
+
+            queryset[parameter] = (model_objects
+                                   .values(parameter)
+                                   .filter(**filter_dict)
+                                   .aggregate(**dict_timestamps))
+
+            # TODO remove the following block that converts unix timestamps
+            #  from whole seconds into milliseconds after data re-imported
+            timestamp_latest = queryset[parameter].get('timestamp_latest')
+            timestamp_earliest = queryset[parameter].get('timestamp_earliest')
+            if timestamp_latest is not None and timestamp_earliest is not None:
+                timestamp_latest_dict = {'timestamp_latest': timestamp_latest * 1000}
+                queryset[parameter].update(timestamp_latest_dict)
+                timestamp_earliest_dict = {'timestamp_earliest': timestamp_earliest * 1000}
+                queryset[parameter].update(timestamp_earliest_dict)
+
+        return JsonResponse(queryset, safe=False)
+
+    except Exception as e:
+        print(f'ERROR (views.py): {e}')
+
+
+# Return metadata about all stations
+def get_metadata(request):
     # Assign variables
     metadata = {}
     parameters = Columns.get_parameters()
@@ -110,7 +171,7 @@ def get_metadata(request, **kwargs):
         return JsonResponse(metadata, safe=False)
 
     except Exception as e:
-        print('ERROR (views.py): {0}'.format(e))
+        print(f'ERROR (views.py): {e}')
 
 
 # User customized view that returns JSON data based on parameter(s) specified by station
