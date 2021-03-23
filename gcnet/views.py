@@ -1,4 +1,5 @@
-import os
+import json
+import time
 
 from django.core.exceptions import FieldError
 from django.db.models import Max, Min
@@ -10,8 +11,16 @@ from gcnet.util.http_errors import model_http_error, parameter_http_error, times
     station_http_error, timestamp_http_error, date_http_error
 from gcnet.util.stream import stream, get_timestamp_iso_range_day_dict
 from gcnet.util.views_helpers import validate_date_gcnet, read_config, get_model, get_hashed_lines, get_null_value, \
-    get_dict_fields, get_display_values, get_model_class, get_dict_timestamps
+    get_dict_fields, get_display_values, get_model_class, get_dict_timestamps, multiprocessing_timestamp_dict, \
+    get_multiprocessing_arguments
 from gcnet.util.write_nead_config import write_nead_config
+
+import multiprocessing
+from multiprocessing import Manager
+
+import os
+
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "project.settings")
 
 
 # Return 'index.html' with API documentation
@@ -45,8 +54,69 @@ def get_model_stations(request):
     return JsonResponse(model_stations, safe=False)
 
 
+# Return metadata about one station with multiprocessing
+def get_station_metadata_multiprocessing(request, **kwargs):
+
+    start_time = time.time()
+
+    # Validate model and assign model_class
+    model = kwargs['model']
+    try:
+        model_class = get_model(model)
+    except AttributeError:
+        return model_http_error(model)
+
+    # Assign variables
+    parameters = Columns.get_parameters()
+    dict_timestamps = get_dict_timestamps()
+
+    # Read the stations config file
+    local_dir = os.path.dirname(__file__)
+    stations_path = os.path.join(local_dir, 'config/stations.ini')
+    stations_config = read_config(stations_path)
+
+    # Check if stations_config exists
+    if not stations_config:
+        return station_http_error()
+
+    # loop through each station in stations_config and assign corresponding section number
+    section_num = ''
+    for section in stations_config.sections():
+        if stations_config.get(section, 'api') == 'True' and stations_config.get(section, 'model_url') == model:
+            section_num = section
+
+    # ===================================  RETURN JSON RESPONSE ========================================================
+    try:
+
+        # Create queryset manager dictionary
+        manager = Manager()
+        queryset = manager.dict()
+
+        queryset['name'] = stations_config.get(section_num, 'name')
+        queryset['timestamp_iso_earliest'] = stations_config.get(section_num, 'timestamp_iso_earliest')
+        queryset['timestamp_earliest'] = stations_config.get(section_num, 'timestamp_earliest')
+
+        arguments = get_multiprocessing_arguments(queryset, parameters, model_class, dict_timestamps)
+
+        pool = multiprocessing.Pool()
+        pool.starmap(multiprocessing_timestamp_dict, arguments)
+        pool.close()
+
+        queryset_json = dict(queryset)
+
+        print('That took {} seconds'.format(time.time() - start_time))
+
+        return JsonResponse(queryset_json, safe=False)
+
+    except Exception as e:
+        print(f'ERROR (views.py): {e}')
+
+
 # Return metadata about one station
 def get_station_metadata(request, **kwargs):
+
+    start_time = time.time()
+
     # Validate model and assign model_class
     model = kwargs['model']
     try:
@@ -100,6 +170,8 @@ def get_station_metadata(request, **kwargs):
                 queryset[parameter].update(timestamp_latest_dict)
                 timestamp_earliest_dict = {'timestamp_earliest': timestamp_earliest * 1000}
                 queryset[parameter].update(timestamp_earliest_dict)
+
+        print('That took {} seconds'.format(time.time() - start_time))
 
         return JsonResponse(queryset, safe=False)
 

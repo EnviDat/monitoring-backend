@@ -17,13 +17,14 @@ from django.urls import path
 
 from gcnet import views
 from gcnet.views import get_model_stations, streaming_csv_view_v1, get_aggregate_data, get_json_data, get_csv, \
-    get_metadata, get_station_metadata
+    get_metadata, get_station_metadata, get_station_metadata_multiprocessing
 
 urlpatterns = [
     path('models/', get_model_stations),
 
     path('metadata/', get_metadata),
     path('metadata/<str:model>/', get_station_metadata),
+    path('metadata/mp/<str:model>/', get_station_metadata_multiprocessing),
 
     path('json/<str:model>/<str:parameters>/<str:start>/<str:end>/', get_json_data),
     path('csv/<str:model>/<str:parameters>/<str:timestamp_meaning>/<str:nodata>/<str:start>/<str:end>/', get_csv),
