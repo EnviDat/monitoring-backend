@@ -1,6 +1,22 @@
 from django.db import models
+from django.db.models import Subquery, Max, Min
+
 from gcnet.fields import CustomFloatField
 from postgres_copy import CopyManager
+
+
+class MetadataSet(models.QuerySet):
+
+    def metadata(self, parameter):
+
+        filter_dict = {f'{parameter}__isnull': False}
+
+        dict_timestamps = {'timestamp_iso_latest': Max('timestamp_iso'),
+                           'timestamp_latest': Max('timestamp'),
+                           'timestamp_iso_earliest': Min('timestamp_iso'),
+                           'timestamp_earliest': Min('timestamp')}
+
+        return self.filter(**filter_dict).values(parameter).aggregate(**dict_timestamps)
 
 
 # Parent class that defines fields for each station's model
@@ -221,8 +237,10 @@ class Station(models.Model):
         null=True,
     )
 
+    objects = MetadataSet.as_manager()
+
     # Create copy manager for postgres_copy
-    objects = CopyManager()
+    # objects = CopyManager()
 
     # Declare Station has an abstract class so it can be inherited
     class Meta:

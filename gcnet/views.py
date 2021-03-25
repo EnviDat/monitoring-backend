@@ -1,7 +1,6 @@
 import time
 
 from django.core.exceptions import FieldError
-from django.db.models import Max, Min
 from django.http import JsonResponse, StreamingHttpResponse, HttpResponseNotFound
 from django.shortcuts import render
 
@@ -16,6 +15,8 @@ from gcnet.util.write_nead_config import write_nead_config
 
 import multiprocessing
 from multiprocessing import Manager
+
+from django.db.models import Min, Max
 
 import os
 
@@ -112,6 +113,76 @@ def get_station_metadata_multiprocessing(request, **kwargs):
 
 
 # Return metadata about one station
+def get_station_metadata_queryset(request, **kwargs):
+
+    start_time = time.time()
+
+    # Validate model and assign model_class
+    model = kwargs['model']
+    try:
+        model_class = get_model(model)
+    except AttributeError:
+        return model_http_error(model)
+
+    # Assign parameters
+    parameters = Columns.get_parameters()
+    # parameters = ['swin', 'swout']
+
+    # Read the stations config file
+    local_dir = os.path.dirname(__file__)
+    stations_path = os.path.join(local_dir, 'config/stations.ini')
+    stations_config = read_config(stations_path)
+
+    # Check if stations_config exists
+    if not stations_config:
+        return station_http_error()
+
+    # loop through each station in stations_config and assign corresponding section number
+    section_num = ''
+    for section in stations_config.sections():
+        if stations_config.get(section, 'api') == 'True' and stations_config.get(section, 'model_url') == model:
+            section_num = section
+
+    # ===================================  RETURN JSON RESPONSE ========================================================
+    try:
+
+        model_objects = model_class.objects.all()
+
+        queryset = {'name': stations_config.get(section_num, 'name'),
+                    'timestamp_iso_earliest': stations_config.get(section_num, 'timestamp_iso_earliest'),
+                    'timestamp_earliest': stations_config.get(section_num, 'timestamp_earliest')}
+
+        # param_objects = model_objects.combine_metadata(parameters)
+        #
+        # queryset['test'] = param_objects
+
+        for parameter in parameters:
+
+            param_objects = model_objects.metadata(parameter)
+
+            queryset[parameter] = param_objects
+
+            # TODO remove the following block that converts unix timestamps
+            #  from whole seconds into milliseconds after data re-imported
+            timestamp_latest = queryset[parameter].get('timestamp_latest')
+            timestamp_earliest = queryset[parameter].get('timestamp_earliest')
+            if timestamp_latest is not None and timestamp_earliest is not None:
+                timestamp_latest_dict = {'timestamp_latest': timestamp_latest * 1000}
+                queryset[parameter].update(timestamp_latest_dict)
+                timestamp_earliest_dict = {'timestamp_earliest': timestamp_earliest * 1000}
+                queryset[parameter].update(timestamp_earliest_dict)
+
+            # break
+
+        print('That took {} seconds'.format(time.time() - start_time))
+
+        return JsonResponse(queryset, safe=False)
+
+    except Exception as e:
+        print(f'ERROR (views.py): {e}')
+
+
+# Return metadata about one station
 def get_station_metadata(request, **kwargs):
 
     start_time = time.time()
@@ -155,6 +226,11 @@ def get_station_metadata(request, **kwargs):
 
             filter_dict = {f'{parameter}__isnull': False}
 
+            # query1 = (model_objects.values(parameter).filter(swin__isnull=False))
+            #
+            # print(query1.explain())
+            # print(query1.query)
+
             queryset[parameter] = (model_objects
                                    .values(parameter)
                                    .filter(**filter_dict)
@@ -169,6 +245,8 @@ def get_station_metadata(request, **kwargs):
                 queryset[parameter].update(timestamp_latest_dict)
                 timestamp_earliest_dict = {'timestamp_earliest': timestamp_earliest * 1000}
                 queryset[parameter].update(timestamp_earliest_dict)
+
+            # break
 
         print('That took {} seconds'.format(time.time() - start_time))
 
@@ -224,6 +302,11 @@ def get_metadata(request):
                                        .values(parameter)
                                        .filter(**filter_dict)
                                        .aggregate(**dict_timestamps))
+
+                # queryset[parameter] = (model_objects
+                #                        .values(parameter)
+                #                        .filter(**filter_dict)
+                #                        .annotate(timestamp_iso_earliest=Max('timestamp_iso')))
 
                 # TODO remove the following block that converts unix timestamps
                 #  from whole seconds into milliseconds after data re-imported
