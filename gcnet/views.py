@@ -152,10 +152,6 @@ def get_station_metadata_queryset(request, **kwargs):
                     'timestamp_iso_earliest': stations_config.get(section_num, 'timestamp_iso_earliest'),
                     'timestamp_earliest': stations_config.get(section_num, 'timestamp_earliest')}
 
-        # param_objects = model_objects.combine_metadata(parameters)
-        #
-        # queryset['test'] = param_objects
-
         for parameter in parameters:
 
             param_objects = model_objects.metadata(parameter)
