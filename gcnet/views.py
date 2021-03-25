@@ -299,11 +299,6 @@ def get_metadata(request):
                                        .filter(**filter_dict)
                                        .aggregate(**dict_timestamps))
 
-                # queryset[parameter] = (model_objects
-                #                        .values(parameter)
-                #                        .filter(**filter_dict)
-                #                        .annotate(timestamp_iso_earliest=Max('timestamp_iso')))
-
                 # TODO remove the following block that converts unix timestamps
                 #  from whole seconds into milliseconds after data re-imported
                 timestamp_latest = queryset[parameter].get('timestamp_latest')
