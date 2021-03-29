@@ -17,15 +17,13 @@ from django.urls import path
 
 from gcnet import views
 from gcnet.views import get_model_stations, streaming_csv_view_v1, get_aggregate_data, get_json_data, get_csv, \
-    get_metadata, get_station_metadata, get_station_metadata_multiprocessing, get_station_metadata_queryset
+    get_metadata, get_station_metadata, get_station_metadata_multiprocessing, get_station_metadata_queryset, \
+    get_station_parameter_metadata
 
 urlpatterns = [
     path('models/', get_model_stations),
 
-    path('metadata/', get_metadata),
-    path('metadata/<str:model>/', get_station_metadata),
-    path('metadata/mp/<str:model>/', get_station_metadata_multiprocessing),
-    path('metadata/queryset/<str:model>/', get_station_metadata_queryset),
+    path('metadata/<str:model>/<str:parameters>/', get_station_parameter_metadata),
 
     path('json/<str:model>/<str:parameters>/<str:start>/<str:end>/', get_json_data),
     path('csv/<str:model>/<str:parameters>/<str:timestamp_meaning>/<str:nodata>/<str:start>/<str:end>/', get_csv),
@@ -38,4 +36,12 @@ urlpatterns = [
     path('nead/<str:model>/<str:timestamp_meaning>/<str:nodata>/', streaming_csv_view_v1),
 
     path('', views.index, name='index'),
+
+
+    # These metadata endpoints are still in development and testing and may not be deployed
+    path('metadata/', get_metadata),
+    path('metadata/<str:model>/', get_station_metadata),
+    path('metadata/mp/<str:model>/', get_station_metadata_multiprocessing),
+    path('metadata/queryset/<str:model>/', get_station_metadata_queryset),
+
 ]

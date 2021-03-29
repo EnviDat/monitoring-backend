@@ -5,6 +5,7 @@ from gcnet.fields import CustomFloatField
 from postgres_copy import CopyManager
 
 
+# This class used for metadata endpoint development and testing and may not be deployed
 class MetadataSet(models.QuerySet):
 
     def metadata(self, parameter):
