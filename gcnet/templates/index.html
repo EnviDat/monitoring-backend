@@ -400,20 +400,22 @@
         <br>
 
         <h3 id="details_metadata">7. Metadata</h3>
-        <p><ul>Returns metadata for each station including earliest timestamps for a station.</ul>
-        <p><ul>Also returns both earliest and latest timestamps for specified parameters in ISO and UNIX formats.</ul>
+        <p><ul>Returns metadata for each station including earliest timestamps.</ul>
+        <p><ul>Also returns both earliest and latest timestamps for specified parameters in ISO and UNIX (millisecond) formats.</ul>
         <h4><ul><span class="url">URL template:</span> https://www.envidat.ch/data-api/gcnet/metadata/<mark>model</mark>/<span class="parameter">parameter</span>/</ul></h4>
           <h4><ul>Example: <a href="http://www.envidat.ch/data-api/gcnet/metadata/swisscamp/airtemp1/" target="_blank">
             http://www.envidat.ch/data-api/gcnet/metadata/swisscamp/airtemp1/</a></ul></h4>
         <h4><ul>Example returning several parameters: <a href="http://www.envidat.ch/data-api/gcnet/metadata/swisscamp/airtemp1,airtemp2,rh1/" target="_blank">
             <br>http://www.envidat.ch/data-api/gcnet/metadata/swisscamp/airtemp1,airtemp2,rh1/</a></ul></h4>
         <h4><ul>Example returning multiple parameters: <a href="http://www.envidat.ch/data-api/gcnet/metadata/swisscamp/multiple/" target="_blank">
-            <br>http://www.envidat.ch/data-api/gcnet/metadata/swisscamp/airtemp1,airtempp2,rh1/</a></ul></h4>
+            <br>http://www.envidat.ch/data-api/gcnet/metadata/swisscamp/multiple/</a></ul></h4>
         <p><ul><ul><mark>model</mark> should correspond to a GC-Net Station model name listed at <a href="https://www.envidat.ch/data-api/gcnet/models/" target="_blank">https://www.envidat.ch/data-api/gcnet/models/</a>, for example <span class="model_light">swisscamp</span> or <span class="model_light">summit</span></ul></ul>
             <ul><ul><span class="parameter">parameter</span> should be a type of measurement, for example <span class="parameter_light">airtemp1</span> or <span class="parameter_light">windspeed1</span></ul></ul>
             <ul><ul><span class="parameter">parameter</span> can also be several types of measurements separated by commas, for example <span class="parameter_light">airtemp1,airtemp2,rh1</span></ul></ul>
                  <ul><ul><ul><li><a href="#parameter_list" target="_blank">Click here for list of parameters</a></li></ul></ul></ul>
             <ul><ul><ul><li><span class="parameter_light">multiple</span> means that all parameters and their aggregated values will be included in the returned JSON data</li></ul></ul></ul>
+        <br>
+        <br>
 
         <hr>
         <h3 id="parameter_list">Parameter List</h3>
