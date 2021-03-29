@@ -56,7 +56,6 @@ def get_model_stations(request):
 
 # Return metadata about one station with multiprocessing
 def get_station_metadata_multiprocessing(request, **kwargs):
-
     start_time = time.time()
 
     # Validate model and assign model_class
@@ -114,7 +113,6 @@ def get_station_metadata_multiprocessing(request, **kwargs):
 
 # Return metadata about one station using models.py MetadataSet clss
 def get_station_metadata_queryset(request, **kwargs):
-
     start_time = time.time()
 
     # Validate model and assign model_class
@@ -180,7 +178,6 @@ def get_station_metadata_queryset(request, **kwargs):
 
 # Return metadata about one station and one parameter
 def get_station_parameter_metadata(request, **kwargs):
-
     # ===================================  VALIDATE KWARGS and ASSIGN VARIABLES ========================================
     # Validate model and assign model_class
     model = kwargs['model']
@@ -223,6 +220,11 @@ def get_station_parameter_metadata(request, **kwargs):
                     'timestamp_iso_earliest': stations_config.get(section_num, 'timestamp_iso_earliest'),
                     'timestamp_earliest': stations_config.get(section_num, 'timestamp_earliest')}
 
+        # Code block that returns earliest timestamps for station from database
+        # queryset = {'name': stations_config.get(section_num, 'name')}
+        # queryset['timestamp_iso_earliest'] = model_objects.aggregate(Min('timestamp_iso'))
+        # queryset['timestamp_earliest'] = model_objects.aggregate(Min('timestamp'))
+
         for parameter in display_values:
 
             filter_dict = {f'{parameter}__isnull': False}
@@ -250,7 +252,6 @@ def get_station_parameter_metadata(request, **kwargs):
 
 # Return metadata about one station
 def get_station_metadata(request, **kwargs):
-
     start_time = time.time()
 
     # Validate model and assign model_class
