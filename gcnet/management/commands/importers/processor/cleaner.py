@@ -7,7 +7,6 @@ from gcnet.util.writer import Writer
 
 import logging
 
-
 logging.basicConfig()
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -140,9 +139,10 @@ class ArgosCleaner(Cleaner):
 
                             if len(unind) < numraw:
                                 numduptime = numraw - len(unind)
-                                logger.warning("ArgosCleaner: Warning: Removed " + str(numduptime) + " entries out of: " + str(
-                                    numraw) + " good pts from station ID: " + str(
-                                    sid) + " Reason: duplicate time tags")
+                                logger.warning(
+                                    "ArgosCleaner: Warning: Removed " + str(numduptime) + " entries out of: " + str(
+                                        numraw) + " good pts from station ID: " + str(
+                                        sid) + " Reason: duplicate time tags")
                             tind = np.argsort(
                                 udatenum)  # find indexes of a sort of unique datetime values along time
                             gdata = gdata[tind, :]  # crop data array to unique times
@@ -167,8 +167,10 @@ class ArgosCleaner(Cleaner):
                             swnet[gdata[:, 6] < 0] = gdata[gdata[:, 6] < 0, 6] * float(
                                 self.stations_config.get(section, "swnet_neg"))
 
-                            swnet[swnet < -float(self.stations_config.get(section, "swmax"))] = self.no_data  # filter low
-                            swnet[swnet > float(self.stations_config.get(section, "swmax"))] = self.no_data  # filter high
+                            swnet[
+                                swnet < -float(self.stations_config.get(section, "swmax"))] = self.no_data  # filter low
+                            swnet[
+                                swnet > float(self.stations_config.get(section, "swmax"))] = self.no_data  # filter high
 
                             tc1 = self._filter_values(gdata[:, 7], section, "tcmin", "tcmax")  # thermocouple 1
 
@@ -234,7 +236,8 @@ class ArgosCleaner(Cleaner):
                             s_wnetmax[s_wnetmax < -(
                                 float(self.stations_config.get(section, "swmax")))] = self.no_data  # filter low
                             s_wnetmax[
-                                s_wnetmax > float(self.stations_config.get(section, "swmax"))] = self.no_data  # filter high
+                                s_wnetmax > float(
+                                    self.stations_config.get(section, "swmax"))] = self.no_data  # filter high
 
                             tc1max = self._filter_values(gdata[:, 34], section, "tcmin", "tcmax")
 
@@ -266,9 +269,10 @@ class ArgosCleaner(Cleaner):
                             numfuturepts = len(np.argwhere(datenum > nowdatenum))
 
                             if numfuturepts > 0:
-                                logger.warning("ArgosCleaner: Warning: Removed " + str(numfuturepts) + " entries out of: " + str(
-                                    len(wdata[:, 1]) + numfuturepts) + " good pts from station ID: " + str(
-                                    sid) + " Reason: time tags in future")
+                                logger.warning(
+                                    "ArgosCleaner: Warning: Removed " + str(numfuturepts) + " entries out of: " + str(
+                                        len(wdata[:, 1]) + numfuturepts) + " good pts from station ID: " + str(
+                                        sid) + " Reason: time tags in future")
 
                             # Call write_csv function to write csv file with processed data
                             # TODO test write_csv with convertingself.no_data value to null
@@ -315,9 +319,9 @@ class GoesCleaner(Cleaner):
                     adata = np.array(input_data[input_data[:, 1] == snum, :])  # find data associated with each
 
                     logger.info("GoesCleaner: Data size {0} for Station #{1}...".format(adata.size, snum))
-                    if adata.size <= 0:
-                        logger.warning("Skipping cleaning of {0} for Station #{1}, NO DATA".format(adata.size, snum))
-                        continue
+                    # if adata.size <= 0:
+                    #     logger.warning("Skipping cleaning of {0} for Station #{1}, NO DATA".format(adata.size, snum))
+                        # continue
 
                     u, ia = np.unique(adata[:, 5:], axis=0, return_index=True)  # find rows with unique data
                     #     % after column 5 because data may repeat with different time signature
@@ -329,10 +333,10 @@ class GoesCleaner(Cleaner):
                     # # and sensible year
 
                     logger.info("GoesCleaner: Clean data size {0} for Station #{1}...".format(adata.size, snum))
-                    if adata.size <= 0:
-                        logger.warning("Skipping cleaning of {0} for Station #{1}, NO DATA after cleaning"
-                                       .format(adata.size, snum))
-                        continue
+                    # if adata.size <= 0:
+                    #     logger.warning("Skipping cleaning of {0} for Station #{1}, NO DATA after cleaning"
+                    #                    .format(adata.size, snum))
+                    #     continue
 
                     if snum == 0:  # if 10 meter tower
                         gdata = np.ones((np.size(adata, 0), 43)) * 999
@@ -422,8 +426,10 @@ class GoesCleaner(Cleaner):
                         self.stations_config.get(section, "swnet_pos"))
                     s_wnetmax[gdata[:, 33] < 0] = gdata[gdata[:, 33] < 0, 33] * float(
                         self.stations_config.get(section, "swnet_neg"))
-                    s_wnetmax[s_wnetmax < -(float(self.stations_config.get(section, "swmax")))] = self.no_data  # filter low
-                    s_wnetmax[s_wnetmax > float(self.stations_config.get(section, "swmax"))] = self.no_data  # filter high
+                    s_wnetmax[
+                        s_wnetmax < -(float(self.stations_config.get(section, "swmax")))] = self.no_data  # filter low
+                    s_wnetmax[
+                        s_wnetmax > float(self.stations_config.get(section, "swmax"))] = self.no_data  # filter high
 
                     tc1 = self._filter_values(gdata[:, 7], section, "tcmin", "tcmax")  # thermocouple 1
 
@@ -437,13 +443,15 @@ class GoesCleaner(Cleaner):
                     rh1[rh1 < float(self.stations_config.get(section, "rhmin"))] = self.no_data  # filter low
                     rh1[rh1 > float(self.stations_config.get(section, "rhmax"))] = self.no_data  # filter high
                     rh1[(rh1 > 100) & (
-                                rh1 < float(self.stations_config.get(section, "rhmax")))] = 100  # Assign values greater than
+                            rh1 < float(
+                        self.stations_config.get(section, "rhmax")))] = 100  # Assign values greater than
                     # 100 and less than rhmax to 100
                     rh2 = gdata[:, 12]  # HMP relative humidity 2
                     rh2[rh2 < float(self.stations_config.get(section, "rhmin"))] = self.no_data  # filter low
                     rh2[rh2 > float(self.stations_config.get(section, "rhmax"))] = self.no_data  # filter high
                     rh2[(rh2 > 100) & (
-                                rh2 < float(self.stations_config.get(section, "rhmax")))] = 100  # Assign values greater than
+                            rh2 < float(
+                        self.stations_config.get(section, "rhmax")))] = 100  # Assign values greater than
                     # 100 and less than rhmax to 100
 
                     ws1 = self._filter_values(gdata[:, 13], section, "wmin", "wmax")  # wind speed 1
