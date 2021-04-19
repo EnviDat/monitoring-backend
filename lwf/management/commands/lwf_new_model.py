@@ -34,7 +34,7 @@ class Command(BaseCommand):
         database_table_name = conf.get('configuration', 'database_table_name').lower()
         if has_spaces(database_table_name):
             print('WARNING (lwf_new_model.py): {0} "database_table_name" setting "{1}" is in invalid format. This '
-                  'setting must not contain spaces.'.format(kwargs['config'], database_table_name))
+                  'value must not contain spaces.'.format(kwargs['config'], database_table_name))
             return
 
         # Create models file path string
