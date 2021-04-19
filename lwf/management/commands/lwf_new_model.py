@@ -4,7 +4,7 @@
 from django.core.management.base import BaseCommand
 
 __version__ = '0.0.1'
-__author__ = u'Rebecca Kurup Buchholz'
+__author__ = u'Rebecca Buchholz'
 
 from lwf.helpers import read_config, execute_commands, model_exists, has_spaces
 
@@ -60,7 +60,7 @@ class Command(BaseCommand):
 
         if model_exists(database_table_name):
             table_exists = True
-            print('WARNING (lwf_new_model.py): Table {0} already exists in monitoring database'.format(long_db_name))
+            print('WARNING (lwf_new_model.py): Table {0} already exists in database'.format(long_db_name))
 
         # If child class does not exist in corresponding models file or database
         # write it to corresponding models file and run migrations to add it to database
