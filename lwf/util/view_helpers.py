@@ -1,6 +1,5 @@
 import os
 from datetime import datetime, date
-from django.apps import apps
 from django.db.models import Func
 from django.http import HttpResponseNotFound
 
@@ -125,11 +124,3 @@ def get_timestamp_iso_range_years(start, end):
 class Round2(Func):
     function = "ROUND"
     template = "%(function)s(%(expressions)s::numeric, 2)"
-
-
-# Function returns a list of models in 'lwf' app
-def get_lwf_models_list():
-    lwf_models = []
-    for key in apps.all_models['lwf']:
-        lwf_models.append(key)
-    return lwf_models

@@ -7,12 +7,6 @@ from lwf.util.view_helpers import get_timestamp_iso_range_dict, Round2, get_lwf_
     get_timestamp_iso_range_year_week, get_timestamp_iso_range_years
 
 
-# View returns a list of models currently in the 'lwf' app
-def get_lwf_models(request):
-    lwf_models = get_lwf_models_list()
-    return JsonResponse(lwf_models, safe=False)
-
-
 # User customized view that returns data based on level of detail and parameter specified by
 # model (i.e. 'database_station_name' in conf file)
 # Levels of detail:  'all' (every hour), 'quarterday' (00:00, 06:00, 12:00, 18:00), 'halfday' (00:00, 12:00)
