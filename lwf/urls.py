@@ -17,7 +17,7 @@ Including another URLconf
 from django.urls import path
 
 from lwf.views import get_db_data, get_derived_data, get_db_data_greater_than
-from project.generic.views import get_models
+from project.generic.views import get_models, get_json_data
 
 urlpatterns = [
     path('data/<str:model>/<str:lod>/<str:parameter>/<str:start>/<str:end>/', get_db_data),
@@ -25,4 +25,5 @@ urlpatterns = [
     path('greaterthan/<str:model>/<str:lod>/<str:parameter>/<str:start>/<str:end>/<str:gt>/', get_db_data_greater_than),
 
     path('models/', get_models, {'app': 'lwf'}),
+    path('json/<str:model>/<str:parameters>/<str:start>/<str:end>/<str:parent_class>/', get_json_data, {'app': 'lwf'}),
 ]
