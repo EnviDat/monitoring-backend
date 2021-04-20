@@ -6,7 +6,7 @@ from django.core.management.base import BaseCommand
 __version__ = '0.0.1'
 __author__ = u'Rebecca Buchholz'
 
-from lwf.helpers import read_config, execute_commands, model_exists, has_spaces
+from lwf.util.new_model_helpers import read_config, execute_commands, model_exists, has_spaces
 
 
 class Command(BaseCommand):

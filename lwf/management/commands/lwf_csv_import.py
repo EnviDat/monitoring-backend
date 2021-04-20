@@ -40,11 +40,11 @@ from postgres_copy import CopyMapping
 import importlib
 from django.utils.timezone import make_aware
 
-from lwf.helpers import get_lwf_meteo_line_clean, get_lwf_meteo_copy_dict, get_lwf_station_line_clean, \
-    get_lwf_station_copy_dict
-
 # Setup logging
 import logging
+
+from lwf.util.cleaners import get_lwf_meteo_line_clean, get_lwf_station_line_clean
+from lwf.util.copy_dicts import get_lwf_meteo_copy_dict, get_lwf_station_copy_dict
 
 logging.basicConfig(filename=Path('lwf/logs/lwf_csv_import.log'), format='%(asctime)s   %(filename)s: %(message)s',
                     datefmt='%d-%b-%y %H:%M:%S')
@@ -117,7 +117,8 @@ class Command(BaseCommand):
             logger.info('INPUT FILE: {0}'.format(input_file))
 
         else:
-            logger.info('WARNING (lwf_csv_import.py) non-valid value entered for "typesource": {0}'.format(kwargs['typesource']))
+            logger.info('WARNING (lwf_csv_import.py) non-valid value entered for "typesource": {0}'.format(
+                kwargs['typesource']))
             return
 
         # Get the parent class, assumes parent class is in module within lwf/models directory
@@ -151,12 +152,12 @@ class Command(BaseCommand):
                 for i in range(parent_class.header_line_count):
                     next(source, None)
 
-                # TODO remove test block of code
-                # TEST with for loop and trying to find out why last line in lines is not written into sink
-                lines = source.read().splitlines()
-                print(lines[-1])
-                for line in lines:
+                while True:
 
+                    line = source.readline()
+
+                    if not line:
+                        break
                     line_array = [v for v in line.strip().split(parent_class.delimiter) if len(v) > 0]
 
                     # Skip header lines that start with designated parent class header symbol
@@ -211,67 +212,6 @@ class Command(BaseCommand):
                                 sink.write(
                                     ','.join(["{0}".format(v) for v in rows_buffer[-(1 + rows_after)].values()]) + '\n')
                                 records_written += 1
-
-                # Old block of code
-                # while True:
-                #
-                #     line = source.readline()
-                #
-                #     if not line:
-                #         break
-                #     line_array = [v for v in line.strip().split(parent_class.delimiter) if len(v) > 0]
-                #
-                #     # Skip header lines that start with designated parent class header symbol
-                #     # For example: the '#' character
-                #     if line.startswith(parent_class.header_symbol):
-                #         continue
-                #
-                #     if len(line_array) != len(csv_field_names):
-                #         error_msg = "Line has {0} values, header {1} columns ".format(len(line_array),
-                #                                                                       len(csv_field_names))
-                #         logger.error(error_msg)
-                #         raise ValueError(error_msg)
-                #
-                #     row = {csv_field_names[i]: line_array[i] for i in range(len(line_array))}
-                #
-                #     # Process row and add new calculated fields
-                #     # Check which kind of cleaner should be applied
-                #     if kwargs['parentclass'] == 'LWFMeteo':
-                #         line_clean = get_lwf_meteo_line_clean(row, date_form)
-                #     elif kwargs['parentclass'] == 'LWFStation':
-                #         line_clean = get_lwf_station_line_clean(row, date_form)
-                #     else:
-                #         logger.info('WARNING (lwf_csv_import.py) {0} parentclass does not exist'.format(kwargs['parentclass']))
-                #         return
-                #
-                #     # Get the model
-                #     class_name = kwargs['model'].rsplit('.', 1)[-1]
-                #     package = importlib.import_module("lwf.models")
-                #     model_class = getattr(package, class_name)
-                #
-                #     # Make timestamp_iso value a UTC timezone aware datetime object
-                #     dt_obj = line_clean['timestamp_iso']
-                #     aware_dt = make_aware(dt_obj)
-                #
-                #     # Check if record with identical timestamp already exists in table, otherwise write record to
-                #     # temporary csv file after checking for record with duplicate timestamp
-                #     try:
-                #         model_class.objects.get(timestamp_iso=aware_dt)
-                #     except model_class.DoesNotExist:
-                #         if line_clean['timestamp_iso'] not in written_timestamps:
-                #             # keep timestamps length small
-                #             written_timestamps = written_timestamps[(-1) * min(len(written_timestamps), 1000):]
-                #             written_timestamps += [line_clean['timestamp_iso']]
-                #
-                #             # slide the row buffer window
-                #             rows_buffer = rows_buffer[(-1) * min(len(rows_buffer), rows_before + rows_after):] + [
-                #                 line_clean]
-                #
-                #             # check values before and after
-                #             if len(rows_buffer) > rows_after:
-                #                 sink.write(
-                #                     ','.join(["{0}".format(v) for v in rows_buffer[-(1 + rows_after)].values()]) + '\n')
-                #                 records_written += 1
 
         except FileNotFoundError as e:
             logger.info('WARNING (lwf_csv_import.py) file not found {0}, exception {1}'.format(input_file, e))
