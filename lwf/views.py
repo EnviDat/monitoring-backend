@@ -3,7 +3,7 @@ from django.core.exceptions import FieldError
 from django.db.models import Avg, Max, Min, Sum
 from django.http import JsonResponse
 
-from lwf.util.view_helpers import get_timestamp_iso_range_dict, Round2, get_lwf_models_list, get_timestamp_iso_range_day_dict, \
+from lwf.util.view_helpers import get_timestamp_iso_range_dict, Round2, get_timestamp_iso_range_day_dict, \
     get_timestamp_iso_range_year_week, get_timestamp_iso_range_years
 
 
