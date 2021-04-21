@@ -10,10 +10,8 @@ def get_models(request, app):
     return JsonResponse(models, safe=False)
 
 
-# TODO finish developing this view
 # User customized view that returns JSON data based on parameter(s) specified by station
 # Users can enter as many parameters as desired by using a comma separated string for kwargs['parameters']
-# Parameter: if KWARG_RETURNED_PARAMETERS selected then returns returned_parameters
 # Accepts ISO timestamp ranges
 def get_json_data(request, app, parent_class='', **kwargs):
     # Assign kwargs from url to variables
@@ -23,8 +21,7 @@ def get_json_data(request, app, parent_class='', **kwargs):
     parameters = kwargs['parameters']
 
     # ===================================  VALIDATE KWARGS ============================================================
-    # Check if 'start' and 'end' kwargs are in ISO format or unix timestamp format, assign filter to corresponding
-    # timestamp field in dict_timestamps
+    # Check if 'start' and 'end' kwargs are in ISO format
     try:
         dict_timestamps = validate_date(start, end)
     except ValueError:
@@ -42,7 +39,7 @@ def get_json_data(request, app, parent_class='', **kwargs):
     if not display_values:
         return parameter_http_error(parameters, app, parent_class)
 
-    # Add timestamp_iso and timestamp to display_values
+    # Add timestamp_iso to display_values
     display_values = ['timestamp_iso'] + display_values
 
     # ===================================  RETURN JSON RESPONSE =======================================================

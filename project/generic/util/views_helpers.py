@@ -4,7 +4,6 @@ from django.apps import apps
 from django.core.exceptions import FieldDoesNotExist
 from datetime import datetime
 
-
 # ============================================= CONSTANT ===============================================================
 
 # String passed in kwargs['parameters'] that is used to return all parameters
@@ -54,6 +53,7 @@ def validate_iso_format(date_text):
     except:
         return False
 
+
 # def validate_unix_timestamp(date_text):
 #     try:
 #         datetime.fromtimestamp(date_text)
@@ -68,8 +68,8 @@ def validate_iso_format(date_text):
 # If parameters == ALL_DISPLAY_VALUES_STRING assign display_values to values in returned_parameters
 # Else validate parameter(s) passed in URL
 def get_display_values(parameters, model_class, parent_class):
-
     if parent_class == 'LWFStation' and parameters == ALL_DISPLAY_VALUES_STRING:
+        # TODO implement constants.py for all display fields
         fields = [field.name for field in model_class._meta.get_fields()]
         # Return new list without 'id' and time-related fields
         parameters = fields[8:]
@@ -79,8 +79,8 @@ def get_display_values(parameters, model_class, parent_class):
 
 
 # Validate parameters and return them as display_values list
-# parameters  - comma separated string from kwargs['parameters']
-# model_class  - validated model as a class
+# parameters are comma separated string from kwargs['parameters']
+# model_class is validated model as a class
 def validate_display_values(parameters, model_class):
     # Split parameters comma separated string into parameter_list
     parameters_list = convert_string_to_list(parameters)
