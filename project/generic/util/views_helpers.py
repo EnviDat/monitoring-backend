@@ -1,16 +1,17 @@
 import importlib
 
 from django.apps import apps
+from django.core.exceptions import FieldDoesNotExist
 from datetime import datetime
 
 
-# =========================================== CONSTANTS ===============================================================
+# ============================================= CONSTANT ===============================================================
 
 # String passed in kwargs['parameters'] that is used to return all parameters
-from django.core.exceptions import FieldDoesNotExist
-
 ALL_DISPLAY_VALUES_STRING = 'multiple'
 
+
+# ============================================== FUNCTIONS =============================================================
 
 # ----------------------------------------  Model Functions ------------------------------------------------------------
 
