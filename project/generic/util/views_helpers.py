@@ -7,6 +7,8 @@ from datetime import datetime
 # =========================================== CONSTANTS ===============================================================
 
 # String passed in kwargs['parameters'] that is used to return all parameters
+from django.core.exceptions import FieldDoesNotExist
+
 ALL_DISPLAY_VALUES_STRING = 'multiple'
 
 
@@ -64,8 +66,38 @@ def validate_iso_format(date_text):
 # Get display_values by validating passed parameters
 # If parameters == ALL_DISPLAY_VALUES_STRING assign display_values to values in returned_parameters
 # Else validate parameter(s) passed in URL
-def get_display_values(parameters, model_class):
-    if parameters == ALL_DISPLAY_VALUES_STRING:
-        return ALL_DISPLAY_VALUES
+def get_display_values(parameters, model_class, parent_class):
+
+    if parent_class == 'LWFStation' and parameters == ALL_DISPLAY_VALUES_STRING:
+        fields = [field.name for field in model_class._meta.get_fields()]
+        # Return new list without 'id' and time-related fields
+        parameters = fields[8:]
+        return parameters
 
     return validate_display_values(parameters, model_class)
+
+
+# Validate parameters and return them as display_values list
+# parameters  - comma separated string from kwargs['parameters']
+# model_class  - validated model as a class
+def validate_display_values(parameters, model_class):
+    # Split parameters comma separated string into parameter_list
+    parameters_list = convert_string_to_list(parameters)
+
+    # Validate parameters in parameters_list and add to display_values
+    display_values = []
+    for parameter in parameters_list:
+        try:
+            model_class._meta.get_field(parameter)
+            if parameter != 'id':
+                display_values = display_values + [parameter]
+        except FieldDoesNotExist:
+            pass
+
+    return display_values
+
+
+# Returns comma delimited string as list
+def convert_string_to_list(string):
+    new_list = [item.strip() for item in string.split(',')]
+    return new_list
