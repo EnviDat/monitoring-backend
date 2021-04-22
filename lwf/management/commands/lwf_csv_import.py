@@ -31,6 +31,7 @@
 #   python manage.py lwf_csv_import -s scf -p LWFMeteo -i lwf/data/scffield.csv  -d lwf/data -m scf -t directory
 
 #   python manage.py lwf_csv_import -s test4 -p LWFStation -i lwf/data/12.csv  -d lwf/data -m test3 -t directory
+
 import os
 
 from pathlib import Path
@@ -39,13 +40,10 @@ from django.core.management.base import BaseCommand
 from postgres_copy import CopyMapping
 import importlib
 from django.utils.timezone import make_aware
+from lwf.util.cleaners import get_lwf_meteo_line_clean, get_lwf_station_line_clean
 
 # Setup logging
 import logging
-
-from lwf.util.cleaners import get_lwf_meteo_line_clean, get_lwf_station_line_clean
-from lwf.util.copy_dicts import get_lwf_meteo_copy_dict, get_lwf_station_copy_dict
-
 logging.basicConfig(filename=Path('lwf/logs/lwf_csv_import.log'), format='%(asctime)s   %(filename)s: %(message)s',
                     datefmt='%d-%b-%y %H:%M:%S')
 logger = logging.getLogger(__name__)
@@ -128,11 +126,10 @@ class Command(BaseCommand):
 
         csv_temporary = Path(kwargs['directory'] + '/' + kwargs['station'] + '_temporary.csv')
 
-        csv_field_names = parent_class.input_fields
+        input_fields = parent_class.input_fields
+        database_fields = [field.name for field in parent_class._meta.fields]
 
-        field_names = parent_class.model_fields
-
-        date_form = parent_class.date_format
+        date_format = parent_class.date_format
 
         model_class = None
 
@@ -145,7 +142,7 @@ class Command(BaseCommand):
         try:
             with open(csv_temporary, 'w', newline='') as sink, open(input_file, 'r') as source:
 
-                sink.write(','.join(field_names) + '\n')
+                sink.write(','.join(database_fields) + '\n')
                 records_written = 0
 
                 # Skip number of header lines designated in parent class header line count
@@ -165,20 +162,20 @@ class Command(BaseCommand):
                     if line.startswith(parent_class.header_symbol):
                         continue
 
-                    if len(line_array) != len(csv_field_names):
+                    if len(line_array) != len(input_fields):
                         error_msg = "Line has {0} values, header {1} columns ".format(len(line_array),
-                                                                                      len(csv_field_names))
+                                                                                      len(input_fields))
                         logger.error(error_msg)
                         raise ValueError(error_msg)
 
-                    row = {csv_field_names[i]: line_array[i] for i in range(len(line_array))}
+                    row = {input_fields[i]: line_array[i] for i in range(len(line_array))}
 
-                    # Process row and add new calculated fields
+                    # Process row and add new computed fields
                     # Check which kind of cleaner should be applied
                     if kwargs['parentclass'] == 'LWFMeteo':
-                        line_clean = get_lwf_meteo_line_clean(row, date_form)
+                        line_clean = get_lwf_meteo_line_clean(row, date_format)
                     elif kwargs['parentclass'] == 'LWFStation':
-                        line_clean = get_lwf_station_line_clean(row, date_form)
+                        line_clean = get_lwf_station_line_clean(row, date_format)
                     else:
                         logger.info(
                             'WARNING (lwf_csv_import.py) {0} parentclass does not exist'.format(kwargs['parentclass']))
@@ -218,17 +215,11 @@ class Command(BaseCommand):
             return
 
         if model_class is None:
-            logger.info('WARNING (lwf_csv_import.py) no data found for {0}'.format(kwargs['station']))
+            logger.info('WARNING (lwf_csv_import.py) no data found for {0}'.format(kwargs['model']))
             return
 
-        # Check which kind of copy_dictionary should be applied
-        if kwargs['parentclass'] == 'LWFMeteo':
-            copy_dictionary = get_lwf_meteo_copy_dict()
-        elif kwargs['parentclass'] == 'LWFStation':
-            copy_dictionary = get_lwf_station_copy_dict()
-        else:
-            logger.info('WARNING (lwf_csv_import.py) {0} parentclass does not exist'.format(kwargs['parentclass']))
-            return
+        # Assign copy_dictionary from database_fields
+        copy_dictionary = {database_fields[i]: database_fields[i] for i in range(0, len(database_fields))}
 
         # Import processed and cleaned data into Postgres database
         c = CopyMapping(
@@ -236,10 +227,10 @@ class Command(BaseCommand):
             # Give it the model
             model_class,
 
-            # Temporary CSV with input data and generated fields
+            # Temporary CSV with input data and computed fields
             csv_temporary,
 
-            # And a dict mapping the model fields to CSV fields
+            # And a dictionary mapping the model fields to CSV fields
             copy_dictionary,
         )
         # Then save it.

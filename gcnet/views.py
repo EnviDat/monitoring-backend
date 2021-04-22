@@ -442,8 +442,9 @@ def get_json_data(request, **kwargs):
 
 # Returns aggregate data values by day: 'avg' (average), 'max' (maximum) and 'min' (minimum)
 # Users can enter as many parameters as desired by using a comma separated string for kwargs['parameters']
-# User customized view that returns data based parameter specified
+# User customized view that returns data based on parameters specified
 def get_aggregate_data(request, timestamp_meaning='', nodata='', **kwargs):
+
     # Assign kwargs from url to variables
     start = kwargs['start']
     end = kwargs['end']

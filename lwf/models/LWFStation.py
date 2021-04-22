@@ -1,18 +1,10 @@
-import os
 
 from django.db import models
 from postgres_copy import CopyManager
 
 from lwf.fields import LWFStationFloatField
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "project.settings")
-import django
 
-django.setup()
-
-
-# TODO add minutes to verbose names?
-# TODO check how many decimal places and which custom field to use for float values
 # Parent class that defines fields for LWF Meteo stations
 class LWFStation(models.Model):
     timestamp_iso = models.DateTimeField(
@@ -111,7 +103,6 @@ class LWFStation(models.Model):
         null=True
     )
 
-    # TODO check units
     # Global radiation [W/m2]
     global_radiation_10 = LWFStationFloatField(
         verbose_name='Global radiation',
@@ -226,7 +217,6 @@ class LWFStation(models.Model):
         null=True
     )
 
-    # TODO confirm that soil water potential should have negative depths
     # Soil water potential 15 cm [hPa]
     soil_water_potential_20_15 = LWFStationFloatField(
         verbose_name='Soil water potential 15 cm',
@@ -323,23 +313,8 @@ class LWFStation(models.Model):
                     'soil_water_content_60_30', 'soil_water_content_10_15', 'soil_water_content_10_50',
                     'soil_water_content_10_80']
 
-    model_fields = ['timestamp_iso', 'year', 'julianday', 'quarterday', 'halfday', 'day', 'week', 'air_temperature_10',
-                    'precipitation_60', 'precipitation_10', 'precipitation_10_multi', 'precipitation_60_multi',
-                    'wind_speed_10', 'wind_speed_max_10', 'wind_direction_10', 'relative_air_humidity_60',
-                    'relative_air_humidity_10', 'global_radiation_10', 'photosynthetic_active_radiation_10',
-                    'uv_b_radiation_10', 'vapour_pressure_deficit_10', 'dewpoint_10', 'ozone_10',
-                    'soil_temperature_60_5', 'soil_temperature_60_10', 'soil_temperature_60_20',
-                    'soil_temperature_10_5', 'soil_temperature_10_10', 'soil_temperature_10_30',
-                    'soil_temperature_10_50', 'soil_temperature_10_80', 'soil_temperature_10_120',
-                    'soil_temperature_20_15', 'soil_temperature_20_50', 'soil_temperature_20_80',
-                    'soil_temperature_20_150', 'soil_water_potential_20_15', 'soil_water_potential_20_50',
-                    'soil_water_potential_20_80', 'soil_water_potential_20_150', 'soil_water_content_60_15',
-                    'soil_water_content_60_50', 'soil_water_content_60_80', 'soil_water_content_60_5',
-                    'soil_water_content_60_30', 'soil_water_content_10_15', 'soil_water_content_10_50',
-                    'soil_water_content_10_80']
-
     date_format = '%Y-%m-%dT%H:%M:%SZ'
 
-    # Declare Station has an abstract class so it can be inherited
+    # Declare LWFStation as an abstract class so it can be inherited
     class Meta:
         abstract = True

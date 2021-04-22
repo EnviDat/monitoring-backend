@@ -84,9 +84,6 @@ class LWFMeteo(models.Model):
 
     input_fields = ['timestamp', 'temp', 'rH', 'precip', 'PAR', 'ws',]
 
-    model_fields = ['timestamp_iso', 'year', 'julianday', 'quarterday', 'halfday', 'day', 'week',
-                       'temp', 'rh', 'precip', 'par', 'ws']
-
     date_format = '%Y-%m-%d %H:%M:%S'
 
     # Declare Station has an abstract class so it can be inherited
