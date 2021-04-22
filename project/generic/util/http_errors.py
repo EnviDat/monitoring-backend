@@ -34,7 +34,7 @@ def parameter_http_error(parameter, app, parent_class):
 
     if app == 'gcnet':
         return HttpResponseNotFound("<h1>Page not found</h1>"
-                                    "<h3>No valid parameter entered in URL: {0}</h3>"
+                                    "<h3>No valid parameter(s) entered in URL: {0}</h3>"
                                     "<h3>Valid parameters are:</h3>"
                                     "<p>swin, swin_maximum, swout, swout_minimum, netrad, netrad_maximum, airtemp1, airtemp1_maximum,"
                                     " airtemp1_minimum, airtemp2, airtemp2_maximum, airtemp2_minimum, airtemp_cs500air1, "
@@ -45,7 +45,7 @@ def parameter_http_error(parameter, app, parent_class):
 
     elif parent_class == 'LWFStation':
         return HttpResponseNotFound("<h1>Page not found</h1>"
-                                    "<h3>No valid parameter entered in URL: {0}</h3>"
+                                    "<h3>No valid parameter(s) entered in URL: {0}</h3>"
                                     "<h3>Valid parameters are:</h3>"
                                     "<p>air_temperature_10, precipitation_60, precipitation_10, precipitation_10_multi,"
                                     "precipitation_60_multi, wind_speed_10, wind_speed_max_10, wind_direction_10, "
@@ -64,8 +64,15 @@ def parameter_http_error(parameter, app, parent_class):
 
     else:
         return HttpResponseNotFound("<h1>Page not found</h1>"
-                                    "<h3>Non-valid parameter entered in URL: {0}</h3>"
+                                    "<h3>No valid parameter(s) entered in URL: {0}</h3>"
                                     .format(parameter))
+
+
+def date_http_error():
+    return HttpResponseNotFound("<h1>Page not found</h1>"
+                                "<h3>Incorrect date format for 'start' and/or 'end' timestamps.</h3>"
+                                "<h3>Start and end dates should both be in either ISO timestamp "
+                                "date format: YYYY-MM-DD ('2019-12-04')</h3>")
 
 
 
