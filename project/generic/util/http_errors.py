@@ -16,14 +16,12 @@ def date_http_error():
 
 
 def model_http_error(model, app):
-
     if app == 'gcnet':
         return HttpResponseNotFound("<h1>Page not found</h1>"
                                     "<h3>Non-valid 'model' (station) entered in URL: {0}</h3>"
                                     "<h3>Valid models are listed at: "
                                     "<a href=https://www.envidat.ch/data-api/gcnet/models/ target=_blank>"
                                     "https://www.envidat.ch/data-api/gcnet/models/</a></h3>".format(model))
-
     # TODO implement URL in error response
     elif app == 'lwf':
         return HttpResponseNotFound("<h1>Page not found</h1>"
@@ -31,14 +29,12 @@ def model_http_error(model, app):
                                     "<h3>Valid models are listed at: "
                                     "<a href=https://www.envidat.ch/data-api/lwf/models/ target=_blank>"
                                     "https://www.envidat.ch/data-api/lwf/models/</a></h3>".format(model))
-
     else:
         return HttpResponseNotFound("<h1>Page not found</h1>"
                                     "<h3>Non-valid 'model' (station) entered in URL: {0}</h3>".format(model))
 
 
 def parameter_http_error(parameter, app, parent_class):
-
     if app == 'gcnet':
         return HttpResponseNotFound("<h1>Page not found</h1>"
                                     "<h3>No valid parameter(s) entered in URL: {0}</h3>"
@@ -49,7 +45,6 @@ def parameter_http_error(parameter, app, parent_class):
                                     "windspeed2, windspeed_u2_maximum, windspeed_u2_stdev, winddir1, winddir2, pressure,"
                                     " sh1, sh2, battvolt, reftemp"
                                     .format(parameter))
-
     elif parent_class == 'LWFStation':
         return HttpResponseNotFound("<h1>Page not found</h1>"
                                     "<h3>No valid parameter(s) entered in URL: {0}</h3>"
@@ -68,7 +63,6 @@ def parameter_http_error(parameter, app, parent_class):
                                     "soil_water_content_60_80, soil_water_content_60_5, soil_water_content_60_30,"
                                     "soil_water_content_10_15, soil_water_content_10_50, soil_water_content_10_80"
                                     .format(parameter))
-
     else:
         return HttpResponseNotFound("<h1>Page not found</h1>"
                                     "<h3>No valid parameter(s) entered in URL: {0}</h3>"
