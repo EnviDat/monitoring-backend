@@ -109,11 +109,9 @@ class Command(BaseCommand):
             csv_file.write(url_content)
             csv_file.close()
             input_file = csv_path
-
         elif kwargs['typesource'] == 'directory':
             input_file = Path(kwargs['inputfile'])
             logger.info('INPUT FILE: {0}'.format(input_file))
-
         else:
             logger.info('WARNING (lwf_csv_import.py) non-valid value entered for "typesource": {0}'.format(
                 kwargs['typesource']))
@@ -124,15 +122,12 @@ class Command(BaseCommand):
         package = importlib.import_module("lwf.models." + parent_name)
         parent_class = getattr(package, parent_name)
 
+        # Assign variables used to write csv_temporary
         csv_temporary = Path(kwargs['directory'] + '/' + kwargs['station'] + '_temporary.csv')
-
         input_fields = parent_class.input_fields
         database_fields = [field.name for field in parent_class._meta.fields]
-
         date_format = parent_class.date_format
-
         model_class = None
-
         written_timestamps = []
         rows_before = 24
         rows_after = 0
@@ -224,13 +219,13 @@ class Command(BaseCommand):
         # Import processed and cleaned data into Postgres database
         c = CopyMapping(
 
-            # Give it the model
+            # Assign model
             model_class,
 
             # Temporary CSV with input data and computed fields
             csv_temporary,
 
-            # And a dictionary mapping the model fields to CSV fields
+            # Dictionary mapping the model fields to CSV fields
             copy_dictionary,
         )
         # Then save it.
