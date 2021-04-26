@@ -8,11 +8,11 @@ from project.generic.util.views_helpers import get_timestamp_iso_range_day_dict
 
 # ----------------------------------------  Streaming Helpers ---------------------------------------------------------
 # Assign null_value
-def get_null_value(nodata_kwargs):
-    if nodata_kwargs == 'empty':
+def get_null_value(nodata_kwarg):
+    if nodata_kwarg == 'empty':
         null_value = ''
     else:
-        null_value = nodata_kwargs
+        null_value = nodata_kwarg
     return null_value
 
 

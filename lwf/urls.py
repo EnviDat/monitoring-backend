@@ -17,8 +17,8 @@ Including another URLconf
 from django.urls import path
 
 from lwf.views import get_db_data, get_derived_data, get_db_data_greater_than
-from project.generic.views import generic_get_models, generic_get_daily_json_data, generic_get_json_data, \
-    generic_get_csv
+from project.generic.views import generic_get_models, generic_get_json_data, \
+    generic_get_csv, generic_get_daily_data
 
 urlpatterns = [
     path('data/<str:model>/<str:lod>/<str:parameter>/<str:start>/<str:end>/', get_db_data),
@@ -30,7 +30,8 @@ urlpatterns = [
 
     path('json/<str:model>/<str:parameters>/<str:start>/<str:end>/<str:parent_class>/', generic_get_json_data, {'app': 'lwf'}),
 
-    path('json/daily/<str:model>/<str:parameters>/<str:start>/<str:end>/<str:parent_class>/', generic_get_daily_json_data, {'app': 'lwf'}),
+    path('json/daily/<str:model>/<str:parameters>/<str:start>/<str:end>/<str:parent_class>/', generic_get_daily_data, {'app': 'lwf'}),
+    path('csv/daily/<str:model>/<str:parameters>/<str:nodata>/<str:start>/<str:end>/<str:parent_class>/', generic_get_daily_data, {'app': 'lwf'}),
 
     path('csv/<str:model>/<str:parameters>/<str:nodata>/<str:parent_class>/<str:start>/<str:end>/', generic_get_csv, {'app': 'lwf'}),
     path('csv/<str:model>/<str:parameters>/<str:nodata>/<str:parent_class>/', generic_get_csv, {'app': 'lwf'}),

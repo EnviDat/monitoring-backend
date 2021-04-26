@@ -58,10 +58,11 @@ def generic_get_json_data(request, app, parent_class='', **kwargs):
         print('ERROR (views.py): {0}'.format(e))
 
 
-# Returns aggregate data values by day: 'avg' (average), 'max' (maximum) and 'min' (minimum)
-# Users can enter as many parameters as desired by using a comma separated string for kwargs['parameters']
 # User customized view that returns data based on parameters specified
-def generic_get_daily_json_data(request, app, parent_class='', **kwargs):
+# Returns aggregate data values by day: 'avg' (average), 'max' (maximum) and 'min' (minimum)
+# Streams data as CSV if kwarg 'nodata' is passed, else returns data as JSON response
+# Users can enter as many parameters as desired by using a comma separated string for kwargs['parameters']
+def generic_get_daily_data(request, app, parent_class='', nodata='', **kwargs):
 
     # Assign kwargs from url to variables
     start = kwargs['start']
@@ -85,23 +86,50 @@ def generic_get_daily_json_data(request, app, parent_class='', **kwargs):
     # Assign dictionary_fields with fields and values to be displayed
     dictionary_fields = get_dict_fields(display_values)
 
-    # Check if timestamps are in whole date format: YYYY-MM-DD ('2019-12-04')
-    try:
-        dict_timestamps = get_timestamp_iso_range_day_dict(start, end)
-    except ValueError:
-        return date_http_error()
+    # ---------------------------------------- Stream CSV ------------------------------------------------------------
+    # Check if 'nodata' was passed, if so stream CSV
+    if len(nodata) > 0:
+
+        # Assign empty strings to 'version' and 'hash_lines' because they are not used in this view
+        version = ''
+        hash_lines = ''
+
+        # Check if 'empty' passed for 'nodata', if so assign 'nodata' to empty string: ''
+        if nodata == 'empty':
+            nodata = ''
+
+        # Assign display_values to ['day'] + keys of dictionary_fields
+        display_values = ['day'] + [*dictionary_fields]
+
+        # Assign output_csv
+        output_csv = model + '_daily_summary.csv'
+
+        # Create the streaming response object and output csv
+        response = StreamingHttpResponse(stream(version, hash_lines, model_class, display_values,
+                                                nodata, start, end, dict_fields=dictionary_fields),
+                                         content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename=' + output_csv
+        return response
 
     # ------------------------------------- Return JSON Response ------------------------------------------------------
-    try:
-        queryset = list(model_class.objects
-                        .values('day')
-                        .annotate(**dictionary_fields)
-                        .filter(**dict_timestamps)
-                        .order_by('timestamp_first'))
-        return JsonResponse(queryset, safe=False)
+    # Else return JSON response
+    else:
+        try:
+            # Check if timestamps are in whole date format: YYYY-MM-DD ('2019-12-04')
+            try:
+                dict_timestamps = get_timestamp_iso_range_day_dict(start, end)
+            except ValueError:
+                return date_http_error()
 
-    except Exception as e:
-        print('ERROR (views.py): {0}'.format(e))
+            queryset = list(model_class.objects
+                            .values('day')
+                            .annotate(**dictionary_fields)
+                            .filter(**dict_timestamps)
+                            .order_by('timestamp_first'))
+            return JsonResponse(queryset, safe=False)
+
+        except Exception as e:
+            print('ERROR (views.py): {0}'.format(e))
 
 
 # Streams station data to csv file
@@ -109,7 +137,6 @@ def generic_get_daily_json_data(request, app, parent_class='', **kwargs):
 # kwargs['nodata'] assigns string to populate null values in database
 # If kwargs['nodata'] is 'empty' then null values are populated with empty string: ''
 # kwargs['timestamp_meaning'] corresponds to the meaning of timestamp_iso
-# kwargs['timestamp_meaning'] must be 'beginning' or 'end'
 def generic_get_csv(request, app, parent_class='', start='', end='', **kwargs):
 
     # Assign kwargs from url to variables
