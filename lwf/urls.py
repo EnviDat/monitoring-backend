@@ -17,14 +17,16 @@ Including another URLconf
 from django.urls import path
 
 from lwf.views import get_db_data, get_derived_data, get_db_data_greater_than
-from project.generic.views import get_models, get_json_data, get_daily_json_data
+from project.generic.views import generic_get_models, generic_get_daily_json_data, generic_get_json_data, \
+    generic_get_csv
 
 urlpatterns = [
     path('data/<str:model>/<str:lod>/<str:parameter>/<str:start>/<str:end>/', get_db_data),
     path('derived/<str:model>/<str:lod>/<str:parameter>/<str:calc>/<str:start>/<str:end>/', get_derived_data),
     path('greaterthan/<str:model>/<str:lod>/<str:parameter>/<str:start>/<str:end>/<str:gt>/', get_db_data_greater_than),
 
-    path('models/', get_models, {'app': 'lwf'}),
-    path('json/<str:model>/<str:parameters>/<str:start>/<str:end>/<str:parent_class>/', get_json_data, {'app': 'lwf'}),
-    path('json/daily/<str:model>/<str:parameters>/<str:start>/<str:end>/<str:parent_class>/', get_daily_json_data, {'app': 'lwf'}),
+    path('models/', generic_get_models, {'app': 'lwf'}),
+    path('json/<str:model>/<str:parameters>/<str:start>/<str:end>/<str:parent_class>/', generic_get_json_data, {'app': 'lwf'}),
+    path('json/daily/<str:model>/<str:parameters>/<str:start>/<str:end>/<str:parent_class>/', generic_get_daily_json_data, {'app': 'lwf'}),
+    path('csv/<str:model>/<str:parameters>/<str:nodata>/<str:start>/<str:end>/<str:parent_class>/', generic_get_csv, {'app': 'lwf'}),
 ]

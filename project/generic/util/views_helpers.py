@@ -89,7 +89,6 @@ def get_display_values(parameters, model_class, parent_class):
     if parent_class == 'LWFStation' and parameters == ALL_DISPLAY_VALUES_STRING:
         fields = [field.name for field in model_class._meta.get_fields()]
         # Return new list without 'id' and time-related fields
-        # TODO return input_fields from parent_class, handle timestamp either here or in base function of view
         parameters = fields[8:]
         return parameters
 
