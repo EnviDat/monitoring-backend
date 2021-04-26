@@ -138,7 +138,7 @@ def generic_get_csv(request, app, parent_class='', start='', end='', **kwargs):
     # Add timestamp_iso to display_values
     display_values = ['timestamp_iso'] + display_values
 
-    # ===================================  STREAM DATA ===============================================================
+    # ---------------------------------------- Stream Data ------------------------------------------------------------
     # Create the streaming response object and output csv
     response = StreamingHttpResponse(stream(version, hash_lines, model_class, display_values,
                                             null_value, start, end, dict_fields={}), content_type='text/csv')
