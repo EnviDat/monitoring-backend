@@ -25,8 +25,13 @@ urlpatterns = [
     path('derived/<str:model>/<str:lod>/<str:parameter>/<str:calc>/<str:start>/<str:end>/', get_derived_data),
     path('greaterthan/<str:model>/<str:lod>/<str:parameter>/<str:start>/<str:end>/<str:gt>/', get_db_data_greater_than),
 
+
     path('models/', generic_get_models, {'app': 'lwf'}),
+
     path('json/<str:model>/<str:parameters>/<str:start>/<str:end>/<str:parent_class>/', generic_get_json_data, {'app': 'lwf'}),
+
     path('json/daily/<str:model>/<str:parameters>/<str:start>/<str:end>/<str:parent_class>/', generic_get_daily_json_data, {'app': 'lwf'}),
-    path('csv/<str:model>/<str:parameters>/<str:nodata>/<str:start>/<str:end>/<str:parent_class>/', generic_get_csv, {'app': 'lwf'}),
+
+    path('csv/<str:model>/<str:parameters>/<str:nodata>/<str:parent_class>/<str:start>/<str:end>/', generic_get_csv, {'app': 'lwf'}),
+    path('csv/<str:model>/<str:parameters>/<str:nodata>/<str:parent_class>/', generic_get_csv, {'app': 'lwf'}),
 ]
