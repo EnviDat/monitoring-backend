@@ -172,3 +172,65 @@ def generic_get_csv(request, app, parent_class='', start='', end='', **kwargs):
     response['Content-Disposition'] = 'attachment; filename=' + output_csv
 
     return response
+
+
+# TODO finish this view
+# Streams data to csv file in NEAD format
+# kwargs['nodata'] assigns string to populate null values in database
+# If kwargs['nodata'] is 'empty' then null values are populated with empty string: ''
+# Format is "NEAD 1.0 UTF-8"
+# def generic_get_nead(request, app, timestamp_meaning='', start='', end='', **kwargs):
+#
+#     # Assign variables
+#     version = "# NEAD 1.0 UTF-8\n"
+#     nead_config = 'gcnet/config/nead_header.ini'
+#     null_value = get_null_value(kwargs['nodata'])
+#     model = kwargs['model']
+#     # timestamp_meaning = kwargs['timestamp_meaning']
+#     output_csv = model + '.csv'
+#
+#     # ================================  VALIDATE VARIABLES =========================================================
+#     # Get and validate the model_class
+#     try:
+#         model_class = get_model(kwargs['model'])
+#     except AttributeError:
+#         return model_http_error(kwargs['model'])
+#
+#     # If timestamp_meaning passed check if valid
+#     if len(timestamp_meaning) > 0 and timestamp_meaning not in ['end', 'beginning']:
+#         return timestamp_meaning_http_error(timestamp_meaning)
+#
+#     # Validate 'start' and 'end' if they are passed
+#     if len(start) > 0 and len(end) > 0:
+#         # Check if timestamps are in whole date format: YYYY-MM-DD ('2019-12-04')
+#         try:
+#             get_timestamp_iso_range_day_dict(start, end)
+#         except ValueError:
+#             return date_http_error()
+#
+#     # =============================== PROCESS NEAD HEADER ===========================================================
+#     # Get NEAD header
+#     config_buffer, nead_config_parser = write_nead_config(config_path=nead_config, model=model,
+#                                                           stringnull=null_value, delimiter=',',
+#                                                           ts_meaning=timestamp_meaning)
+#
+#     # Check if config_buffer or nead_config_parser are None
+#     if nead_config_parser is None or config_buffer is None:
+#         return HttpResponseNotFound("<h1>Page not found</h1>"
+#                                     "<h3>Check that valid 'model' (station) entered in URL: {0}</h3>"
+#                                     .format(kwargs['model']))
+#
+#     # Fill hash_lines with config_buffer lines prepended with '# '
+#     hash_lines = get_hashed_lines(config_buffer)
+#
+#     # Assign display_values from database_fields in nead_config_parser
+#     database_fields = nead_config_parser.get('FIELDS', 'database_fields')
+#     display_values = list(database_fields.split(','))
+#
+#     # ===================================  STREAM NEAD DATA ===========================================================
+#     # Create the streaming response object and output csv
+#     response = StreamingHttpResponse(stream(version, hash_lines, model_class, display_values, timestamp_meaning,
+#                                             null_value, start, end, dict_fields={}), content_type='text/csv')
+#     response['Content-Disposition'] = 'attachment; filename=' + output_csv
+#
+#     return response

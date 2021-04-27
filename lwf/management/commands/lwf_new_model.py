@@ -1,5 +1,5 @@
 # Example command
-#   python manage.py lwf_new_model -c lwf/config/leb.ini
+#   python manage.py lwf_new_model -c lwf/config/test.ini
 
 from django.core.management.base import BaseCommand
 
