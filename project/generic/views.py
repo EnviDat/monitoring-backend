@@ -1,6 +1,5 @@
 from django.http import JsonResponse, StreamingHttpResponse
 
-from gcnet.util.stream import gcnet_stream
 from project.generic.util.http_errors import timestamp_http_error, model_http_error, parameter_http_error, \
     date_http_error
 from project.generic.util.stream import get_null_value, stream, stream_router
@@ -91,9 +90,7 @@ def generic_get_daily_data(request, app, timestamp_meaning='', parent_class='', 
     # Check if 'nodata' was passed, if so stream CSV
     if len(nodata) > 0:
 
-        # Check if 'empty' passed for 'nodata', if so assign 'nodata' to empty string: ''
-        if nodata == 'empty':
-            nodata = ''
+        nodata = get_null_value(nodata)
 
         # Assign display_values to ['day'] + keys of dictionary_fields
         display_values = ['day'] + [*dictionary_fields]
