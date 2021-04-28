@@ -1,4 +1,8 @@
+import configparser
 import importlib
+
+from django.http import HttpResponseNotFound
+from pathlib import Path
 
 from django.apps import apps
 from django.core.exceptions import FieldDoesNotExist
@@ -23,12 +27,71 @@ def get_models_list(app):
     return models
 
 
-def get_model_class(class_name, app, parent_class):
+def get_model_class(model, app, parent_class):
+
     if len(parent_class) > 0:
         package = importlib.import_module('{0}.models.{1}'.format(app, parent_class))
-    else:
-        package = importlib.import_module('{0}.models'.format(app))
+        return getattr(package, model)
+
+    elif app == 'gcnet':
+        model_url = model.rsplit('.', 1)[-1]
+        class_name = get_model_from_config(model_url)
+        package = importlib.import_module("gcnet.models")
+        return getattr(package, class_name)
+
+
+def get_model(model):
+    model_url = model.rsplit('.', 1)[-1]
+    class_name = get_model_from_config(model_url)
+    package = importlib.import_module("gcnet.models")
     return getattr(package, class_name)
+
+
+def get_model_url_dict():
+
+    # Read the stations config file
+    stations_path = Path('gcnet/config/stations.ini')
+    stations_config = read_config(stations_path)
+
+    # Check if stations_config exists
+    if not stations_config:
+        return HttpResponseNotFound("<h1>Not found: station config doesn't exist</h1>")
+
+    # Assign variables to stations_config values and loop through each station in stations_config, create dictionary of
+    # model_url:model key:value pairs
+    model_dict = {}
+    for section in stations_config.sections():
+        if stations_config.get(section, 'api') == 'True':
+            model_id = stations_config.get(section, 'model')
+            model_url = stations_config.get(section, 'model_url')
+            model_dict[model_url] = model_id
+    return model_dict
+
+
+def get_model_from_config(model_url):
+    model_dict = get_model_url_dict()
+    model = model_url
+    if model_url in model_dict:
+        model = model_dict[model_url]
+    return model
+
+
+# ------------------------------------------- Read Config ------------------------------------------------------------
+
+def read_config(config_path: str):
+    config_file = Path(config_path)
+
+    # Load configuration file
+    config = configparser.RawConfigParser(inline_comment_prefixes='#', allow_no_value=True)
+    config.read(config_file)
+
+    # print("Read config params file: {0}, sections: {1}".format(config_path, ', '.join(gc_config.sections())))
+
+    if len(config.sections()) < 1:
+        print("Invalid config file, missing sections")
+        return None
+
+    return config
 
 
 # -------------------------------------- Date Validators --------------------------------------------------------------
@@ -99,7 +162,6 @@ def get_display_values(parameters, model_class, parent_class):
 # parameters are comma separated string from kwargs['parameters']
 # model_class is validated model as a class
 def validate_display_values(parameters, model_class):
-
     # Split parameters comma separated string into parameter_list
     parameters_list = convert_string_to_list(parameters)
 

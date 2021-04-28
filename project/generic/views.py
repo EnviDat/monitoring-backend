@@ -1,5 +1,6 @@
 from django.http import JsonResponse, StreamingHttpResponse
 
+from gcnet.util.stream import gcnet_stream
 from project.generic.util.http_errors import timestamp_http_error, model_http_error, parameter_http_error, \
     date_http_error
 from project.generic.util.stream import get_null_value, stream
@@ -137,7 +138,7 @@ def generic_get_daily_data(request, app, parent_class='', nodata='', **kwargs):
 # kwargs['nodata'] assigns string to populate null values in database
 # If kwargs['nodata'] is 'empty' then null values are populated with empty string: ''
 # kwargs['timestamp_meaning'] corresponds to the meaning of timestamp_iso
-def generic_get_csv(request, app, parent_class='', start='', end='', **kwargs):
+def generic_get_csv(request, app, timestamp_meaning='', parent_class='', start='', end='', **kwargs):
 
     # Assign kwargs from url to variables
     model = kwargs['model']
@@ -166,10 +167,23 @@ def generic_get_csv(request, app, parent_class='', start='', end='', **kwargs):
     display_values = ['timestamp_iso'] + display_values
 
     # ---------------------------------------- Stream Data ------------------------------------------------------------
-    # Create the streaming response object and output csv
-    response = StreamingHttpResponse(stream(version, hash_lines, model_class, display_values,
-                                            null_value, start, end, dict_fields={}), content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename=' + output_csv
+    # If app is gcnet use gcnet_stream
+    if app == 'gcnet':
+        # Assign 'version' and 'hash_lines' as empty strings because they are only needed for NEAD streaming
+        version = ''
+        hash_lines = ''
+        # Create the streaming response object and output csv.
+        response = StreamingHttpResponse(
+            gcnet_stream(version, hash_lines, model_class, display_values, timestamp_meaning,
+                         null_value, start, end, dict_fields={}), content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename=' + output_csv
+
+    # Else use generic stream
+    else:
+        # Create the streaming response object and output csv
+        response = StreamingHttpResponse(stream(version, hash_lines, model_class, display_values,
+                                                null_value, start, end, dict_fields={}), content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename=' + output_csv
 
     return response
 
