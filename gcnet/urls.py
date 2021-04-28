@@ -19,7 +19,7 @@ from gcnet import views
 from gcnet.views import get_model_stations, streaming_csv_view_v1, get_aggregate_data, get_json_data, get_csv, \
     get_metadata, get_station_metadata, get_station_metadata_multiprocessing, get_station_metadata_queryset, \
     get_station_parameter_metadata
-from project.generic.views import generic_get_csv
+from project.generic.views import generic_get_csv, generic_get_daily_data
 
 urlpatterns = [
     path('models/', get_model_stations),
@@ -47,5 +47,6 @@ urlpatterns = [
 
     # Testing generic views
     path('csv-generic/<str:model>/<str:parameters>/<str:timestamp_meaning>/<str:nodata>/<str:start>/<str:end>/', generic_get_csv, {'app': 'gcnet'}),
+    path('csv-generic-daily/<str:model>/<str:parameters>/<str:timestamp_meaning>/<str:nodata>/<str:start>/<str:end>/', generic_get_daily_data, {'app': 'gcnet'}),
 
 ]

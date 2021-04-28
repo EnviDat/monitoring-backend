@@ -539,7 +539,7 @@ def get_aggregate_data(request, timestamp_meaning='', nodata='', **kwargs):
             return timestamp_meaning_http_error(timestamp_meaning)
 
         # Create the streaming response object and output csv
-        response = StreamingHttpResponse(stream(version, hash_lines, model_class, display_values, timestamp_meaning,
+        response = StreamingHttpResponse(gcnet_stream(version, hash_lines, model_class, display_values, timestamp_meaning,
                                                 nodata, start, end, dict_fields=dictionary_fields),
                                          content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename=' + output_csv

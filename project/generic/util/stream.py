@@ -2,8 +2,32 @@ import csv
 from io import StringIO
 
 from django.core.exceptions import FieldError
+from django.http import StreamingHttpResponse
 
+from gcnet.util.stream import gcnet_stream
 from project.generic.util.views_helpers import get_timestamp_iso_range_day_dict
+
+
+# ----------------------------------------  Streaming Router ----------------------------------------------------------
+def stream_router(app, model_class, display_values, nodata, start, end, output_csv, dict_fields,
+                  timestamp_meaning='', version='', hash_lines='', ):
+
+    # If app is gcnet use gcnet_stream
+    if app == 'gcnet':
+        # Create the streaming response object and output csv.
+        response = StreamingHttpResponse(
+            gcnet_stream(version, hash_lines, model_class, display_values, timestamp_meaning,
+                         nodata, start, end, dict_fields), content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename=' + output_csv
+
+    # Else use generic stream
+    else:
+        # Create the streaming response object and output csv
+        response = StreamingHttpResponse(stream(version, hash_lines, model_class, display_values,
+                                                nodata, start, end, dict_fields), content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename=' + output_csv
+
+    return response
 
 
 # ----------------------------------------  Streaming Helpers ---------------------------------------------------------
@@ -24,7 +48,6 @@ def write_row(writer, null_value, row):
 # ----------------------------------------  Data Generator ------------------------------------------------------------
 # Define a generator to stream GC-Net data directly to the client
 def stream(nead_version, hashed_lines, model_class, display_values, null_value, start, end, dict_fields):
-
     # If kwargs 'start' and 'end' passed in URL validate and assign to dict_timestamps
     dict_timestamps = {}
     if '' not in [start, end]:
@@ -56,7 +79,6 @@ def stream(nead_version, hashed_lines, model_class, display_values, null_value, 
             .iterator()
 
         for row in queryset:
-
             # Call write_row
             write_row(writer, null_value, row)
 
@@ -77,7 +99,6 @@ def stream(nead_version, hashed_lines, model_class, display_values, null_value, 
             .iterator()
 
         for row in queryset:
-
             # Call write_row
             write_row(writer, null_value, row)
 
@@ -97,7 +118,6 @@ def stream(nead_version, hashed_lines, model_class, display_values, null_value, 
             .iterator()
 
         for row in queryset:
-
             # Call write_row
             write_row(writer, null_value, row)
 
