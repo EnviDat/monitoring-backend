@@ -16,11 +16,9 @@ Including another URLconf
 
 from django.urls import path
 
-from lwf.util.http_errors import model_http_error
 from lwf.util.views_helpers import get_display_values
 from lwf.views import get_db_data, get_derived_data, get_db_data_greater_than
-from project.generic.views import generic_get_models, generic_get_json_data, \
-    generic_get_csv, generic_get_daily_data, generic_get_nead, generic_get_data
+from project.generic.views import generic_get_models, generic_get_daily_data, generic_get_nead, generic_get_data
 
 urlpatterns = [
     path('data/<str:model>/<str:lod>/<str:parameter>/<str:start>/<str:end>/', get_db_data),
@@ -57,5 +55,6 @@ urlpatterns = [
                                   'display_values_function': get_display_values}),
 
     # NEAD
-    path('nead/<str:model>/<str:nodata>/', generic_get_nead, {'app': 'lwf'}),
+    path('nead/<str:model>/<str:nodata>/',
+         generic_get_nead, {'app': 'lwf'}),
 ]

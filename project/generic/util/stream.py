@@ -2,9 +2,7 @@ import csv
 from io import StringIO
 
 from django.core.exceptions import FieldError
-from django.http import StreamingHttpResponse
 
-from gcnet.util.stream import gcnet_stream
 from project.generic.util.views_helpers import get_timestamp_iso_range_day_dict
 
 
@@ -25,7 +23,7 @@ def write_row(writer, null_value, row):
 
 # ----------------------------------------  Data Generator ------------------------------------------------------------
 # TODO handle timestamp_meaning
-# Define a generator to stream GC-Net data directly to the client
+# Define a generator to stream data directly to the client
 def stream(nead_version, hashed_lines, model_class, display_values, timestamp_meaning, null_value, start, end, dict_fields):
 
     # If kwargs 'start' and 'end' passed in URL validate and assign to dict_timestamps
