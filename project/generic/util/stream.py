@@ -23,7 +23,7 @@ def stream_router(app, model_class, display_values, nodata, start, end, output_c
     # Else use generic stream
     else:
         # Create the streaming response object and output csv
-        response = StreamingHttpResponse(stream(version, hash_lines, model_class, display_values,
+        response = StreamingHttpResponse(stream(version, hash_lines, model_class, display_values, timestamp_meaning,
                                                 nodata, start, end, dict_fields), content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename=' + output_csv
 
@@ -46,8 +46,9 @@ def write_row(writer, null_value, row):
 
 
 # ----------------------------------------  Data Generator ------------------------------------------------------------
+# TODO handle timestamp_meaning
 # Define a generator to stream GC-Net data directly to the client
-def stream(nead_version, hashed_lines, model_class, display_values, null_value, start, end, dict_fields):
+def stream(nead_version, hashed_lines, model_class, display_values, timestamp_meaning, null_value, start, end, dict_fields):
     # If kwargs 'start' and 'end' passed in URL validate and assign to dict_timestamps
     dict_timestamps = {}
     if '' not in [start, end]:
