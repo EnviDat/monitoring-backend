@@ -1,4 +1,3 @@
-from django.http import HttpResponseNotFound
 from pathlib import Path
 
 from io import StringIO
@@ -9,6 +8,7 @@ from gcnet.util.nead_header_strings import get_fields_string, get_add_value_stri
 from gcnet.util.views_helpers import read_config
 
 
+# Returns path of gcnet config it is exists, otherwise returns empty string
 def gcnet_nead_config():
 
     nead_config = Path('gcnet/config/nead_header.ini')

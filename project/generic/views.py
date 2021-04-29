@@ -169,9 +169,9 @@ def generic_get_nead(request, app,
 
     # Assign variables
     version = "# NEAD 1.0 UTF-8\n"
+
+
     # nead_config = 'gcnet/config/nead_header.ini'
-
-
 
     nead_config = get_nead_config()
     # print(nead_config)
