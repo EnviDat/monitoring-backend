@@ -1,7 +1,6 @@
 import configparser
 import importlib
 
-from django.http import HttpResponseNotFound
 from pathlib import Path
 
 from django.apps import apps
@@ -28,52 +27,8 @@ def get_models_list(app):
 
 
 def get_model_class(model, app, parent_class):
-
-    if len(parent_class) > 0:
-        package = importlib.import_module('{0}.models.{1}'.format(app, parent_class))
-        return getattr(package, model)
-
-    elif app == 'gcnet':
-        model_url = model.rsplit('.', 1)[-1]
-        class_name = get_model_from_config(model_url)
-        package = importlib.import_module("gcnet.models")
-        return getattr(package, class_name)
-
-
-def get_model(model):
-    model_url = model.rsplit('.', 1)[-1]
-    class_name = get_model_from_config(model_url)
-    package = importlib.import_module("gcnet.models")
-    return getattr(package, class_name)
-
-
-def get_model_url_dict():
-
-    # Read the stations config file
-    stations_path = Path('gcnet/config/stations.ini')
-    stations_config = read_config(stations_path)
-
-    # Check if stations_config exists
-    if not stations_config:
-        return HttpResponseNotFound("<h1>Not found: station config doesn't exist</h1>")
-
-    # Assign variables to stations_config values and loop through each station in stations_config, create dictionary of
-    # model_url:model key:value pairs
-    model_dict = {}
-    for section in stations_config.sections():
-        if stations_config.get(section, 'api') == 'True':
-            model_id = stations_config.get(section, 'model')
-            model_url = stations_config.get(section, 'model_url')
-            model_dict[model_url] = model_id
-    return model_dict
-
-
-def get_model_from_config(model_url):
-    model_dict = get_model_url_dict()
-    model = model_url
-    if model_url in model_dict:
-        model = model_dict[model_url]
-    return model
+    package = importlib.import_module('{0}.models.{1}'.format(app, parent_class))
+    return getattr(package, model)
 
 
 # ------------------------------------------- Read Config ------------------------------------------------------------

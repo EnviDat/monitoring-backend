@@ -3,7 +3,7 @@ from django.http import JsonResponse, StreamingHttpResponse, HttpResponse
 from project.generic.util.http_errors import timestamp_http_error, model_http_error, parameter_http_error, \
     date_http_error
 from project.generic.util.nead import nead_config_router
-from project.generic.util.stream import get_null_value, stream, stream_router
+from project.generic.util.stream import get_null_value, stream
 from project.generic.util.views_helpers import get_models_list, validate_date, get_model_class, get_display_values, \
     get_dict_fields, get_timestamp_iso_range_day_dict
 
@@ -17,7 +17,7 @@ def generic_get_models(request, app):
 # User customized view that returns JSON data based on parameter(s) specified by station
 # Users can enter as many parameters as desired by using a comma separated string for kwargs['parameters']
 # Accepts ISO timestamp ranges
-def generic_get_json_data(request, app, parent_class='', **kwargs):
+def generic_get_json_data(request, app, model_function=get_model_class, parent_class='', **kwargs):
 
     # Assign kwargs from url to variables
     start = kwargs['start']
@@ -34,7 +34,7 @@ def generic_get_json_data(request, app, parent_class='', **kwargs):
 
     # Validate the model
     try:
-        model_class = get_model_class(model, app, parent_class)
+        model_class = model_function(model, app, parent_class)
     except AttributeError:
         return model_http_error(model, app)
 
@@ -63,7 +63,8 @@ def generic_get_json_data(request, app, parent_class='', **kwargs):
 # Returns aggregate data values by day: 'avg' (average), 'max' (maximum) and 'min' (minimum)
 # Streams data as CSV if kwarg 'nodata' is passed, else returns data as JSON response
 # Users can enter as many parameters as desired by using a comma separated string for kwargs['parameters']
-def generic_get_daily_data(request, app, timestamp_meaning='', parent_class='', nodata='', **kwargs):
+def generic_get_daily_data(request, app, model_function=get_model_class, stream_function=stream, timestamp_meaning='',
+                           parent_class='', nodata='', **kwargs):
 
     # Assign kwargs from url to variables
     start = kwargs['start']
@@ -74,7 +75,7 @@ def generic_get_daily_data(request, app, timestamp_meaning='', parent_class='', 
     # ---------------------------------------- Validate KWARGS --------------------------------------------------------
     # Get the model
     try:
-        model_class = get_model_class(model, app, parent_class)
+        model_class = model_function(model, app, parent_class)
     except AttributeError:
         return model_http_error(model, app)
 
@@ -99,9 +100,15 @@ def generic_get_daily_data(request, app, timestamp_meaning='', parent_class='', 
         # Assign output_csv
         output_csv = model + '_daily_summary.csv'
 
+        # Assign variables used in stream function
+        version = ''
+        hash_lines = ''
+
         # Stream response from either a stream for a specific application or use generic stream
-        response = stream_router(app, model_class, display_values, nodata, start, end, output_csv,
-                                 dictionary_fields, timestamp_meaning)
+        response = StreamingHttpResponse(
+            stream_function(version, hash_lines, model_class, display_values, timestamp_meaning,
+                            nodata, start, end, dictionary_fields), content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename=' + output_csv
 
         return response
 
@@ -131,7 +138,8 @@ def generic_get_daily_data(request, app, timestamp_meaning='', parent_class='', 
 # kwargs['nodata'] assigns string to populate null values in database
 # If kwargs['nodata'] is 'empty' then null values are populated with empty string: ''
 # kwargs['timestamp_meaning'] corresponds to the meaning of timestamp_iso
-def generic_get_csv(request, app, stream_function=stream, timestamp_meaning='', parent_class='', start='', end='', **kwargs):
+def generic_get_csv(request, app, model_function=get_model_class, stream_function=stream, timestamp_meaning='',
+                    parent_class='', start='', end='', **kwargs):
 
     # Assign kwargs from url to variables
     model = kwargs['model']
@@ -142,7 +150,7 @@ def generic_get_csv(request, app, stream_function=stream, timestamp_meaning='', 
     # ---------------------------------------- Validate KWARGS --------------------------------------------------------
     # Get the model
     try:
-        model_class = get_model_class(model, app, parent_class)
+        model_class = model_function(model, app, parent_class)
     except AttributeError:
         return model_http_error(model, app)
 
@@ -160,9 +168,6 @@ def generic_get_csv(request, app, stream_function=stream, timestamp_meaning='', 
     dict_fields = {}
     version = ''
     hash_lines = ''
-
-    # response = stream_router(app, model_class, display_values, nodata, start, end, output_csv,
-    #                          dict_fields, timestamp_meaning)
 
     # Stream response from either a stream for a specific application or use generic stream
     response = StreamingHttpResponse(stream_function(version, hash_lines, model_class, display_values, timestamp_meaning,

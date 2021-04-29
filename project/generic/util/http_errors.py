@@ -31,7 +31,7 @@ def model_http_error(model, app):
                                     "https://www.envidat.ch/data-api/lwf/models/</a></h3>".format(model))
     else:
         return HttpResponseNotFound("<h1>Page not found</h1>"
-                                    "<h3>Non-valid 'model' (station) entered in URL: {0}</h3>".format(model))
+                                    "<h3>Non-valid 'model' entered in URL: {0}</h3>".format(model))
 
 
 def parameter_http_error(parameter, app, parent_class):

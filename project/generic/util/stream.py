@@ -8,28 +8,6 @@ from gcnet.util.stream import gcnet_stream
 from project.generic.util.views_helpers import get_timestamp_iso_range_day_dict
 
 
-# ----------------------------------------  Streaming Router ----------------------------------------------------------
-def stream_router(app, model_class, display_values, nodata, start, end, output_csv, dict_fields,
-                  timestamp_meaning='', version='', hash_lines='', ):
-
-    # If app is gcnet use gcnet_stream
-    if app == 'gcnet':
-        # Create the streaming response object and output csv.
-        response = StreamingHttpResponse(
-            gcnet_stream(version, hash_lines, model_class, display_values, timestamp_meaning,
-                         nodata, start, end, dict_fields), content_type='text/csv')
-        response['Content-Disposition'] = 'attachment; filename=' + output_csv
-
-    # Else use generic stream
-    else:
-        # Create the streaming response object and output csv
-        response = StreamingHttpResponse(stream(version, hash_lines, model_class, display_values, timestamp_meaning,
-                                                nodata, start, end, dict_fields), content_type='text/csv')
-        response['Content-Disposition'] = 'attachment; filename=' + output_csv
-
-    return response
-
-
 # ----------------------------------------  Streaming Helpers ---------------------------------------------------------
 # Assign null_value
 def get_null_value(nodata_kwarg):
