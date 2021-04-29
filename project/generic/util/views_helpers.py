@@ -97,6 +97,7 @@ def get_timestamp_iso_range_day_dict(start, end):
 # parameters are comma separated string from kwargs['parameters']
 # model_class is validated model as a class
 def validate_display_values(parameters, model_class):
+
     # Split parameters comma separated string into parameter_list
     parameters_list = convert_string_to_list(parameters)
 

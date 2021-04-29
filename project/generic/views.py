@@ -17,8 +17,9 @@ def generic_get_models(request, app):
 # User customized view that returns data based on parameter(s) specified by station
 # Users can enter as many parameters as desired by using a comma separated string for kwargs['parameters']
 # Streams data as CSV if kwarg 'nodata' is passed, else returns data as JSON response
-def generic_get_data(request, app, model_function=get_model_class, model_error=model_http_error,
-                     display_values_function=validate_display_values,
+def generic_get_data(request, app,
+                     model_validator=get_model_class, model_error=model_http_error,
+                     display_values_validator=validate_display_values, display_values_error=parameter_http_error,
                      stream_function=stream,
                      timestamp_meaning='', nodata='', parent_class='', start='', end='', **kwargs):
 
@@ -30,15 +31,15 @@ def generic_get_data(request, app, model_function=get_model_class, model_error=m
 
     # Validate the model
     try:
-        model_class = model_function(model, app, parent_class)
+        model_class = model_validator(model, app, parent_class)
     except AttributeError:
         return model_error(model)
 
     # Get display_values by validating passed parameters
-    display_values = display_values_function(parameters, model_class)
+    display_values = display_values_validator(parameters, model_class)
     # Check if display_values has at least one valid parameter
     if not display_values:
-        return parameter_http_error(parameters, app, parent_class)
+        return display_values_error(parameters)
 
     # Add timestamp_iso to display_values
     display_values = ['timestamp_iso'] + display_values
@@ -85,10 +86,12 @@ def generic_get_data(request, app, model_function=get_model_class, model_error=m
 # Returns aggregate data values by day: 'avg' (average), 'max' (maximum) and 'min' (minimum)
 # Streams data as CSV if kwarg 'nodata' is passed, else returns data as JSON response
 # Users can enter as many parameters as desired by using a comma separated string for kwargs['parameters']
-def generic_get_daily_data(request, app, model_function=get_model_class, model_error=model_http_error,
-                           display_values_function=validate_display_values,
+def generic_get_daily_data(request, app,
+                           model_validator=get_model_class, model_error=model_http_error,
+                           display_values_validator=validate_display_values, display_values_error=parameter_http_error,
                            stream_function=stream,
                            timestamp_meaning='', parent_class='', nodata='', **kwargs):
+
     # Assign kwargs from url to variables
     start = kwargs['start']
     end = kwargs['end']
@@ -98,15 +101,15 @@ def generic_get_daily_data(request, app, model_function=get_model_class, model_e
     # ---------------------------------------- Validate KWARGS --------------------------------------------------------
     # Get the model
     try:
-        model_class = model_function(model, app, parent_class)
+        model_class = model_validator(model, app, parent_class)
     except AttributeError:
         return model_error(model)
 
     # Get display_values by validating passed parameters
-    display_values = display_values_function(parameters, model_class)
+    display_values = display_values_validator(parameters, model_class)
     # Check if display_values has at least one valid parameter
     if not display_values:
-        return parameter_http_error(parameters, app, parent_class)
+        return display_values_error(parameters)
 
     # Assign dictionary_fields with fields and values to be displayed
     dictionary_fields = get_dict_fields(display_values)
@@ -162,6 +165,7 @@ def generic_get_daily_data(request, app, model_function=get_model_class, model_e
 # If kwargs['nodata'] is 'empty' then null values are populated with empty string: ''
 # Format is "NEAD 1.0 UTF-8"
 def generic_get_nead(request, app, timestamp_meaning='', start='', end='', **kwargs):
+
     # Assign variables
     version = "# NEAD 1.0 UTF-8\n"
     # nead_config = 'gcnet/config/nead_header.ini'

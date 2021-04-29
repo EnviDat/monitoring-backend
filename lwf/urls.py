@@ -16,6 +16,7 @@ Including another URLconf
 
 from django.urls import path
 
+from lwf.util.http_errors import parameter_http_error
 from lwf.util.views_helpers import get_display_values
 from lwf.views import get_db_data, get_derived_data, get_db_data_greater_than
 from project.generic.views import generic_get_models, generic_get_daily_data, generic_get_nead, generic_get_data
@@ -34,25 +35,32 @@ urlpatterns = [
     # JSON
     path('json/<str:model>/<str:parameters>/<str:start>/<str:end>/<str:parent_class>/',
          generic_get_data, {'app': 'lwf',
-                            'display_values_function': get_display_values}),
+                            'display_values_validator': get_display_values,
+                            'display_values_error': parameter_http_error, }),
 
     # CSV
     path('csv/<str:model>/<str:parameters>/<str:nodata>/<str:parent_class>/<str:start>/<str:end>/',
-         generic_get_data, {'app': 'lwf'}),
+         generic_get_data, {'app': 'lwf',
+                            'display_values_validator': get_display_values,
+                            'display_values_error': parameter_http_error, }),
 
     # CSV (entire date range)
     path('csv/<str:model>/<str:parameters>/<str:nodata>/<str:parent_class>/',
-         generic_get_data, {'app': 'lwf'}),
+         generic_get_data, {'app': 'lwf',
+                            'display_values_validator': get_display_values,
+                            'display_values_error': parameter_http_error, }),
 
     # Daily JSON
     path('json/daily/<str:model>/<str:parameters>/<str:start>/<str:end>/<str:parent_class>/',
          generic_get_daily_data, {'app': 'lwf',
-                                  'display_values_function': get_display_values}),
+                                  'display_values_validator': get_display_values,
+                                  'display_values_error': parameter_http_error, }),
 
     # Daily CSV
     path('csv/daily/<str:model>/<str:parameters>/<str:nodata>/<str:start>/<str:end>/<str:parent_class>/',
          generic_get_daily_data, {'app': 'lwf',
-                                  'display_values_function': get_display_values}),
+                                  'display_values_validator': get_display_values,
+                                  'display_values_error': parameter_http_error, }),
 
     # NEAD
     path('nead/<str:model>/<str:nodata>/',
