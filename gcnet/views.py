@@ -16,7 +16,7 @@ from gcnet.util.write_nead_config import write_nead_config
 import multiprocessing
 from multiprocessing import Manager
 
-from django.db.models import Min, Max
+from pathlib import Path
 
 import os
 
@@ -32,9 +32,9 @@ def index(request):
 # model in gcnet/models.py)
 # These model strings are used in the API calls (<str:model>): get_dynamic_data() and get_derived_data()
 def get_model_stations(request):
+
     # Read the stations config file
-    local_dir = os.path.dirname(__file__)
-    stations_path = os.path.join(local_dir, 'config/stations.ini')
+    stations_path = Path('gcnet/config/stations.ini')
     stations_config = read_config(stations_path)
 
     # Check if stations_config exists

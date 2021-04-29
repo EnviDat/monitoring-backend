@@ -49,9 +49,6 @@ urlpatterns = [
 
     # Testing generic views
 
-    # Models
-    path('models-generic/', generic_get_models, {'app': 'gcnet'}),
-
     # JSON
     path('json-generic/<str:model>/<str:parameters>/<str:start>/<str:end>/',
          generic_get_data, {'app': 'gcnet',
