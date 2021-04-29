@@ -8,13 +8,6 @@ from django.core.exceptions import FieldDoesNotExist
 from datetime import datetime
 from django.db.models import Func, Min, Max, Avg
 
-# ============================================= CONSTANT ===============================================================
-
-# String passed in kwargs['parameters'] that is used to return all parameters
-ALL_DISPLAY_VALUES_STRING = 'multiple'
-
-
-# ============================================== FUNCTIONS =============================================================
 
 # ----------------------------------------  Model Helpers -------------------------------------------------------------
 
@@ -98,20 +91,7 @@ def get_timestamp_iso_range_day_dict(start, end):
                          " YYYY-MM-DD ('2019-12-04')")
 
 
-# --------------------------------------- Dynamic Parameters Validators -----------------------------------------------
-
-# Get display_values by validating passed parameters
-# If parameters == ALL_DISPLAY_VALUES_STRING assign display_values to values in returned_parameters
-# Else validate parameter(s) passed in URL
-def get_display_values(parameters, model_class, parent_class):
-    if parent_class == 'LWFStation' and parameters == ALL_DISPLAY_VALUES_STRING:
-        fields = [field.name for field in model_class._meta.get_fields()]
-        # Return new list without 'id' and time-related fields
-        parameters = fields[8:]
-        return parameters
-
-    return validate_display_values(parameters, model_class)
-
+# --------------------------------------- Dynamic Parameters Validator -------------------------------------------------
 
 # Validate parameters and return them as display_values list
 # parameters are comma separated string from kwargs['parameters']

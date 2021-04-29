@@ -4,8 +4,8 @@ from project.generic.util.http_errors import timestamp_http_error, model_http_er
     date_http_error
 from project.generic.util.nead import nead_config_router
 from project.generic.util.stream import get_null_value, stream
-from project.generic.util.views_helpers import get_models_list, validate_date, get_model_class, get_display_values, \
-    get_dict_fields, get_timestamp_iso_range_day_dict
+from project.generic.util.views_helpers import get_models_list, validate_date, get_model_class, \
+    get_dict_fields, get_timestamp_iso_range_day_dict, validate_display_values
 
 
 # View returns a list of models currently in an app
@@ -18,8 +18,8 @@ def generic_get_models(request, app):
 # Users can enter as many parameters as desired by using a comma separated string for kwargs['parameters']
 # Accepts ISO timestamp ranges
 def generic_get_json_data(request, app, model_function=get_model_class, model_error=model_http_error,
+                          display_values_function=validate_display_values,
                           parent_class='', **kwargs):
-
     # Assign kwargs from url to variables
     start = kwargs['start']
     end = kwargs['end']
@@ -40,7 +40,7 @@ def generic_get_json_data(request, app, model_function=get_model_class, model_er
         return model_error(model)
 
     # Get display_values by validating passed parameters
-    display_values = get_display_values(parameters, model_class, parent_class)
+    display_values = display_values_function(parameters, model_class)
     # Check if display_values has at least one valid parameter
     if not display_values:
         return parameter_http_error(parameters, app, parent_class)
@@ -60,14 +60,82 @@ def generic_get_json_data(request, app, model_function=get_model_class, model_er
         print('ERROR (views.py): {0}'.format(e))
 
 
+# User customized view that returns data based on parameter(s) specified by station
+# Users can enter as many parameters as desired by using a comma separated string for kwargs['parameters']
+# Streams data as CSV if kwarg 'nodata' is passed, else returns data as JSON response
+# Accepts ISO timestamp ranges
+def generic_get_data(request, app, model_function=get_model_class, model_error=model_http_error,
+                     display_values_function=validate_display_values,
+                     stream_function=stream,
+                     timestamp_meaning='', nodata='', parent_class='', start='', end='', **kwargs):
+
+    # Assign kwargs from url to variables
+    model = kwargs['model']
+    parameters = kwargs['parameters']
+
+    # ---------------------------------------- Validate KWARGS --------------------------------------------------------
+
+    # Validate the model
+    try:
+        model_class = model_function(model, app, parent_class)
+    except AttributeError:
+        return model_error(model)
+
+    # Get display_values by validating passed parameters
+    display_values = display_values_function(parameters, model_class)
+    # Check if display_values has at least one valid parameter
+    if not display_values:
+        return parameter_http_error(parameters, app, parent_class)
+
+    # Add timestamp_iso to display_values
+    display_values = ['timestamp_iso'] + display_values
+
+    # ---------------------------------------- Stream CSV ------------------------------------------------------------
+    # Check if 'nodata' was passed, if so stream CSV
+    if len(nodata) > 0:
+
+        # Assign variables used in stream function
+        dict_fields = {}
+        version = ''
+        hash_lines = ''
+        output_csv = model + '.csv'
+
+        # Stream response from either a stream for a specific application or use generic stream
+        response = StreamingHttpResponse(
+            stream_function(version, hash_lines, model_class, display_values, timestamp_meaning,
+                            nodata, start, end, dict_fields), content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename=' + output_csv
+
+        return response
+
+    # ------------------------------------- Return JSON Response ------------------------------------------------------
+    # Else return JSON response
+    else:
+        try:
+            # Check if 'start' and 'end' kwargs are in ISO format
+            try:
+                dict_timestamps = validate_date(start, end)
+            except ValueError:
+                return timestamp_http_error()
+
+            queryset = list(model_class.objects
+                            .values(*display_values)
+                            .filter(**dict_timestamps)
+                            .order_by('timestamp_iso').all())
+            return JsonResponse(queryset, safe=False)
+
+        except Exception as e:
+            print('ERROR (views.py): {0}'.format(e))
+
+
 # User customized view that returns data based on parameters specified
 # Returns aggregate data values by day: 'avg' (average), 'max' (maximum) and 'min' (minimum)
 # Streams data as CSV if kwarg 'nodata' is passed, else returns data as JSON response
 # Users can enter as many parameters as desired by using a comma separated string for kwargs['parameters']
 def generic_get_daily_data(request, app, model_function=get_model_class, model_error=model_http_error,
-                           stream_function=stream, timestamp_meaning='',
-                           parent_class='', nodata='', **kwargs):
-
+                           display_values_function=validate_display_values,
+                           stream_function=stream,
+                           timestamp_meaning='', parent_class='', nodata='', **kwargs):
     # Assign kwargs from url to variables
     start = kwargs['start']
     end = kwargs['end']
@@ -82,7 +150,7 @@ def generic_get_daily_data(request, app, model_function=get_model_class, model_e
         return model_error(model)
 
     # Get display_values by validating passed parameters
-    display_values = get_display_values(parameters, model_class, parent_class)
+    display_values = display_values_function(parameters, model_class)
     # Check if display_values has at least one valid parameter
     if not display_values:
         return parameter_http_error(parameters, app, parent_class)
@@ -143,7 +211,6 @@ def generic_get_daily_data(request, app, model_function=get_model_class, model_e
 def generic_get_csv(request, app, model_function=get_model_class, model_error=model_http_error,
                     stream_function=stream, timestamp_meaning='',
                     parent_class='', start='', end='', **kwargs):
-
     # Assign kwargs from url to variables
     model = kwargs['model']
     parameters = kwargs['parameters']
@@ -173,8 +240,9 @@ def generic_get_csv(request, app, model_function=get_model_class, model_error=mo
     hash_lines = ''
 
     # Stream response from either a stream for a specific application or use generic stream
-    response = StreamingHttpResponse(stream_function(version, hash_lines, model_class, display_values, timestamp_meaning,
-                                                     nodata, start, end, dict_fields), content_type='text/csv')
+    response = StreamingHttpResponse(
+        stream_function(version, hash_lines, model_class, display_values, timestamp_meaning,
+                        nodata, start, end, dict_fields), content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename=' + output_csv
 
     return response
@@ -186,7 +254,6 @@ def generic_get_csv(request, app, model_function=get_model_class, model_error=mo
 # If kwargs['nodata'] is 'empty' then null values are populated with empty string: ''
 # Format is "NEAD 1.0 UTF-8"
 def generic_get_nead(request, app, timestamp_meaning='', start='', end='', **kwargs):
-
     # Assign variables
     version = "# NEAD 1.0 UTF-8\n"
     # nead_config = 'gcnet/config/nead_header.ini'
@@ -197,8 +264,6 @@ def generic_get_nead(request, app, timestamp_meaning='', start='', end='', **kwa
     output_csv = model + '.csv'
 
     return HttpResponse('TEST')
-
-
 
     # # ================================  VALIDATE VARIABLES =========================================================
     # # Get and validate the model_class

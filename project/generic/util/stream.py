@@ -27,6 +27,7 @@ def write_row(writer, null_value, row):
 # TODO handle timestamp_meaning
 # Define a generator to stream GC-Net data directly to the client
 def stream(nead_version, hashed_lines, model_class, display_values, timestamp_meaning, null_value, start, end, dict_fields):
+
     # If kwargs 'start' and 'end' passed in URL validate and assign to dict_timestamps
     dict_timestamps = {}
     if '' not in [start, end]:
