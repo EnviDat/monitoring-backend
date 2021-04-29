@@ -16,9 +16,11 @@ Including another URLconf
 
 from django.urls import path
 
+from lwf.util.http_errors import model_http_error
 from lwf.views import get_db_data, get_derived_data, get_db_data_greater_than
 from project.generic.views import generic_get_models, generic_get_json_data, \
-    generic_get_csv, generic_get_daily_data
+    generic_get_csv, generic_get_daily_data, generic_get_nead
+
 
 urlpatterns = [
     path('data/<str:model>/<str:lod>/<str:parameter>/<str:start>/<str:end>/', get_db_data),
@@ -26,13 +28,25 @@ urlpatterns = [
     path('greaterthan/<str:model>/<str:lod>/<str:parameter>/<str:start>/<str:end>/<str:gt>/', get_db_data_greater_than),
 
 
+    # TODO implement LWF specific http error messages
+    # Testing generic views
     path('models/', generic_get_models, {'app': 'lwf'}),
 
-    path('json/<str:model>/<str:parameters>/<str:start>/<str:end>/<str:parent_class>/', generic_get_json_data, {'app': 'lwf'}),
+    path('json/<str:model>/<str:parameters>/<str:start>/<str:end>/<str:parent_class>/',
+         generic_get_json_data, {'app': 'lwf'}),
 
-    path('json/daily/<str:model>/<str:parameters>/<str:start>/<str:end>/<str:parent_class>/', generic_get_daily_data, {'app': 'lwf'}),
-    path('csv/daily/<str:model>/<str:parameters>/<str:nodata>/<str:start>/<str:end>/<str:parent_class>/', generic_get_daily_data, {'app': 'lwf'}),
+    path('json/daily/<str:model>/<str:parameters>/<str:start>/<str:end>/<str:parent_class>/',
+         generic_get_daily_data, {'app': 'lwf'}),
 
-    path('csv/<str:model>/<str:parameters>/<str:nodata>/<str:parent_class>/<str:start>/<str:end>/', generic_get_csv, {'app': 'lwf'}),
-    path('csv/<str:model>/<str:parameters>/<str:nodata>/<str:parent_class>/', generic_get_csv, {'app': 'lwf'}),
+    path('csv/daily/<str:model>/<str:parameters>/<str:nodata>/<str:start>/<str:end>/<str:parent_class>/',
+         generic_get_daily_data, {'app': 'lwf'}),
+
+
+    path('csv/<str:model>/<str:parameters>/<str:nodata>/<str:parent_class>/<str:start>/<str:end>/',
+         generic_get_csv, {'app': 'lwf'}),
+
+    path('csv/<str:model>/<str:parameters>/<str:nodata>/<str:parent_class>/',
+         generic_get_csv, {'app': 'lwf'}),
+
+    path('nead/<str:model>/<str:nodata>/', generic_get_nead, {'app': 'lwf'}),
 ]

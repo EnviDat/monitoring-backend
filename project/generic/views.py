@@ -17,7 +17,8 @@ def generic_get_models(request, app):
 # User customized view that returns JSON data based on parameter(s) specified by station
 # Users can enter as many parameters as desired by using a comma separated string for kwargs['parameters']
 # Accepts ISO timestamp ranges
-def generic_get_json_data(request, app, model_function=get_model_class, parent_class='', **kwargs):
+def generic_get_json_data(request, app, model_function=get_model_class, model_error=model_http_error,
+                          parent_class='', **kwargs):
 
     # Assign kwargs from url to variables
     start = kwargs['start']
@@ -36,7 +37,7 @@ def generic_get_json_data(request, app, model_function=get_model_class, parent_c
     try:
         model_class = model_function(model, app, parent_class)
     except AttributeError:
-        return model_http_error(model, app)
+        return model_error(model)
 
     # Get display_values by validating passed parameters
     display_values = get_display_values(parameters, model_class, parent_class)
@@ -63,7 +64,8 @@ def generic_get_json_data(request, app, model_function=get_model_class, parent_c
 # Returns aggregate data values by day: 'avg' (average), 'max' (maximum) and 'min' (minimum)
 # Streams data as CSV if kwarg 'nodata' is passed, else returns data as JSON response
 # Users can enter as many parameters as desired by using a comma separated string for kwargs['parameters']
-def generic_get_daily_data(request, app, model_function=get_model_class, stream_function=stream, timestamp_meaning='',
+def generic_get_daily_data(request, app, model_function=get_model_class, model_error=model_http_error,
+                           stream_function=stream, timestamp_meaning='',
                            parent_class='', nodata='', **kwargs):
 
     # Assign kwargs from url to variables
@@ -77,7 +79,7 @@ def generic_get_daily_data(request, app, model_function=get_model_class, stream_
     try:
         model_class = model_function(model, app, parent_class)
     except AttributeError:
-        return model_http_error(model, app)
+        return model_error(model)
 
     # Get display_values by validating passed parameters
     display_values = get_display_values(parameters, model_class, parent_class)
@@ -138,7 +140,8 @@ def generic_get_daily_data(request, app, model_function=get_model_class, stream_
 # kwargs['nodata'] assigns string to populate null values in database
 # If kwargs['nodata'] is 'empty' then null values are populated with empty string: ''
 # kwargs['timestamp_meaning'] corresponds to the meaning of timestamp_iso
-def generic_get_csv(request, app, model_function=get_model_class, stream_function=stream, timestamp_meaning='',
+def generic_get_csv(request, app, model_function=get_model_class, model_error=model_http_error,
+                    stream_function=stream, timestamp_meaning='',
                     parent_class='', start='', end='', **kwargs):
 
     # Assign kwargs from url to variables
@@ -152,7 +155,7 @@ def generic_get_csv(request, app, model_function=get_model_class, stream_functio
     try:
         model_class = model_function(model, app, parent_class)
     except AttributeError:
-        return model_http_error(model, app)
+        return model_error(model)
 
     # Get display_values by validating passed parameters
     display_values = get_display_values(parameters, model_class, parent_class)
