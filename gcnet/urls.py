@@ -19,10 +19,11 @@ from gcnet import views
 from gcnet.util.http_errors import model_http_error, parameter_http_error
 from gcnet.util.stream import gcnet_stream
 from gcnet.util.views_helpers import get_model
+from gcnet.util.write_nead_config import gcnet_nead_config
 from gcnet.views import get_model_stations, streaming_csv_view_v1, get_aggregate_data, get_json_data, get_csv, \
     get_metadata, get_station_metadata, get_station_metadata_multiprocessing, get_station_metadata_queryset, \
     get_station_parameter_metadata
-from project.generic.views import generic_get_daily_data, generic_get_data, generic_get_models
+from project.generic.views import generic_get_daily_data, generic_get_data, generic_get_models, generic_get_nead
 
 urlpatterns = [
     path('models/', get_model_stations),
@@ -81,5 +82,10 @@ urlpatterns = [
                                   'model_validator': get_model, 'model_error': model_http_error,
                                   'display_values_error': parameter_http_error,
                                   'stream_function': gcnet_stream}),
+
+    # NEAD
+    path('nead-generic/<str:model>/<str:nodata>/',
+         generic_get_nead, {'app': 'gcnet',
+                            'get_nead_config': gcnet_nead_config}),
 
 ]

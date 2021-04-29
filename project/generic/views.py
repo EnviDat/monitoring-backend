@@ -1,8 +1,7 @@
-from django.http import JsonResponse, StreamingHttpResponse, HttpResponse
+from django.http import JsonResponse, StreamingHttpResponse, HttpResponse, HttpResponseNotFound
 
 from project.generic.util.http_errors import timestamp_http_error, model_http_error, parameter_http_error, \
     date_http_error
-from project.generic.util.nead import nead_config_router
 from project.generic.util.stream import get_null_value, stream
 from project.generic.util.views_helpers import get_models_list, validate_date, get_model_class, \
     get_dict_fields, get_timestamp_iso_range_day_dict, validate_display_values
@@ -164,18 +163,30 @@ def generic_get_daily_data(request, app,
 # kwargs['nodata'] assigns string to populate null values in database
 # If kwargs['nodata'] is 'empty' then null values are populated with empty string: ''
 # Format is "NEAD 1.0 UTF-8"
-def generic_get_nead(request, app, timestamp_meaning='', start='', end='', **kwargs):
+def generic_get_nead(request, app,
+                     get_nead_config,
+                     timestamp_meaning='', start='', end='', **kwargs):
 
     # Assign variables
     version = "# NEAD 1.0 UTF-8\n"
     # nead_config = 'gcnet/config/nead_header.ini'
-    nead_config = nead_config_router(app)
+
+
+
+    nead_config = get_nead_config()
+    # print(nead_config)
+    if not nead_config:
+        return HttpResponseNotFound('<h1>Not found: NEAD config does not exist for app</h1>')
+
+
+
+
     null_value = get_null_value(kwargs['nodata'])
     model = kwargs['model']
     # timestamp_meaning = kwargs['timestamp_meaning']
     output_csv = model + '.csv'
 
-    return HttpResponse('TEST')
+
 
     # # ================================  VALIDATE VARIABLES =========================================================
     # # Get and validate the model_class
@@ -222,3 +233,5 @@ def generic_get_nead(request, app, timestamp_meaning='', start='', end='', **kwa
     # response['Content-Disposition'] = 'attachment; filename=' + output_csv
     #
     # return response
+
+    return HttpResponse('TEST')

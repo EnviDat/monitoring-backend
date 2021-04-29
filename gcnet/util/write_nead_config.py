@@ -1,9 +1,24 @@
+from django.http import HttpResponseNotFound
+from pathlib import Path
+
 from io import StringIO
 
 from gcnet.util.geometry import get_gcnet_geometry
 from gcnet.util.nead_header_strings import get_fields_string, get_add_value_string, get_scale_factor_string, \
     get_units_string, get_display_description, get_database_fields_data_types_string
 from gcnet.util.views_helpers import read_config
+
+
+def gcnet_nead_config():
+
+    nead_config = Path('gcnet/config/nead_header.ini')
+
+    # Check if nead_config exists
+    if nead_config.exists():
+        return nead_config
+
+    return ''
+
 
 
 # Returns 'station_id' from stations config by mapping kwargs['model'] to station_id_dict
