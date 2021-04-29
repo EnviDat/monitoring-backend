@@ -26,6 +26,7 @@ urlpatterns = [
     path('derived/<str:model>/<str:lod>/<str:parameter>/<str:calc>/<str:start>/<str:end>/', get_derived_data),
     path('greaterthan/<str:model>/<str:lod>/<str:parameter>/<str:start>/<str:end>/<str:gt>/', get_db_data_greater_than),
 
+
     # TODO implement LWF specific http error messages
     # Testing generic views
 

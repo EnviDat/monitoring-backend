@@ -105,10 +105,10 @@ def validate_unix_timestamp(date_text):
 
 
 # ----------------------------------------  Get Model Functions -------------------------------------------------------
-def get_model(model):
+def get_model(model, app, parent_class):
     model_url = model.rsplit('.', 1)[-1]
     class_name = get_model_from_config(model_url)
-    package = importlib.import_module("gcnet.models")
+    package = importlib.import_module('{0}.models'.format(app))
     return getattr(package, class_name)
 
 
@@ -118,9 +118,9 @@ def get_model_class(class_name):
 
 
 def get_model_url_dict():
+
     # Read the stations config file
-    local_dir = os.path.dirname(__file__)
-    stations_path = os.path.join(local_dir, '../config/stations.ini')
+    stations_path = Path('gcnet/config/stations.ini')
     stations_config = read_config(stations_path)
 
     # Check if stations_config exists

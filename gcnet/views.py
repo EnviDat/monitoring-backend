@@ -395,6 +395,7 @@ def get_metadata(request):
 # Parameter: if KWARG_RETURNED_PARAMETERS selected then returns returned_parameters
 # Accepts ISO timestamp ranges
 def get_json_data(request, **kwargs):
+
     # Assign kwargs from url to variables
     start = kwargs['start']
     end = kwargs['end']
@@ -411,7 +412,7 @@ def get_json_data(request, **kwargs):
 
     # Validate the model
     try:
-        model_class = get_model(model)
+        model_class = get_model(model, app='', parent_class='')
     except AttributeError:
         return model_http_error(model)
 

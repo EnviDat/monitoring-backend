@@ -16,10 +16,13 @@ Including another URLconf
 from django.urls import path
 
 from gcnet import views
+from gcnet.util.http_errors import model_http_error, parameter_http_error
+from gcnet.util.stream import gcnet_stream
+from gcnet.util.views_helpers import get_model
 from gcnet.views import get_model_stations, streaming_csv_view_v1, get_aggregate_data, get_json_data, get_csv, \
     get_metadata, get_station_metadata, get_station_metadata_multiprocessing, get_station_metadata_queryset, \
     get_station_parameter_metadata
-from project.generic.views import generic_get_csv, generic_get_daily_data
+from project.generic.views import generic_get_daily_data, generic_get_data, generic_get_models
 
 urlpatterns = [
     path('models/', get_model_stations),
@@ -38,7 +41,6 @@ urlpatterns = [
 
     path('', views.index, name='index'),
 
-
     # These metadata endpoints are still in development and testing and may not be deployed
     path('metadata/', get_metadata),
     path('metadata/<str:model>/', get_station_metadata),
@@ -46,7 +48,41 @@ urlpatterns = [
     path('metadata/queryset/<str:model>/', get_station_metadata_queryset),
 
     # Testing generic views
-    path('csv-generic/<str:model>/<str:parameters>/<str:timestamp_meaning>/<str:nodata>/<str:start>/<str:end>/', generic_get_csv, {'app': 'gcnet'}),
-    path('csv-generic-daily/<str:model>/<str:parameters>/<str:timestamp_meaning>/<str:nodata>/<str:start>/<str:end>/', generic_get_daily_data, {'app': 'gcnet'}),
+
+    # Models
+    path('models-generic/', generic_get_models, {'app': 'gcnet'}),
+
+    # JSON
+    path('json-generic/<str:model>/<str:parameters>/<str:start>/<str:end>/',
+         generic_get_data, {'app': 'gcnet',
+                            'model_validator': get_model, 'model_error': model_http_error,
+                            'display_values_error': parameter_http_error, }),
+
+    # CSV
+    path('csv-generic/<str:model>/<str:parameters>/<str:timestamp_meaning>/<str:nodata>/<str:start>/<str:end>/',
+         generic_get_data, {'app': 'gcnet',
+                            'model_validator': get_model, 'model_error': model_http_error,
+                            'display_values_error': parameter_http_error,
+                            'stream_function': gcnet_stream}),
+
+    # CSV (entire date range)
+    path('csv-generic/<str:model>/<str:parameters>/<str:timestamp_meaning>/<str:nodata>/',
+         generic_get_data, {'app': 'gcnet',
+                            'model_validator': get_model, 'model_error': model_http_error,
+                            'display_values_error': parameter_http_error,
+                            'stream_function': gcnet_stream}),
+
+    # Daily JSON
+    path('json-generic-daily/<str:model>/<str:parameters>/<str:start>/<str:end>/',
+         generic_get_daily_data, {'app': 'gcnet',
+                                  'model_validator': get_model, 'model_error': model_http_error,
+                                  'display_values_error': parameter_http_error}),
+
+    # Daily CSV
+    path('csv-generic-daily/<str:model>/<str:parameters>/<str:timestamp_meaning>/<str:nodata>/<str:start>/<str:end>/',
+         generic_get_daily_data, {'app': 'gcnet',
+                                  'model_validator': get_model, 'model_error': model_http_error,
+                                  'display_values_error': parameter_http_error,
+                                  'stream_function': gcnet_stream}),
 
 ]
