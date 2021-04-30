@@ -1,8 +1,9 @@
 from django.http import JsonResponse, StreamingHttpResponse, HttpResponse, HttpResponseNotFound
 
+from gcnet.util.http_errors import timestamp_meaning_http_error
 from project.generic.util.http_errors import timestamp_http_error, model_http_error, parameter_http_error, \
     date_http_error
-from project.generic.util.nead import get_nead_config
+from project.generic.util.nead import get_nead_config, get_config_list
 from project.generic.util.stream import get_null_value, stream
 from project.generic.util.views_helpers import get_models_list, validate_date, get_model_class, \
     get_dict_fields, get_timestamp_iso_range_day_dict, validate_display_values
@@ -165,50 +166,44 @@ def generic_get_daily_data(request, app,
 # If kwargs['nodata'] is 'empty' then null values are populated with empty string: ''
 # Format is "NEAD 1.0 UTF-8"
 def generic_get_nead(request, app,
+                     model_validator=get_model_class, model_error=model_http_error,
                      nead_config=get_nead_config,
                      timestamp_meaning='', parent_class='', start='', end='', **kwargs):
 
     # Assign variables
     version = "# NEAD 1.0 UTF-8\n"
     model = kwargs['model']
+    null_value = get_null_value(kwargs['nodata'])
+    output_csv = model + '.csv'
 
-    # nead_config = 'gcnet/config/nead_header.ini'
+    # ---------------------------------------- Validate KWARGS --------------------------------------------------------
+    # Get the model
+    try:
+        model_class = model_validator(app, model=model, parent_class=parent_class)
+    except AttributeError:
+        return model_error(model)
+
+    # If timestamp_meaning is passed check if valid
+    if len(timestamp_meaning) > 0 and timestamp_meaning not in ['end', 'beginning']:
+        return timestamp_meaning_http_error(timestamp_meaning)
+
+    # Get NEAD configuration file
     nead_config = nead_config(app, model=model, parent_class=parent_class)
-    print(nead_config)
     if not nead_config:
         return HttpResponseNotFound('<h1>Not found: NEAD config does not exist</h1>')
 
-    null_value = get_null_value(kwargs['nodata'])
+    # Validate 'start' and 'end' if they are passed
+    if len(start) > 0 and len(end) > 0:
+        # Check if timestamps are in whole date format: YYYY-MM-DD ('2019-12-04')
+        try:
+            get_timestamp_iso_range_day_dict(start, end)
+        except ValueError:
+            return date_http_error()
 
-    # timestamp_meaning = kwargs['timestamp_meaning']
-    output_csv = model + '.csv'
-
-
-
-    # # ================================  VALIDATE VARIABLES =========================================================
-    # # Get and validate the model_class
-    # try:
-    #     model_class = get_model(kwargs['model'])
-    # except AttributeError:
-    #     return model_http_error(kwargs['model'])
-    #
-    # # If timestamp_meaning passed check if valid
-    # if len(timestamp_meaning) > 0 and timestamp_meaning not in ['end', 'beginning']:
-    #     return timestamp_meaning_http_error(timestamp_meaning)
-    #
-    # # Validate 'start' and 'end' if they are passed
-    # if len(start) > 0 and len(end) > 0:
-    #     # Check if timestamps are in whole date format: YYYY-MM-DD ('2019-12-04')
-    #     try:
-    #         get_timestamp_iso_range_day_dict(start, end)
-    #     except ValueError:
-    #         return date_http_error()
-    #
-    # # =============================== PROCESS NEAD HEADER ===========================================================
-    # # Get NEAD header
-    # config_buffer, nead_config_parser = write_nead_config(config_path=nead_config, model=model,
-    #                                                       stringnull=null_value, delimiter=',',
-    #                                                       ts_meaning=timestamp_meaning)
+    # ---------------------------------------- Process NEAD Header ----------------------------------------------------
+    # Get NEAD header as list
+    config_list = get_config_list(config_path=nead_config)
+    print(config_list)
     #
     # # Check if config_buffer or nead_config_parser are None
     # if nead_config_parser is None or config_buffer is None:

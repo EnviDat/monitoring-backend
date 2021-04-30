@@ -29,6 +29,7 @@ def get_model_class(app, **kwargs):
 # ------------------------------------------- Read Config ------------------------------------------------------------
 
 def read_config(config_path: str):
+
     config_file = Path(config_path)
 
     # Load configuration file
