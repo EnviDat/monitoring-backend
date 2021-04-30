@@ -86,6 +86,6 @@ urlpatterns = [
     # NEAD
     path('nead-generic/<str:model>/<str:nodata>/',
          generic_get_nead, {'app': 'gcnet',
-                            'get_nead_config': gcnet_nead_config}),
+                            'nead_config': gcnet_nead_config}),
 
 ]

@@ -22,10 +22,8 @@ def write_row(writer, null_value, row):
 
 
 # ----------------------------------------  Data Generator ------------------------------------------------------------
-# TODO handle timestamp_meaning
 # Define a generator to stream data directly to the client
-def stream(nead_version, hashed_lines, model_class, display_values, timestamp_meaning, null_value, start, end,
-           dict_fields):
+def stream(nead_version, hashed_lines, model_class, display_values, null_value, start, end, dict_fields, **kwargs):
 
     # If kwargs 'start' and 'end' passed in URL validate and assign to dict_timestamps
     dict_timestamps = {}

@@ -2,6 +2,7 @@ from django.http import JsonResponse, StreamingHttpResponse, HttpResponse, HttpR
 
 from project.generic.util.http_errors import timestamp_http_error, model_http_error, parameter_http_error, \
     date_http_error
+from project.generic.util.nead import get_nead_config
 from project.generic.util.stream import get_null_value, stream
 from project.generic.util.views_helpers import get_models_list, validate_date, get_model_class, \
     get_dict_fields, get_timestamp_iso_range_day_dict, validate_display_values
@@ -30,7 +31,7 @@ def generic_get_data(request, app,
 
     # Validate the model
     try:
-        model_class = model_validator(model, app, parent_class)
+        model_class = model_validator(app, model=model, parent_class=parent_class)
     except AttributeError:
         return model_error(model)
 
@@ -55,8 +56,8 @@ def generic_get_data(request, app,
 
         # Stream response from either a stream for a specific application or use generic stream
         response = StreamingHttpResponse(
-            stream_function(version, hash_lines, model_class, display_values, timestamp_meaning,
-                            nodata, start, end, dict_fields), content_type='text/csv')
+            stream_function(version, hash_lines, model_class, display_values, nodata, start, end, dict_fields,
+                            timestamp_meaning=timestamp_meaning), content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename=' + output_csv
 
         return response
@@ -100,7 +101,7 @@ def generic_get_daily_data(request, app,
     # ---------------------------------------- Validate KWARGS --------------------------------------------------------
     # Get the model
     try:
-        model_class = model_validator(model, app, parent_class)
+        model_class = model_validator(app, model=model, parent_class=parent_class)
     except AttributeError:
         return model_error(model)
 
@@ -131,8 +132,8 @@ def generic_get_daily_data(request, app,
 
         # Stream response from either a stream for a specific application or use generic stream
         response = StreamingHttpResponse(
-            stream_function(version, hash_lines, model_class, display_values, timestamp_meaning,
-                            nodata, start, end, dictionary_fields), content_type='text/csv')
+            stream_function(version, hash_lines, model_class, display_values, nodata, start, end,
+                            dictionary_fields, timestamp_meaning=timestamp_meaning), content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename=' + output_csv
 
         return response
@@ -164,25 +165,21 @@ def generic_get_daily_data(request, app,
 # If kwargs['nodata'] is 'empty' then null values are populated with empty string: ''
 # Format is "NEAD 1.0 UTF-8"
 def generic_get_nead(request, app,
-                     get_nead_config,
-                     timestamp_meaning='', start='', end='', **kwargs):
+                     nead_config=get_nead_config,
+                     timestamp_meaning='', parent_class='', start='', end='', **kwargs):
 
     # Assign variables
     version = "# NEAD 1.0 UTF-8\n"
-
+    model = kwargs['model']
 
     # nead_config = 'gcnet/config/nead_header.ini'
-
-    nead_config = get_nead_config()
-    # print(nead_config)
+    nead_config = nead_config(app, model=model, parent_class=parent_class)
+    print(nead_config)
     if not nead_config:
-        return HttpResponseNotFound('<h1>Not found: NEAD config does not exist for app</h1>')
-
-
-
+        return HttpResponseNotFound('<h1>Not found: NEAD config does not exist</h1>')
 
     null_value = get_null_value(kwargs['nodata'])
-    model = kwargs['model']
+
     # timestamp_meaning = kwargs['timestamp_meaning']
     output_csv = model + '.csv'
 

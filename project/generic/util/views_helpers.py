@@ -19,7 +19,9 @@ def get_models_list(app):
     return models
 
 
-def get_model_class(model, app, parent_class):
+def get_model_class(app, **kwargs):
+    model = kwargs['model']
+    parent_class = kwargs['parent_class']
     package = importlib.import_module('{0}.models.{1}'.format(app, parent_class))
     return getattr(package, model)
 

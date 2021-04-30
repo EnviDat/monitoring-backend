@@ -9,9 +9,10 @@ from gcnet.util.views_helpers import read_config
 
 
 # Returns path of gcnet config it is exists, otherwise returns empty string
-def gcnet_nead_config():
+def gcnet_nead_config(app):
 
-    nead_config = Path('gcnet/config/nead_header.ini')
+    # nead_config = Path('gcnet/config/nead_header.ini')
+    nead_config = Path(f'{app}/config/nead_header.ini')
 
     # Check if nead_config exists
     if nead_config.exists():
