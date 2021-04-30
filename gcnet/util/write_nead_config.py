@@ -31,7 +31,7 @@ def get_station_id(model, stations_config):
         station_id = station_id_dict[model]
         return station_id
     except KeyError:
-        print('WARNING (write_nead_config.py) {0} not a valid model'.format(model))
+        print(f'WARNING (write_nead_config.py) {model} not a valid model')
         return
 
 
@@ -109,7 +109,7 @@ def write_nead_config(config_path, model, stringnull='', delimiter=',', ts_meani
 
     except Exception as e:
         # Print error message
-        print('WARNING (write_nead_config.py): could not write nead header config, EXCEPTION: {0}'.format(e))
+        print(f'WARNING (write_nead_config.py): could not write nead header config, EXCEPTION: {e}')
         return None, None
 
 

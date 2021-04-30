@@ -109,7 +109,7 @@ def get_model(app, **kwargs):
     model = kwargs['model']
     model_url = model.rsplit('.', 1)[-1]
     class_name = get_model_from_config(model_url)
-    package = importlib.import_module('{0}.models'.format(app))
+    package = importlib.import_module(f'{app}.models')
     return getattr(package, class_name)
 
 

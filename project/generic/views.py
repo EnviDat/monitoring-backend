@@ -79,7 +79,7 @@ def generic_get_data(request, app,
             return JsonResponse(queryset, safe=False)
 
         except Exception as e:
-            print('ERROR (views.py): {0}'.format(e))
+            print(f'ERROR (views.py): {e}')
 
 
 # User customized view that returns data based on parameters specified
@@ -156,7 +156,7 @@ def generic_get_daily_data(request, app,
             return JsonResponse(queryset, safe=False)
 
         except Exception as e:
-            print('ERROR (views.py): {0}'.format(e))
+            print(f'ERROR (views.py): {e}')
 
 
 # TODO finish this view

@@ -23,7 +23,7 @@ from gcnet.util.write_nead_config import gcnet_nead_config
 from gcnet.views import get_model_stations, streaming_csv_view_v1, get_aggregate_data, get_json_data, get_csv, \
     get_metadata, get_station_metadata, get_station_metadata_multiprocessing, get_station_metadata_queryset, \
     get_station_parameter_metadata
-from project.generic.views import generic_get_daily_data, generic_get_data, generic_get_models, generic_get_nead
+from project.generic.views import generic_get_daily_data, generic_get_data, generic_get_nead
 
 urlpatterns = [
     path('models/', get_model_stations),
