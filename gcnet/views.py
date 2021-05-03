@@ -7,7 +7,7 @@ from django.shortcuts import render
 from gcnet.util.constants import Columns
 from gcnet.util.http_errors import model_http_error, parameter_http_error, timestamp_meaning_http_error, \
     station_http_error, timestamp_http_error, date_http_error
-from gcnet.util.stream import get_timestamp_iso_range_day_dict, gcnet_stream
+from gcnet.util.stream import gcnet_stream
 from gcnet.util.views_helpers import validate_date_gcnet, read_config, get_model, get_hashed_lines, get_null_value, \
     get_dict_fields, get_display_values, get_model_class, get_dict_timestamps, multiprocessing_timestamp_dict, \
     get_multiprocessing_arguments
@@ -19,6 +19,8 @@ from multiprocessing import Manager
 from pathlib import Path
 
 import os
+
+from lwf.util.views_helpers import get_timestamp_iso_range_day_dict
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "project.settings")
 

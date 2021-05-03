@@ -1,19 +1,12 @@
 from django.http import JsonResponse, StreamingHttpResponse, HttpResponseNotFound
 
-# from project.generic.util.http_errors import timestamp_http_error, model_http_error, parameter_http_error, \
-#     date_http_error, timestamp_meaning_http_error
-# from project.generic.util.nead import get_nead_config, get_config_list, get_hashed_lines, get_database_fields
-# from project.generic.util.stream import get_null_value, stream
-# from project.generic.util.views_helpers import get_models_list, validate_date, get_model_class, \
-#     get_dict_fields, get_timestamp_iso_range_day_dict, validate_display_values
-
-
 from generic.util.http_errors import timestamp_http_error, model_http_error, parameter_http_error, \
     date_http_error, timestamp_meaning_http_error
 from generic.util.nead import get_nead_config, get_config_list, get_hashed_lines, get_database_fields
 from generic.util.stream import get_null_value, stream
 from generic.util.views_helpers import get_models_list, validate_date, get_model_class, \
     get_dict_fields, get_timestamp_iso_range_day_dict, validate_display_values
+
 
 # View returns a list of models currently in an app
 def generic_get_models(request, app):
@@ -29,7 +22,6 @@ def generic_get_data(request, app,
                      display_values_validator=validate_display_values, display_values_error=parameter_http_error,
                      stream_function=stream,
                      timestamp_meaning='', nodata='', parent_class='', start='', end='', **kwargs):
-
     # Assign kwargs from url to variables
     model = kwargs['model']
     parameters = kwargs['parameters']
@@ -174,7 +166,6 @@ def generic_get_nead(request, app,
                      nead_config=get_nead_config,
                      stream_function=stream,
                      timestamp_meaning='', parent_class='', start='', end='', **kwargs):
-
     # Assign variables
     version = "# NEAD 1.0 UTF-8\n"
     model = kwargs['model']
