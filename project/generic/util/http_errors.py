@@ -25,6 +25,7 @@ def parameter_http_error(parameter):
                                 "<h3>No valid parameter(s) entered in URL: {0}</h3>"
                                 .format(parameter))
 
+
 def timestamp_meaning_http_error(timestamp_meaning):
     return HttpResponseNotFound("<h1>Page not found</h1>"
                                 "<h3>Non-valid 'timestamp_meaning' kwarg entered in URL: {0}</h3>"

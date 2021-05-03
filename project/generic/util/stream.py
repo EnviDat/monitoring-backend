@@ -1,8 +1,6 @@
 import csv
 from io import StringIO
-
 from django.core.exceptions import FieldError
-
 from project.generic.util.views_helpers import get_timestamp_iso_range_day_dict
 
 

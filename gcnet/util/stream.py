@@ -4,7 +4,9 @@ import csv
 from io import StringIO
 from django.core.exceptions import FieldError
 from django.http import HttpResponseNotFound
-from datetime import datetime, timedelta, date
+from datetime import datetime, timedelta
+
+from project.generic.util.views_helpers import get_timestamp_iso_range_day_dict
 
 
 # Define a generator to stream GC-Net data directly to the client
@@ -95,32 +97,6 @@ def gcnet_stream(nead_version, hashed_lines, model_class, display_values, null_v
 
     else:
         raise FieldError("WARNING 'display_values' not passed")
-
-
-# Return timestamp_iso dict with start and end range in whole date format: YYYY-MM-DD ('2019-12-04')
-def get_timestamp_iso_range_day_dict(start, end):
-    if validate_iso_format_date(start) and validate_iso_format_date(end):
-        start_day = datetime.strptime(start + 'T00:00:00+00:00', '%Y-%m-%dT%H:%M:%S%z')
-        start_iso = datetime.strftime(start_day, '%Y-%m-%dT%H:%M:%S%z')
-
-        end_day = datetime.strptime(end + 'T00:00:00+00:00', '%Y-%m-%dT%H:%M:%S%z')
-        end_iso = datetime.strftime(end_day, '%Y-%m-%dT%H:%M:%S%z')
-
-        dict_ts = {'timestamp_iso__gte': start_iso, 'timestamp_iso__lt': end_iso}
-        return dict_ts
-
-    else:
-        raise ValueError("Incorrect date format, start and end dates should both be in ISO timestamp date format:"
-                         " YYYY-MM-DD ('2019-12-04')")
-
-
-# Validate if date string is in ISO timestamp format: YYYY-MM-DD ('2019-12-04')
-def validate_iso_format_date(date_string):
-    try:
-        date.fromisoformat(date_string)
-        return True
-    except:
-        return False
 
 
 # Write row and adjust timestamp_meaning

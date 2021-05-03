@@ -1,7 +1,4 @@
-import configparser
 import importlib
-
-from pathlib import Path
 
 from django.apps import apps
 from django.core.exceptions import FieldDoesNotExist
@@ -24,25 +21,6 @@ def get_model_class(app, **kwargs):
     parent_class = kwargs['parent_class']
     package = importlib.import_module(f'{app}.models.{parent_class}')
     return getattr(package, model)
-
-
-# ------------------------------------------- Read Config ------------------------------------------------------------
-
-def read_config(config_path: str):
-
-    config_file = Path(config_path)
-
-    # Load configuration file
-    config = configparser.RawConfigParser(inline_comment_prefixes='#', allow_no_value=True)
-    config.read(config_file)
-
-    # print("Read config params file: {0}, sections: {1}".format(config_path, ', '.join(gc_config.sections())))
-
-    if len(config.sections()) < 1:
-        print("Invalid config file, missing sections")
-        return None
-
-    return config
 
 
 # -------------------------------------- Date Validators --------------------------------------------------------------

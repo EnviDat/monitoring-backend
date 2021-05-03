@@ -1,10 +1,29 @@
 from pathlib import Path
+import configparser
+
+
+# ------------------------------------------- Read Config ------------------------------------------------------------
+
+def read_config(config_path: str):
+
+    config_file = Path(config_path)
+
+    # Load configuration file
+    config = configparser.RawConfigParser(inline_comment_prefixes='#', allow_no_value=True)
+    config.read(config_file)
+
+    # print("Read config params file: {0}, sections: {1}".format(config_path, ', '.join(gc_config.sections())))
+
+    if len(config.sections()) < 1:
+        print("Invalid config file, missing sections")
+        return None
+
+    return config
 
 
 # ----------------------------------------  NEAD Config Writer -------------------------------------------------------
-from project.generic.util.views_helpers import read_config
 
-
+# TODO fix right comma issue
 def write_nead_config(app, nead_header, model, parent_class, header_symbol):
     header = nead_header
     config = f'{app}/nead_config/{parent_class}/{model}.ini'
@@ -17,6 +36,7 @@ def write_nead_config(app, nead_header, model, parent_class, header_symbol):
 
 
 # ----------------------------------------  Get NEAD Config -----------------------------------------------------------
+
 def get_nead_config(app, **kwargs):
     model = kwargs['model']
     parent_class = kwargs['parent_class']
