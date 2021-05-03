@@ -19,7 +19,7 @@ from django.urls import path
 from lwf.util.http_errors import parameter_http_error
 from lwf.util.views_helpers import get_display_values
 from lwf.views import get_db_data, get_derived_data, get_db_data_greater_than
-from project.generic.views import generic_get_models, generic_get_daily_data, generic_get_nead, generic_get_data
+from generic.views import generic_get_models, generic_get_daily_data, generic_get_nead, generic_get_data
 
 urlpatterns = [
     path('data/<str:model>/<str:lod>/<str:parameter>/<str:start>/<str:end>/', get_db_data),

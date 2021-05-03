@@ -1,3 +1,5 @@
+# TODO make this script generic
+
 # Example commands:
 #   python manage.py lwf_csv_import -p LWFMeteo -i lwf/data/lebforest.csv -d lwf/data -m leb -t directory
 #   python manage.py lwf_csv_import -p LWFMeteo -i lwf/data/albforest.csv -d lwf/data -m alb -t directory
@@ -41,7 +43,7 @@ from postgres_copy import CopyMapping
 import importlib
 from django.utils.timezone import make_aware
 from lwf.util.cleaners import get_lwf_meteo_line_clean, get_lwf_station_line_clean
-from generic.util.nead import write_nead_config
+from project.generic.util.nead import write_nead_config
 
 # Setup logging
 import logging

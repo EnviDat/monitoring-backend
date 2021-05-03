@@ -43,8 +43,10 @@ INSTALLED_APPS = [
 
     'lwf',
     'gcnet',
-    'rest_framework',
+    'generic',
+    'rest_framework'
 ]
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
