@@ -84,9 +84,15 @@ urlpatterns = [
                                   'stream_function': gcnet_stream}),
 
     # NEAD
-    path('nead-generic/<str:model>/<str:nodata>/',
+    path('nead-generic/<str:model>/<str:timestamp_meaning>/<str:nodata>/<str:start>/<str:end>/',
          generic_get_nead, {'app': 'gcnet',
                             'model_validator': get_model, 'model_error': model_http_error,
-                            'nead_config': gcnet_nead_config}),
+                            'nead_config': gcnet_nead_config,
+                            'stream_function': gcnet_stream}),
+    path('nead-generic/<str:model>/<str:timestamp_meaning>/<str:nodata>/',
+         generic_get_nead, {'app': 'gcnet',
+                            'model_validator': get_model, 'model_error': model_http_error,
+                            'nead_config': gcnet_nead_config,
+                            'stream_function': gcnet_stream}),
 
 ]

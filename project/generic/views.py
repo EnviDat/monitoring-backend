@@ -3,7 +3,7 @@ from django.http import JsonResponse, StreamingHttpResponse, HttpResponse, HttpR
 from gcnet.util.http_errors import timestamp_meaning_http_error
 from project.generic.util.http_errors import timestamp_http_error, model_http_error, parameter_http_error, \
     date_http_error
-from project.generic.util.nead import get_nead_config, get_config_list
+from project.generic.util.nead import get_nead_config, get_config_list, get_hashed_lines, get_database_fields
 from project.generic.util.stream import get_null_value, stream
 from project.generic.util.views_helpers import get_models_list, validate_date, get_model_class, \
     get_dict_fields, get_timestamp_iso_range_day_dict, validate_display_values
@@ -59,7 +59,7 @@ def generic_get_data(request, app,
         response = StreamingHttpResponse(
             stream_function(version, hash_lines, model_class, display_values, nodata, start, end, dict_fields,
                             timestamp_meaning=timestamp_meaning), content_type='text/csv')
-        response['Content-Disposition'] = 'attachment; filename=' + output_csv
+        response['Content-Disposition'] = f'attachment; filename={output_csv}'
 
         return response
 
@@ -92,7 +92,6 @@ def generic_get_daily_data(request, app,
                            display_values_validator=validate_display_values, display_values_error=parameter_http_error,
                            stream_function=stream,
                            timestamp_meaning='', parent_class='', nodata='', **kwargs):
-
     # Assign kwargs from url to variables
     start = kwargs['start']
     end = kwargs['end']
@@ -135,7 +134,7 @@ def generic_get_daily_data(request, app,
         response = StreamingHttpResponse(
             stream_function(version, hash_lines, model_class, display_values, nodata, start, end,
                             dictionary_fields, timestamp_meaning=timestamp_meaning), content_type='text/csv')
-        response['Content-Disposition'] = 'attachment; filename=' + output_csv
+        response['Content-Disposition'] = f'attachment; filename={output_csv}'
 
         return response
 
@@ -160,7 +159,6 @@ def generic_get_daily_data(request, app,
             print(f'ERROR (views.py): {e}')
 
 
-# TODO finish this view
 # Streams data to csv file in NEAD format
 # kwargs['nodata'] assigns string to populate null values in database
 # If kwargs['nodata'] is 'empty' then null values are populated with empty string: ''
@@ -168,6 +166,7 @@ def generic_get_daily_data(request, app,
 def generic_get_nead(request, app,
                      model_validator=get_model_class, model_error=model_http_error,
                      nead_config=get_nead_config,
+                     stream_function=stream,
                      timestamp_meaning='', parent_class='', start='', end='', **kwargs):
 
     # Assign variables
@@ -187,11 +186,6 @@ def generic_get_nead(request, app,
     if len(timestamp_meaning) > 0 and timestamp_meaning not in ['end', 'beginning']:
         return timestamp_meaning_http_error(timestamp_meaning)
 
-    # Get NEAD configuration file
-    nead_config = nead_config(app, model=model, parent_class=parent_class)
-    if not nead_config:
-        return HttpResponseNotFound('<h1>Not found: NEAD config does not exist</h1>')
-
     # Validate 'start' and 'end' if they are passed
     if len(start) > 0 and len(end) > 0:
         # Check if timestamps are in whole date format: YYYY-MM-DD ('2019-12-04')
@@ -201,29 +195,26 @@ def generic_get_nead(request, app,
             return date_http_error()
 
     # ---------------------------------------- Process NEAD Header ----------------------------------------------------
+    # Get NEAD configuration file
+    nead_config = nead_config(app, model=model, parent_class=parent_class)
+    if not nead_config:
+        return HttpResponseNotFound('<h1>Not found: NEAD config does not exist</h1>')
+
     # Get NEAD header as list
     config_list = get_config_list(config_path=nead_config)
-    print(config_list)
-    #
-    # # Check if config_buffer or nead_config_parser are None
-    # if nead_config_parser is None or config_buffer is None:
-    #     return HttpResponseNotFound("<h1>Page not found</h1>"
-    #                                 "<h3>Check that valid 'model' (station) entered in URL: {0}</h3>"
-    #                                 .format(kwargs['model']))
-    #
-    # # Fill hash_lines with config_buffer lines prepended with '# '
-    # hash_lines = get_hashed_lines(config_buffer)
-    #
-    # # Assign display_values from database_fields in nead_config_parser
-    # database_fields = nead_config_parser.get('FIELDS', 'database_fields')
-    # display_values = list(database_fields.split(','))
-    #
-    # # ===================================  STREAM NEAD DATA ===========================================================
-    # # Create the streaming response object and output csv
-    # response = StreamingHttpResponse(stream(version, hash_lines, model_class, display_values, timestamp_meaning,
-    #                                         null_value, start, end, dict_fields={}), content_type='text/csv')
-    # response['Content-Disposition'] = 'attachment; filename=' + output_csv
-    #
-    # return response
 
-    return HttpResponse('TEST')
+    # Fill hash_lines with config_buffer lines prepended with '# '
+    hash_lines = get_hashed_lines(config_list)
+
+    # Assign display_values from database_fields in NEAD config
+    database_fields = get_database_fields(nead_config)
+    display_values = list(database_fields.split(','))
+
+    # ---------------------------------------- Stream NEAD Data -------------------------------------------------------
+    # Stream response from either a stream for a specific application or use generic stream
+    response = StreamingHttpResponse(
+        stream_function(version, hash_lines, model_class, display_values, null_value, start, end, dict_fields={},
+                        timestamp_meaning=timestamp_meaning), content_type='text/csv')
+    response['Content-Disposition'] = f'attachment; filename={output_csv}'
+
+    return response

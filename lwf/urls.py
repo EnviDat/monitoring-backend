@@ -64,6 +64,8 @@ urlpatterns = [
                                   'display_values_error': parameter_http_error, }),
 
     # NEAD
+    path('nead/<str:model>/<str:nodata>/<str:parent_class>/<str:start>/<str:end>/',
+         generic_get_nead, {'app': 'lwf'}),
     path('nead/<str:model>/<str:nodata>/<str:parent_class>/',
          generic_get_nead, {'app': 'lwf'}),
 ]
