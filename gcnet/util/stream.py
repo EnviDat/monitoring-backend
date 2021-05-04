@@ -6,7 +6,7 @@ from django.core.exceptions import FieldError
 from django.http import HttpResponseNotFound
 from datetime import datetime, timedelta
 
-from project.generic.util.views_helpers import get_timestamp_iso_range_day_dict
+from generic.util.views_helpers import get_timestamp_iso_range_day_dict
 
 
 # Define a generator to stream GC-Net data directly to the client

@@ -3,7 +3,7 @@ from datetime import datetime, date
 from django.db.models import Func
 from django.http import HttpResponseNotFound
 
-from project.generic.util.views_helpers import validate_display_values
+from generic.util.views_helpers import validate_display_values
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "project.settings")
 

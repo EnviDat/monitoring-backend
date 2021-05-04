@@ -1,5 +1,6 @@
 # TODO make this script generic
 
+# TODO fix command statements
 # Example commands:
 #   python manage.py lwf_csv_import -p LWFMeteo -i lwf/data/lebforest.csv -d lwf/data -m leb -t directory
 #   python manage.py lwf_csv_import -p LWFMeteo -i lwf/data/albforest.csv -d lwf/data -m alb -t directory
@@ -43,12 +44,12 @@ from postgres_copy import CopyMapping
 import importlib
 from django.utils.timezone import make_aware
 from lwf.util.cleaners import get_lwf_meteo_line_clean, get_lwf_station_line_clean
-from project.generic.util.nead import write_nead_config
+from generic.util.nead import write_nead_config
 
 # Setup logging
 import logging
 
-logging.basicConfig(filename=Path('lwf/logs/lwf_csv_import.log'), format='%(asctime)s   %(filename)s: %(message)s',
+logging.basicConfig(filename=Path('generic/logs/csv_import.log'), format='%(asctime)s   %(filename)s: %(message)s',
                     datefmt='%d-%b-%y %H:%M:%S')
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -116,16 +117,24 @@ class Command(BaseCommand):
             return
 
         # Get the parent class, assumes parent class is in module within lwf/models directory
-        parent_name = kwargs['parentclass'].rsplit('.', 1)[-1]
-        package = importlib.import_module("lwf.models." + parent_name)
-        parent_class = getattr(package, parent_name)
+        # parent_name = kwargs['parentclass'].rsplit('.', 1)[-1]
+        # package = importlib.import_module("lwf.models." + parent_name)
+        # parent_class = getattr(package, parent_name)
+
+        # Get the model
+        class_name = kwargs['model'].rsplit('.', 1)[-1]
+        package = importlib.import_module("lwf.models")
+        model_class = getattr(package, class_name)
 
         # Assign variables used to write csv_temporary
         csv_temporary = Path(kwargs['directory'] + '/' + kwargs['model'] + '_temporary.csv')
-        input_fields = parent_class.input_fields
-        database_fields = [field.name for field in parent_class._meta.fields]
-        date_format = parent_class.date_format
-        model_class = None
+        # input_fields = parent_class.input_fields
+        input_fields = model_class.input_fields
+        # database_fields = [field.name for field in parent_class._meta.fields]
+        database_fields = [field.name for field in model_class._meta.fields if field.name != 'id']
+        # date_format = parent_class.date_format
+        date_format = model_class.date_format
+        # model_class = None
         written_timestamps = []
         rows_before = 24
         rows_after = 0
@@ -140,7 +149,7 @@ class Command(BaseCommand):
                 records_written = 0
 
                 # Skip number of header lines designated in parent class header line count
-                for i in range(parent_class.header_line_count):
+                for i in range(model_class.header_line_count):
                     first_lines = source.readline()
                     nead_header.append(first_lines)
                     next(source, None)
@@ -151,11 +160,11 @@ class Command(BaseCommand):
 
                     if not line:
                         break
-                    line_array = [v for v in line.strip().split(parent_class.delimiter) if len(v) > 0]
+                    line_array = [v for v in line.strip().split(model_class.delimiter) if len(v) > 0]
 
                     # Skip header lines that start with designated parent class header symbol
                     # For example: the '#' character
-                    if line.startswith(parent_class.header_symbol):
+                    if line.startswith(model_class.header_symbol):
                         nead_header.append(line)
                         continue
 
@@ -178,10 +187,10 @@ class Command(BaseCommand):
                             'WARNING (lwf_csv_import.py) {0} parentclass does not exist'.format(kwargs['parentclass']))
                         return
 
-                    # Get the model
-                    class_name = kwargs['model'].rsplit('.', 1)[-1]
-                    package = importlib.import_module("lwf.models")
-                    model_class = getattr(package, class_name)
+                    # # Get the model
+                    # class_name = kwargs['model'].rsplit('.', 1)[-1]
+                    # package = importlib.import_module("lwf.models")
+                    # model_class = getattr(package, class_name)
 
                     # Make timestamp_iso value a UTC timezone aware datetime object
                     dt_obj = line_clean['timestamp_iso']
@@ -209,7 +218,7 @@ class Command(BaseCommand):
 
                 # Write nead header configuration file if applicable
                 if nead_header:
-                    header_symbol = parent_class.header_symbol
+                    header_symbol = model_class.header_symbol
                     write_nead_config('lwf', nead_header, kwargs['model'], kwargs['parentclass'], header_symbol)
 
         except FileNotFoundError as e:
@@ -239,9 +248,10 @@ class Command(BaseCommand):
         c.save()
 
         # Log import message
-        logger.info('{0} successfully imported, {1} new record(s) written in {2}'.format((kwargs['inputfile']),
+        logger.info('{0} successfully imported, {1} new records written in {2}'.format((kwargs['inputfile']),
                                                                                          records_written,
                                                                                          (kwargs['model'])))
 
         # Delete csv_temporary
-        os.remove(csv_temporary)
+        # TODO uncomment out below line
+        # os.remove(csv_temporary)
