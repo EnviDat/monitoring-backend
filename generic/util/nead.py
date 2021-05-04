@@ -23,7 +23,6 @@ def read_config(config_path: str):
 
 # ----------------------------------------  NEAD Config Writer -------------------------------------------------------
 
-# TODO fix right comma issue
 def write_nead_config(app, nead_header, model, parent_class, header_symbol):
     header = nead_header
     config = f'{app}/nead_config/{parent_class}/{model}.ini'
@@ -32,7 +31,7 @@ def write_nead_config(app, nead_header, model, parent_class, header_symbol):
     # with open(config, 'w+', newline='', encoding="utf-8-sig") as sink:
     with open(config, 'w+', newline='', encoding="utf-8") as sink:
         for line in header:
-            sink.write(line.lstrip(bom).lstrip(header_symbol).lstrip().rstrip(','))
+            sink.write(line.lstrip(bom).lstrip(header_symbol).lstrip())
 
 
 # ----------------------------------------  Get NEAD Config -----------------------------------------------------------
