@@ -96,9 +96,6 @@ class Command(BaseCommand):
             logger.error(f'ERROR app {app} not found')
             return
 
-        # from django.apps import apps
-        # print(apps.is_installed(app))
-
         # Validate model
         try:
             model_class = get_model_cl(app, model)
@@ -194,10 +191,6 @@ class Command(BaseCommand):
             logger.error('ERROR file not found {0}, exception {1}'.format(input_file, e))
             return
 
-        if model_class is None:
-            logger.info('WARNING no data found for {0}'.format(model))
-            return
-
         # Assign copy_dictionary from database_fields
         copy_dictionary = {database_fields[i]: database_fields[i] for i in range(0, len(database_fields))}
 
@@ -217,8 +210,7 @@ class Command(BaseCommand):
         c.save()
 
         # Log import message
-        logger.info(
-            f'FINISHED importing {input_file}, {records_written} new records written in {model}'),
+        logger.info(f'FINISHED importing {input_file}, {records_written} new records written in {model}'),
 
         # Delete csv_temporary
         os.remove(csv_temporary)
