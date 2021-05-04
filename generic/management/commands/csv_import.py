@@ -87,15 +87,15 @@ class Command(BaseCommand):
             input_file = Path(inputfile)
             logger.info(f'INPUT FILE: {input_file}')
         else:
-            logger.info('WARNING non-valid value entered for "typesource": {0}'.format(
-                typesource))
+            logger.error(f'ERROR non-valid value entered for "typesource": {typesource}')
             return
 
         # TODO validate app
+        # Validate app
         # from django.apps import apps
         # print(apps.is_installed(app))
 
-        # Validate the model class
+        # Validate model
         try:
             model_class = get_model_cl(app, model)
         except AttributeError as e:
