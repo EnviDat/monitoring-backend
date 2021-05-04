@@ -9,6 +9,7 @@ import requests
 from django.core.management.base import BaseCommand
 from postgres_copy import CopyMapping
 from django.utils.timezone import make_aware
+from django.apps import apps
 
 from generic.util.views_helpers import get_model_cl
 from generic.util.nead import write_nead_config
@@ -75,7 +76,7 @@ class Command(BaseCommand):
         if typesource == 'web':
             # Write content from url into csv file
             url = str(inputfile)
-            logger.info(f'INPUT URL: {url}')
+            logger.info(f'Input URL: {url}')
             req = requests.get(url)
             url_content = req.content
             csv_path = str(Path(directory + '/' + inputfile))
@@ -85,13 +86,16 @@ class Command(BaseCommand):
             input_file = csv_path
         elif typesource == 'directory':
             input_file = Path(inputfile)
-            logger.info(f'INPUT FILE: {input_file}')
+            logger.info(f'Input file: {input_file}')
         else:
             logger.error(f'ERROR non-valid value entered for "typesource": {typesource}')
             return
 
-        # TODO validate app
         # Validate app
+        if not apps.is_installed(app):
+            logger.error(f'ERROR app {app} not found')
+            return
+
         # from django.apps import apps
         # print(apps.is_installed(app))
 
@@ -214,7 +218,7 @@ class Command(BaseCommand):
 
         # Log import message
         logger.info(
-            f'{input_file} successfully imported, {records_written} new records written in {model}'), records_written,
+            f'FINISHED importing {input_file}, {records_written} new records written in {model}'),
 
         # Delete csv_temporary
         os.remove(csv_temporary)
