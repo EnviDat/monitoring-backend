@@ -1,4 +1,3 @@
-
 # Example command:
 # python manage.py csv_import -a lwf -i lwf/data/test.csv  -d lwf/data -m test40 -t directory
 
@@ -11,7 +10,7 @@ from django.core.management.base import BaseCommand
 from postgres_copy import CopyMapping
 from django.utils.timezone import make_aware
 
-from generic.util.views_helpers import get_model
+from generic.util.views_helpers import get_model_cl
 from generic.util.nead import write_nead_config
 from lwf.util.cleaners import get_lwf_meteo_line_clean, get_lwf_station_line_clean
 
@@ -92,9 +91,13 @@ class Command(BaseCommand):
                 typesource))
             return
 
+        # TODO validate app
+        # from django.apps import apps
+        # print(apps.is_installed(app))
+
         # Validate the model class
         try:
-            model_class = get_model(app, model)
+            model_class = get_model_cl(app, model)
         except AttributeError as e:
             logger.error(f'ERROR model {model} not found, exception {e}')
             return
@@ -216,7 +219,7 @@ class Command(BaseCommand):
         # Delete csv_temporary
         os.remove(csv_temporary)
 
-    # Check which kind of cleaner should be applied
+    # Check which kind of line cleaner should be used
     @staticmethod
     def get_line_cleaner(parent_class_name):
 

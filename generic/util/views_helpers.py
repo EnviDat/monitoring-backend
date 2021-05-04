@@ -17,7 +17,7 @@ def get_models_list(app):
 
 
 # Returns model class without parent_class kwarg
-def get_model(app, model):
+def get_model_cl(app, model):
     package = importlib.import_module(f'{app}.models')
     return getattr(package, model)
 
