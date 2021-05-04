@@ -68,15 +68,13 @@ class Command(BaseCommand):
         except FileNotFoundError as e:
             logger.error(f'ERROR file not found {model_path}, exception {e}')
 
-        print(table_exists)
-
-        # # Check if table already exists in database
+        # Check if table already exists in database
         # long_db_name = 'lwf_{0}'.format(database_table_name)
-        #
-        # if model_exists(database_table_name):
-        #     table_exists = True
-        #     print('WARNING (lwf_new_model.py): Table {0} already exists in database'.format(long_db_name))
-        #
+
+        if model_exists(database_table_name):
+            table_exists = True
+            # print('WARNING (lwf_new_model.py): Table {0} already exists in database'.format(long_db_name))
+
         # # If child class does not exist in corresponding models file or database
         # # write it to corresponding models file and run migrations to add it to database
         # if not table_exists:
