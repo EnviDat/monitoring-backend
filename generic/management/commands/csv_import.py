@@ -3,7 +3,6 @@
 
 
 import os
-
 from pathlib import Path
 import requests
 from django.core.management.base import BaseCommand
@@ -17,7 +16,6 @@ from lwf.util.cleaners import get_lwf_meteo_line_clean, get_lwf_station_line_cle
 
 # Setup logging
 import logging
-
 logging.basicConfig(filename=Path('generic/logs/csv_import.log'), format='%(asctime)s  %(filename)s: %(message)s',
                     datefmt='%d-%b-%y %H:%M:%S')
 logger = logging.getLogger(__name__)

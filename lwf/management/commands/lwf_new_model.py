@@ -27,7 +27,7 @@ class Command(BaseCommand):
 
         # Read configuration file and assign variables for configuration values
         conf = read_config(kwargs['config'])
-        model = conf.get('configuration', 'model')
+        parent_class = conf.get('configuration', 'parent_class')
         name = conf.get('configuration', 'name')
 
         # Check if 'database_table_name' in config file is in valid format (no spaces)
@@ -38,7 +38,7 @@ class Command(BaseCommand):
             return
 
         # Create models file path string
-        model_path = 'lwf/models/{0}.py'.format(model)
+        parent_class_path = 'lwf/models/{0}.py'.format(parent_class)
 
         # Set table_exists to False
         table_exists = False
@@ -46,32 +46,32 @@ class Command(BaseCommand):
         # Check if child class ('database_table_name' in config) already exists in corresponding models file
         try:
             # First check if model is written in corresponding models file:
-            with open(model_path, 'r') as f:
+            with open(parent_class_path, 'r') as f:
                 if database_table_name in f.read():
                     table_exists = True
                     print('WARNING (lwf_new_model.py): Table {0} already written in {1}'.format(database_table_name,
-                                                                                            model_path))
+                                                                                            parent_class_path))
                     return
         except FileNotFoundError as e:
-            print('WARNING (lwf_new_model.py): File not found {0}, exception {1}'.format(model_path, e))
+            print('WARNING (lwf_new_model.py): File not found {0}, exception {1}'.format(parent_class_path, e))
 
         # Check if table already exists in database
         long_db_name = 'lwf_{0}'.format(database_table_name)
 
         if model_exists(database_table_name):
             table_exists = True
-            print('WARNING (lwf_new_model.py): Table {0} already exists in database'.format(long_db_name))
+            print('WARNING (lwf_new_parent_class.py): Table {0} already exists in database'.format(long_db_name))
 
-        # If child class does not exist in corresponding models file or database
+        # If child class does not exist in corresponding parent_classs file or database
         # write it to corresponding models file and run migrations to add it to database
         if not table_exists:
 
             comment = '\n# {0}'.format(name)
-            class_string = '\nclass {0}({1}):'.format(database_table_name, model)
+            class_string = '\nclass {0}({1}):'.format(database_table_name, parent_class)
 
             try:
                 # Write new class to corresponding models file
-                with open(model_path, 'a') as sink:
+                with open(parent_class_path, 'a') as sink:
                     sink.write('\n')
                     sink.write(comment)
                     sink.write(class_string)
@@ -80,7 +80,7 @@ class Command(BaseCommand):
 
                 # Update '__init__.py' with new model
                 with open('lwf/models/__init__.py', 'a') as controller:
-                    controller.write('\nfrom .{0} import {1}\n'.format(model, database_table_name))
+                    controller.write('\nfrom .{0} import {1}\n'.format(parent_class, database_table_name))
 
                 # Assign migrations_commands to contain migrations strings
                 migrations_commands = ['python manage.py makemigrations lwf', 'python manage.py migrate lwf --database=lwf']
