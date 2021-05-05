@@ -206,7 +206,7 @@ class Command(BaseCommand):
                                 records_written += 1
 
                 # Write nead header configuration file if applicable
-                if nead_header:
+                if len(nead_header) > parent_class.header_line_count:
                     header_symbol = parent_class.header_symbol
                     write_nead_config('lwf', nead_header, kwargs['model'], kwargs['parentclass'], header_symbol)
 

@@ -16,6 +16,7 @@ class LWFStationFloatField(FloatField):
     copy_template = """
         CASE
             WHEN "%(name)s" = 'NA' THEN NULL
-            ELSE ROUND(TO_NUMBER(("%(name)s"), '9999.999'), 3) 
+            ELSE ROUND(TO_NUMBER(("%(name)s"), '99999999999.9999'), 3) 
         END
     """
+
