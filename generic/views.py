@@ -91,6 +91,7 @@ def generic_get_daily_data(request, app,
                            display_values_validator=validate_display_values, display_values_error=parameter_http_error,
                            stream_function=stream,
                            timestamp_meaning='', parent_class='', nodata='', **kwargs):
+
     # Assign kwargs from url to variables
     start = kwargs['start']
     end = kwargs['end']
@@ -167,6 +168,7 @@ def generic_get_nead(request, app,
                      nead_config=get_nead_config,
                      stream_function=stream,
                      timestamp_meaning='', parent_class='', start='', end='', **kwargs):
+
     # Assign variables
     version = "# NEAD 1.0 UTF-8\n"
     model = kwargs['model']

@@ -105,7 +105,11 @@ class Command(BaseCommand):
         parent_class_name = model_class.__base__.__name__
 
         # Get line cleaner function
-        line_cleaner = self.get_line_cleaner(parent_class_name)
+        try:
+            line_cleaner = self.get_line_cleaner(parent_class_name)
+        except Exception as e:
+            logger.error(e)
+            return
 
         # Assign other variables used to write csv_temporary
         csv_temporary = Path(f'{directory}/{model}_temporary.csv')
@@ -186,7 +190,7 @@ class Command(BaseCommand):
                     write_nead_config(app, nead_header, model, parent_class_name, header_symbol)
 
         except FileNotFoundError as e:
-            logger.error('ERROR file not found {0}, exception {1}'.format(input_file, e))
+            logger.error(f'ERROR file not found {input_file}, exception {e}')
             return
 
         # Assign copy_dictionary from database_fields
@@ -208,7 +212,7 @@ class Command(BaseCommand):
         c.save()
 
         # Log import message
-        logger.info(f'FINISHED importing {input_file}, {records_written} new records written in {model}'),
+        logger.info(f'FINISHED importing {input_file}, {records_written} new records written in {model}')
 
         # Delete csv_temporary
         os.remove(csv_temporary)
@@ -224,5 +228,5 @@ class Command(BaseCommand):
             return get_lwf_station_line_clean
 
         else:
-            logger.error(f'ERROR {parent_class_name} parent class does not exist')
-            return
+            raise Exception(f'ERROR parent class {parent_class_name} does not exist '
+                            f'or is not specified in csv_import.py')

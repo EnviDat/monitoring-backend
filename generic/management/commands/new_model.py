@@ -8,9 +8,8 @@ from django.core.management.base import BaseCommand
 __version__ = '0.0.1'
 __author__ = u'Rebecca Buchholz'
 
-from generic.util.commands_helpers import has_spaces, model_exists
+from generic.util.commands_helpers import has_spaces, model_exists, execute_commands
 from generic.util.nead import read_config
-from lwf.util.new_model_helpers import execute_commands
 
 # Setup logging
 import logging
@@ -41,8 +40,9 @@ class Command(BaseCommand):
         conf = read_config(kwargs['config'])
         parent_class = conf.get('configuration', 'parent_class')
         name = conf.get('configuration', 'name')
+        database_table_name = conf.get('configuration', 'database_table_name')
 
-        # Get app_label of parent_class
+        # Get app of parent_class
         try:
             app = self.get_app(parent_class)
         except Exception as e:
@@ -50,7 +50,6 @@ class Command(BaseCommand):
             return
 
         # Check if 'database_table_name' in config file is in valid format (lowercase and no spaces)
-        database_table_name = conf.get('configuration', 'database_table_name')
         if has_spaces(database_table_name):
             logger.error(f'ERROR database_table_name in config must have no spaces: {database_table_name}')
             return
@@ -65,56 +64,56 @@ class Command(BaseCommand):
             logger.error(e)
             return
 
-        # Set table_exists to False
-        table_exists = False
-
         # Check if model ('database_table_name' in config) already exists in corresponding models file
-        # try:
-        #     # First check if model is written in corresponding models file:
-        #     with open(model_path, 'r') as f:
-        #         if database_table_name in f.read():
-        #             table_exists = True
-        #             logger.error(f'ERROR table {database_table_name} already written in {model_path}')
-        #             return
-        # except FileNotFoundError as e:
-        #     logger.error(f'ERROR file not found {model_path}, exception {e}')
-        #
-        # # Check if table already exists in database
-        # # long_db_name = 'lwf_{0}'.format(database_table_name)
-        #
-        # if model_exists(database_table_name):
-        #     table_exists = True
-        # print('WARNING (lwf_new_model.py): Table {0} already exists in database'.format(long_db_name))
+        try:
+            # First check if model is written in corresponding models file:
+            with open(model_path, 'r') as f:
+                if database_table_name in f.read():
+                    logger.error(f'ERROR table {database_table_name} already written in {model_path}')
+                    return
+        except FileNotFoundError as e:
+            logger.error(f'ERROR file not found {model_path}, exception {e}')
+            return
 
-        # # If child class does not exist in corresponding models file or database
-        # # write it to corresponding models file and run migrations to add it to database
-        # if not table_exists:
-        #
-        #     comment = '\n# {0}'.format(name)
-        #     class_string = '\nclass {0}({1}):'.format(database_table_name, model)
-        #
-        #     try:
-        #         # Write new class to corresponding models file
-        #         with open(model_path, 'a') as sink:
-        #             sink.write('\n')
-        #             sink.write(comment)
-        #             sink.write(class_string)
-        #             sink.write("\n    pass")
-        #             sink.write("\n")
-        #
-        #         # Update '__init__.py' with new model
-        #         with open('lwf/models/__init__.py', 'a') as controller:
-        #             controller.write('\nfrom .{0} import {1}\n'.format(model, database_table_name))
-        #
-        #         # Assign migrations_commands to contain migrations strings
-        #         migrations_commands = ['python manage.py makemigrations lwf', 'python manage.py migrate lwf --database=lwf']
-        #
-        #         # Call execute_commands to execute migrations commands
-        #         execute_commands(migrations_commands)
-        #
-        #         return 0
-        #
-        #     except Exception as e:
+        # Check if table already exists in database
+        if model_exists(database_table_name, app):
+            logger.error(f'ERROR database_table_name already exists in database: {database_table_name}')
+            return
+
+        # If child class does not exist in corresponding models file or database
+        # write it to corresponding models file and run migrations to add it to database
+        comment = f'\n# {name}'
+        class_string = f'\nclass {database_table_name}({parent_class}):'
+
+        try:
+            # Write new class to corresponding models file
+            with open(model_path, 'a') as sink:
+                sink.write('\n')
+                sink.write(comment)
+                sink.write(class_string)
+                sink.write("\n    pass")
+                sink.write("\n")
+
+            # Update '__init__.py' with new model if '__init__.py' exists in a model directory
+            models_init_path = Path(f'{app}/models/__init__.py')
+            if models_init_path.exists():
+                with open(models_init_path, 'a') as controller:
+                    controller.write(f'\nfrom .{parent_class} import {database_table_name}\n')
+
+            # Assign migrations_commands to contain migrations strings
+            migrations_commands = [f'python manage.py makemigrations {app}',
+                                   f'python manage.py migrate {app} --database={app}']
+
+            # Call execute_commands to execute migrations commands
+            execute_commands(migrations_commands)
+
+            # Log message
+            logger.info(f'FINISHED creating new model {database_table_name} in parent_class {parent_class}')
+
+            return 0
+
+        except Exception as e:
+            logger.error(f'ERROR: {e}')
 
     # Check which kind of model_path should be used
     @staticmethod
@@ -127,7 +126,8 @@ class Command(BaseCommand):
             return f'gcnet/models.py'
 
         else:
-            raise Exception(f'ERROR {parent_class} parent class does not exist or does not have model_path specified')
+            raise Exception(f'ERROR {parent_class} parent_class does not exist or does not have model_path specified '
+                            f'in new_model.py')
 
     # Check which kind of app should be used
     @staticmethod
@@ -140,4 +140,5 @@ class Command(BaseCommand):
             return 'gcnet'
 
         else:
-            raise Exception(f'ERROR {parent_class} parent class does not exist or does not have app specified')
+            raise Exception(f'ERROR {parent_class} parent_class does not exist or does not have app specified in '
+                            f'new_model.py')
