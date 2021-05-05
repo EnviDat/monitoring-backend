@@ -1,5 +1,5 @@
 # Example command:
-# python manage.py csv_import -a lwf -i lwf/data/test.csv  -d lwf/data -m test40 -t directory
+# python manage.py csv_import -i lwf/data/test.csv -t directory -d lwf/data -a lwf -m test40
 
 
 import os
@@ -16,6 +16,7 @@ from lwf.util.cleaners import get_lwf_meteo_line_clean, get_lwf_station_line_cle
 
 # Setup logging
 import logging
+
 logging.basicConfig(filename=Path('generic/logs/csv_import.log'), format='%(asctime)s  %(filename)s: %(message)s',
                     datefmt='%d-%b-%y %H:%M:%S')
 logger = logging.getLogger(__name__)
@@ -27,17 +28,17 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
 
         parser.add_argument(
-            '-a',
-            '--app',
-            required=True,
-            help='App that Django model belongs to'
-        )
-
-        parser.add_argument(
             '-i',
             '--inputfile',
             required=True,
             help='Path or URL to input csv file'
+        )
+
+        parser.add_argument(
+            '-t',
+            '--typesource',
+            required=True,
+            help='Type of input data source. Valid options are a file path: "directory" or a url: "web"'
         )
 
         parser.add_argument(
@@ -48,27 +49,27 @@ class Command(BaseCommand):
         )
 
         parser.add_argument(
+            '-a',
+            '--app',
+            required=True,
+            help='App that Django model belongs to'
+        )
+
+        parser.add_argument(
             '-m',
             '--model',
             required=True,
             help='Django Model to import input data into'
         )
 
-        parser.add_argument(
-            '-t',
-            '--typesource',
-            required=True,
-            help='Type of input data source. Valid options are a file path: "directory" or a url: "web"'
-        )
-
     def handle(self, *args, **kwargs):
 
         # Assign kwargs from url to variables
-        app = kwargs['app']
         inputfile = kwargs['inputfile']
-        directory = kwargs['directory']
-        model = kwargs['model']
         typesource = kwargs['typesource']
+        directory = kwargs['directory']
+        app = kwargs['app']
+        model = kwargs['model']
 
         # Check if data source is from a directory or a url and assign input_file to selected option
         if typesource == 'web':

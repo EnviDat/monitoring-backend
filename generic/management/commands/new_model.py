@@ -49,13 +49,13 @@ class Command(BaseCommand):
             logger.error(e)
             return
 
-        # Check if 'database_table_name' in config file is in valid format (lowercase and no spaces)
+        # Check if 'database_table_name' in config file has no spaces
         if has_spaces(database_table_name):
             logger.error(f'ERROR database_table_name in config must have no spaces: {database_table_name}')
             return
-        if not database_table_name.islower():
-            logger.error(f'ERROR database_table_name in config must be in lowercase: {database_table_name}')
-            return
+
+        # Covert 'database_table_name' to lowercase
+        database_table_name = database_table_name.lower()
 
         # Create models file path string
         try:
@@ -68,7 +68,7 @@ class Command(BaseCommand):
         try:
             # First check if model is written in corresponding models file:
             with open(model_path, 'r') as f:
-                if database_table_name in f.read():
+                if f'class {database_table_name}' in f.read():
                     logger.error(f'ERROR table {database_table_name} already written in {model_path}')
                     return
         except FileNotFoundError as e:
