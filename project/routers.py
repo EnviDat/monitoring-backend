@@ -34,3 +34,15 @@ class MonitoringRouter:
         else:
             # print('WARNING (routers.py) non-valid app_label": {0}'.format(app_label))
             return -1
+
+    def allow_relation(self, db, app_label, model_name=None, **hints):
+        # return 'gcnet'
+        if app_label == 'lwf':
+            # print("APP_LABEL: " + app_label)
+            return 'lwf'
+        elif app_label == 'gcnet':
+            # print("APP_LABEL: " + app_label)
+            return 'gcnet'
+        else:
+            # print('WARNING (routers.py) non-valid app_label": {0}'.format(app_label))
+            return -1
