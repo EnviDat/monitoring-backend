@@ -75,7 +75,7 @@ class Command(BaseCommand):
         if typesource == 'web':
             # Write content from url into csv file
             url = str(inputfile)
-            logger.info(f'Input URL: {url}')
+            logger.info(f'STARTED importing input URL: {url}')
             req = requests.get(url)
             url_content = req.content
             csv_path = str(Path(directory + '/' + inputfile))
@@ -85,7 +85,7 @@ class Command(BaseCommand):
             input_file = csv_path
         elif typesource == 'directory':
             input_file = Path(inputfile)
-            logger.info(f'Input file: {input_file}')
+            logger.info(f'STARTED importing input file: {input_file}')
         else:
             logger.error(f'ERROR non-valid value entered for "typesource": {typesource}')
             return
