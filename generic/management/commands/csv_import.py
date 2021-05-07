@@ -151,8 +151,7 @@ class Command(BaseCommand):
                         continue
 
                     if len(line_array) != len(input_fields):
-                        error_msg = "Line has {0} values, header {1} columns ".format(len(line_array),
-                                                                                      len(input_fields))
+                        error_msg = f'ERROR: line has {len(line_array)} values, header has {len(input_fields)} columns'
                         logger.error(error_msg)
                         raise ValueError(error_msg)
 
