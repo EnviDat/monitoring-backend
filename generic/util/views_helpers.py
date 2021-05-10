@@ -8,7 +8,7 @@ from django.db.models import Func, Min, Max, Avg
 
 # ----------------------------------------  Model Helpers -------------------------------------------------------------
 
-# Function returns a list of models in an app
+# Function returns a list of models in an app, if parent_class passed returns only models from that parent class
 def get_models_list(app, parent_class=''):
 
     models = []
