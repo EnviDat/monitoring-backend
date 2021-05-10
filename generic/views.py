@@ -53,6 +53,7 @@ def generic_get_data(request, app,
         version = ''
         hash_lines = ''
         output_csv = model + '.csv'
+        nodata = get_null_value(nodata)
 
         # Stream response from either a stream for a specific application or use generic stream
         response = StreamingHttpResponse(

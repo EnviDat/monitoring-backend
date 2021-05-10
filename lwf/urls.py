@@ -66,6 +66,8 @@ urlpatterns = [
     # NEAD
     path('nead/<str:model>/<str:nodata>/<str:parent_class>/<str:start>/<str:end>/',
          generic_get_nead, {'app': 'lwf'}),
+
+    # NEAD (entire date range)
     path('nead/<str:model>/<str:nodata>/<str:parent_class>/',
          generic_get_nead, {'app': 'lwf'}),
 ]
