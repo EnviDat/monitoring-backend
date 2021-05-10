@@ -9,10 +9,21 @@ from django.db.models import Func, Min, Max, Avg
 # ----------------------------------------  Model Helpers -------------------------------------------------------------
 
 # Function returns a list of models in an app
-def get_models_list(app):
+def get_models_list(app, parent_class=''):
+
     models = []
+
     for key in apps.all_models[app]:
-        models.append(key)
+
+        model_class = get_model_cl(app, key)
+        parent_class_name = model_class.__base__.__name__
+
+        if parent_class:
+            if parent_class == parent_class_name:
+                models.append(key)
+        else:
+            models.append(key)
+
     return models
 
 

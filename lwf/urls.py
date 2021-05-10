@@ -31,7 +31,7 @@ urlpatterns = [
     # Testing generic views
 
     # Models
-    path('models/', generic_get_models, {'app': 'lwf'}),
+    path('models/<str:parent_class>/', generic_get_models, {'app': 'lwf'}),
 
     # JSON
     path('json/<str:model>/<str:parameters>/<str:start>/<str:end>/<str:parent_class>/',

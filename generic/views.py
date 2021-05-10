@@ -9,8 +9,8 @@ from generic.util.views_helpers import get_models_list, validate_date, get_model
 
 
 # View returns a list of models currently in an app
-def generic_get_models(request, app):
-    models = get_models_list(app)
+def generic_get_models(request, app, parent_class=''):
+    models = get_models_list(app, parent_class)
     return JsonResponse(models, safe=False)
 
 
