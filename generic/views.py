@@ -232,6 +232,9 @@ def generic_get_station_parameter_metadata(request, app,
     # Assign variables
     model = kwargs['model']
     parameters = kwargs['parameters']
+    
+    # Assign dict_timestamps
+    dict_timestamps = get_dict_timestamps()
 
     # ---------------------------------------- Validate KWARGS --------------------------------------------------------
     # Get the model
@@ -247,9 +250,6 @@ def generic_get_station_parameter_metadata(request, app,
     # Check if display_values has at least one valid parameter
     if not display_values:
         return display_values_error(parameters)
-
-    # Assign dict_timestamps
-    dict_timestamps = get_dict_timestamps()
 
     # ------------------------------------- Return JSON Response ------------------------------------------------------
     try:
