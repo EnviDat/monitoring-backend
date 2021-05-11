@@ -1,4 +1,3 @@
-
 from django.http import JsonResponse, StreamingHttpResponse, HttpResponseNotFound
 
 from generic.util.http_errors import timestamp_http_error, model_http_error, parameter_http_error, \
@@ -20,10 +19,10 @@ def generic_get_models(request, app, parent_class=''):
 # Streams data as CSV if kwarg 'nodata' is passed, else returns data as JSON response
 def generic_get_data(request, app,
                      model_validator=get_model_class, model_error=model_http_error,
+                     parent_class_error=parent_class_http_error,
                      display_values_validator=validate_display_values, display_values_error=parameter_http_error,
                      stream_function=stream,
                      timestamp_meaning='', nodata='', parent_class='', start='', end='', **kwargs):
-
     # Assign kwargs from url to variables
     model = kwargs['model']
     parameters = kwargs['parameters']
@@ -35,6 +34,8 @@ def generic_get_data(request, app,
         model_class = model_validator(app, model=model, parent_class=parent_class)
     except AttributeError:
         return model_error(model)
+    except ModuleNotFoundError:
+        return parent_class_error(parent_class)
 
     # Get display_values by validating passed parameters
     display_values = display_values_validator(parameters, model_class)
@@ -90,10 +91,10 @@ def generic_get_data(request, app,
 # Users can enter as many parameters as desired by using a comma separated string for kwargs['parameters']
 def generic_get_daily_data(request, app,
                            model_validator=get_model_class, model_error=model_http_error,
+                           parent_class_error=parent_class_http_error,
                            display_values_validator=validate_display_values, display_values_error=parameter_http_error,
                            stream_function=stream,
                            timestamp_meaning='', parent_class='', nodata='', **kwargs):
-
     # Assign kwargs from url to variables
     start = kwargs['start']
     end = kwargs['end']
@@ -106,6 +107,8 @@ def generic_get_daily_data(request, app,
         model_class = model_validator(app, model=model, parent_class=parent_class)
     except AttributeError:
         return model_error(model)
+    except ModuleNotFoundError:
+        return parent_class_error(parent_class)
 
     # Get display_values by validating passed parameters
     display_values = display_values_validator(parameters, model_class)
@@ -167,10 +170,10 @@ def generic_get_daily_data(request, app,
 # Format is "NEAD 1.0 UTF-8"
 def generic_get_nead(request, app,
                      model_validator=get_model_class, model_error=model_http_error,
+                     parent_class_error=parent_class_http_error,
                      nead_config=get_nead_config,
                      stream_function=stream,
                      timestamp_meaning='', parent_class='', start='', end='', **kwargs):
-
     # Assign variables
     version = "# NEAD 1.0 UTF-8\n"
     model = kwargs['model']
@@ -183,6 +186,8 @@ def generic_get_nead(request, app,
         model_class = model_validator(app, model=model, parent_class=parent_class)
     except AttributeError:
         return model_error(model)
+    except ModuleNotFoundError:
+        return parent_class_error(parent_class)
 
     # If timestamp_meaning is passed check if valid
     if len(timestamp_meaning) > 0 and timestamp_meaning not in ['end', 'beginning']:
@@ -232,7 +237,7 @@ def generic_get_station_parameter_metadata(request, app,
     # Assign variables
     model = kwargs['model']
     parameters = kwargs['parameters']
-    
+
     # Assign dict_timestamps
     dict_timestamps = get_dict_timestamps()
 
@@ -259,7 +264,6 @@ def generic_get_station_parameter_metadata(request, app,
         queryset = {'station_timestamp_iso_earliest': model_objects.aggregate(**dict_timestamps)}
 
         for parameter in display_values:
-
             filter_dict = {f'{parameter}__isnull': False}
 
             queryset[parameter] = (model_objects
