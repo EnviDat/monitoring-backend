@@ -1,11 +1,12 @@
+
 from django.http import JsonResponse, StreamingHttpResponse, HttpResponseNotFound
 
 from generic.util.http_errors import timestamp_http_error, model_http_error, parameter_http_error, \
-    date_http_error, timestamp_meaning_http_error
+    date_http_error, timestamp_meaning_http_error, parent_class_http_error
 from generic.util.nead import get_nead_config, get_config_list, get_hashed_lines, get_database_fields
 from generic.util.stream import get_null_value, stream
 from generic.util.views_helpers import get_models_list, validate_date, get_model_class, \
-    get_dict_fields, get_timestamp_iso_range_day_dict, validate_display_values
+    get_dict_fields, get_timestamp_iso_range_day_dict, validate_display_values, get_dict_timestamps
 
 
 # View returns a list of models currently in an app
@@ -219,3 +220,54 @@ def generic_get_nead(request, app,
     response['Content-Disposition'] = f'attachment; filename={output_csv}'
 
     return response
+
+
+# Return metadata about one station and one parameter
+def generic_get_station_parameter_metadata(request, app,
+                                           model_validator=get_model_class, model_error=model_http_error,
+                                           parent_class_error=parent_class_http_error,
+                                           display_values_validator=validate_display_values,
+                                           display_values_error=parameter_http_error,
+                                           parent_class='', **kwargs):
+    # Assign variables
+    model = kwargs['model']
+    parameters = kwargs['parameters']
+
+    # ---------------------------------------- Validate KWARGS --------------------------------------------------------
+    # Get the model
+    try:
+        model_class = model_validator(app, model=model, parent_class=parent_class)
+    except AttributeError:
+        return model_error(model)
+    except ModuleNotFoundError:
+        return parent_class_error(parent_class)
+
+    # Get display_values by validating passed parameters
+    display_values = display_values_validator(parameters, model_class)
+    # Check if display_values has at least one valid parameter
+    if not display_values:
+        return display_values_error(parameters)
+
+    # Assign dict_timestamps
+    dict_timestamps = get_dict_timestamps()
+
+    # ------------------------------------- Return JSON Response ------------------------------------------------------
+    try:
+
+        model_objects = model_class.objects.all()
+
+        queryset = {'station_timestamp_iso_earliest': model_objects.aggregate(**dict_timestamps)}
+
+        for parameter in display_values:
+
+            filter_dict = {f'{parameter}__isnull': False}
+
+            queryset[parameter] = (model_objects
+                                   .values(parameter)
+                                   .filter(**filter_dict)
+                                   .aggregate(**dict_timestamps))
+
+        return JsonResponse(queryset, safe=False)
+
+    except Exception as e:
+        print(f'ERROR (views.py): {e}')

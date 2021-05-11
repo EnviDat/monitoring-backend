@@ -2,7 +2,8 @@ from django.urls import path
 
 from lwf.util.http_errors import parameter_http_error
 from lwf.util.views_helpers import get_display_values
-from generic.views import generic_get_models, generic_get_daily_data, generic_get_nead, generic_get_data
+from generic.views import generic_get_models, generic_get_daily_data, generic_get_nead, generic_get_data, \
+    generic_get_station_parameter_metadata
 
 urlpatterns = [
 
@@ -49,5 +50,10 @@ urlpatterns = [
     # NEAD (entire date range)
     path('nead/<str:model>/<str:nodata>/<str:parent_class>/',
          generic_get_nead, {'app': 'lwf'}),
+
+    # Metadata
+    path('metadata/<str:model>/<str:parameters>/<str:parent_class>/',
+         generic_get_station_parameter_metadata, {'app': 'lwf',
+                                                  'display_values_validator': get_display_values}),
 
 ]

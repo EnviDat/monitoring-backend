@@ -136,3 +136,12 @@ def get_dict_fields(display_values):
         dict_fields[parameter + '_avg'] = Round3(Avg(parameter))
 
     return dict_fields
+
+
+# --------------------------------------- Metadata View Helper --------------------------------------------------------
+
+# Get dict_timestamps for metadata view
+def get_dict_timestamps():
+    dict_timestamps = {'timestamp_iso_earliest': Min('timestamp_iso'),
+                       'timestamp_iso_latest': Max('timestamp_iso'),}
+    return dict_timestamps
