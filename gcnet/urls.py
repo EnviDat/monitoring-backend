@@ -22,11 +22,12 @@ urlpatterns = [
     # Metadata
     path('metadata/<str:model>/<str:parameters>/', get_station_parameter_metadata, {'app': 'gcnet'}),
 
+    # JSON
+    path('json/<str:model>/<str:parameters>/<str:start>/<str:end>/', get_json_data, {'app': 'gcnet'}),
 
-
-
-    path('json/<str:model>/<str:parameters>/<str:start>/<str:end>/', get_json_data),
-    path('csv/<str:model>/<str:parameters>/<str:timestamp_meaning>/<str:nodata>/<str:start>/<str:end>/', get_csv),
+    # TODO replace with generic views
+    path('csv/<str:model>/<str:parameters>/<str:timestamp_meaning>/<str:nodata>/<str:start>/<str:end>/',
+         get_csv, {'app': 'gcnet'}),
 
     path('summary/daily/json/<str:model>/<str:parameters>/<str:start>/<str:end>/', get_aggregate_data),
     path('summary/daily/csv/<str:model>/<str:parameters>/<str:timestamp_meaning>/<str:nodata>/<str:start>/<str:end>/',
@@ -36,14 +37,13 @@ urlpatterns = [
     path('nead/<str:model>/<str:timestamp_meaning>/<str:nodata>/', streaming_csv_view_v1),
 
 
+    # ---------------------------------------- Views from generic app -------------------------------------------------
 
-    # Testing generic views
-
-    # JSON
-    path('json-generic/<str:model>/<str:parameters>/<str:start>/<str:end>/',
-         generic_get_data, {'app': 'gcnet',
-                            'model_validator': get_model, 'model_error': model_http_error,
-                            'display_values_error': parameter_http_error, }),
+    # JSON (note: does not return unix timestamps)
+    # path('json-generic/<str:model>/<str:parameters>/<str:start>/<str:end>/',
+    #      generic_get_data, {'app': 'gcnet',
+    #                         'model_validator': get_model, 'model_error': model_http_error,
+    #                         'display_values_error': parameter_http_error, }),
 
     # CSV
     path('csv-generic/<str:model>/<str:parameters>/<str:timestamp_meaning>/<str:nodata>/<str:start>/<str:end>/',

@@ -23,7 +23,6 @@ from pathlib import Path
 
 import os
 
-
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "project.settings")
 
 
@@ -36,7 +35,6 @@ def index(request):
 # model in gcnet/models.py)
 # These model strings are used in the API calls (<str:model>): get_dynamic_data() and get_derived_data()
 def get_model_stations(request):
-
     # Read the stations config file
     stations_path = Path('gcnet/config/stations.ini')
     stations_config = read_config(stations_path)
@@ -136,8 +134,7 @@ def get_station_parameter_metadata(request, app, **kwargs):
 # Users can enter as many parameters as desired by using a comma separated string for kwargs['parameters']
 # Parameter: if KWARG_RETURNED_PARAMETERS selected then returns returned_parameters
 # Accepts ISO timestamp ranges
-def get_json_data(request, **kwargs):
-
+def get_json_data(request, app, **kwargs):
     # Assign kwargs from url to variables
     start = kwargs['start']
     end = kwargs['end']
@@ -154,7 +151,7 @@ def get_json_data(request, **kwargs):
 
     # Validate the model
     try:
-        model_class = get_model(model, app='', parent_class='')
+        model_class = get_model(app, model=model)
     except AttributeError:
         return model_http_error(model)
 
@@ -187,7 +184,6 @@ def get_json_data(request, **kwargs):
 # Users can enter as many parameters as desired by using a comma separated string for kwargs['parameters']
 # User customized view that returns data based on parameters specified
 def get_aggregate_data(request, timestamp_meaning='', nodata='', **kwargs):
-
     # Assign kwargs from url to variables
     start = kwargs['start']
     end = kwargs['end']
@@ -282,9 +278,10 @@ def get_aggregate_data(request, timestamp_meaning='', nodata='', **kwargs):
             return timestamp_meaning_http_error(timestamp_meaning)
 
         # Create the streaming response object and output csv
-        response = StreamingHttpResponse(gcnet_stream(version, hash_lines, model_class, display_values, timestamp_meaning,
-                                                nodata, start, end, dict_fields=dictionary_fields),
-                                         content_type='text/csv')
+        response = StreamingHttpResponse(
+            gcnet_stream(version, hash_lines, model_class, display_values, timestamp_meaning,
+                         nodata, start, end, dict_fields=dictionary_fields),
+            content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename=' + output_csv
         return response
 
@@ -359,7 +356,7 @@ def streaming_csv_view_v1(request, start='', end='', **kwargs):
     # ===================================  STREAM NEAD DATA ===========================================================
     # Create the streaming response object and output csv
     response = StreamingHttpResponse(gcnet_stream(version, hash_lines, model_class, display_values, timestamp_meaning,
-                                            null_value, start, end, dict_fields={}), content_type='text/csv')
+                                                  null_value, start, end, dict_fields={}), content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename=' + output_csv
 
     return response
@@ -371,7 +368,7 @@ def streaming_csv_view_v1(request, start='', end='', **kwargs):
 # If kwargs['nodata'] is 'empty' then null values are populated with empty string: ''
 # kwargs['timestamp_meaning'] corresponds to the meaning of timestamp_iso
 # kwargs['timestamp_meaning'] must be 'beginning' or 'end'
-def get_csv(request, start='', end='', **kwargs):
+def get_csv(request, app, start='', end='', **kwargs):
     # ===================================== ASSIGN VARIABLES ========================================================
 
     # Assign kwargs from url to variables
@@ -388,7 +385,7 @@ def get_csv(request, start='', end='', **kwargs):
     # ================================  VALIDATE KWARGS ===============================================================
     # Get and validate the model_class
     try:
-        model_class = get_model(kwargs['model'])
+        model_class = get_model(app, model=station_model)
     except AttributeError:
         return model_http_error(kwargs['model'])
 
@@ -407,8 +404,9 @@ def get_csv(request, start='', end='', **kwargs):
 
     # ===================================  STREAM DATA ===============================================================
     # Create the streaming response object and output csv
-    response = StreamingHttpResponse(gcnet_stream(version, hash_lines, model_class, display_values, timestamp_meaning,
-                                            null_value, start, end, dict_fields={}), content_type='text/csv')
+    response = StreamingHttpResponse(gcnet_stream(version, hash_lines, model_class, display_values, null_value,
+                                                  start, end, dict_fields={}, timestamp_meaning=timestamp_meaning),
+                                     content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename=' + output_csv
 
     return response
