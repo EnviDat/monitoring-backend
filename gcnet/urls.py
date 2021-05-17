@@ -6,14 +6,24 @@ from gcnet.util.stream import gcnet_stream
 from gcnet.util.views_helpers import get_model
 from gcnet.util.write_nead_config import gcnet_nead_config
 from gcnet.views import get_model_stations, streaming_csv_view_v1, get_aggregate_data, get_json_data, get_csv, \
-    get_metadata, get_station_metadata, get_station_metadata_multiprocessing, get_station_metadata_queryset, \
     get_station_parameter_metadata
 from generic.views import generic_get_daily_data, generic_get_data, generic_get_nead
 
 urlpatterns = [
+
+    # ---------------------------------------- Views from gcnet app ---------------------------------------------------
+
+    # API documentation
+    path('', views.index, name='index'),
+
+    # Models
     path('models/', get_model_stations),
 
-    path('metadata/<str:model>/<str:parameters>/', get_station_parameter_metadata),
+    # Metadata
+    path('metadata/<str:model>/<str:parameters>/', get_station_parameter_metadata, {'app': 'gcnet'}),
+
+
+
 
     path('json/<str:model>/<str:parameters>/<str:start>/<str:end>/', get_json_data),
     path('csv/<str:model>/<str:parameters>/<str:timestamp_meaning>/<str:nodata>/<str:start>/<str:end>/', get_csv),
@@ -25,13 +35,7 @@ urlpatterns = [
     path('nead/<str:model>/<str:timestamp_meaning>/<str:nodata>/<str:start>/<str:end>', streaming_csv_view_v1),
     path('nead/<str:model>/<str:timestamp_meaning>/<str:nodata>/', streaming_csv_view_v1),
 
-    path('', views.index, name='index'),
 
-    # These metadata endpoints are still in development and testing and may not be deployed
-    path('metadata/', get_metadata),
-    path('metadata/<str:model>/', get_station_metadata),
-    path('metadata/mp/<str:model>/', get_station_metadata_multiprocessing),
-    path('metadata/queryset/<str:model>/', get_station_metadata_queryset),
 
     # Testing generic views
 

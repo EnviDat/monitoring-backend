@@ -229,6 +229,7 @@ def generic_get_nead(request, app,
 
 # Return metadata about one station and one parameter
 def generic_get_station_parameter_metadata(request, app,
+                                           dict_timestamps_func=get_dict_timestamps,
                                            model_validator=get_model_class, model_error=model_http_error,
                                            parent_class_error=parent_class_http_error,
                                            display_values_validator=validate_display_values,
@@ -239,7 +240,7 @@ def generic_get_station_parameter_metadata(request, app,
     parameters = kwargs['parameters']
 
     # Assign dict_timestamps
-    dict_timestamps = get_dict_timestamps()
+    dict_timestamps = dict_timestamps_func()
 
     # ---------------------------------------- Validate KWARGS --------------------------------------------------------
     # Get the model
@@ -261,7 +262,7 @@ def generic_get_station_parameter_metadata(request, app,
 
         model_objects = model_class.objects.all()
 
-        queryset = {'station_timestamp_iso_earliest': model_objects.aggregate(**dict_timestamps)}
+        queryset = {'station_timestamp_iso': model_objects.aggregate(**dict_timestamps)}
 
         for parameter in display_values:
             filter_dict = {f'{parameter}__isnull': False}

@@ -13,6 +13,7 @@ import configparser
 from gcnet.util.geometry import convert_string_to_list
 
 import django
+
 django.setup()
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'project.settings')
@@ -119,7 +120,6 @@ def get_model_class(class_name):
 
 
 def get_model_url_dict():
-
     # Read the stations config file
     stations_path = Path('gcnet/config/stations.ini')
     stations_config = read_config(stations_path)
@@ -189,10 +189,10 @@ def get_dict_fields(display_values):
 
 # Get dict_timestamps for metadata view
 def get_dict_timestamps():
-    dict_timestamps = {'timestamp_iso_latest': Max('timestamp_iso'),
-                       'timestamp_latest': Max('timestamp'),
-                       'timestamp_iso_earliest': Min('timestamp_iso'),
-                       'timestamp_earliest': Min('timestamp')}
+    dict_timestamps = {'timestamp_iso_earliest': Min('timestamp_iso'),
+                       'timestamp_earliest': (Min('timestamp')),
+                       'timestamp_iso_latest': Max('timestamp_iso'),
+                       'timestamp_latest': Max('timestamp')}
 
     return dict_timestamps
 
@@ -229,7 +229,6 @@ def get_display_values(parameters, model_class):
 
 
 def multiprocessing_timestamp_dict(manager_dict, param, model_class, timestamps_dict):
-
     filter_dict = {f'{param}__isnull': False}
 
     qs = (model_class.objects
@@ -251,11 +250,9 @@ def multiprocessing_timestamp_dict(manager_dict, param, model_class, timestamps_
 
 
 def get_multiprocessing_arguments(queryset, parameters, model_class, dict_timestamps):
-
     arguments = []
 
     for param in parameters:
         arguments.append((queryset, param, model_class, dict_timestamps))
 
     return arguments
-
