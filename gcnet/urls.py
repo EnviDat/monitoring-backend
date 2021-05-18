@@ -24,16 +24,19 @@ urlpatterns = [
     # JSON
     path('json/<str:model>/<str:parameters>/<str:start>/<str:end>/', get_json_data, {'app': 'gcnet'}),
 
+    # NEAD
+    path('nead/<str:model>/<str:timestamp_meaning>/<str:nodata>/<str:start>/<str:end>/',
+         streaming_csv_view_v1, {'app': 'gcnet'}),
 
-
-    # TODO replace with generic views
-    path('nead/<str:model>/<str:timestamp_meaning>/<str:nodata>/<str:start>/<str:end>', streaming_csv_view_v1),
-    path('nead/<str:model>/<str:timestamp_meaning>/<str:nodata>/', streaming_csv_view_v1),
+    # NEAD (entire date range)
+    path('nead/<str:model>/<str:timestamp_meaning>/<str:nodata>/',
+         streaming_csv_view_v1, {'app': 'gcnet'}),
 
 
     # ---------------------------------------- Views from generic app -------------------------------------------------
 
-    # JSON (note: does not return unix timestamps)
+    # JSON
+    # (NOTE: does not return unix timestamps)
     # path('json-generic/<str:model>/<str:parameters>/<str:start>/<str:end>/',
     #      generic_get_data, {'app': 'gcnet',
     #                         'model_validator': get_model, 'model_error': model_http_error,
@@ -67,15 +70,19 @@ urlpatterns = [
                                   'stream_function': gcnet_stream}),
 
     # NEAD
-    path('nead-generic/<str:model>/<str:timestamp_meaning>/<str:nodata>/<str:start>/<str:end>/',
-         generic_get_nead, {'app': 'gcnet',
-                            'model_validator': get_model, 'model_error': model_http_error,
-                            'nead_config': gcnet_nead_config,
-                            'stream_function': gcnet_stream}),
-    path('nead-generic/<str:model>/<str:timestamp_meaning>/<str:nodata>/',
-         generic_get_nead, {'app': 'gcnet',
-                            'model_validator': get_model, 'model_error': model_http_error,
-                            'nead_config': gcnet_nead_config,
-                            'stream_function': gcnet_stream}),
+    # (NOTE: generic view will not work until NEAD config files created for gcnet stations)
+    # path('nead-generic/<str:model>/<str:timestamp_meaning>/<str:nodata>/<str:start>/<str:end>/',
+    #      generic_get_nead, {'app': 'gcnet',
+    #                         'model_validator': get_model, 'model_error': model_http_error,
+    #                         'nead_config': gcnet_nead_config,
+    #                         'stream_function': gcnet_stream}),
+
+    # NEAD (entire date range)
+    # (NOTE: generic view will not work until NEAD config files created for gcnet stations)
+    # path('nead-generic/<str:model>/<str:timestamp_meaning>/<str:nodata>/',
+    #      generic_get_nead, {'app': 'gcnet',
+    #                         'model_validator': get_model, 'model_error': model_http_error,
+    #                         'nead_config': gcnet_nead_config,
+    #                         'stream_function': gcnet_stream}),
 
 ]

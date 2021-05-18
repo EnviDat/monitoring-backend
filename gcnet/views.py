@@ -300,7 +300,8 @@ def get_aggregate_data(request, app, timestamp_meaning='', nodata='', **kwargs):
 # kwargs['timestamp_meaning'] corresponds to the meaning of timestamp_iso
 # kwargs['timestamp_meaning'] must be 'beginning' or 'end'
 # Format is "NEAD 1.0 UTF-8"
-def streaming_csv_view_v1(request, start='', end='', **kwargs):
+def streaming_csv_view_v1(request, app, start='', end='', **kwargs):
+
     # ===================================== ASSIGN VARIABLES ========================================================
     version = "# NEAD 1.0 UTF-8\n"
     nead_config = 'gcnet/config/nead_header.ini'
@@ -312,7 +313,7 @@ def streaming_csv_view_v1(request, start='', end='', **kwargs):
     # ================================  VALIDATE VARIABLES =========================================================
     # Get and validate the model_class
     try:
-        model_class = get_model(kwargs['model'])
+        model_class = get_model(app, model=station_model)
     except AttributeError:
         return model_http_error(kwargs['model'])
 
@@ -349,8 +350,10 @@ def streaming_csv_view_v1(request, start='', end='', **kwargs):
 
     # ===================================  STREAM NEAD DATA ===========================================================
     # Create the streaming response object and output csv
-    response = StreamingHttpResponse(gcnet_stream(version, hash_lines, model_class, display_values, timestamp_meaning,
-                                                  null_value, start, end, dict_fields={}), content_type='text/csv')
+    response = StreamingHttpResponse(gcnet_stream(version, hash_lines, model_class, display_values,
+                                                  null_value, start, end,
+                                                  dict_fields={}, timestamp_meaning=timestamp_meaning,),
+                                     content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename=' + output_csv
 
     return response
