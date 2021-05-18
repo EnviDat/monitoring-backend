@@ -177,7 +177,7 @@ def get_json_data(request, app, **kwargs):
 # Returns aggregate data values by day: 'avg' (average), 'max' (maximum) and 'min' (minimum)
 # Users can enter as many parameters as desired by using a comma separated string for kwargs['parameters']
 # User customized view that returns data based on parameters specified
-def get_aggregate_data(request, timestamp_meaning='', nodata='', **kwargs):
+def get_aggregate_data(request, app, timestamp_meaning='', nodata='', **kwargs):
     # Assign kwargs from url to variables
     start = kwargs['start']
     end = kwargs['end']
@@ -187,7 +187,7 @@ def get_aggregate_data(request, timestamp_meaning='', nodata='', **kwargs):
     # ===================================  VALIDATE KWARGS ===========================================================
     # Get the model
     try:
-        model_class = get_model(model)
+        model_class = get_model(app, model=model)
     except AttributeError:
         return model_http_error(model)
 
@@ -273,8 +273,8 @@ def get_aggregate_data(request, timestamp_meaning='', nodata='', **kwargs):
 
         # Create the streaming response object and output csv
         response = StreamingHttpResponse(
-            gcnet_stream(version, hash_lines, model_class, display_values, timestamp_meaning,
-                         nodata, start, end, dict_fields=dictionary_fields),
+            gcnet_stream(version, hash_lines, model_class, display_values,
+                         nodata, start, end, timestamp_meaning=timestamp_meaning ,dict_fields=dictionary_fields),
             content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename=' + output_csv
         return response
