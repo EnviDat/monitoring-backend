@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-    <title>GC-Net API</title>
+    <title id="page_title"></title>
 </head>
 
 <style>
@@ -46,16 +46,19 @@
     .details_link {font-size: medium;}
     .url    {color: saddlebrown;}
     .output {color: darkgreen;}
-    .output {font-family: monospace, serif;}
-    .model_light  {background-color:lightyellow;}
-    .timestamp_meaning {background-color:#00FF00;}
-    .timestamp_meaning_light {background-color:lightgreen;}
-    .nodata {background-color:pink;}
-    .nodata_light  {background-color: #F5D4DA;}
-    .start_end {background-color:#00FEFE;}
-    .start_end_light {background-color: lightblue;}
-    .parameter  {background-color: #B689DC;}
-    .parameter_light  {background-color: #DAC5F7}
+    .output {font-family: monospace, serif; font-size: small;}
+
+    .bullet {list-style-type: circle;}
+    .model {background-color: #ffe6c9}
+    {#.model_light  {background-color:lightyellow;}#}
+    .timestamp_meaning {background-color: #deffed;}
+    {#.timestamp_meaning_light {background-color:lightgreen;}#}
+    .nodata {background-color: #ffdadd;}
+    {#.nodata_light  {background-color: #F5D4DA;}#}
+    .start_end {background-color: #bdfefe;}
+    {#.start_end_light {background-color: lightblue;}#}
+    .parameter  {background-color: #d6cddc;}
+    {#.parameter_light  {background-color: #DAC5F7}#}
 
     .main_content {
     margin-left: 16%; /* 0.5% more than the width of the sidebar */
@@ -156,29 +159,17 @@
         <div class="main_content" id="Introduction">
 
             <div style="text-align: center;">
-                <h1>GC-Net API Documentation</h1>
+                <h1 id="api_title"></h1>
                 <br>
             </div>
 
             <div class="intro">
-                <p> Greenland Climate Network (GC-Net) Automated Weather Stations (AWS) collect climate information on
-                    Greenland's ice sheet. They are equipped with communication satellite transmitters that enable near real time
-                    monitoring of weather conditions on the Greenland ice sheet. Transmission latency is typically 1-2 hours,
-                    and occasionally as long as 48 hours. All times displayed are in UTC (Coordinated Universal Time).
-                    Hourly average data are transmitted via a satellite link (GOES or ARGOS) throughout the year.
-                    In addition, measurements are stored in solid state memory. The system is powered with two 100 Ah batteries,
-                    charged by 10 W or 20 W solar panels. The satellite data-link is powered by two separate 100 Ah batteries
-                    connected to a 20 W solar panel. This setup guarantees continuous data recordings and storage,
-                    even in the case of satellite transmission failure.</p>
+                <p id="intro_text"></p>
 
                 <div class="honorableMention">
                     <i>
                         <h4 style="text-align: center; color: darkgreen"><b>In Honor of Prof. Dr. Konrad Steffen</b></h4>
-                        <p>Prof. Dr. Konrad Steffen was the principal investigator of GC-Net and tragically died during a research
-                            expedition in Greenland on August 8, 2020 in an accident. His dedication made GC-Net possible and he
-                            encouraged the developers of this API to ensure that the application was robust to guarantee access to the
-                            meteorological data. Prof. Dr. Steffen was a committed scientist and generous friend and is deeply missed.
-                        </p>
+                        <p id="honorary_text"></p>
                     </i>
                 </div>
 
@@ -223,7 +214,7 @@
         </div>
 
         <h3 id="details_stations">1. Return List of Stations</h3>
-        <h4><ul>URL: <a href="https://www.envidat.ch/data-api/gcnet/models/" target="_blank">https://www.envidat.ch/data-api/gcnet/models/</a></ul></h4>
+        <h4><ul>URL: <a href="https://www.envidat.ch/data-api/gcnet/models/" target="_blank">https://www.envidat.ch/data-api/<span class="app_name"></span>/models/</a></ul></h4>
         <p><ul>Returns list of stations referred to as 'model' in other endpoints.</ul>
            <ul>Sample Output:</ul>
                <ul><ul><span class="output">
@@ -252,13 +243,13 @@
 
         <h3 id="details_nead">2. Download NEAD</h3>
         <p><span class="details_link"><a href="https://www.doi.org/10.16904/envidat.187" target="_blank">Click here for information about the NEAD format</a></span></p>
-        <h4><ul><span class="url">URL template with time range:</span> https://www.envidat.ch/data-api/gcnet/nead/<mark>model</mark>/<span class="timestamp_meaning">timestamp_meaning</span>/<span class="nodata">nodata</span>/<span class="start_end">start</span>/<span class="start_end">end</span></ul></h4>
+        <h4><ul><span class="url">URL template with time range:</span> https://www.envidat.ch/data-api/gcnet/nead/<span class="model">model</span>/<span class="timestamp_meaning">timestamp_meaning</span>/<span class="nodata">nodata</span>/<span class="start_end">start</span>/<span class="start_end">end</span></ul></h4>
          <h4><ul>Example with time range, timestamp meaning 'end' and no data value '' (empty string): <a href="https://www.envidat.ch/data-api/gcnet/nead/swisscamp/end/empty/2020-11-03/2020-11-06" target="_blank">
             <br>https://www.envidat.ch/data-api/gcnet/nead/swisscamp/end/empty/2020-11-03/2020-11-06</a></ul></h4>
-        <h4><ul><span class="url">URL template returning all records:</span> https://www.envidat.ch/data-api/gcnet/nead/<mark>model</mark>/<span class="timestamp_meaning">timestamp_meaning</span>/<span class="nodata">nodata/</span></ul></h4>
+        <h4><ul><span class="url">URL template returning all records:</span> https://www.envidat.ch/data-api/gcnet/nead/<span class="model">model</span>/<span class="timestamp_meaning">timestamp_meaning</span>/<span class="nodata">nodata/</span></ul></h4>
         <h4><ul>Example returning all records, timestamp meaning 'end' and no data value '' (empty string): <a href="https://www.envidat.ch/data-api/gcnet/nead/swisscamp/end/empty/" target="_blank">
             <br>https://www.envidat.ch/data-api/gcnet/nead/swisscamp/end/empty/</a></ul></h4>
-        <p><ul><ul><mark>model</mark> should correspond to a GC-Net Station model name listed at <a href="https://www.envidat.ch/data-api/gcnet/models/" target="_blank">https://www.envidat.ch/data-api/gcnet/models/</a>, for example <span class="model_light">swisscamp</span> or <span class="model_light">summit</span></ul></ul>
+        <p><ul><ul><span class="model">model</span> should correspond to a GC-Net Station model name listed at <a href="https://www.envidat.ch/data-api/gcnet/models/" target="_blank">https://www.envidat.ch/data-api/gcnet/models/</a>, for example <span class="model_light">swisscamp</span> or <span class="model_light">summit</span></ul></ul>
            <ul><ul><span class="timestamp_meaning">timestamp_meaning</span> should be <span class="timestamp_meaning_light">end</span> or <span class="timestamp_meaning_light">beginning</span></ul></ul>
                <ul><ul><ul><li><span class="timestamp_meaning_light">end</span> means that timestamps are at the "end" of a hour long averaging period</li></ul></ul></ul>
                <ul><ul><ul><li><span class="timestamp_meaning_light">beginning</span> means that timestamps are at the "beginning" of a hour long averaging period</li></ul></ul></ul>
@@ -273,14 +264,14 @@
         <br>
 
         <h3 id="details_csv">3. Download CSV</h3>
-        <h4><ul><span class="url">URL template:</span> https://www.envidat.ch/data-api/gcnet/csv/<mark>model</mark>/<span class="parameter">parameter</span>/<span class="timestamp_meaning">timestamp_meaning</span>/<span class="nodata">nodata</span>/<span class="start_end">start</span>/<span class="start_end">end</span>/</ul></h4>
+        <h4><ul><span class="url">URL template:</span> https://www.envidat.ch/data-api/gcnet/csv/<span class="model">model</span>/<span class="parameter">parameter</span>/<span class="timestamp_meaning">timestamp_meaning</span>/<span class="nodata">nodata</span>/<span class="start_end">start</span>/<span class="start_end">end</span>/</ul></h4>
             <h4><ul>Example with timestamp meaning 'end' and no data value '-999': <a href="https://www.envidat.ch/data-api/gcnet/csv/swisscamp/airtemp1/end/-999/2020-11-04/2020-11-06/" target="_blank">
             <br>https://www.envidat.ch/data-api/gcnet/csv/swisscamp/airtemp1/end/-999/2020-11-04/2020-11-06/</a></ul></h4>
             <h4><ul>Example returning several parameters with timestamp meaning 'end' and no data value '-999': <a href="https://www.envidat.ch/data-api/gcnet/csv/swisscamp/airtemp1,airtemp2,swin,rh1/end/-999/2020-11-04/2020-11-06/" target="_blank">
             <br>https://www.envidat.ch/data-api/gcnet/csv/swisscamp/airtemp1,airtemp2,swin,rh1/end/-999/2020-11-04/2020-11-06/</a></ul></h4>
             <h4><ul>Example returning multiple parameters with timestamp meaning 'end' and no data value '-999': <a href="https://www.envidat.ch/data-api/gcnet/csv/swisscamp/multiple/end/-999/2020-11-04/2020-11-06/" target="_blank">
             <br>https://www.envidat.ch/data-api/gcnet/csv/swisscamp/multiple/end/-999/2020-11-04/2020-11-06/</a> </ul></h4>
-        <p><ul><ul><mark>model</mark> should correspond to a GC-Net Station model name listed at <a href="https://www.envidat.ch/data-api/gcnet/models/" target="_blank">https://www.envidat.ch/data-api/gcnet/models/</a>, for example <span class="model_light">swisscamp</span> or <span class="model_light">summit</span></ul></ul>
+        <p><ul><ul><span class="model">model</span> should correspond to a GC-Net Station model name listed at <a href="https://www.envidat.ch/data-api/gcnet/models/" target="_blank">https://www.envidat.ch/data-api/gcnet/models/</a>, for example <span class="model_light">swisscamp</span> or <span class="model_light">summit</span></ul></ul>
             <ul><ul><span class="parameter">parameter</span> should be a type of measurement, for example <span class="parameter_light">airtemp1</span> or <span class="parameter_light">windspeed1</span></ul></ul>
             <ul><ul><span class="parameter">parameter</span> can also be several types of measurements separated by commas, for example <span class="parameter_light">airtemp1,airtemp2,swin,rh1</span></ul></ul>
                  <ul><ul><ul><li><a href="#parameter_list" target="_blank">Click here for list of parameters</a></li></ul></ul></ul>
@@ -299,14 +290,14 @@
         <br>
 
         <h3 id="details_json">4. Return JSON Data</h3>
-        <h4><ul><span class="url">URL template:</span> https://www.envidat.ch/data-api/gcnet/json/<mark>model</mark>/<span class="parameter">parameter</span>/<span class="start_end">start</span>/<span class="start_end">end</span>/</ul></h4>
+        <h4><ul><span class="url">URL template:</span> https://www.envidat.ch/data-api/gcnet/json/<span class="model">model</span>/<span class="parameter">parameter</span>/<span class="start_end">start</span>/<span class="start_end">end</span>/</ul></h4>
         <h4><ul>Example: <a href="https://www.envidat.ch/data-api/gcnet/json/swisscamp/airtemp2/2020-11-04T17:00:00/2020-11-10T00:00:00/" target="_blank">
             https://www.envidat.ch/data-api/gcnet/json/swisscamp/airtemp2/2020-11-04T17:00:00/2020-11-10T00:00:00/</a></ul></h4>
         <h4><ul>Example returning several parameters: <a href="https://www.envidat.ch/data-api/gcnet/json/swisscamp/airtemp1,airtemp2,windspeed1/2020-11-04T17:00:00/2020-11-10T00:00:00/" target="_blank">
             <br>https://www.envidat.ch/data-api/gcnet/json/swisscamp/airtemp1,airtemp2,windspeed1/2020-11-04T17:00:00/2020-11-10T00:00:00/</a></ul></h4>
         <h4><ul>Example returning multiple parameters: <a href="https://www.envidat.ch/data-api/gcnet/json/swisscamp/multiple/2020-11-04T17:00:00/2020-11-10T00:00:00/" target="_blank">
             <br>https://www.envidat.ch/data-api/gcnet/json/swisscamp/multiple/2020-11-04T17:00:00/2020-11-10T00:00:00/</a></ul></h4>
-        <p><ul><ul><mark>model</mark> should correspond to a GC-Net Station model name listed at <a href="https://www.envidat.ch/data-api/gcnet/models/" target="_blank">https://www.envidat.ch/data-api/gcnet/models/</a>, for example <span class="model_light">swisscamp</span> or <span class="model_light">summit</span></ul></ul>
+        <p><ul><ul><span class="model">model</span> should correspond to a GC-Net Station model name listed at <a href="https://www.envidat.ch/data-api/gcnet/models/" target="_blank">https://www.envidat.ch/data-api/gcnet/models/</a>, for example <span class="model_light">swisscamp</span> or <span class="model_light">summit</span></ul></ul>
             <ul><ul><span class="parameter">parameter</span> should be a type of measurement, for example <span class="parameter_light">airtemp1</span> or <span class="parameter_light">windspeed1</span></ul></ul>
             <ul><ul><span class="parameter">parameter</span> can also be several types of measurements separated by commas, for example <span class="parameter_light">airtemp1,airtemp2,windspeed1</span></ul></ul>
                  <ul><ul><ul><li><a href="#parameter_list" target="_blank">Click here for list of parameters</a></li></ul></ul></ul>
@@ -319,14 +310,14 @@
         <br>
 
         <h3 id="details_json_daily_summary">5. Return Daily Summary JSON Data</h3>
-        <h4><ul><span class="url">URL template:</span> https://www.envidat.ch/data-api/gcnet/summary/daily/json/<mark>model</mark>/<span class="parameter">parameter</span>/<span class="start_end">start</span>/<span class="start_end">end</span>/</ul></h4>
+        <h4><ul><span class="url">URL template:</span> https://www.envidat.ch/data-api/gcnet/summary/daily/json/<span class="model">model</span>/<span class="parameter">parameter</span>/<span class="start_end">start</span>/<span class="start_end">end</span>/</ul></h4>
         <h4><ul>Example: <a href="http://www.envidat.ch/data-api/gcnet/summary/daily/json/swisscamp/airtemp1/2020-11-03/2020-11-06/" target="_blank">
             http://www.envidat.ch/data-api/gcnet/summary/daily/json/swisscamp/airtemp1/2020-11-03/2020-11-06/</a></ul></h4>
         <h4><ul>Example returning several parameters: <a href="http://www.envidat.ch/data-api/gcnet/summary/daily/json/swisscamp/airtemp1,airtemp2,rh1/2020-11-03/2020-11-06/" target="_blank">
             <br>http://www.envidat.ch/data-api/gcnet/summary/daily/json/swisscamp/airtemp1,airtemp2,rh1/2020-11-03/2020-11-06/</a></ul></h4>
         <h4><ul>Example returning multiple parameters: <a href="http://www.envidat.ch/data-api/gcnet/summary/daily/json/swisscamp/multiple/2020-11-03/2020-11-06/" target="_blank">
             <br>http://www.envidat.ch/data-api/gcnet/summary/daily/json/swisscamp/multiple/2020-11-03/2020-11-06/</a></ul></h4>
-        <p><ul><ul><mark>model</mark> should correspond to a GC-Net Station model name listed at <a href="https://www.envidat.ch/data-api/gcnet/models/" target="_blank">https://www.envidat.ch/data-api/gcnet/models/</a>, for example <span class="model_light">swisscamp</span> or <span class="model_light">summit</span></ul></ul>
+        <p><ul><ul><span class="model">model</span> should correspond to a GC-Net Station model name listed at <a href="https://www.envidat.ch/data-api/gcnet/models/" target="_blank">https://www.envidat.ch/data-api/gcnet/models/</a>, for example <span class="model_light">swisscamp</span> or <span class="model_light">summit</span></ul></ul>
             <ul><ul><span class="parameter">parameter</span> should be a type of measurement, for example <span class="parameter_light">airtemp1</span> or <span class="parameter_light">windspeed1</span></ul></ul>
             <ul><ul><span class="parameter">parameter</span> can also be several types of measurements separated by commas, for example <span class="parameter_light">airtemp1,airtemp2,rh1</span></ul></ul>
                  <ul><ul><ul><li><a href="#parameter_list" target="_blank">Click here for list of parameters</a></li></ul></ul></ul>
@@ -371,14 +362,14 @@
         <br>
 
         <h3 id="details_csv_daily_summary">6. Download Daily Summary CSV</h3>
-        <h4><ul><span class="url">URL template:</span> https://www.envidat.ch/data-api/gcnet/summary/daily/csv/<mark>model</mark>/<span class="parameter">parameter</span>/<span class="timestamp_meaning">timestamp_meaning</span>/<span class="nodata">nodata</span>/<span class="start_end">start</span>/<span class="start_end">end</span>/</ul></h4>
+        <h4><ul><span class="url">URL template:</span> https://www.envidat.ch/data-api/gcnet/summary/daily/csv/<span class="model">model</span>/<span class="parameter">parameter</span>/<span class="timestamp_meaning">timestamp_meaning</span>/<span class="nodata">nodata</span>/<span class="start_end">start</span>/<span class="start_end">end</span>/</ul></h4>
         <h4><ul>Example with timestamp meaning 'end' and no data value '' (empty string): <a href="https://www.envidat.ch/data-api/gcnet/summary/daily/csv/swisscamp/windspeed1/end/empty/2020-11-01/2020-11-06/" target="_blank">
             <br>https://www.envidat.ch/data-api/gcnet/summary/daily/csv/swisscamp/windspeed1/end/empty/2020-11-01/2020-11-06/</a></ul></h4>
         <h4><ul>Example returning several parameters with timestamp meaning 'end' and no data value '' (empty string): <a href="https://www.envidat.ch/data-api/gcnet/summary/daily/csv/swisscamp/swin,swout,netrad/end/empty/2020-11-01/2020-11-06/" target="_blank">
             <br>https://www.envidat.ch/data-api/gcnet/summary/daily/csv/swisscamp/swin,swout,netrad/end/empty/2020-11-01/2020-11-06/</a></ul></h4>
         <h4><ul>Example returning multiple parameters with timestamp meaning 'end' and no data value '' (empty string): <a href="https://www.envidat.ch/data-api/gcnet/summary/daily/csv/swisscamp/multiple/end/empty/2020-11-01/2020-11-06/" target="_blank">
             <br>https://www.envidat.ch/data-api/gcnet/summary/daily/csv/swisscamp/multiple/end/empty/2020-11-01/2020-11-06/</a></ul></h4>
-        <p><ul><ul><mark>model</mark> should correspond to a GC-Net Station model name listed at <a href="https://www.envidat.ch/data-api/gcnet/models/" target="_blank">https://www.envidat.ch/data-api/gcnet/models/</a>, for example <span class="model_light">swisscamp</span> or <span class="model_light">summit</span></ul></ul>
+        <p><ul><ul><span class="model">model</span> should correspond to a GC-Net Station model name listed at <a href="https://www.envidat.ch/data-api/gcnet/models/" target="_blank">https://www.envidat.ch/data-api/gcnet/models/</a>, for example <span class="model_light">swisscamp</span> or <span class="model_light">summit</span></ul></ul>
             <ul><ul><span class="parameter">parameter</span> should be a type of measurement, for example <span class="parameter_light">airtemp1</span> or <span class="parameter_light">windspeed1</span></ul></ul>
             <ul><ul><span class="parameter">parameter</span> can also be several types of measurements separated by commas, for example <span class="parameter_light">swin,swout,netrad</span></ul></ul>
                  <ul><ul><ul><li><a href="#parameter_list" target="_blank">Click here for list of parameters</a></li></ul></ul></ul>
@@ -402,14 +393,14 @@
         <h3 id="details_metadata">7. Metadata</h3>
         <p><ul>Returns metadata for each station including earliest timestamps.</ul>
         <p><ul>Also returns both earliest and latest timestamps for specified parameters in ISO and UNIX (millisecond) formats.</ul>
-        <h4><ul><span class="url">URL template:</span> https://www.envidat.ch/data-api/gcnet/metadata/<mark>model</mark>/<span class="parameter">parameter</span>/</ul></h4>
+        <h4><ul><span class="url">URL template:</span> https://www.envidat.ch/data-api/gcnet/metadata/<span class="model">model</span>/<span class="parameter">parameter</span>/</ul></h4>
           <h4><ul>Example: <a href="http://www.envidat.ch/data-api/gcnet/metadata/swisscamp/airtemp1/" target="_blank">
             http://www.envidat.ch/data-api/gcnet/metadata/swisscamp/airtemp1/</a></ul></h4>
         <h4><ul>Example returning several parameters: <a href="http://www.envidat.ch/data-api/gcnet/metadata/swisscamp/airtemp1,airtemp2,rh1/" target="_blank">
             <br>http://www.envidat.ch/data-api/gcnet/metadata/swisscamp/airtemp1,airtemp2,rh1/</a></ul></h4>
         <h4><ul>Example returning multiple parameters: <a href="http://www.envidat.ch/data-api/gcnet/metadata/swisscamp/multiple/" target="_blank">
             <br>http://www.envidat.ch/data-api/gcnet/metadata/swisscamp/multiple/</a></ul></h4>
-        <p><ul><ul><mark>model</mark> should correspond to a GC-Net Station model name listed at <a href="https://www.envidat.ch/data-api/gcnet/models/" target="_blank">https://www.envidat.ch/data-api/gcnet/models/</a>, for example <span class="model_light">swisscamp</span> or <span class="model_light">summit</span></ul></ul>
+        <p><ul><ul><span class="model">model</span> should correspond to a GC-Net Station model name listed at <a href="https://www.envidat.ch/data-api/gcnet/models/" target="_blank">https://www.envidat.ch/data-api/gcnet/models/</a>, for example <span class="model_light">swisscamp</span> or <span class="model_light">summit</span></ul></ul>
             <ul><ul><span class="parameter">parameter</span> should be a type of measurement, for example <span class="parameter_light">airtemp1</span> or <span class="parameter_light">windspeed1</span></ul></ul>
             <ul><ul><span class="parameter">parameter</span> can also be several types of measurements separated by commas, for example <span class="parameter_light">airtemp1,airtemp2,rh1</span></ul></ul>
                  <ul><ul><ul><li><a href="#parameter_list" target="_blank">Click here for list of parameters</a></li></ul></ul></ul>
@@ -603,6 +594,44 @@
 
            </table>
     </div>
+
+
+   <script>
+
+       let pageTitle = "GC-Net API";
+       document.getElementById("page_title").innerHTML = pageTitle;
+
+       let apiTitle = "GC-Net API Documentation";
+       document.getElementById("api_title").innerHTML = apiTitle;
+
+       let introText = "Greenland Climate Network (GC-Net) Automated Weather Stations (AWS) collect climate information on\n" +
+           "                    Greenland's ice sheet. They are equipped with communication satellite transmitters that enable near real time\n" +
+           "                    monitoring of weather conditions on the Greenland ice sheet. Transmission latency is typically 1-2 hours,\n" +
+           "                    and occasionally as long as 48 hours. All times displayed are in UTC (Coordinated Universal Time).\n" +
+           "                    Hourly average data are transmitted via a satellite link (GOES or ARGOS) throughout the year.\n" +
+           "                    In addition, measurements are stored in solid state memory. The system is powered with two 100 Ah batteries,\n" +
+           "                    charged by 10 W or 20 W solar panels. The satellite data-link is powered by two separate 100 Ah batteries\n" +
+           "                    connected to a 20 W solar panel. This setup guarantees continuous data recordings and storage,\n" +
+           "                    even in the case of satellite transmission failure.";
+       document.getElementById("intro_text").innerHTML = introText;
+
+       // TODO finish implementing this for all "gcnet" strings in HTML
+       let appName= "gcnet";
+       let app_elements = document.querySelectorAll("span.app_name");
+       for (let i=0; i < app_elements.length; i++) {
+           app_elements[i].innerHTML = appName;
+           console.log(app_elements[i].innerHTML);  // TODO remove line
+       }
+
+
+       let honoraryText = "Prof. Dr. Konrad Steffen was the principal investigator of GC-Net and tragically died during a research\n" +
+           "                            expedition in Greenland on August 8, 2020 in an accident. His dedication made GC-Net possible and he\n" +
+           "                            encouraged the developers of this API to ensure that the application was robust to guarantee access to the\n" +
+           "                            meteorological data. Prof. Dr. Steffen was a committed scientist and generous friend and is deeply missed.";
+       document.getElementById("honorary_text").innerHTML = honoraryText;
+
+
+   </script>
 
 </body>
 
