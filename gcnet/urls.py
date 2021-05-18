@@ -5,7 +5,7 @@ from gcnet.util.http_errors import model_http_error, parameter_http_error
 from gcnet.util.stream import gcnet_stream
 from gcnet.util.views_helpers import get_model
 from gcnet.util.write_nead_config import gcnet_nead_config
-from gcnet.views import get_model_stations, streaming_csv_view_v1, get_aggregate_data, get_json_data, get_csv, \
+from gcnet.views import get_model_stations, streaming_csv_view_v1, get_aggregate_data, get_json_data, \
     get_station_parameter_metadata
 from generic.views import generic_get_daily_data, generic_get_data, generic_get_nead
 
@@ -25,10 +25,9 @@ urlpatterns = [
     # JSON
     path('json/<str:model>/<str:parameters>/<str:start>/<str:end>/', get_json_data, {'app': 'gcnet'}),
 
-    # TODO replace with generic views
-    path('csv/<str:model>/<str:parameters>/<str:timestamp_meaning>/<str:nodata>/<str:start>/<str:end>/',
-         get_csv, {'app': 'gcnet'}),
 
+
+    # TODO replace with generic views
     path('summary/daily/json/<str:model>/<str:parameters>/<str:start>/<str:end>/', get_aggregate_data),
     path('summary/daily/csv/<str:model>/<str:parameters>/<str:timestamp_meaning>/<str:nodata>/<str:start>/<str:end>/',
          get_aggregate_data),
@@ -46,14 +45,14 @@ urlpatterns = [
     #                         'display_values_error': parameter_http_error, }),
 
     # CSV
-    path('csv-generic/<str:model>/<str:parameters>/<str:timestamp_meaning>/<str:nodata>/<str:start>/<str:end>/',
+    path('csv/<str:model>/<str:parameters>/<str:timestamp_meaning>/<str:nodata>/<str:start>/<str:end>/',
          generic_get_data, {'app': 'gcnet',
                             'model_validator': get_model, 'model_error': model_http_error,
                             'display_values_error': parameter_http_error,
                             'stream_function': gcnet_stream}),
 
     # CSV (entire date range)
-    path('csv-generic/<str:model>/<str:parameters>/<str:timestamp_meaning>/<str:nodata>/',
+    path('csv/<str:model>/<str:parameters>/<str:timestamp_meaning>/<str:nodata>/',
          generic_get_data, {'app': 'gcnet',
                             'model_validator': get_model, 'model_error': model_http_error,
                             'display_values_error': parameter_http_error,

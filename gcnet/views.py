@@ -1,23 +1,17 @@
-import time
 
 from django.core.exceptions import FieldError
 from django.http import JsonResponse, StreamingHttpResponse, HttpResponseNotFound
 from django.shortcuts import render
 
 from gcnet.main import read_config
-from gcnet.util.constants import Columns
 from gcnet.util.http_errors import model_http_error, parameter_http_error, timestamp_meaning_http_error, \
     station_http_error, timestamp_http_error, date_http_error
 from gcnet.util.stream import gcnet_stream
 from gcnet.util.views_helpers import validate_date_gcnet, get_model, get_hashed_lines, get_null_value, \
-    get_dict_fields, get_display_values, get_model_class, get_dict_timestamps, multiprocessing_timestamp_dict, \
-    get_multiprocessing_arguments
+    get_dict_fields, get_display_values, get_dict_timestamps
 from gcnet.util.write_nead_config import write_nead_config
 
 from generic.util.views_helpers import get_timestamp_iso_range_day_dict
-
-import multiprocessing
-from multiprocessing import Manager
 
 from pathlib import Path
 
@@ -362,51 +356,3 @@ def streaming_csv_view_v1(request, start='', end='', **kwargs):
     return response
 
 
-# Streams GC-Net station data to csv file
-# kwargs['model'] corresponds to the station names that are listed in models.py
-# kwargs['nodata'] assigns string to populate null values in database
-# If kwargs['nodata'] is 'empty' then null values are populated with empty string: ''
-# kwargs['timestamp_meaning'] corresponds to the meaning of timestamp_iso
-# kwargs['timestamp_meaning'] must be 'beginning' or 'end'
-def get_csv(request, app, start='', end='', **kwargs):
-    # ===================================== ASSIGN VARIABLES ========================================================
-
-    # Assign kwargs from url to variables
-    station_model = kwargs['model']
-    timestamp_meaning = kwargs['timestamp_meaning']
-    parameters = kwargs['parameters']
-    null_value = get_null_value(kwargs['nodata'])
-    output_csv = station_model + '.csv'
-
-    # Assign 'version' and 'hash_lines' as empty strings because they are not used in stream()
-    version = ''
-    hash_lines = ''
-
-    # ================================  VALIDATE KWARGS ===============================================================
-    # Get and validate the model_class
-    try:
-        model_class = get_model(app, model=station_model)
-    except AttributeError:
-        return model_http_error(kwargs['model'])
-
-    # Check if timestamp_meaning is valid
-    if timestamp_meaning not in ['end', 'beginning']:
-        return timestamp_meaning_http_error(timestamp_meaning)
-
-    # Get display_values by validating passed parameters
-    display_values = get_display_values(parameters, model_class)
-    # Check if display_values has at least one valid parameter
-    if not display_values:
-        return parameter_http_error(parameters)
-
-    # Add timestamp_iso to display_values
-    display_values = ['timestamp_iso'] + display_values
-
-    # ===================================  STREAM DATA ===============================================================
-    # Create the streaming response object and output csv
-    response = StreamingHttpResponse(gcnet_stream(version, hash_lines, model_class, display_values, null_value,
-                                                  start, end, dict_fields={}, timestamp_meaning=timestamp_meaning),
-                                     content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename=' + output_csv
-
-    return response
