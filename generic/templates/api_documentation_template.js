@@ -1,7 +1,28 @@
+// ************************************ Assign JSON path and JSON keys ***********************************************
+
+let json_url = './api_documentation_template.json';
+
+let json_keys = ['page_title', 'api_title', 'into_text', 'nodata', 'app', 'model', 'parameter', 'parameter_several'];
 
 
 // -------------------------------  Call loadJson() passing JSON URL as an argument ----------------------------------
-loadJson('./api_documentation_template.json');
+
+loadJson(json_url);
+
+
+// ------------------------------- Function used to validate JSON file has required keys-------------------------------
+
+// Return false if a key from keys does not exist in json_object
+function jsonKeysValid(json_object, keys) {
+    for (let i=0; i < keys.length; i++) {
+        if (!json_object.hasOwnProperty(keys[i])) {
+            // TODO invesitagte throwing exception here
+            return false;
+        }
+    }
+    return true;
+}
+
 
 
 // ------------------------------- Function used to assign innerHTML of element arrays --------------------------------
@@ -28,6 +49,11 @@ function loadJson(url) {
         if (this.readyState === this.DONE) {
 
             data = JSON.parse(this.response);
+
+            // TODO finish developing and implement jsonKeysValid
+            // TODO try using try catch blocks
+            // Validate json file has required keys
+            console.log(jsonKeysValid(data, json_keys));
 
             // ----------------------------- Template variables used once --------------------------------------------
             document.getElementById("page_title").innerHTML = data.page_title;
