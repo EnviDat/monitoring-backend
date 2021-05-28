@@ -1,0 +1,10 @@
+{
+  "page_title": "page title",
+  "api_title": "project name API Documentation",
+  "into_text": "intro text",
+  "app": "app",
+  "model": "model",
+  "nodata": "nodata",
+  "parameter": "parameter",
+  "parameter_several": "parameter1,parameter2"
+}

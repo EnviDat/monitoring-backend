@@ -23,6 +23,7 @@ def generic_get_data(request, app,
                      display_values_validator=validate_display_values, display_values_error=parameter_http_error,
                      stream_function=stream,
                      timestamp_meaning='', nodata='', parent_class='', start='', end='', **kwargs):
+
     # Assign kwargs from url to variables
     model = kwargs['model']
     parameters = kwargs['parameters']
