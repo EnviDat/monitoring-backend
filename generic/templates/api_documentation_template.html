@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 
-
 <head>
     <link rel="stylesheet" href="api_documentation_template.css">
     <title id="page_title"></title>
@@ -87,11 +86,19 @@
         <br>
         <br>
 
+        <script>
+            function myFunction() {
+             let urlNeadElements = document.querySelectorAll(".url_nead");
+             let testString2 = 'https://www.envidat.ch/data-api/app/nead/model/end/empty/2020-11-02/2020-11-07';
+             window.open(testString2);
+         }
+        </script>
+
         <h3 id="details_nead">2. Download NEAD</h3>
         <p><span class="details_link"><a href="https://www.doi.org/10.16904/envidat.187" >Click here for information about the NEAD format</a></span></p>
         <h4><ul><span class="url">URL template with time range:</span> https://www.envidat.ch/data-api/<span class="app_name"></span>/nead/<span class="model">model</span>/<span class="timestamp_meaning">timestamp_meaning</span>/<span class="nodata">nodata</span>/<span class="start_end">start</span>/<span class="start_end">end</span></ul></h4>
-         <h4><ul>Example with time range, timestamp meaning 'end' and no data value '' (empty string): <a onclick="window.open(urlNEAD)">
-             <br><span id="url_nead"></span></a></ul></h4>
+         <h4><ul>Example with time range, timestamp meaning 'end' and no data value '' (empty string): <a id="test_link" target="_blank">
+             <br><span class="url_nead"></span></a></ul></h4>
         <h4><ul><span class="url">URL template returning all records:</span> https://www.envidat.ch/data-api/<span class="app_name"></span>/nead/<span class="model">model</span>/<span class="timestamp_meaning">timestamp_meaning</span>/<span class="nodata">nodata/</span></ul></h4>
         <h4><ul>Example returning all records, timestamp meaning 'end' and no data value '' (empty string): <a onclick="window.open(urlNEADAll)">
             <br><span id="url_nead_all"></span></a></ul></h4>

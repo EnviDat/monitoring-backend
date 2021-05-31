@@ -3,8 +3,11 @@
   "api_title": "project name API Documentation",
   "into_text": "intro text",
   "nodata": "nodata",
+  "api_host": "https://www.envidat.ch/data-api",
   "app": "app",
   "model": "model",
   "parameter": "parameter",
-  "parameter_several": "parameter1,parameter2"
+  "parameter_several": "parameter1,parameter2",
+  "start_date": "2020-11-02",
+  "end_date": "2020-11-07"
 }
