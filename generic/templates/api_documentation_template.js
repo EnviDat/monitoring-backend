@@ -16,13 +16,11 @@ loadJson(json_url);
 function jsonKeysValid(json_object, keys) {
     for (let i=0; i < keys.length; i++) {
         if (!json_object.hasOwnProperty(keys[i])) {
-            // TODO invesitagte throwing exception here
-            return false;
+            throw new Error('JSON file missing key: ' + keys[i]);
         }
     }
     return true;
 }
-
 
 
 // ------------------------------- Function used to assign innerHTML of element arrays --------------------------------
@@ -50,10 +48,14 @@ function loadJson(url) {
 
             data = JSON.parse(this.response);
 
-            // TODO finish developing and implement jsonKeysValid
-            // TODO try using try catch blocks
             // Validate json file has required keys
-            console.log(jsonKeysValid(data, json_keys));
+            try {
+                jsonKeysValid(data, json_keys);
+            }
+            catch (err) {
+                alert(err);
+                return;
+            }
 
             // ----------------------------- Template variables used once --------------------------------------------
             document.getElementById("page_title").innerHTML = data.page_title;
