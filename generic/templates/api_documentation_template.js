@@ -12,7 +12,7 @@ loadJson(json_url);
 
 // ------------------------------- Function used to validate JSON file has required keys-------------------------------
 
-// Return false if a key from keys does not exist in json_object
+// Throws error if a key from keys does not exist in json_object, else returns true
 function jsonKeysValid(json_object, keys) {
     for (let i=0; i < keys.length; i++) {
         if (!json_object.hasOwnProperty(keys[i])) {
