@@ -2,9 +2,8 @@
 
 const json_url = './api_documentation_template.json';
 
-// TODO add new keys
 const json_keys = ['page_title', 'api_title', 'into_text', 'nodata', 'app', 'model', 'parameter', 'parameter_several',
-                    'start_date'];
+                    'start_date', 'end_date', 'start_datetime', 'end_datetime'];
 
 
 // -------------------------------  Call injectJson() passing JSON URL as an argument ----------------------------------
@@ -32,12 +31,21 @@ function jsonKeysValid(json_object, keys) {
 }
 
 
-// ------------------------------- Function used to assign innerHTML of element arrays --------------------------------
+// ----------------  Function used to assign innerHTML of element arrays and assign anchor href links ----------------
 
 function assignElementsArray (elementsArray, elementString) {
-   for (let i=0; i < elementsArray.length; i++) {
+   
+    for (let i=0; i < elementsArray.length; i++) {
+       
        elementsArray[i].innerHTML = elementString;
+       
+       if (elementsArray[i].tagName === 'A') {
+           elementsArray[i].setAttribute("target", "_onblank");
+           elementsArray[i].setAttribute("href", elementString);
+       }
+   
    }
+    
 }
 
 
@@ -66,38 +74,47 @@ function assignElements (data) {
     let parameterSeveralElements = document.querySelectorAll("span.parameter_several");
     assignElementsArray(parameterSeveralElements, data.parameter_several);
 
-    // ----------------------------- URL template variables --------------------------------------------------
+    // ----------------------------- URL template variables ---------------------------------------------------
     // TODO use querySelectorAll to fix URL href links in HTML
-    let urlModelsElements = document.querySelectorAll("span.url_models");
+    let urlModelsElements = document.querySelectorAll(".url_models");
     assignElementsArray(urlModelsElements, `${data.api_host}/${data.app}/models/`);
 
     let urlNeadElements = document.querySelectorAll(".url_nead");
-    document.getElementById("test_link").setAttribute("href", `https://www.envidat.ch/data-api/${data.app}/nead/${data.model}/end/empty/${data.start_date}/${data.end_date}`)
-    assignElementsArray(urlNeadElements, `https://www.envidat.ch/data-api/${data.app}/nead/${data.model}/end/empty/${data.start_date}/${data.end_date}`);
+    assignElementsArray(urlNeadElements, `${data.api_host}/${data.app}/nead/${data.model}/end/empty/${data.start_date}/${data.end_date}`);
 
-    // document.getElementById("url_nead").innerHTML = `https://www.envidat.ch/data-api/${data.app}/nead/${data.model}/end/empty/${data.start_date}/${data.end_date}`;
+    let urlNeadAllElements = document.querySelectorAll(".url_nead_all");
+    assignElementsArray(urlNeadAllElements,`${data.api_host}/${data.app}/nead/${data.model}/end/empty/`);
 
-    document.getElementById("url_nead_all").innerHTML =  `https://www.envidat.ch/data-api/${data.app}/nead/${data.model}/end/empty/`;
+    let urlCsvElements = document.querySelectorAll(".url_csv");
+    assignElementsArray(urlCsvElements, `${data.api_host}/${data.app}/csv/${data.model}/${data.parameter}/end/-999/${data.start_date}/${data.end_date}/`);
 
-    document.getElementById("url_csv").innerHTML = `https://www.envidat.ch/data-api/${data.app}/csv/${data.model}/${data.parameter}/end/-999/${data.start_date}/${data.end_date}/`;
+    let urlCsvSeveralElements = document.querySelectorAll(".url_csv_several");
+    assignElementsArray(urlCsvSeveralElements, `${data.api_host}/${data.app}/csv/${data.model}/${data.parameter_several}/end/-999/${data.start_date}/${data.end_date}/`);
 
-    document.getElementById("url_csv_several").innerHTML = `https://www.envidat.ch/data-api/${data.app}/csv/${data.model}/${data.parameter_several}/end/-999/${data.start_date}/${data.end_date}/`;
+    let urlJsonElements = document.querySelectorAll(".url_json");
+    assignElementsArray(urlJsonElements, `${data.api_host}/${data.app}/json/${data.model}/${data.parameter}/${data.start_datetime}/${data.end_datetime}/`);
 
-    document.getElementById("url_json").innerHTML = `https://www.envidat.ch/data-api/${data.app}/json/${data.model}/${data.parameter}/2020-11-04T17:00:00/2020-11-10T00:00:00/`;
+    let urlJsonSeveralElements = document.querySelectorAll(".url_json_several");
+    assignElementsArray(urlJsonSeveralElements, `${data.api_host}/${data.app}/json/${data.model}/${data.parameter_several}/${data.start_datetime}/${data.end_datetime}/`);
 
-    document.getElementById("url_json_several").innerHTML = `https://www.envidat.ch/data-api/${data.app}/json/${data.model}/${data.parameter_several}/2020-11-04T17:00:00/2020-11-10T00:00:00/`;
+    let urlDailyJsonElements = document.querySelectorAll(".url_daily_json");
+    assignElementsArray(urlDailyJsonElements, `${data.api_host}/${data.app}/summary/daily/json/${data.model}/${data.parameter}/${data.start_date}/${data.end_date}/`);
 
-    document.getElementById("url_daily_json").innerHTML = `http://www.envidat.ch/data-api/${data.app}/summary/daily/json/${data.model}/${data.parameter}/${data.start_date}/${data.end_date}/`;
+    let urlDailyJsonSeveralElements = document.querySelectorAll(".url_daily_json_several");
+    assignElementsArray(urlDailyJsonSeveralElements, `${data.api_host}/${data.app}/summary/daily/json/${data.model}/${data.parameter_several}/${data.start_date}/${data.end_date}/`);
 
-    document.getElementById("url_daily_json_several").innerHTML = `http://www.envidat.ch/data-api/${data.app}/summary/daily/json/${data.model}/${data.parameter_several}/${data.start_date}/${data.end_date}/`;
+    let urlDailyCsvElements = document.querySelectorAll(".url_daily_csv");
+    assignElementsArray(urlDailyCsvElements, `${data.api_host}/${data.app}/summary/daily/csv/${data.model}/${data.parameter}/end/empty/${data.start_date}/${data.end_date}/`);
 
-    document.getElementById("url_daily_csv").innerHTML = `https://www.envidat.ch/data-api/${data.app}/summary/daily/csv/${data.model}/${data.parameter}/end/empty/${data.start_date}/${data.end_date}/`;
+    let urlDailyCsvSeveralElements = document.querySelectorAll(".url_daily_csv_several");
+    assignElementsArray(urlDailyCsvSeveralElements, `${data.api_host}/${data.app}/summary/daily/csv/${data.model}/${data.parameter_several}/end/empty/${data.start_date}/${data.end_date}/`);
 
-    document.getElementById("url_daily_csv_several").innerHTML = `https://www.envidat.ch/data-api/${data.app}/summary/daily/csv/${data.model}/${data.parameter_several}/end/empty/${data.start_date}/${data.end_date}/`;
+    let urlMetadataElements = document.querySelectorAll(".url_metadata");
+    assignElementsArray(urlMetadataElements, `${data.api_host}/${data.app}/metadata/${data.model}/${data.parameter}/`);
 
-    document.getElementById("url_metadata").innerHTML = `http://www.envidat.ch/data-api/${data.app}/metadata/${data.model}/${data.parameter}/`;
-
-    document.getElementById("url_metadata_several").innerHTML = `http://www.envidat.ch/data-api/${data.app}/metadata/${data.model}/${data.parameter_several}/`;
+    let urlMetadataSeveralElements = document.querySelectorAll(".url_metadata_several");
+    assignElementsArray(urlMetadataSeveralElements, `${data.api_host}/${data.app}/metadata/${data.model}/${data.parameter_several}/`);
+    //document.getElementById("url_metadata_several").innerHTML = `${data.api_host}/${data.app}/metadata/${data.model}/${data.parameter_several}/`;
 }
 
 
@@ -118,7 +135,7 @@ function injectJson(url) {
 
             data = JSON.parse(this.response);
 
-            // Validate JSON file has required keys
+            // Validate JSON file has all required keys
             try {
                 jsonKeysValid(data, json_keys);
             }

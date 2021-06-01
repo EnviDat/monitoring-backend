@@ -73,7 +73,7 @@
         </div>
 
         <h3 id="details_stations">1. Return List of Stations</h3>
-        <h4><ul>URL: <a onclick="window.open(urlModels)"><span class="url_models"></span></a></ul></h4>
+        <h4><ul>URL: <a class="url_models"></a></ul></h4>
         <p><ul>Returns list of stations referred to as 'model' in other endpoints.</ul>
            <ul>Sample Output:</ul>
                <ul><ul><span class="output">
@@ -97,12 +97,12 @@
         <h3 id="details_nead">2. Download NEAD</h3>
         <p><span class="details_link"><a href="https://www.doi.org/10.16904/envidat.187" >Click here for information about the NEAD format</a></span></p>
         <h4><ul><span class="url">URL template with time range:</span> https://www.envidat.ch/data-api/<span class="app_name"></span>/nead/<span class="model">model</span>/<span class="timestamp_meaning">timestamp_meaning</span>/<span class="nodata">nodata</span>/<span class="start_end">start</span>/<span class="start_end">end</span></ul></h4>
-         <h4><ul>Example with time range, timestamp meaning 'end' and no data value '' (empty string): <a id="test_link" target="_blank">
-             <br><span class="url_nead"></span></a></ul></h4>
+         <h4><ul>Example with time range, timestamp meaning 'end' and no data value '' (empty string):
+             <br><a class="url_nead"></a></ul></h4>
         <h4><ul><span class="url">URL template returning all records:</span> https://www.envidat.ch/data-api/<span class="app_name"></span>/nead/<span class="model">model</span>/<span class="timestamp_meaning">timestamp_meaning</span>/<span class="nodata">nodata/</span></ul></h4>
-        <h4><ul>Example returning all records, timestamp meaning 'end' and no data value '' (empty string): <a onclick="window.open(urlNEADAll)">
-            <br><span id="url_nead_all"></span></a></ul></h4>
-        <p><ul><ul><span class="model">model</span> should correspond to a model name listed at <a onclick="window.open(urlModels)"><span class="url_models"></span></a>, for example <span class="model_name"></span></ul></ul>
+        <h4><ul>Example returning all records, timestamp meaning 'end' and no data value '' (empty string):
+            <br><a class="url_nead_all"></a></ul></h4>
+        <p><ul><ul><span class="model">model</span> should correspond to a model name listed at<a class="url_models"></a>, for example <span class="model_name"></span></ul></ul>
            <ul><ul><span class="timestamp_meaning">timestamp_meaning</span> should be <span class="timestamp_meaning_light">end</span> or <span class="timestamp_meaning_light">beginning</span></ul></ul>
                <ul><ul><ul><li><span class="timestamp_meaning_light">end</span> means that timestamps are at the "end" of a hour long averaging period</li></ul></ul></ul>
                <ul><ul><ul><li><span class="timestamp_meaning_light">beginning</span> means that timestamps are at the "beginning" of a hour long averaging period</li></ul></ul></ul>
@@ -118,11 +118,11 @@
 
         <h3 id="details_csv">3. Download CSV</h3>
         <h4><ul><span class="url">URL template:</span> https://www.envidat.ch/data-api/<span class="app_name"></span>/csv/<span class="model">model</span>/<span class="parameter">parameter</span>/<span class="timestamp_meaning">timestamp_meaning</span>/<span class="nodata">nodata</span>/<span class="start_end">start</span>/<span class="start_end">end</span>/</ul></h4>
-            <h4><ul>Example with timestamp meaning 'end' and no data value '<span class="nodata_name"></span>': <a onclick="window.open(urlCSV)">
-            <br><span id="url_csv"></span></a></ul></h4>
-            <h4><ul>Example returning several parameters with timestamp meaning 'end' and no data value '<span class="nodata_name"></span>': <a onclick="window.open(urlCSVSeveral)">
-            <br><span id="url_csv_several"></span></a></ul></h4>
-        <p><ul><ul><span class="model">model</span> should correspond to a model name listed at <a onclick="window.open(urlModels)"><span class="url_models"></span></a>, for example <span class="model_name"></span></ul></ul>
+            <h4><ul>Example with timestamp meaning 'end' and no data value '<span class="nodata_name"></span>':
+            <br><a class="url_csv"></a></ul></h4>
+            <h4><ul>Example returning several parameters with timestamp meaning 'end' and no data value '<span class="nodata_name"></span>':
+            <br><a class="url_csv_several"></a></ul></h4>
+        <p><ul><ul><span class="model">model</span> should correspond to a model name listed at <a class="url_models"></a>, for example <span class="model_name"></span></ul></ul>
             <ul><ul><span class="parameter">parameter</span> should be a type of measurement, for example <span class="parameter_light"><span class="parameter_name"></span></span></ul></ul>
             <ul><ul><span class="parameter">parameter</span> can also be several types of measurements separated by commas, for example <span class="parameter_light"><span class="parameter_several"></span></span></ul></ul>
                  <ul><ul><ul><li><a href="#parameter_list" target="_blank">Click here for list of parameters</a></li></ul></ul></ul>
@@ -142,11 +142,10 @@
 
         <h3 id="details_json">4. Return JSON Data</h3>
         <h4><ul><span class="url">URL template:</span> https://www.envidat.ch/data-api/<span class="app_name"></span>/json/<span class="model">model</span>/<span class="parameter">parameter</span>/<span class="start_end">start</span>/<span class="start_end">end</span>/</ul></h4>
-        <h4><ul>Example: <a onclick="window.open(urlJSON)">
-            <span id="url_json"></span></a></ul></h4>
+        <h4><ul>Example: <a class="url_json"></a></ul></h4>
         <h4><ul>Example returning several parameters:
-            <br><a onclick="window.open(urlJSONSeveral)"><span id="url_json_several"></span></a></ul></h4>
-        <p><ul><ul><span class="model">model</span> should correspond to a model name listed at <a onclick="window.open(urlModels)"><span class="url_models"></span></a>, for example <span class="model_name"></span></ul></ul>
+            <br><a class="url_json_several"></a></ul></h4>
+        <p><ul><ul><span class="model">model</span> should correspond to a model name listed at <a class="url_models"></a>, for example <span class="model_name"></span></ul></ul>
             <ul><ul><span class="parameter">parameter</span> should be a type of measurement, for example <span class="parameter_light"><span class="parameter_name"></span></span></ul></ul>
             <ul><ul><span class="parameter">parameter</span> can also be several types of measurements separated by commas, for example <span class="parameter_light"><span class="parameter_several"></span></span></ul></ul>
                  <ul><ul><ul><li><a href="#parameter_list" target="_blank">Click here for list of parameters</a></li></ul></ul></ul>
@@ -159,11 +158,10 @@
 
         <h3 id="details_json_daily_summary">5. Return Daily Summary JSON Data</h3>
         <h4><ul><span class="url">URL template:</span> https://www.envidat.ch/data-api/<span class="app_name"></span>/summary/daily/json/<span class="model">model</span>/<span class="parameter">parameter</span>/<span class="start_end">start</span>/<span class="start_end">end</span>/</ul></h4>
-        <h4><ul>Example: <a onclick="window.open(urlDailyJSON)">
-            <span id="url_daily_json"></span></a></ul></h4>
-        <h4><ul>Example returning several parameters: <a onclick="window.open(urlDailyJSONSeveral)">
-            <br><span id="url_daily_json_several"></span></a></ul></h4>
-        <p><ul><ul><span class="model">model</span> should correspond to a model name listed at <a onclick="window.open(urlModels)"><span class="url_models"></span></a>, for example <span class="model_name"></span></ul></ul>
+        <h4><ul>Example: <a class="url_daily_json"></a></ul></h4>
+        <h4><ul>Example returning several parameters:
+            <br><a class="url_daily_json_several"></a></ul></h4>
+        <p><ul><ul><span class="model">model</span> should correspond to a model name listed at <a class="url_models"></a>, for example <span class="model_name"></span></ul></ul>
             <ul><ul><span class="parameter">parameter</span> should be a type of measurement, for example <span class="parameter_light"><span class="parameter_name"></span></span></ul></ul>
             <ul><ul><span class="parameter">parameter</span> can also be several types of measurements separated by commas, for example <span class="parameter_light"><span class="parameter_several"></span></span></ul></ul>
                  <ul><ul><ul><li><a href="#parameter_list" target="_blank">Click here for list of parameters</a></li></ul></ul></ul>
@@ -208,11 +206,11 @@
 
         <h3 id="details_csv_daily_summary">6. Download Daily Summary CSV</h3>
         <h4><ul><span class="url">URL template:</span> https://www.envidat.ch/data-api/<span class="app_name"></span>/summary/daily/csv/<span class="model">model</span>/<span class="parameter">parameter</span>/<span class="timestamp_meaning">timestamp_meaning</span>/<span class="nodata">nodata</span>/<span class="start_end">start</span>/<span class="start_end">end</span>/</ul></h4>
-        <h4><ul>Example with timestamp meaning 'end' and no data value '' (empty string): <a onclick="window.open(urlDailyCSV)">
-            <br><span id="url_daily_csv"></span></a></ul></h4>
-        <h4><ul>Example returning several parameters with timestamp meaning 'end' and no data value '' (empty string): <a onclick="window.open(urlDailyCSVSeveral)">
-            <br><span id="url_daily_csv_several"></span></a></ul></h4>
-        <p><ul><ul><span class="model">model</span> should correspond to a model name listed at <a onclick="window.open(urlModels)"><span class="url_models"></span></a>, for example <span class="model_name"></span></ul></ul>
+        <h4><ul>Example with timestamp meaning 'end' and no data value '' (empty string):
+            <br><a class="url_daily_csv"></a></ul></h4>
+        <h4><ul>Example returning several parameters with timestamp meaning 'end' and no data value '' (empty string):
+            <br><a class="url_daily_csv_several"></a></ul></h4>
+        <p><ul><ul><span class="model">model</span> should correspond to a model name listed at <a class="url_models"></a>, for example <span class="model_name"></span></ul></ul>
             <ul><ul><span class="parameter">parameter</span> should be a type of measurement, for example <span class="parameter_light"><span class="parameter_name"></span></span></ul></ul>
             <ul><ul><span class="parameter">parameter</span> can also be several types of measurements separated by commas, for example <span class="parameter_light"><span class="parameter_several"></span></span></ul></ul>
                  <ul><ul><ul><li><a href="#parameter_list" target="_blank">Click here for list of parameters</a></li></ul></ul></ul>
@@ -236,11 +234,10 @@
         <p><ul>Returns metadata for each station including earliest timestamps.</ul>
         <p><ul>Also returns both earliest and latest timestamps for specified parameters in ISO and UNIX (millisecond) formats.</ul>
         <h4><ul><span class="url">URL template:</span> https://www.envidat.ch/data-api/<span class="app_name"></span>/metadata/<span class="model">model</span>/<span class="parameter">parameter</span>/</ul></h4>
-          <h4><ul>Example: <a onclick="window.open(urlMetadata)">
-            <span id="url_metadata"></span></a></ul></h4>
-        <h4><ul>Example returning several parameters: <a onclick="window.open(urlMetadataSeveral)">
-            <br><span id="url_metadata_several"></span></a></ul></h4>
-        <p><ul><ul><span class="model">model</span> should correspond to a model name listed at <a onclick="window.open(urlModels)"><span class="url_models"></span></a>, for example <span class="model_name"></span></ul></ul>
+          <h4><ul>Example: <a class="url_metadata"></a></ul></h4>
+        <h4><ul>Example returning several parameters:
+            <br><a class="url_metadata_several"></a></ul></h4>
+        <p><ul><ul><span class="model">model</span> should correspond to a model name listed at <a class="url_models"></a>, for example <span class="model_name"></span></ul></ul>
             <ul><ul><span class="parameter">parameter</span> should be a type of measurement, for example <span class="parameter_light"><span class="parameter_name"></span></span></ul></ul>
             <ul><ul><span class="parameter">parameter</span> can also be several types of measurements separated by commas, for example <span class="parameter_light"><span class="parameter_several"></span></span></ul></ul>
                  <ul><ul><ul><li><a href="#parameter_list" target="_blank">Click here for list of parameters</a></li></ul></ul></ul>
