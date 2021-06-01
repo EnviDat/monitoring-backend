@@ -14,18 +14,30 @@ injectJson(json_url);
 // ------------------------------- Function used to validate JSON file has required keys-------------------------------
 
 // Throws error if one or more keys from 'keys' array does not exist in json_object, else returns true
-function jsonKeysValid(json_object, keys) {
+function jsonKeysValid(jsonObject, keys) {
 
     let missingKeys = [];
 
     for (let i=0; i < keys.length; i++) {
-        if (!json_object.hasOwnProperty(keys[i])) {
+        if (!jsonObject.hasOwnProperty(keys[i])) {
             missingKeys.push(keys[i]);
         }
     }
 
     if (missingKeys.length > 0) {
-        throw new Error('JSON file missing key(s): ' + missingKeys);
+        throw new Error(`JSON file missing key(s): ${missingKeys}`);
+    }
+    return true;
+}
+
+
+function datesValid(startDate, endDate) {
+
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+
+    if (start >= end) {
+        throw new Error(`JSON file start date or datetime ${startDate} cannot be greater than or equal to end date or datetime ${endDate}`);
     }
     return true;
 }
@@ -43,9 +55,7 @@ function assignElementsArray (elementsArray, elementString) {
            elementsArray[i].setAttribute("target", "_onblank");
            elementsArray[i].setAttribute("href", elementString);
        }
-   
    }
-    
 }
 
 
@@ -54,11 +64,14 @@ function assignElementsArray (elementsArray, elementString) {
 function assignElements (data) {
 
     // ----------------------------- Template variables used once --------------------------------------------
+
     document.getElementById("page_title").innerHTML = data.page_title;
     document.getElementById("api_title").innerHTML = data.api_title;
     document.getElementById("intro_text").innerHTML = data.into_text;
 
+
     // ------------------------------- Template variables used multiple times --------------------------------
+
     let appElements = document.querySelectorAll("span.app_name");
     assignElementsArray(appElements, data.app);
 
@@ -74,8 +87,9 @@ function assignElements (data) {
     let parameterSeveralElements = document.querySelectorAll("span.parameter_several");
     assignElementsArray(parameterSeveralElements, data.parameter_several);
 
+
     // ----------------------------- URL template variables ---------------------------------------------------
-    // TODO use querySelectorAll to fix URL href links in HTML
+
     let urlModelsElements = document.querySelectorAll(".url_models");
     assignElementsArray(urlModelsElements, `${data.api_host}/${data.app}/models/`);
 
@@ -130,10 +144,14 @@ function injectJson(url) {
 
         let data;
 
-        // Load and parse JSON file
+
+        // ----------------------------- Load and parse JSON file---------------------------------------------------
         if (this.readyState === this.DONE) {
 
             data = JSON.parse(this.response);
+
+
+            // ---------------------------- JSON validators --------------------------------------------------------
 
             // Validate JSON file has all required keys
             try {
@@ -143,7 +161,23 @@ function injectJson(url) {
                 alert(err);
             }
 
-            // Assign HTML elements
+            // Validate start_date is less than end_date
+            try {
+                datesValid(data.start_date, data.end_date);
+            }
+            catch (err) {
+                alert(err);
+            }
+
+            // Validate start_datetime is less than end_datetime
+            try {
+                datesValid(data.start_datetime, data.end_datetime);
+            }
+            catch (err) {
+                alert(err);
+            }
+
+            // --------------------------- Assign HTML elements
             assignElements(data);
 
         }
