@@ -41,9 +41,8 @@ table td {font-size: smaller;}
 .output {font-family: monospace, serif; font-size: small;}
 
 .bullet {list-style-type: circle;}
-.model {background-color: #ffe6c9}
+.model {background-color: #ffe6c9;}
 .parent_class {background-color: #deffed;}
-/*.timestamp_meaning_light {background-color:lightgreen;}*/
 .nodata {background-color: #ffdadd;}
 /*.nodata_light  {background-color: #F5D4DA;}*/
 .start_end {background-color: #bdfefe;}

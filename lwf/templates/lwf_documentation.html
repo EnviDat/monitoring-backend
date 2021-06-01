@@ -2,7 +2,9 @@
 <html lang="en">
 
 <head>
-    <link rel="stylesheet" href="api_documentation_template.css">
+    {% load static %}
+
+    <link rel="stylesheet" href="{% static 'css/lwf_documentation.css' %}">
     <title id="page_title"></title>
 </head>
 
@@ -45,16 +47,6 @@
 
             <div class="intro">
                 <p id="intro_text"></p>
-
-                <div class="special_notes">
-                    <p><span class="detail_link"><b><u>Special Notes</u></b>
-                            <ul>
-                                <li>special notes
-                                </li>
-                            </ul>
-                        </span></p>
-                </div>
-
             </div>
         </div>
     </div>
@@ -75,24 +67,9 @@
         <h3 id="details_stations">1. Return List of Stations</h3>
         <h4><ul>URL: <a class="url_models"></a></ul></h4>
         <p><ul>Returns list of stations referred to as 'model' in other endpoints.</ul>
-           <ul>Sample Output:</ul>
-               <ul><ul><span class="output">
-               [
-                <ul>"station1",
-                <br>"station2",
-                </ul>
-                ]
-           </span></ul></ul>
         <br>
         <br>
 
-        <script>
-            function myFunction() {
-             let urlNeadElements = document.querySelectorAll(".url_nead");
-             let testString2 = 'https://www.envidat.ch/data-api/app/nead/model/end/empty/2020-11-02/2020-11-07';
-             window.open(testString2);
-         }
-        </script>
 
         <h3 id="details_nead">2. Download NEAD</h3>
         <p><span class="details_link"><a href="https://www.doi.org/10.16904/envidat.187" >Click here for information about the NEAD format</a></span></p>
@@ -102,13 +79,13 @@
         <h4><ul><span class="url">URL template returning all records:</span> https://www.envidat.ch/data-api/<span class="app_name"></span>/nead/<span class="model">model</span>/<span class="nodata">nodata</span>/<span class="parent_class">parent_class</span>/</ul></h4>
         <h4><ul>Example returning all records:
             <br><a class="url_nead_all"></a></ul></h4>
-        <p><ul><ul><span class="parent_class">parent_class</span> should correspond be <span class="parent_class_name"></span></ul></ul>
            <ul><ul><span class="nodata">nodata</span> represents "null" values in the database</ul></ul>
                <ul><ul><ul><li><span class="nodata_light"><span class="nodata_name"></span></span> means that all "null" values will be "<span class="nodata_name"></span>" in the NEAD file</li></ul></ul></ul>
                <ul><ul><ul><li><span class="nodata_light">empty</span> means that all "null" values will be "" (empty strings) in the NEAD file</li></ul></ul></ul>
          <ul><ul><span class="nodata">nodata</span> represents "null" values in the database</ul></ul>
                <ul><ul><ul><li><span class="nodata_light"><span class="nodata_name"></span></span> means that all "null" values will be "<span class="nodata_name"></span>" in the NEAD file</li></ul></ul></ul>
                <ul><ul><ul><li><span class="nodata_light">empty</span> means that all "null" values will be "" (empty strings) in the NEAD file</li></ul></ul></ul>
+           <p><ul><ul><span class="parent_class">parent_class</span> should correspond be <span class="parent_class_name"></span></ul></ul>
            <ul><ul><span class="start_end">start</span> is the start date of the dataset</ul></ul>
            <ul><ul><span class="start_end">end</span> is the end date of the dataset (exclusive)</ul></ul>
                <ul><ul><ul><li><span class="start_end_light">start</span> and <span class="start_end_light">end</span> dates must be in in ISO timestamp date format: YYYY-MM-DD ('2019-12-20')</li></ul></ul></ul>
@@ -130,6 +107,7 @@
            <ul><ul><span class="nodata">nodata</span> represents "null" values in the database</ul></ul>
         <ul><ul><ul><li><span class="nodata_light"><span class="nodata_name"></span></span> means that all "null" values will be "<span class="nodata_name"></span>" in the CSV file</li></ul></ul></ul>
                <ul><ul><ul><li><span class="nodata_light">empty</span> means that all "null" values will be "" (empty strings) in the CSV file</li></ul></ul></ul>
+           <p><ul><ul><span class="parent_class">parent_class</span> should correspond be <span class="parent_class_name"></span></ul></ul>
            <ul><ul><span class="start_end">start</span> is the start date of the dataset</ul></ul>
            <ul><ul><span class="start_end">end</span> is the end date of the dataset (exclusive)</ul></ul>
                <ul><ul><ul><li><span class="start_end_light">start</span> and <span class="start_end_light">end</span> dates must be in in ISO timestamp date format: YYYY-MM-DD ('2019-12-20')</li></ul></ul></ul>
@@ -267,7 +245,7 @@
     </div>
 
 
-   <script src="api_documentation_template.js"></script>
+   <script src="{% static 'js/lwf_documentation.js' %}"></script>
 
 </body>
 

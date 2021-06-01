@@ -1,9 +1,9 @@
 // ************************************ Assign JSON path and JSON keys ***********************************************
 
-const json_url = './api_documentation_template.json';
+const json_url = '/static/json/lwf_documentation.json';
 
 const json_keys = ['page_title', 'api_title', 'into_text', 'nodata', 'app', 'model', 'parameter', 'parameter_several',
-                    'start_date', 'end_date', 'start_datetime', 'end_datetime'];
+                    'start_date', 'end_date', 'start_datetime', 'end_datetime', 'parent_class'];
 
 
 // -------------------------------  Call injectJson() passing JSON URL as an argument ----------------------------------
@@ -94,7 +94,7 @@ function assignElements (data) {
     // ----------------------------- URL template variables ---------------------------------------------------
 
     let urlModelsElements = document.querySelectorAll(".url_models");
-    assignElementsArray(urlModelsElements, `${data.api_host}/${data.app}/models/`);
+    assignElementsArray(urlModelsElements, `${data.api_host}/${data.app}/models/${data.parent_class}/`);
 
     let urlNeadElements = document.querySelectorAll(".url_nead");
     assignElementsArray(urlNeadElements, `${data.api_host}/${data.app}/nead/${data.model}/${data.nodata}/${data.parent_class}/${data.start_date}/${data.end_date}/`);
@@ -107,6 +107,9 @@ function assignElements (data) {
 
     let urlCsvSeveralElements = document.querySelectorAll(".url_csv_several");
     assignElementsArray(urlCsvSeveralElements, `${data.api_host}/${data.app}/csv/${data.model}/${data.parameter_several}/${data.nodata}/${data.parent_class}/${data.start_date}/${data.end_date}/`);
+
+
+    // TODO finish updating LWF urls and generic template files with parent_class URL pattern
 
     let urlJsonElements = document.querySelectorAll(".url_json");
     assignElementsArray(urlJsonElements, `${data.api_host}/${data.app}/json/${data.model}/${data.parameter}/${data.start_datetime}/${data.end_datetime}/`);
@@ -152,7 +155,6 @@ function injectJson(url) {
         if (this.readyState === this.DONE) {
 
             data = JSON.parse(this.response);
-
 
             // ---------------------------- JSON validators --------------------------------------------------------
 

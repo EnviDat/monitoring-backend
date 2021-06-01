@@ -10,6 +10,7 @@
   "parameter_several": "parameter1,parameter2",
   "start_date": "2020-11-03",
   "end_date": "2020-11-07",
-  "start_datetime": "2020-11-02T17:00:00",
-  "end_datetime": "2020-11-09T00:00:00"
+  "start_datetime": "2020-11-50T17:00:00",
+  "end_datetime": "2020-11-09T00:00:00",
+  "parent_class": "parent_class"
 }

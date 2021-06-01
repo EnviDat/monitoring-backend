@@ -1,11 +1,14 @@
 from django.urls import path
-
+from lwf import views
 from lwf.util.http_errors import parameter_http_error
 from lwf.util.views_helpers import get_display_values
 from generic.views import generic_get_models, generic_get_daily_data, generic_get_nead, generic_get_data, \
     generic_get_station_parameter_metadata
 
 urlpatterns = [
+
+    # API documentation
+    path('', views.lwf_documentation),
 
     # TODO implement LWF specific http error messages
 
