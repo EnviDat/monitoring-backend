@@ -214,6 +214,30 @@
                </tr>
 
            </table>
+
+         <h3 >Parameter List_test</h3>
+         <ol>{{ object|json_script:"objectdata" }}</ol>
+
+        <div id="demo"></div>
+
+
+
+
+
+{#        <ol>#}
+{#            {{ object|json_script:"objectdata" }}#}
+{#             <script>#}
+{#                const mydata = JSON.parse(document.getElementById('objectdata').textContent);#}
+{#                console.log(mydata);#}
+{#                for (const[key, value] of Object.entries(mydata)) {#}
+{#                    document.write(`<li>${value}</li>`);#}
+{#                }#}
+                {#const field = JSON.parse(document.getElementById('objectdata').textContent);#}
+                {#for (field of fields) {#}
+                {#  document.write(`<li>${field}</li>`);#}
+{##}
+{#            </script>#}
+{#        </ol>#}
     </div>
 
 

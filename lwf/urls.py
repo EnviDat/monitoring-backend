@@ -8,7 +8,7 @@ from generic.views import generic_get_models, generic_get_daily_data, generic_ge
 urlpatterns = [
 
     # API documentation
-    path('', views.lwf_documentation),
+    path('', views.lwf_documentation, {'parent_class': 'LWFStation'}),
 
     # TODO implement LWF specific http error messages
 

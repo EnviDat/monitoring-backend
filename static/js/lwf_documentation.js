@@ -108,33 +108,29 @@ function assignElements (data) {
     let urlCsvSeveralElements = document.querySelectorAll(".url_csv_several");
     assignElementsArray(urlCsvSeveralElements, `${data.api_host}/${data.app}/csv/${data.model}/${data.parameter_several}/${data.nodata}/${data.parent_class}/${data.start_date}/${data.end_date}/`);
 
-
-    // TODO finish updating LWF urls and generic template files with parent_class URL pattern
-
     let urlJsonElements = document.querySelectorAll(".url_json");
-    assignElementsArray(urlJsonElements, `${data.api_host}/${data.app}/json/${data.model}/${data.parameter}/${data.start_datetime}/${data.end_datetime}/`);
+    assignElementsArray(urlJsonElements, `${data.api_host}/${data.app}/json/${data.model}/${data.parameter}/${data.parent_class}/${data.start_datetime}/${data.end_datetime}/`);
 
     let urlJsonSeveralElements = document.querySelectorAll(".url_json_several");
-    assignElementsArray(urlJsonSeveralElements, `${data.api_host}/${data.app}/json/${data.model}/${data.parameter_several}/${data.start_datetime}/${data.end_datetime}/`);
+    assignElementsArray(urlJsonSeveralElements, `${data.api_host}/${data.app}/json/${data.model}/${data.parameter_several}/${data.parent_class}/${data.start_datetime}/${data.end_datetime}/`);
 
     let urlDailyJsonElements = document.querySelectorAll(".url_daily_json");
-    assignElementsArray(urlDailyJsonElements, `${data.api_host}/${data.app}/summary/daily/json/${data.model}/${data.parameter}/${data.start_date}/${data.end_date}/`);
+    assignElementsArray(urlDailyJsonElements, `${data.api_host}/${data.app}/json/daily/${data.model}/${data.parameter}/${data.parent_class}/${data.start_date}/${data.end_date}/`);
 
     let urlDailyJsonSeveralElements = document.querySelectorAll(".url_daily_json_several");
-    assignElementsArray(urlDailyJsonSeveralElements, `${data.api_host}/${data.app}/summary/daily/json/${data.model}/${data.parameter_several}/${data.start_date}/${data.end_date}/`);
+    assignElementsArray(urlDailyJsonSeveralElements, `${data.api_host}/${data.app}/json/daily/${data.model}/${data.parameter_several}/${data.parent_class}/${data.start_date}/${data.end_date}/`);
 
     let urlDailyCsvElements = document.querySelectorAll(".url_daily_csv");
-    assignElementsArray(urlDailyCsvElements, `${data.api_host}/${data.app}/summary/daily/csv/${data.model}/${data.parameter}/end/empty/${data.start_date}/${data.end_date}/`);
+    assignElementsArray(urlDailyCsvElements, `${data.api_host}/${data.app}/csv/daily/${data.model}/${data.parameter}/${data.nodata}/${data.parent_class}/${data.start_date}/${data.end_date}/`);
 
     let urlDailyCsvSeveralElements = document.querySelectorAll(".url_daily_csv_several");
-    assignElementsArray(urlDailyCsvSeveralElements, `${data.api_host}/${data.app}/summary/daily/csv/${data.model}/${data.parameter_several}/end/empty/${data.start_date}/${data.end_date}/`);
+    assignElementsArray(urlDailyCsvSeveralElements, `${data.api_host}/${data.app}/csv/daily/${data.model}/${data.parameter_several}/${data.nodata}/${data.parent_class}/${data.start_date}/${data.end_date}/`);
 
     let urlMetadataElements = document.querySelectorAll(".url_metadata");
-    assignElementsArray(urlMetadataElements, `${data.api_host}/${data.app}/metadata/${data.model}/${data.parameter}/`);
+    assignElementsArray(urlMetadataElements, `${data.api_host}/${data.app}/metadata/${data.model}/${data.parameter}/${data.parent_class}/`);
 
     let urlMetadataSeveralElements = document.querySelectorAll(".url_metadata_several");
-    assignElementsArray(urlMetadataSeveralElements, `${data.api_host}/${data.app}/metadata/${data.model}/${data.parameter_several}/`);
-    //document.getElementById("url_metadata_several").innerHTML = `${data.api_host}/${data.app}/metadata/${data.model}/${data.parameter_several}/`;
+    assignElementsArray(urlMetadataSeveralElements, `${data.api_host}/${data.app}/metadata/${data.model}/${data.parameter_several}/${data.parent_class}/`);
 }
 
 
@@ -188,3 +184,31 @@ function injectJson(url) {
         }
     });
 }
+
+
+function populateParameterTable() {
+    const mydata = JSON.parse(document.getElementById('objectdata').textContent);
+    console.log(mydata);
+    // let i = 0;
+    let tag = ''; let i = 1;
+    for (const[key, value] of Object.entries(mydata)) {
+        tag = tag + "<h" + i + ">" + value + "</h" + i + ">";
+        // tag = `<li>${value}</li>`;
+        document.getElementById("demo").innerHTML = tag;
+        i++;
+
+
+
+            // let liTag = document.createElement("li");
+            // let valText = document.createTextNode(value);
+            // liTag.appendChild(valText);
+            // let element = document.getElementById("new" + i);
+            // element.appendChild(liTag);
+            // i++;
+            // document.write(value);
+            // document.write(`<p>${value}</p>`);
+            // document.write(`<li>${value}</li>`);
+    }
+}
+
+populateParameterTable();
