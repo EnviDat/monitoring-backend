@@ -185,17 +185,73 @@ function injectJson(url) {
     });
 }
 
+function generate_table() {
+
+  let divTable = document.getElementById("div_table");
+  console.log(divTable);
+
+  const mydata = JSON.parse(document.getElementById('div_table').textContent);
+  console.log(mydata);
+
+  // let divTable = document.createElement("div"); //create new <div>
+  // divTable.id = "tablediv";
+
+    // creates a <table> element and a <tbody> element
+  var tbl = document.createElement("table");
+  var tblBody = document.createElement("tbody");
+
+  // creating all cells
+  for (var i = 0; i < 2; i++) {
+    // creates a table row
+    var row = document.createElement("tr");
+
+    for (var j = 0; j < 2; j++) {
+      // Create a <td> element and a text node, make the text
+      // node the contents of the <td>, and put the <td> at
+      // the end of the table row
+      var cell = document.createElement("td");
+      var cellText = document.createTextNode("cell in row "+i+", column "+j);
+      cell.appendChild(cellText);
+      row.appendChild(cell);
+    }
+
+    // add the row to the end of the table body
+    tblBody.appendChild(row);
+  }
+
+  // put the <tbody> in the <table>
+  tbl.appendChild(tblBody);
+  // appends <table> into <body>
+  divTable.appendChild(tbl);
+  // sets the border attribute of tbl to 2;
+  tbl.setAttribute("border", "2");
+}
+
+generate_table();
+
 
 function populateParameterTable() {
+
     const mydata = JSON.parse(document.getElementById('objectdata').textContent);
     console.log(mydata);
     // let i = 0;
-    let tag = ''; let i = 1;
+
+    let tag = ''; let i = 0;
+
+    var msgContainer = document.createDocumentFragment();
+
+    const  li = msgContainer.appendChild(document.createElement("li"));
+        li.textContent = value;
+
     for (const[key, value] of Object.entries(mydata)) {
-        tag = tag + "<h" + i + ">" + value + "</h" + i + ">";
-        // tag = `<li>${value}</li>`;
-        document.getElementById("demo").innerHTML = tag;
+        let  li = msgContainer.appendChild(document.createElement("li"));
+        li.textContent = value;
+        // li.value = 'TEST';
+        // tag = tag + "<h" + i + ">" + value + "</h" + i + ">";
+        // // tag = `<li>${value}</li>`;
+        // document.getElementById("demo").innerHTML = tag;
         i++;
+    document.getElementById("demo").appendChild(msgContainer);
 
 
 
@@ -211,4 +267,4 @@ function populateParameterTable() {
     }
 }
 
-populateParameterTable();
+// populateParameterTable();
