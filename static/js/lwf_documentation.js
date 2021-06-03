@@ -134,7 +134,72 @@ function assignElements (data) {
 }
 
 
-// --------- Function to get JSON Data, validate JSON keys and fill html template elements with JSON values -----------
+// ------------------------------- Function used to populate Paramter List table -------------------------------------
+function populateParameterTable() {
+
+  // Get parameters from context passed to html template
+  const parameters = JSON.parse(document.getElementById("parameter_table").textContent);
+
+
+  // Create table and tbody elements
+  const tbl = document.createElement("table");
+  const tblBody = document.createElement("tbody");
+
+
+  // Create header row and cells
+  const headerRow = document.createElement("tr");
+
+  const headerParameter = document.createElement("th");
+  headerParameter.innerHTML = "Parameter";
+  headerRow.appendChild(headerParameter);
+
+  const headerName = document.createElement("th");
+  headerName.innerHTML = "Name";
+  headerRow.appendChild(headerName);
+
+  const headerUnits = document.createElement("th");
+  headerUnits.innerHTML = "Units";
+  headerRow.appendChild(headerUnits);
+
+  tblBody.appendChild(headerRow);
+
+
+  // Populate rows of table
+  const params = Object.values(parameters);
+  console.log(params);
+
+  for (let i = 0; i < params.length; i++) {
+
+      let row = document.createElement("tr");
+
+      let cellParam = document.createElement("td");
+      cellParam.innerHTML = params[i].param;
+      row.appendChild(cellParam);
+
+      let cellLongName = document.createElement("td");
+      cellLongName.innerHTML = params[i].long_name;
+      row.appendChild(cellLongName);
+
+      let cellUnits = document.createElement("td");
+      cellUnits.innerHTML = params[i].units;
+      row.appendChild(cellUnits);
+
+      // Add the row to the end of the table body
+      tblBody.appendChild(row);
+  }
+
+  // Put the <tbody> in the <table>
+  tbl.appendChild(tblBody);
+
+  // Append <table> into divTable
+  const divTable = document.getElementById("parameter_table");
+  console.log(divTable);
+  divTable.appendChild(tbl);
+
+}
+
+
+// ---- Function to get and validate JSON Data, fill html template elements and populate Parameter List table --------
 
 function injectJson(url) {
 
@@ -147,12 +212,13 @@ function injectJson(url) {
         let data;
 
 
-        // ----------------------------- Load and parse JSON file---------------------------------------------------
+        // ----------------------------- Load and parse JSON file--------
         if (this.readyState === this.DONE) {
 
             data = JSON.parse(this.response);
 
-            // ---------------------------- JSON validators --------------------------------------------------------
+
+            // ---------------------------- JSON validators --------------
 
             // Validate JSON file has all required keys
             try {
@@ -178,93 +244,13 @@ function injectJson(url) {
                 alert(err);
             }
 
-            // --------------------------- Assign HTML elements
+
+            //  --- Populate Parameter List table ---
+            populateParameterTable();
+
+            // --- Assign HTML elements -------------
             assignElements(data);
 
         }
     });
 }
-
-function generate_table() {
-
-  let divTable = document.getElementById("div_table");
-  console.log(divTable);
-
-  const mydata = JSON.parse(document.getElementById('div_table').textContent);
-  console.log(mydata);
-
-  // let divTable = document.createElement("div"); //create new <div>
-  // divTable.id = "tablediv";
-
-    // creates a <table> element and a <tbody> element
-  var tbl = document.createElement("table");
-  var tblBody = document.createElement("tbody");
-
-  // creating all cells
-  for (var i = 0; i < 2; i++) {
-    // creates a table row
-    var row = document.createElement("tr");
-
-    for (var j = 0; j < 2; j++) {
-      // Create a <td> element and a text node, make the text
-      // node the contents of the <td>, and put the <td> at
-      // the end of the table row
-      var cell = document.createElement("td");
-      var cellText = document.createTextNode("cell in row "+i+", column "+j);
-      cell.appendChild(cellText);
-      row.appendChild(cell);
-    }
-
-    // add the row to the end of the table body
-    tblBody.appendChild(row);
-  }
-
-  // put the <tbody> in the <table>
-  tbl.appendChild(tblBody);
-  // appends <table> into <body>
-  divTable.appendChild(tbl);
-  // sets the border attribute of tbl to 2;
-  tbl.setAttribute("border", "2");
-}
-
-generate_table();
-
-
-function populateParameterTable() {
-
-    const mydata = JSON.parse(document.getElementById('objectdata').textContent);
-    console.log(mydata);
-    // let i = 0;
-
-    let tag = ''; let i = 0;
-
-    var msgContainer = document.createDocumentFragment();
-
-    const  li = msgContainer.appendChild(document.createElement("li"));
-        li.textContent = value;
-
-    for (const[key, value] of Object.entries(mydata)) {
-        let  li = msgContainer.appendChild(document.createElement("li"));
-        li.textContent = value;
-        // li.value = 'TEST';
-        // tag = tag + "<h" + i + ">" + value + "</h" + i + ">";
-        // // tag = `<li>${value}</li>`;
-        // document.getElementById("demo").innerHTML = tag;
-        i++;
-    document.getElementById("demo").appendChild(msgContainer);
-
-
-
-            // let liTag = document.createElement("li");
-            // let valText = document.createTextNode(value);
-            // liTag.appendChild(valText);
-            // let element = document.getElementById("new" + i);
-            // element.appendChild(liTag);
-            // i++;
-            // document.write(value);
-            // document.write(`<p>${value}</p>`);
-            // document.write(`<li>${value}</li>`);
-    }
-}
-
-// populateParameterTable();
