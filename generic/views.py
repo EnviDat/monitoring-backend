@@ -20,12 +20,6 @@ def generic_documentation(request, html_template, app, child_class, documentatio
 
     context = documentation_context(model)
 
-    # context = {'parameters':
-    #                {'test_key': {'param': '<script>evil.js</script>test_value', 'long_name': 'test_value1', 'units': 'm/s'},
-    #                 'test_key2': {'param': 'test_value2param', 'long_name': 'test_value2', 'units': 'mph'}
-    #                 }
-    #            }
-
     return render(request, html_template, context)
 
 
