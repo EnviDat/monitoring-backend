@@ -30,7 +30,7 @@ function jsonKeysValid(jsonObject, keys) {
     return true;
 }
 
-
+// Throws error if startDate is greater than or equal to endDate
 function datesValid(startDate, endDate) {
 
     const start = new Date(startDate);
@@ -134,7 +134,8 @@ function assignElements (data) {
 }
 
 
-// ------------------------------- Function used to populate Paramter List table -------------------------------------
+// ------------------------------- Function used to generate and populate Parameter List table -----------------------
+
 function populateParameterTable() {
 
   // Get parameters from context passed to html template
@@ -197,7 +198,7 @@ function populateParameterTable() {
 }
 
 
-// ---- Function to get and validate JSON Data, fill html template elements and populate Parameter List table --------
+// ---- Function to get and validate JSON Data, fill html template elements and generate Parameter List table --------
 
 function injectJson(url) {
 
@@ -245,6 +246,7 @@ function injectJson(url) {
 
             //  --- Populate Parameter List table ---
             populateParameterTable();
+
 
             // --- Assign HTML elements -------------
             assignElements(data);

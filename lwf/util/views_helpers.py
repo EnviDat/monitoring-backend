@@ -31,6 +31,7 @@ def get_display_values(parameters, model_class):
     return validate_display_values(parameters, model_class)
 
 
+# Get documentation context with field attributes of model_class
 def get_documentation_context(model_class):
 
     params_dict = {}

@@ -10,7 +10,7 @@ from generic.util.views_helpers import get_models_list, validate_date, get_model
 
 
 # Returns API documentation
-def generic_documentation(request, html_template, app, child_class, documentation_context):
+def generic_get_documentation(request, html_template, app, child_class, documentation_context):
 
     # Validate the parent_class
     try:
@@ -18,6 +18,7 @@ def generic_documentation(request, html_template, app, child_class, documentatio
     except AttributeError:
         return model_http_error(child_class)
 
+    # Get documentation_context dict from model fields
     context = documentation_context(model)
 
     return render(request, html_template, context)
