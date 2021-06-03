@@ -16,7 +16,7 @@ urlpatterns = [
     path('models/<str:parent_class>/', generic_get_models, {'app': 'lwf'}),
 
     # JSON
-    path('json/<str:model>/<str:parameters>/<str:start>/<str:end>/<str:parent_class>/',
+    path('json/<str:model>/<str:parameters>/<str:parent_class>/<str:start>/<str:end>/',
          generic_get_data, {'app': 'lwf',
                             'display_values_validator': get_display_values,
                             'display_values_error': parameter_http_error, }),
@@ -34,13 +34,13 @@ urlpatterns = [
                             'display_values_error': parameter_http_error, }),
 
     # Daily JSON
-    path('json/daily/<str:model>/<str:parameters>/<str:start>/<str:end>/<str:parent_class>/',
+    path('json/daily/<str:model>/<str:parameters>/<str:parent_class>/<str:start>/<str:end>/',
          generic_get_daily_data, {'app': 'lwf',
                                   'display_values_validator': get_display_values,
                                   'display_values_error': parameter_http_error, }),
 
     # Daily CSV
-    path('csv/daily/<str:model>/<str:parameters>/<str:nodata>/<str:start>/<str:end>/<str:parent_class>/',
+    path('csv/daily/<str:model>/<str:parameters>/<str:nodata>/<str:parent_class>/<str:start>/<str:end>/',
          generic_get_daily_data, {'app': 'lwf',
                                   'display_values_validator': get_display_values,
                                   'display_values_error': parameter_http_error, }),

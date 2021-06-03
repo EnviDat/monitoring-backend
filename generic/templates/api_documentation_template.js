@@ -109,29 +109,28 @@ function assignElements (data) {
     assignElementsArray(urlCsvSeveralElements, `${data.api_host}/${data.app}/csv/${data.model}/${data.parameter_several}/${data.nodata}/${data.parent_class}/${data.start_date}/${data.end_date}/`);
 
     let urlJsonElements = document.querySelectorAll(".url_json");
-    assignElementsArray(urlJsonElements, `${data.api_host}/${data.app}/json/${data.model}/${data.parameter}/${data.start_datetime}/${data.end_datetime}/`);
+    assignElementsArray(urlJsonElements, `${data.api_host}/${data.app}/json/${data.model}/${data.parameter}/${data.parent_class}/${data.start_datetime}/${data.end_datetime}/`);
 
     let urlJsonSeveralElements = document.querySelectorAll(".url_json_several");
-    assignElementsArray(urlJsonSeveralElements, `${data.api_host}/${data.app}/json/${data.model}/${data.parameter_several}/${data.start_datetime}/${data.end_datetime}/`);
+    assignElementsArray(urlJsonSeveralElements, `${data.api_host}/${data.app}/json/${data.model}/${data.parameter_several}/${data.parent_class}/${data.start_datetime}/${data.end_datetime}/`);
 
-    let urlDailyJsonElements = document.querySelectorAll(".url_daily_json");
-    assignElementsArray(urlDailyJsonElements, `${data.api_host}/${data.app}/summary/daily/json/${data.model}/${data.parameter}/${data.start_date}/${data.end_date}/`);
+     let urlDailyJsonElements = document.querySelectorAll(".url_daily_json");
+    assignElementsArray(urlDailyJsonElements, `${data.api_host}/${data.app}/json/daily/${data.model}/${data.parameter}/${data.parent_class}/${data.start_date}/${data.end_date}/`);
 
     let urlDailyJsonSeveralElements = document.querySelectorAll(".url_daily_json_several");
-    assignElementsArray(urlDailyJsonSeveralElements, `${data.api_host}/${data.app}/summary/daily/json/${data.model}/${data.parameter_several}/${data.start_date}/${data.end_date}/`);
+    assignElementsArray(urlDailyJsonSeveralElements, `${data.api_host}/${data.app}/json/daily/${data.model}/${data.parameter_several}/${data.parent_class}/${data.start_date}/${data.end_date}/`);
 
-    let urlDailyCsvElements = document.querySelectorAll(".url_daily_csv");
-    assignElementsArray(urlDailyCsvElements, `${data.api_host}/${data.app}/summary/daily/csv/${data.model}/${data.parameter}/end/empty/${data.start_date}/${data.end_date}/`);
+     let urlDailyCsvElements = document.querySelectorAll(".url_daily_csv");
+    assignElementsArray(urlDailyCsvElements, `${data.api_host}/${data.app}/csv/daily/${data.model}/${data.parameter}/${data.nodata}/${data.parent_class}/${data.start_date}/${data.end_date}/`);
 
     let urlDailyCsvSeveralElements = document.querySelectorAll(".url_daily_csv_several");
-    assignElementsArray(urlDailyCsvSeveralElements, `${data.api_host}/${data.app}/summary/daily/csv/${data.model}/${data.parameter_several}/end/empty/${data.start_date}/${data.end_date}/`);
+    assignElementsArray(urlDailyCsvSeveralElements, `${data.api_host}/${data.app}/csv/daily/${data.model}/${data.parameter_several}/${data.nodata}/${data.parent_class}/${data.start_date}/${data.end_date}/`);
 
     let urlMetadataElements = document.querySelectorAll(".url_metadata");
-    assignElementsArray(urlMetadataElements, `${data.api_host}/${data.app}/metadata/${data.model}/${data.parameter}/`);
+    assignElementsArray(urlMetadataElements, `${data.api_host}/${data.app}/metadata/${data.model}/${data.parameter}/${data.parent_class}/`);
 
     let urlMetadataSeveralElements = document.querySelectorAll(".url_metadata_several");
-    assignElementsArray(urlMetadataSeveralElements, `${data.api_host}/${data.app}/metadata/${data.model}/${data.parameter_several}/`);
-    //document.getElementById("url_metadata_several").innerHTML = `${data.api_host}/${data.app}/metadata/${data.model}/${data.parameter_several}/`;
+    assignElementsArray(urlMetadataSeveralElements, `${data.api_host}/${data.app}/metadata/${data.model}/${data.parameter_several}/${data.parent_class}/`);
 }
 
 
