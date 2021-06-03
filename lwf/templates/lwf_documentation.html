@@ -191,53 +191,10 @@
         <br>
         <br>
 
-        <hr>
         <h3 id="parameter_list">Parameter List</h3>
-           <table>
-
-               <tr>
-                  <th>Parameter</th>
-                  <th>Name</th>
-                  <th>Units</th>
-              </tr>
-
-               <tr>
-                  <td>parameter1</td>
-                  <td>parameter1 long name</td>
-                  <td>units</td>
-               </tr>
-
-               <tr>
-                  <td>parameter2</td>
-                  <td>parameter2 long name</td>
-                  <td>units</td>
-               </tr>
-
-           </table>
-
-        <h3 >Parameter List_test</h3>
-{#        <ol>{{ object|json_script:"objectdata" }}</ol>#}
 
         <div id="parameter_table">{{ parameters|json_script:"parameters" }}</div>
 
-
-
-
-
-{#        <ol>#}
-{#            {{ object|json_script:"objectdata" }}#}
-{#             <script>#}
-{#                const mydata = JSON.parse(document.getElementById('objectdata').textContent);#}
-{#                console.log(mydata);#}
-{#                for (const[key, value] of Object.entries(mydata)) {#}
-{#                    document.write(`<li>${value}</li>`);#}
-{#                }#}
-                {#const field = JSON.parse(document.getElementById('objectdata').textContent);#}
-                {#for (field of fields) {#}
-                {#  document.write(`<li>${field}</li>`);#}
-{##}
-{#            </script>#}
-{#        </ol>#}
     </div>
 
 

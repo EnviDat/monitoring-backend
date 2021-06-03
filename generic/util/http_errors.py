@@ -17,12 +17,12 @@ def date_http_error():
 
 def model_http_error(model):
     return HttpResponseNotFound("<h1>Page not found</h1>"
-                                "<h3>Non-valid 'model' entered in URL: {0}</h3>".format(model))
+                                "<h3>Non-valid 'model: {0}</h3>".format(model))
 
 
 def parent_class_http_error(parent_class):
     return HttpResponseNotFound("<h1>Page not found</h1>"
-                                "<h3>Non-valid 'parent_class' entered in URL: {0}</h3>".format(parent_class))
+                                "<h3>Non-valid 'parent_class': {0}</h3>".format(parent_class))
 
 
 def parameter_http_error(parameter):

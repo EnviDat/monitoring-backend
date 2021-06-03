@@ -1,14 +1,18 @@
 from django.urls import path
 from lwf import views
 from lwf.util.http_errors import parameter_http_error
-from lwf.util.views_helpers import get_display_values
+from lwf.util.views_helpers import get_display_values, get_documentation_context
 from generic.views import generic_get_models, generic_get_daily_data, generic_get_nead, generic_get_data, \
-    generic_get_station_parameter_metadata
+    generic_get_station_parameter_metadata, generic_documentation
 
 urlpatterns = [
 
     # API documentation
-    path('', views.lwf_documentation, {'parent_class': 'LWFStation'}),
+    # path('', views.lwf_documentation, {'parent_class': 'LWFStation'}),
+    path('', generic_documentation, {'html_template': 'lwf_documentation.html',
+                                     'app': 'lwf',
+                                     'child_class': 'alpthal_bestand_1',
+                                     'documentation_context': get_documentation_context}),
 
     # TODO implement LWF specific http error messages
 

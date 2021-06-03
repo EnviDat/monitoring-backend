@@ -29,3 +29,18 @@ def get_display_values(parameters, model_class):
         return parameters
 
     return validate_display_values(parameters, model_class)
+
+
+def get_documentation_context(model_class):
+
+    params_dict = {}
+    for field in model_class._meta.get_fields():
+        params_dict[field.name] = {'param': field.name, 'long_name': field.verbose_name, 'units': field.help_text}
+
+    keys_to_remove = ['id', 'timestamp_iso', 'year', 'julianday', 'quarterday', 'halfday', 'day', 'week']
+    for key in keys_to_remove:
+        params_dict.pop(key)
+
+    context = {'parameters': params_dict}
+
+    return context

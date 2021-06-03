@@ -166,7 +166,6 @@ function populateParameterTable() {
 
   // Populate rows of table
   const params = Object.values(parameters);
-  console.log(params);
 
   for (let i = 0; i < params.length; i++) {
 
@@ -193,7 +192,6 @@ function populateParameterTable() {
 
   // Append <table> into divTable
   const divTable = document.getElementById("parameter_table");
-  console.log(divTable);
   divTable.appendChild(tbl);
 
 }

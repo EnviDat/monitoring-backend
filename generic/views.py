@@ -1,11 +1,32 @@
 from django.http import JsonResponse, StreamingHttpResponse, HttpResponseNotFound
+from django.shortcuts import render
 
 from generic.util.http_errors import timestamp_http_error, model_http_error, parameter_http_error, \
     date_http_error, timestamp_meaning_http_error, parent_class_http_error
 from generic.util.nead import get_nead_config, get_config_list, get_hashed_lines, get_database_fields
 from generic.util.stream import get_null_value, stream
 from generic.util.views_helpers import get_models_list, validate_date, get_model_class, \
-    get_dict_fields, get_timestamp_iso_range_day_dict, validate_display_values, get_dict_timestamps
+    get_dict_fields, get_timestamp_iso_range_day_dict, validate_display_values, get_dict_timestamps, get_model_cl
+
+
+# Returns API documentation
+def generic_documentation(request, html_template, app, child_class, documentation_context):
+
+    # Validate the parent_class
+    try:
+        model = get_model_cl(app, model=child_class)
+    except AttributeError:
+        return model_http_error(child_class)
+
+    context = documentation_context(model)
+
+    # context = {'parameters':
+    #                {'test_key': {'param': '<script>evil.js</script>test_value', 'long_name': 'test_value1', 'units': 'm/s'},
+    #                 'test_key2': {'param': 'test_value2param', 'long_name': 'test_value2', 'units': 'mph'}
+    #                 }
+    #            }
+
+    return render(request, html_template, context)
 
 
 # View returns a list of models currently in an app

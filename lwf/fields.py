@@ -13,6 +13,7 @@ class LWFMeteoFloatField(FloatField):
 
 # Custom FloatField for LWFStation class. Rounds values to thousandths place and converts 'NA' values to null.
 class LWFStationFloatField(FloatField):
+
     copy_template = """
         CASE
             WHEN "%(name)s" = 'NA' THEN NULL
