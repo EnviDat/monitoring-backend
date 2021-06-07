@@ -313,13 +313,10 @@
             <span id="url_daily_json"></span></a></ul></h4>
         <h4><ul>Example returning several parameters: <a onclick="window.open(urlDailyJSONSeveral)">
             <br><span id="url_daily_json_several"></span></a></ul></h4>
-        <h4><ul>Example returning multiple parameters: <a href="http://www.envidat.ch/data-api/gcnet/summary/daily/json/swisscamp/multiple/2020-11-03/2020-11-06/" target="_blank">
-            <br>http://www.envidat.ch/data-api/<span class="app_name"></span>/summary/daily/json/<span class="model_name"></span>/multiple/2020-11-03/2020-11-06/</a></ul></h4>
         <p><ul><ul><span class="model">model</span> should correspond to a model name listed at <a onclick="window.open(urlModels)"><span class="url_models"></span></a>, for example <span class="model_name"></span></ul></ul>
             <ul><ul><span class="parameter">parameter</span> should be a type of measurement, for example <span class="parameter_light"><span class="parameter_name"></span></span></ul></ul>
             <ul><ul><span class="parameter">parameter</span> can also be several types of measurements separated by commas, for example <span class="parameter_light"><span class="parameter_several"></span></span></ul></ul>
                  <ul><ul><ul><li><a href="#parameter_list" target="_blank">Click here for list of parameters</a></li></ul></ul></ul>
-            <ul><ul><ul><li><span class="parameter_light">multiple</span> means that all parameters and their aggregated values will be included in the returned JSON data</li></ul></ul></ul>
             <ul><ul><span class="start_end">start</span> is the start date of the dataset</ul></ul>
             <ul><ul><span class="start_end">end</span> is the end date of the dataset (exclusive)</ul></ul>
                <ul><ul><ul><li><span class="start_end_light">start</span> and <span class="start_end_light">end</span> dates must be in in ISO timestamp date format: YYYY-MM-DD ('2019-12-20')</li></ul></ul></ul>
@@ -365,13 +362,10 @@
             <br><span id="url_daily_csv"></span></a></ul></h4>
         <h4><ul>Example returning several parameters with timestamp meaning 'end' and no data value '' (empty string): <a onclick="window.open(urlDailyCSVSeveral)">
             <br><span id="url_daily_csv_several"></span></a></ul></h4>
-        <h4><ul>Example returning multiple parameters with timestamp meaning 'end' and no data value '' (empty string): <a href="https://www.envidat.ch/data-api/gcnet/summary/daily/csv/swisscamp/multiple/end/empty/2020-11-01/2020-11-06/" target="_blank">
-            <br>https://www.envidat.ch/data-api/<span class="app_name"></span>/summary/daily/csv/<span class="model_name"></span>/multiple/end/empty/2020-11-01/2020-11-06/</a></ul></h4>
         <p><ul><ul><span class="model">model</span> should correspond to a model name listed at <a onclick="window.open(urlModels)"><span class="url_models"></span></a>, for example <span class="model_name"></span></ul></ul>
             <ul><ul><span class="parameter">parameter</span> should be a type of measurement, for example <span class="parameter_light"><span class="parameter_name"></span></span></ul></ul>
             <ul><ul><span class="parameter">parameter</span> can also be several types of measurements separated by commas, for example <span class="parameter_light"><span class="parameter_several"></span></span></ul></ul>
                  <ul><ul><ul><li><a href="#parameter_list" target="_blank">Click here for list of parameters</a></li></ul></ul></ul>
-                 <ul><ul><ul><li><span class="parameter_light">multiple</span> means that all parameters will be included in the CSV</li></ul></ul></ul>
             <ul><ul><span class="timestamp_meaning">timestamp_meaning</span> should be <span class="timestamp_meaning_light">end</span> or <span class="timestamp_meaning_light">beginning</span></ul></ul>
                <ul><ul><ul><li><span class="timestamp_meaning_light">end</span> means that timestamps are at the "end" of a hour long averaging period</li></ul></ul></ul>
                <ul><ul><ul><li><span class="timestamp_meaning_light">beginning</span> means that timestamps are at the "beginning" of a hour long averaging period</li></ul></ul></ul>
