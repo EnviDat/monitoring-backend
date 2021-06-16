@@ -9,10 +9,25 @@ from generic.util.views_helpers import get_models_list, validate_date, get_model
     get_dict_fields, get_timestamp_iso_range_day_dict, validate_display_values, get_dict_timestamps, get_model_cl
 
 
+# Returns API documentation context
+def generic_get_documentation_context(request, app, child_class, documentation_context):
+
+    # Validate the model class
+    try:
+        model = get_model_cl(app, model=child_class)
+    except AttributeError:
+        return model_http_error(child_class)
+
+    # Get documentation_context dict from model fields
+    context = documentation_context(model)
+
+    return JsonResponse(context, safe=False)
+
+
 # Returns API documentation
 def generic_get_documentation(request, html_template, app, child_class, documentation_context):
 
-    # Validate the parent_class
+    # Validate the model class
     try:
         model = get_model_cl(app, model=child_class)
     except AttributeError:

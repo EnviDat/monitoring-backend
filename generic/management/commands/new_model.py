@@ -1,7 +1,6 @@
 # Example command:
 #   python manage.py new_model -c lwf/config/test.ini
 
-
 from pathlib import Path
 from django.core.management.base import BaseCommand
 
@@ -101,14 +100,17 @@ class Command(BaseCommand):
                     controller.write(f'\nfrom .{parent_class} import {database_table_name}\n')
 
             # Assign migrations_commands to contain migrations strings
-            migrations_commands = [f'python manage.py makemigrations {app}',
+            migrations_commands = [f'python manage.py makemigrations {app} --noinput',
                                    f'python manage.py migrate {app} --database={app}']
 
-            # Call execute_commands to execute migrations commands
-            execute_commands(migrations_commands)
+            # Call execute_commands to execute migrations commands, returns True if all commands executed, else False
+            commands_executed = execute_commands(migrations_commands)
 
             # Log message
-            logger.info(f'FINISHED creating new model {database_table_name} in parent_class {parent_class}')
+            if commands_executed:
+                logger.info(f'FINISHED creating new model {database_table_name} in parent_class {parent_class}')
+            else:
+                logger.info(f'FAILED to create new model {database_table_name} in parent_class {parent_class}')
 
             return 0
 

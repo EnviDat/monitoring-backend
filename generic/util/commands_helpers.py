@@ -24,15 +24,20 @@ def model_exists(table_name, app):
         return False
 
 
-# Execute commands list
+# Execute commands list, returns True if all commands executed, else returns False if at least one command fails
 def execute_commands(commands_list):
+    commands_executed = True
     for command in commands_list:
         try:
             process = subprocess.run(command, shell=True, check=True, stdout=subprocess.PIPE,
                                      universal_newlines=True)
             print('RUNNING: {0}'.format(command))
             print('STDOUT: {0}'.format(process.stdout))
-        except subprocess.CalledProcessError:
+        except Exception as e:
             print('COULD NOT RUN: {0}'.format(command))
+            print('EXCEPTION: {0}'.format(e))
             print('')
+            commands_executed = False
             continue
+    return commands_executed
+
