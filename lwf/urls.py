@@ -12,7 +12,7 @@ urlpatterns = [
                                          'child_class': 'alpthal_bestand_1',
                                          'documentation_context': get_documentation_context}),
 
-    # API documentation
+    # API documentation context
     path('doc_context/', generic_get_documentation_context, {'app': 'lwf',
                                                              'child_class': 'alpthal_bestand_1',
                                                              'documentation_context': get_documentation_context}),

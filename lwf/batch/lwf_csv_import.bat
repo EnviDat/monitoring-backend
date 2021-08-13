@@ -13,7 +13,7 @@ python manage.py csv_import -i lwf/data/9.csv -t directory -d lwf/data -a lwf -m
 python manage.py csv_import -i lwf/data/12.csv -t directory -d lwf/data -a lwf -m isone_bestand_12 &
 python manage.py csv_import -i lwf/data/13.csv -t directory -d lwf/data -a lwf -m isone_freiland_13 &
 python manage.py csv_import -i lwf/data/14.csv -t directory -d lwf/data -a lwf -m jussy_bestand_14 &
-python manage.py csv_import -i lwf/data/14.csv -t directory -d lwf/data -a lwf -m jussy_freiland_15 &
+python manage.py csv_import -i lwf/data/15.csv -t directory -d lwf/data -a lwf -m jussy_freiland_15 &
 python manage.py csv_import -i lwf/data/18.csv -t directory -d lwf/data -a lwf -m lausanne_bestand_18 &
 python manage.py csv_import -i lwf/data/19.csv -t directory -d lwf/data -a lwf -m lausanne_freiland_19 &
 python manage.py csv_import -i lwf/data/20.csv -t directory -d lwf/data -a lwf -m lens_bestand_20 &
