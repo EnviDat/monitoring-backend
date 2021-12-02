@@ -1,6 +1,7 @@
 import subprocess
 import urllib.request
 
+import requests
 from pathlib import Path
 import warnings
 import numpy as np
@@ -30,7 +31,12 @@ class FortranProcessor(object):
         if dat_file_path:
             logger.info("Skipping raw file processing, reading dat file from {0}".format(dat_file_path))
         else:
+            # TODO fix SSL certification issue, verify=False should not remain
+            # # Download ARGOS data and write 'LATEST_<station_type>.raw' to raw_path directory
+            # r = requests.get(self.data_url, allow_redirects=True, verify=False)
+            # open(self.raw_path, 'wb').write(r.content)
             # Download RAW data and write 'LATEST_<station_type>.raw' to raw_path directory
+
             with urllib.request.urlopen(self.data_url) as response:
                 data = response.read()
             open(self.raw_path, 'wb').write(data)
@@ -53,7 +59,9 @@ class FortranProcessor(object):
 
         # Try to open and return new .dat file
         try:
-            dat_file = open(dat_file_path, "r")
+            # dat_file = open(dat_file_path, "r")
+            # TEST
+            dat_file = open('gcnet/management/commands/importers/processor/exec/argos_decoded.dat', "r")
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore")  # ignores warnings about lines with incorrect columns
                 # (some columns are corrupt and missing values)
