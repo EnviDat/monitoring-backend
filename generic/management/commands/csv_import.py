@@ -1,5 +1,7 @@
-# Example command:
+# Example commands:
 # python manage.py csv_import -i lwf/data/test.csv -t directory -d lwf/data -a lwf -m test40
+# python manage.py csv_import -i https://os.zhdk.cloud.switch.ch/envidat4lwf/p1_meteo/historical/1.csv -t web -d lwf/data -a lwf -m test41 -c 1.csv
+# python manage.py csv_import -i https://os.zhdk.cloud.switch.ch/envidat4lwf/p1_meteo/historical/1.csv -t web -d lwf/data -a lwf -m test -c 1.csv
 
 
 import os
@@ -62,6 +64,13 @@ class Command(BaseCommand):
             help='Django Model to import input data into'
         )
 
+        parser.add_argument(
+            '-c',
+            '--csvname',
+            required=False,
+            help='Name of intermediate csv file, should be used for data retrieved from web. For example "1.csv"'
+        )
+
     def handle(self, *args, **kwargs):
 
         # Assign kwargs from url to variables
@@ -73,12 +82,19 @@ class Command(BaseCommand):
 
         # Check if data source is from a directory or a url and assign input_file to selected option
         if typesource == 'web':
+
+            # Check if csvname was passed
+            csv_name = kwargs['csvname']
+            if csv_name is None:
+                logger.error(f'ERROR no value entered for "csvname" argument')
+                return
+
             # Write content from url into csv file
             url = str(inputfile)
             logger.info(f'STARTED importing input URL: {url}')
             req = requests.get(url)
             url_content = req.content
-            csv_path = str(Path(directory + '/' + inputfile))
+            csv_path = str(Path(directory + '/' + csv_name))
             csv_file = open(csv_path, 'wb')
             csv_file.write(url_content)
             csv_file.close()
@@ -216,6 +232,10 @@ class Command(BaseCommand):
 
         # Delete csv_temporary
         os.remove(csv_temporary)
+
+        # If file downloaded from web delete it
+        # if typesource == 'web' and csv_path:
+        #     os.remove(csv_path)
 
     # Check which kind of line cleaner should be used
     @staticmethod
