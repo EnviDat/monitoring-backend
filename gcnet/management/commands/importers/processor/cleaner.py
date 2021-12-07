@@ -309,17 +309,12 @@ class ArgosCleanerV2(Cleaner):
         # TEST
         # TODO maybe put these variables in a constants ENUM classes or a config file like stations.ini
         # Assign variables for column indices in input numpy array
-        year1_col = 0
-        station_id_col = 7
-        station_number_col = 8
-        year2_col = 9
-        julian_day_col = 10
-        wind_direction_col = 9
-
-        # Assign variables used to for filtering
-        max_days_year = 367
-        max_degrees_wind = 360
-        hours_in_day = 24
+        input_year1_col = 0
+        input_station_id_col = 7
+        input_station_num_col = 8
+        input_year2_col = 9
+        input_julian_day_col = 10
+        input_wind_direction_col = 9
 
         # Assign variables for column indices in combined_array
         combined_year_col = 1
@@ -333,6 +328,11 @@ class ArgosCleanerV2(Cleaner):
         station_year_col = 1
         station_julian_day_col = 2
         station_hour_col = 3
+
+        # Assign variables used to for filtering
+        max_days_year = 367
+        max_degrees_wind = 360
+        hours_in_day = 24
 
         # Iterate through each station and write json and csv file
         for section in self.stations_config.sections():
@@ -355,15 +355,15 @@ class ArgosCleanerV2(Cleaner):
                 if input_data.size != 0:
 
                     # Assign station_data to data assoicated with each station
-                    station_data = np.array(input_data[input_data[:, station_id_col] == station_id, :])
+                    station_data = np.array(input_data[input_data[:, input_station_id_col] == station_id, :])
 
                     if len(station_data) != 0:
 
-                        # Assign unique_array to unique_rows after station_number_col
-                        # Assign unique_indices to indices of unique rows after station_number_col
+                        # Assign unique_array to unique_rows after input_station_num_col
+                        # Assign unique_indices to indices of unique rows after input_station_num_col
                         # because data may repeat with different time signature
                         # unique_arrays, unique_rows = np.unique(station_data[:, 8:], axis=0, return_index=True)
-                        unique_array, unique_indices = np.unique(station_data[:, station_number_col:],
+                        unique_array, unique_indices = np.unique(station_data[:, input_station_num_col:],
                                                                  axis=0, return_index=True)
 
                         # Assign station_data to station_data sorted by unique_indcies
@@ -373,15 +373,17 @@ class ArgosCleanerV2(Cleaner):
                         # and have integer Julian day (records with decimal julian day are erroneous)
                         # and have a realistic Julian day (positive and less than 367 day, leap year will have 366 days)
                         table_1_indices = np.argwhere(
-                            (station_data[:, year1_col] == station_data[:, year2_col]) &
-                            (np.ceil(station_data[:, julian_day_col]) == np.floor(station_data[:, julian_day_col])) &
-                            (station_data[:, julian_day_col] > 0) & (station_data[:, julian_day_col] < max_days_year))
+                            (station_data[:, input_year1_col] == station_data[:, input_year2_col]) &
+                            (np.ceil(station_data[:, input_julian_day_col]) ==
+                             np.floor(station_data[:, input_julian_day_col])) &
+                            (station_data[:, input_julian_day_col] > 0) &
+                            (station_data[:, input_julian_day_col] < max_days_year))
 
                         # Assign table_2_indices to indices of rows that are the second part of the two part table
                         # column 10 of 2nd table is wind direction, realistic values will be less than 360 degrees
                         table_2_indices = np.argwhere(
-                            (station_data[:, year1_col] != station_data[:, wind_direction_col]) &
-                            (station_data[:, wind_direction_col] <= max_degrees_wind))
+                            (station_data[:, input_year1_col] != station_data[:, input_wind_direction_col]) &
+                            (station_data[:, input_wind_direction_col] <= max_degrees_wind))
 
                         # Assign table_2_indices_last_item to last item in table_2_indices
                         table_2_indices_last_item = table_2_indices[-1:]
@@ -416,7 +418,7 @@ class ArgosCleanerV2(Cleaner):
                             table_1_index = table_1_indices[j]
 
                             # Assign table_2_index to the closest table 2 line
-                            table_2_index = table_1_indices[j] + table_2_current_indices[year1_col]
+                            table_2_index = table_1_indices[j] + table_2_current_indices[input_year1_col]
 
                             # Combine corresponding parts of table 1 and table 2 into an array within combined_array
                             combined_array[j, combined_array_columns] = np.concatenate(
