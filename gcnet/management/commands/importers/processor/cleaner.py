@@ -328,6 +328,7 @@ class ArgosCleanerV2(Cleaner):
         station_year_col = 1
         station_julian_day_col = 2
         station_hour_col = 3
+        station_number_col = 0
 
         # Assign variables used to for filtering
         max_days_year = 367
@@ -444,7 +445,7 @@ class ArgosCleanerV2(Cleaner):
                             station_array[station_array == station_no_data2] = self.no_data
 
                             # Assign year to year data
-                            year = station_array[:, station_year_col]
+                            year = station_array[:, station_number_col]
 
                             # Assign julian_day to julian day plus fractional julian day
                             julian_day = station_array[:, station_julian_day_col] + \
@@ -463,6 +464,8 @@ class ArgosCleanerV2(Cleaner):
                             # Reassign station_array to records with unique timestamps
                             station_array = station_array[unique_date_num_indices, :]
 
+                            # print(np.shape(station_array))
+
                             # Reassign year to year data
                             year = station_array[:, station_year_col]
 
@@ -480,13 +483,19 @@ class ArgosCleanerV2(Cleaner):
                                                f' of: {raw_num} records from station ID: {station_id} '
                                                f'Reason: duplicate time tags')
 
-                            tind = np.argsort(
-                                unique_date_num_array)  # find indexes of a sort of unique datetime values along time
-                            station_array = station_array[tind, :]  # crop data array to unique times
-                            julian_day = julian_day[tind]  # crop jday vector to unique times
-                            year = year[tind]
-                            date_num = date_num[tind]  # leave only unique and sorted date_nums
-                            stnum = station_array[:, 0]  # get station number vector
+                            # TODO investigate if this is section is really necessary as station_array was already
+                            # TODO reassigned to unique timestamps in line 464
+                            # Assign unique_timestamp_indices to indices of a sort of unique datetime values along time
+                            unique_timestamp_indices = np.argsort(unique_date_num_array)
+                            # Crop data array to unique times
+                            station_array = station_array[unique_timestamp_indices, :]
+                            # print(np.shape(station_array))
+                            julian_day = julian_day[unique_timestamp_indices]  # crop jday vector to unique times
+                            year = year[unique_timestamp_indices]
+                            date_num = date_num[unique_timestamp_indices]  # leave only unique and sorted date_nums
+
+                            # Assign station_number
+                            station_number = station_array[:, station_year_col]
 
                             # assign and calibrate incoming shortwave
                             swin = self._filter_values_calibrate(station_array[:, 4], section, "swmin", "swmax", "swin",
@@ -601,7 +610,7 @@ class ArgosCleanerV2(Cleaner):
                             # # note this code does not currently calculate the 2 and 10 m winds
                             # # and albedo, so this is column 1-42 of the Level C data
                             wdata = np.column_stack(
-                                (stnum, year, julian_day, swin, swout, swnet, tc1, tc2, hmp1, hmp2, rh1, rh2, ws1,
+                                (station_number, year, julian_day, swin, swout, swnet, tc1, tc2, hmp1, hmp2, rh1, rh2, ws1,
                                  ws2, wd1, wd2, pres, sh1, sh2, snow_temp10, volts, s_winmax, s_woutmax,
                                  s_wnetmax, tc1max, tc2max, tc1min, tc2min, ws1max, ws2max, ws1std, ws2std,
                                  tref))  # assemble data into final level C standard form
