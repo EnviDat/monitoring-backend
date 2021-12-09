@@ -1,7 +1,7 @@
 # Example commands:
-# python manage.py csv_import -i lwf/data/test.csv -t directory -d lwf/data -a lwf -m test40
-# python manage.py csv_import -i https://os.zhdk.cloud.switch.ch/envidat4lwf/p1_meteo/historical/1.csv -t web -d lwf/data -a lwf -m test41 -c 1.csv
-# python manage.py csv_import -i https://os.zhdk.cloud.switch.ch/envidat4lwf/p1_meteo/historical/1.csv -t web -d lwf/data -a lwf -m test -c 1.csv
+# python manage.py csv_import -i lwf/data/test.csv -t directory -d lwf/data -a lwf -m test41
+# python manage.py csv_import -i https://os.zhdk.cloud.switch.ch/envidat4lwf/p1_meteo/historical/1.csv -t web -d lwf/data -a lwf -m test41
+# python manage.py csv_import -i https://os.zhdk.cloud.switch.ch/envidat4lwf/p1_meteo/1.csv -t web -d lwf/data -a lwf -m test41
 
 
 import os
@@ -47,7 +47,8 @@ class Command(BaseCommand):
             '-d',
             '--directory',
             required=True,
-            help='Path to directory which will contain temporary intermediate processing csv file'
+            help='Path to directory which will contain temporary intermediate processing csv file '
+                 'and if using web option temprary downloaded file. '
         )
 
         parser.add_argument(
@@ -64,13 +65,6 @@ class Command(BaseCommand):
             help='Django Model to import input data into'
         )
 
-        parser.add_argument(
-            '-c',
-            '--csvname',
-            required=False,
-            help='Name of intermediate csv file, should be used for data retrieved from web. For example "1.csv"'
-        )
-
     def handle(self, *args, **kwargs):
 
         # Assign kwargs from url to variables
@@ -83,22 +77,15 @@ class Command(BaseCommand):
         # Check if data source is from a directory or a url and assign input_file to selected option
         if typesource == 'web':
 
-            # Check if csvname was passed
-            csv_name = kwargs['csvname']
-            if csv_name is None:
-                logger.error(f'ERROR no value entered for "csvname" argument')
-                return
-
             # Write content from url into csv file
             url = str(inputfile)
             logger.info(f'STARTED importing input URL: {url}')
             req = requests.get(url)
             url_content = req.content
-            csv_path = str(Path(directory + '/' + csv_name))
-            csv_file = open(csv_path, 'wb')
+            input_file = Path(f'{directory}/{model}_downloaded.csv')
+            csv_file = open(input_file, 'wb')
             csv_file.write(url_content)
             csv_file.close()
-            input_file = csv_path
         elif typesource == 'directory':
             input_file = Path(inputfile)
             logger.info(f'STARTED importing input file: {input_file}')
@@ -234,8 +221,8 @@ class Command(BaseCommand):
         os.remove(csv_temporary)
 
         # If file downloaded from web delete it
-        # if typesource == 'web' and csv_path:
-        #     os.remove(csv_path)
+        if os.path.isfile(f'{directory}/{model}_downloaded.csv'):
+            os.remove(f'{directory}/{model}_downloaded.csv')
 
     # Check which kind of line cleaner should be used
     @staticmethod
