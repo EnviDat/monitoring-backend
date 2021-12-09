@@ -24,6 +24,7 @@ python manage.py new_model -c lwf/config/neunkirch_freiland_25.ini &
 python manage.py new_model -c lwf/config/novaggio_bestand_26.ini &
 python manage.py new_model -c lwf/config/novaggio_freiland_27.ini &
 python manage.py new_model -c lwf/config/othmarsingen_bestand_28.ini &
+python manage.py new_model -c lwf/config/othmarsingen_freiland_30.ini &
 python manage.py new_model -c lwf/config/schaenis_bestand_31.ini &
 python manage.py new_model -c lwf/config/schaenis_freiland_32.ini &
 python manage.py new_model -c lwf/config/visp_bestand_33.ini &
