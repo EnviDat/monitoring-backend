@@ -6,14 +6,13 @@
 #    Import data from URL:
 #
 #       python
-#       from lwf.main import main
-#       main.main(['-r 10'])
+#       from lwf import main
+#       main.main(['-r 5'])
 
 
 import argparse
 from pathlib import Path
 import configparser
-# import multiprocessing as mp
 import time
 import subprocess
 
@@ -25,8 +24,8 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 __version__ = '0.0.1'
-__author__ = u'Rebecca Kurup Buchholz'
-config_path = "lwf/config/LWFStations.ini"
+__author__ = 'Rebecca Kurup Buchholz'
+config_path = 'lwf/config/LWFStations.ini'
 
 
 def get_parser():
@@ -60,7 +59,7 @@ def get_csv_import_command_list(config):
             model = config.get(section, 'model')
 
             # Assign command_string to command to run csv import for station
-            command_string = f'python manage.py csv_import ' \
+            command_string = f'python manage.py lwf_main_import ' \
                              f'-i {base_url}{station_url} -t web -d lwf/data -a lwf -m {model} '
 
             # Append command_string to commands list
@@ -73,28 +72,27 @@ def execute_commands(commands_list):
     # Iterate through commands_list and execute each command
     for command in commands_list:
         try:
-            process_result = subprocess.run(command, shell=True, check=True,
-                                            stdout=subprocess.PIPE, universal_newlines=True)
-            # NOTE: the line line below must be included otherwise the import commands do not work!!!
-            print('RUNNING: {0}   STDOUT: {1}'.format(command, process_result.stdout))
+            print('\n')
+            logger.info(f' RUNNING: {command}')
+            subprocess.run(command, shell=True, check=True, stdout=subprocess.PIPE, universal_newlines=True)
         except subprocess.CalledProcessError:
-            print('COULD NOT RUN: {0}'.format(command))
-            print('')
+            logger.error(f' ERROR could not run: {command}')
             continue
 
 
-def read_config(config_path: str):
+def read_config(conf_path: str):
 
-    config_file = Path(config_path)
+    config_file = Path(conf_path)
 
     # Load configuration file
     config = configparser.ConfigParser()
     config.read(config_file)
 
-    logger.info(" Read config params file: {0}, sections: {1}".format(config_path, ', '.join(config.sections())))
+    print('\n')
+    logger.info(' Read config params file: {0}, sections: {1}'.format(conf_path, ', '.join(config.sections())))
 
     if len(config.sections()) < 1:
-        logger.error(" Invalid config file, missing sections")
+        logger.error(' Invalid config file, missing sections')
         return None
 
     return config
@@ -109,11 +107,10 @@ def main(args=None):
     args = parser.parse_args(args)
 
     # Read the config file
-    # config_path = "lwf/config/LWFStations.ini"
     config = read_config(config_path)
 
     if not config:
-        logger.error(" Not valid config file: {0}".format(config_path))
+        logger.error(f' Not valid config file: {config_path}')
         return -1
 
     # Import csv files data into Postgres database
@@ -126,7 +123,8 @@ def main(args=None):
         # Assign start_time for data import iteration
         start_time = time.time()
 
-        print("\n **************************** START DATA IMPORT ITERATION **************************** ")
+        print('\n\n')
+        logger.info(' **************************** START DATA IMPORT ITERATION ****************************')
 
         # Get the import commands
         commands = get_csv_import_command_list(config)
@@ -134,27 +132,10 @@ def main(args=None):
         # Execute the commands
         execute_commands(commands)
 
-        # TODO potentially implement multiprocessing
-
-        # Assign empty import_processes list
-        # import_processes = []
-
-        #     # Create list with both ARGOS and GOES commands
-        #     import_commands = [goes_commands, argos_commands]
-        #
-        #     # Process ARGOS and GOES import commands in parallel
-        #     for command_list in import_commands:
-        #         process = mp.Process(target=execute_commands, args=(command_list,))
-        #         import_processes.append(process)
-        #         process.start()
-        #
-        #     for process in import_processes:
-        #         process.join()
-        #
-
         # Finish data import iteration
         exec_time = int(time.time() - start_time)
-        logger.info(f' FINISHED DATA IMPORT ITERATION. That took {exec_time} seconds')
+        print('\n')
+        logger.info(f' FINISHED data import iteration. That took {exec_time} seconds')
 
         # Do not start next iteration until wait_time as lapsed
         if repeat:
