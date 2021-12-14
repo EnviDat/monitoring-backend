@@ -1,7 +1,7 @@
 # Example commands:
 # python manage.py lwf_main_import -i lwf/data/test.csv -t directory -d lwf/data -a lwf -m test41
 # python manage.py lwf_main_import -i https://os.zhdk.cloud.switch.ch/envidat4lwf/p1_meteo/historical/1.csv -t web -d lwf/data -a lwf -m test41
-# python manage.py lwf_main_import -i https://os.zhdk.cloud.switch.ch/envidat4lwf/p1_meteo/1.csv -t web -d lwf/data -a lwf -m test41
+# python manage.py lwf_main_import -i https://os.zhdk.cloud.switch.ch/envidat4lwf/p1_meteo/1.csv -t web -d lwf/data -a lwf -m test41 -s 10
 
 
 import os
@@ -14,19 +14,11 @@ from django.apps import apps
 
 from generic.util.views_helpers import get_model_cl
 from generic.util.nead import write_nead_config
+from lwf.main import get_logger
 from lwf.util.cleaners import get_lwf_meteo_line_clean, get_lwf_station_line_clean
 
 # Setup logging
-import logging
-
-logging.basicConfig()
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
-
-# logging.basicConfig(filename=Path('generic/logs/csv_import.log'), format='%(asctime)s  %(filename)s: %(message)s',
-#                     datefmt='%d-%b-%y %H:%M:%S')
-# logger = logging.getLogger(__name__)
-# logger.setLevel(logging.DEBUG)
+logger = get_logger('lwf_main_import')
 
 
 class Command(BaseCommand):
@@ -69,6 +61,12 @@ class Command(BaseCommand):
             help='Django Model to import input data into'
         )
 
+        parser.add_argument(
+            '-s',
+            '--sizelimit',
+            help='(optional) Maximum size in megabytes of file to download from URL'
+        )
+
     def handle(self, *args, **kwargs):
 
         # Assign kwargs from url to variables
@@ -77,25 +75,6 @@ class Command(BaseCommand):
         directory = kwargs['directory']
         app = kwargs['app']
         model = kwargs['model']
-
-        # Check if data source is from a directory or a url and assign input_file to selected option
-        if typesource == 'web':
-
-            # Write content from url into csv file
-            url = str(inputfile)
-            logger.info(f' STARTED importing input URL: {url}')
-            req = requests.get(url)
-            url_content = req.content
-            input_file = Path(f'{directory}/{model}_downloaded.csv')
-            csv_file = open(input_file, 'wb')
-            csv_file.write(url_content)
-            csv_file.close()
-        elif typesource == 'directory':
-            input_file = Path(inputfile)
-            logger.info(f' STARTED importing input file: {input_file}')
-        else:
-            logger.error(f' ERROR non-valid value entered for "typesource": {typesource}')
-            return
 
         # Validate app
         if not apps.is_installed(app):
@@ -107,6 +86,42 @@ class Command(BaseCommand):
             model_class = get_model_cl(app, model)
         except AttributeError as e:
             logger.error(f' ERROR model {model} not found, exception {e}')
+            return
+
+        # Check if data source is from a directory or a url and assign input_file to selected option
+        if typesource == 'web':
+
+            # Assign url to inputfile
+            url = str(inputfile)
+
+            # Check if sizelimit kwarg passed
+            size_limit = kwargs['sizelimit']
+            if size_limit:
+
+                # Get size of file to download in megabytes
+                info_url = requests.head(url)
+                size_bytes_url = info_url.headers['Content-Length']
+                size_mb_url = int(size_bytes_url)/(1024*1024)
+
+                # If file to download is over limit then log error and stop processing
+                if size_mb_url > int(size_limit):
+                    logger.error(f' ERROR {url} is larger than maximum size allowed: {size_limit} MB')
+                    return
+
+            # logger.info(f' Started importing input URL: {url}')
+            req = requests.get(url)
+            url_content = req.content
+            input_file = Path(f'{directory}/{model}_downloaded.csv')
+            csv_file = open(input_file, 'wb')
+            csv_file.write(url_content)
+            csv_file.close()
+
+        elif typesource == 'directory':
+            input_file = Path(inputfile)
+            logger.info(f' Started importing input file: {input_file}')
+
+        else:
+            logger.error(f' ERROR non-valid value entered for "typesource": {typesource}')
             return
 
         # Get parent class name
@@ -219,7 +234,7 @@ class Command(BaseCommand):
         c.save()
 
         # Log import message
-        logger.info(f' FINISHED import: {records_written} new records written in {model}')
+        logger.info(f' Finished import: {records_written} new records written in {model}')
 
         # Delete csv_temporary
         os.remove(csv_temporary)
