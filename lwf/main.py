@@ -171,7 +171,7 @@ def main(args=None):
         exec_time = int(time.time() - start_time)
         logger.info(f' FINISHED data import iteration, that took {exec_time} seconds')
 
-        # Do not start next iteration until wait_time as lapsed
+        # Do not start next iteration until wait_time has lapsed
         if repeat:
             interval = int(args.repeatInterval) * 60
             if interval > exec_time:
