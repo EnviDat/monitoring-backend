@@ -255,4 +255,4 @@ class Command(BaseCommand):
 
         else:
             raise Exception(f' ERROR parent class {parent_class_name} does not exist '
-                            f'or is not specified in csv_import.py')
+                            f'or is not specified in lwf_main_import.py')
