@@ -7,7 +7,7 @@
 #
 #       python
 #       from lwf import main
-#       main.main(['-r 5'])
+#       main.main(['-r 10'])
 
 
 import argparse
@@ -20,27 +20,20 @@ import logging
 import sys
 
 
-__version__ = '0.0.1'
-__author__ = 'Rebecca Kurup Buchholz'
-CONFIG_PATH = 'lwf/config/LWFStations.ini'
-
-
 # ============================================ LOGGING ================================================================
-
-LOG_FILE = 'lwf/logs/lwf_main.log'
-# FORMATTER = logging.Formatter('%(asctime)s %(name)s %(levelname)s %(message)s', '%Y-%m-%d %H:%M:%S')
-FORMATTER = logging.Formatter('%(asctime)s: %(message)s', '%Y-%m-%d %H:%M:%S')
-
 
 def get_console_handler():
     console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setFormatter(FORMATTER)
+    formatter = logging.Formatter('%(asctime)s: %(message)s', '%Y-%m-%d %H:%M:%S')
+    console_handler.setFormatter(formatter)
     return console_handler
 
 
 def get_file_handler():
-    file_handler = TimedRotatingFileHandler(LOG_FILE, when='midnight', backupCount=7)
-    file_handler.setFormatter(FORMATTER)
+    log_file = 'lwf/logs/lwf_main.log'
+    file_handler = TimedRotatingFileHandler(log_file, when='midnight', backupCount=7)
+    formatter = logging.Formatter('%(asctime)s: %(message)s', '%Y-%m-%d %H:%M:%S')
+    file_handler.setFormatter(formatter)
     return file_handler
 
 
@@ -63,10 +56,8 @@ def get_parser():
     Creates a new argument parser.
     """
     parser = argparse.ArgumentParser("LWFStationImport")
-    version = '%(prog)s ' + __version__
-    parser.add_argument('--version', '-v', action='version', version=version)
     parser.add_argument('--repeatInterval', '-r', help='Run continuously every <interval> minutes')
-
+    
     return parser
 
 
@@ -141,10 +132,11 @@ def main(args=None):
     args = parser.parse_args(args)
 
     # Read the config file
-    config = read_config(CONFIG_PATH)
+    config_path = 'lwf/config/LWFStations.ini'
+    config = read_config(config_path)
 
     if not config:
-        logger.error(f' ERROR not valid config file: {CONFIG_PATH}')
+        logger.error(f' ERROR not valid config file: {config_path}')
         return -1
 
     # Import csv files data into Postgres database
