@@ -8,6 +8,9 @@
 #       python
 #       from lwf import main
 #       main.main(['-r 10'])
+#
+# Author: Rebecca Kurup Buchholz, Swiss Federal Research Institute WSL
+# Date last modified: January, 6, 2022
 
 
 import argparse
@@ -31,7 +34,7 @@ def get_console_handler():
 
 def get_file_handler():
     log_file = 'lwf/logs/lwf_main.log'
-    file_handler = TimedRotatingFileHandler(log_file, when='midnight', backupCount=7)
+    file_handler = TimedRotatingFileHandler(log_file, when='midnight', backupCount=30)
     formatter = logging.Formatter('%(asctime)s: %(message)s', '%Y-%m-%d %H:%M:%S')
     file_handler.setFormatter(formatter)
     return file_handler
@@ -57,7 +60,7 @@ def get_parser():
     """
     parser = argparse.ArgumentParser("LWFStationImport")
     parser.add_argument('--repeatInterval', '-r', help='Run continuously every <interval> minutes')
-    
+
     return parser
 
 
