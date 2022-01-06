@@ -306,34 +306,41 @@ class ArgosCleanerV2(Cleaner):
 
         np.set_printoptions(threshold=sys.maxsize)
 
-        # TEST
-        # TODO maybe put these variables in a constants ENUM classes or a config file like stations.ini
-        # Assign variables for column indices in input numpy array
-        input_year1_col = 0
-        input_station_id_col = 7
-        input_station_num_col = 8
-        input_year2_col = 9
-        input_julian_day_col = 10
-        input_wind_direction_col = 9
+        # Assign constants for column indices in input numpy array
+        INPUT_YEAR1_COL = 0
+        INPUT_STATION_ID_COL = 7
+        INPUT_STATION_NUM_COL = 8
+        INPUT_YEAR2_COL = 9
+        INPUT_JULIAN_DAY_COL = 10
+        INPUT_WIND_DIRECTION_COL = 9
 
-        # Assign variables for column indices in combined_array
-        combined_year_col = 1
-        combined_year_min = 1990
-        combined_year_max = 2050
-        combined_julian_day_col = 2
+        # Assign constants for column indices and other constants in combined_array
+        COMBINED_YEAR_COL = 1
+        COMBINED_YEAR_MIN = 1990
+        COMBINED_YEAR_MAX = 2050
+        COMBINED_JULIAN_DAY_COL = 2
 
-        # Assign variables used in station_array processing
-        station_no_data1 = -8190
-        station_no_data2 = 2080
-        station_year_col = 1
-        station_julian_day_col = 2
-        station_hour_col = 3
-        station_number_col = 0
+        # Assign constants for column indices and other constants used in station_array processing
+        STATION_NO_DATA1 = -8190
+        STATION_NO_DATA2 = 2080
+        STATION_NUMBER_COL = 0
+        STATION_YEAR_COL = 1
+        STATION_JULIAN_DAY_COL = 2
+        STATION_HOUR_COL = 3
+        STATION_SWIN_COL = 4
+        STATION_SWOUT_COL = 5
+        STATION_SWNET_COL = 6
+        STATION_TC1_COL = 7
+        STATION_TC2_COL = 8
+        STATION_HMP1_COL = 9
+        STATION_HMP2_COL = 10
+        STATION_RH1_COL = 11
 
-        # Assign variables used to for filtering
-        max_days_year = 367
-        max_degrees_wind = 360
-        hours_in_day = 24
+        # Assign other constants
+        MAX_DAYS_YEAR = 367
+        MAX_DEGREES_WIND = 360
+        HOURS_IN_DAY = 24
+        MAX_HUMIDITY = 100
 
         # Iterate through each station and write json and csv file
         for section in self.stations_config.sections():
@@ -356,15 +363,15 @@ class ArgosCleanerV2(Cleaner):
                 if input_data.size != 0:
 
                     # Assign station_data to data assoicated with each station
-                    station_data = np.array(input_data[input_data[:, input_station_id_col] == station_id, :])
+                    station_data = np.array(input_data[input_data[:, INPUT_STATION_ID_COL] == station_id, :])
 
                     if len(station_data) != 0:
 
-                        # Assign unique_array to unique_rows after input_station_num_col
-                        # Assign unique_indices to indices of unique rows after input_station_num_col
+                        # Assign unique_array to unique_rows after INPUT_STATION_NUM_COL
+                        # Assign unique_indices to indices of unique rows after INPUT_STATION_NUM_COL
                         # because data may repeat with different time signature
                         # unique_arrays, unique_rows = np.unique(station_data[:, 8:], axis=0, return_index=True)
-                        unique_array, unique_indices = np.unique(station_data[:, input_station_num_col:],
+                        unique_array, unique_indices = np.unique(station_data[:, INPUT_STATION_NUM_COL:],
                                                                  axis=0, return_index=True)
 
                         # Assign station_data to station_data sorted by unique_indcies
@@ -374,17 +381,17 @@ class ArgosCleanerV2(Cleaner):
                         # and have integer Julian day (records with decimal julian day are erroneous)
                         # and have a realistic Julian day (positive and less than 367 day, leap year will have 366 days)
                         table_1_indices = np.argwhere(
-                            (station_data[:, input_year1_col] == station_data[:, input_year2_col]) &
-                            (np.ceil(station_data[:, input_julian_day_col]) ==
-                             np.floor(station_data[:, input_julian_day_col])) &
-                            (station_data[:, input_julian_day_col] > 0) &
-                            (station_data[:, input_julian_day_col] < max_days_year))
+                            (station_data[:, INPUT_YEAR1_COL] == station_data[:, INPUT_YEAR2_COL]) &
+                            (np.ceil(station_data[:, INPUT_JULIAN_DAY_COL]) ==
+                             np.floor(station_data[:, INPUT_JULIAN_DAY_COL])) &
+                            (station_data[:, INPUT_JULIAN_DAY_COL] > 0) &
+                            (station_data[:, INPUT_JULIAN_DAY_COL] < MAX_DAYS_YEAR))
 
                         # Assign table_2_indices to indices of rows that are the second part of the two part table
                         # column 10 of 2nd table is wind direction, realistic values will be less than 360 degrees
                         table_2_indices = np.argwhere(
-                            (station_data[:, input_year1_col] != station_data[:, input_wind_direction_col]) &
-                            (station_data[:, input_wind_direction_col] <= max_degrees_wind))
+                            (station_data[:, INPUT_YEAR1_COL] != station_data[:, INPUT_WIND_DIRECTION_COL]) &
+                            (station_data[:, INPUT_WIND_DIRECTION_COL] <= MAX_DEGREES_WIND))
 
                         # Assign table_2_indices_last_item to last item in table_2_indices
                         table_2_indices_last_item = table_2_indices[-1:]
@@ -395,6 +402,7 @@ class ArgosCleanerV2(Cleaner):
                         # Assign num_records to length of table_1_indices
                         num_records = len(table_1_indices)
 
+                        # TODO replace numbers in this section with constants
                         # Assign combined_array as an array that will be used to
                         # combine data from table 1 and table 2, inialize all values as 999
                         combined_array = np.ones((num_records, 43)) * 999
@@ -419,7 +427,7 @@ class ArgosCleanerV2(Cleaner):
                             table_1_index = table_1_indices[j]
 
                             # Assign table_2_index to the closest table 2 line
-                            table_2_index = table_1_indices[j] + table_2_current_indices[input_year1_col]
+                            table_2_index = table_1_indices[j] + table_2_current_indices[INPUT_YEAR1_COL]
 
                             # Combine corresponding parts of table 1 and table 2 into an array within combined_array
                             combined_array[j, combined_array_columns] = np.concatenate(
@@ -428,10 +436,10 @@ class ArgosCleanerV2(Cleaner):
                                  station_data[table_2_index, table_2_columns]))
 
                         # Assign station_array to combined_array filtered for realistic years and Julian days
-                        station_array = combined_array[(combined_array[:, combined_year_col] > combined_year_min) &
-                                                       (combined_array[:, combined_year_col] < combined_year_max) &
-                                                       (combined_array[:, combined_julian_day_col] >= 0) &
-                                                       (combined_array[:, combined_julian_day_col] < max_days_year), :]
+                        station_array = combined_array[(combined_array[:, COMBINED_YEAR_COL] > COMBINED_YEAR_MIN) &
+                                                       (combined_array[:, COMBINED_YEAR_COL] < COMBINED_YEAR_MAX) &
+                                                       (combined_array[:, COMBINED_JULIAN_DAY_COL] >= 0) &
+                                                       (combined_array[:, COMBINED_JULIAN_DAY_COL] < MAX_DAYS_YEAR), :]
 
                         # print(station_array)
 
@@ -441,15 +449,15 @@ class ArgosCleanerV2(Cleaner):
                         if len(station_array) != 0:
 
                             # Assign no_data values to self.no_data
-                            station_array[station_array == station_no_data1] = self.no_data
-                            station_array[station_array == station_no_data2] = self.no_data
+                            station_array[station_array == STATION_NO_DATA1] = self.no_data
+                            station_array[station_array == STATION_NO_DATA2] = self.no_data
 
                             # Assign year to year data
-                            year = station_array[:, station_number_col]
+                            year = station_array[:, STATION_NUMBER_COL]
 
                             # Assign julian_day to julian day plus fractional julian day
-                            julian_day = station_array[:, station_julian_day_col] + \
-                                         station_array[:, station_hour_col] / hours_in_day
+                            julian_day = station_array[:, STATION_JULIAN_DAY_COL] + \
+                                         station_array[:, STATION_HOUR_COL] / HOURS_IN_DAY
 
                             # Assign date_number to year * 1000 + julian_day
                             date_num = year * 1.e3 + julian_day
@@ -467,11 +475,11 @@ class ArgosCleanerV2(Cleaner):
                             # print(np.shape(station_array))
 
                             # Reassign year to year data
-                            year = station_array[:, station_year_col]
+                            year = station_array[:, STATION_YEAR_COL]
 
                             # Reassign julian_day to julian day plus fractional julian day
-                            julian_day = station_array[:, station_julian_day_col] + \
-                                         station_array[:, station_hour_col] / hours_in_day
+                            julian_day = station_array[:, STATION_JULIAN_DAY_COL] + \
+                                         station_array[:, STATION_HOUR_COL] / HOURS_IN_DAY
 
                             # Reassign date_number to year * 1000 + julian_day
                             date_num = year * 1.e3 + julian_day
@@ -495,51 +503,64 @@ class ArgosCleanerV2(Cleaner):
                             date_num = date_num[unique_timestamp_indices]  # leave only unique and sorted date_nums
 
                             # Assign station_number
-                            station_number = station_array[:, station_year_col]
+                            station_number = station_array[:, STATION_YEAR_COL]
 
-                            # assign and calibrate incoming shortwave
-                            swin = self._filter_values_calibrate(station_array[:, 4], section, "swmin", "swmax", "swin",
+                            # Assign and calibrate incoming shortwave
+                            swin = self._filter_values_calibrate(station_array[:, STATION_SWIN_COL], section,
+                                                                 "swmin", "swmax", "swin",
                                                                  self.no_data, self.no_data)
 
-                            # assign and calibrate outgoing shortwave
-                            swout = self._filter_values_calibrate(station_array[:, 5], section, "swmin", "swmax",
-                                                                  "swout",
+                            # Assign and calibrate outgoing shortwave
+                            swout = self._filter_values_calibrate(station_array[:, STATION_SWOUT_COL], section,
+                                                                  "swmin", "swmax", "swout",
                                                                   self.no_data, self.no_data)
 
-                            # #assign and calibrate net shortwave, negative and positive values
+                            # Assign and calibrate net shortwave, negative and positive values
                             # have different calibration coefficients according to QC code
+                            # TODO investigate use of 999 here
                             swnet = 999 * np.ones(np.size(swout, 0))
-                            swnet[station_array[:, 6] >= 0] = station_array[station_array[:, 6] >= 0, 6] * float(
-                                self.stations_config.get(section, "swnet_pos"))
-                            swnet[station_array[:, 6] < 0] = station_array[station_array[:, 6] < 0, 6] * float(
-                                self.stations_config.get(section, "swnet_neg"))
+                            swnet[station_array[:, STATION_SWNET_COL] >= 0] = \
+                                station_array[station_array[:, STATION_SWNET_COL] >= 0, STATION_SWNET_COL] \
+                                * float(self.stations_config.get(section, "swnet_pos"))
+                            swnet[station_array[:, STATION_SWNET_COL] < 0] = \
+                                station_array[station_array[:, STATION_SWNET_COL] < 0, STATION_SWNET_COL] \
+                                * float(self.stations_config.get(section, "swnet_neg"))
 
-                            swnet[
-                                swnet < -float(self.stations_config.get(section, "swmax"))] = self.no_data  # filter low
-                            swnet[
-                                swnet > float(self.stations_config.get(section, "swmax"))] = self.no_data  # filter high
+                            # Filter low net shortwave
+                            swnet[swnet < -float(self.stations_config.get(section, "swmax"))] = self.no_data
 
-                            tc1 = self._filter_values(station_array[:, 7], section, "tcmin", "tcmax")  # thermocouple 1
+                            # Filter high net shortwave
+                            swnet[swnet > float(self.stations_config.get(section, "swmax"))] = self.no_data
 
-                            tc2 = self._filter_values(station_array[:, 8], section, "tcmin", "tcmax")  # thermocouple 2
+                            # Filter thermocouple 1
+                            tc1 = self._filter_values(station_array[:, STATION_TC1_COL], section, "tcmin", "tcmax")
 
-                            hmp1 = self._filter_values(station_array[:, 9], section, "hmpmin", "hmpmax")  # hmp1 temp
+                            # Filter thermocouple 2
+                            tc2 = self._filter_values(station_array[:, STATION_TC2_COL], section, "tcmin", "tcmax")
 
-                            hmp2 = self._filter_values(station_array[:, 10], section, "hmpmin", "hmpmax")  # hmp2 temp
+                            # Filter hmp1 temp
+                            hmp1 = self._filter_values(station_array[:, STATION_HMP1_COL], section, "hmpmin", "hmpmax")
 
-                            rh1 = station_array[:, 11]  # HMP relative humidity 1
+                            # Filter hmp2 temp
+                            hmp2 = self._filter_values(station_array[:, STATION_HMP2_COL], section, "hmpmin", "hmpmax")
+
+                            # Assign and filter relative humidity 1
+                            rh1 = station_array[:, STATION_RH1_COL]
                             rh1[rh1 < float(self.stations_config.get(section, "rhmin"))] = self.no_data  # filter low
                             rh1[rh1 > float(self.stations_config.get(section, "rhmax"))] = self.no_data  # filter high
-                            # Assign values greater than 100 and less than rhmax to 100
-                            rh1[(rh1 > 100) & (
-                                    rh1 < float(self.stations_config.get(section, "rhmax")))] = 100
+                            # Assign values greater than MAX_HUMIDITY and less than rhmax to MAX_HUMIDITY
+                            rh1[(rh1 > MAX_HUMIDITY) & (rh1 < float(self.stations_config.get(section, "rhmax")))] \
+                                = MAX_HUMIDITY
 
+                            # TODO finish assigning constants to station_array column indices
+
+                            # Assign and filter relative humidity 2
                             rh2 = station_array[:, 12]  # HMP relative humidity 2
                             rh2[rh2 < float(self.stations_config.get(section, "rhmin"))] = self.no_data  # filter low
                             rh2[rh2 > float(self.stations_config.get(section, "rhmax"))] = self.no_data  # filter high
                             # Assign values greater than 100 and less than rhmax to 100
-                            rh2[(rh2 > 100) & (
-                                    rh2 < float(self.stations_config.get(section, "rhmax")))] = 100
+                            rh2[(rh2 > MAX_HUMIDITY) & (
+                                    rh2 < float(self.stations_config.get(section, "rhmax")))] = MAX_HUMIDITY
 
                             ws1 = self._filter_values(station_array[:, 13], section, "wmin", "wmax")  # wind speed 1
 
@@ -610,23 +631,32 @@ class ArgosCleanerV2(Cleaner):
                             # # note this code does not currently calculate the 2 and 10 m winds
                             # # and albedo, so this is column 1-42 of the Level C data
                             wdata = np.column_stack(
-                                (station_number, year, julian_day, swin, swout, swnet, tc1, tc2, hmp1, hmp2, rh1, rh2, ws1,
+                                (station_number, year, julian_day, swin, swout, swnet, tc1, tc2, hmp1, hmp2, rh1, rh2,
+                                 ws1,
                                  ws2, wd1, wd2, pres, sh1, sh2, snow_temp10, volts, s_winmax, s_woutmax,
                                  s_wnetmax, tc1max, tc2max, tc1min, tc2min, ws1max, ws2max, ws1std, ws2std,
                                  tref))  # assemble data into final level C standard form
+
+                            # Get current date
                             today = datetime.now()
                             day_of_year = (today - datetime(today.year, 1, 1)).days + 1
-                            theyear = today.year
-                            todayjday = day_of_year + today.hour / 24  # calculate fractional julian day
-                            nowdatenum = theyear * 1e3 + todayjday
-                            wdata = wdata[date_num < nowdatenum, :]  # only take entries in the past
-                            numfuturepts = len(np.argwhere(date_num > nowdatenum))
+                            current_year = today.year
 
-                            if numfuturepts > 0:
+                            # Calculate fractional julian day
+                            current_julian_day = day_of_year + today.hour / HOURS_IN_DAY
+
+                            current_date_num = current_year * 1e3 + current_julian_day
+
+                            # Only take entries in the past
+                            wdata = wdata[date_num < current_date_num, :]
+                            future_reports_num = len(np.argwhere(date_num > current_date_num))
+
+                            if future_reports_num > 0:
                                 logger.warning(
-                                    "ArgosCleaner: Warning: Removed " + str(numfuturepts) + " entries out of: " + str(
-                                        len(wdata[:, 1]) + numfuturepts) + " records from station ID: " + str(
-                                        station_id) + " Reason: time tags in future")
+                                    "ArgosCleaner: Warning: Removed " + str(future_reports_num)
+                                    + " entries out of: " + str(len(wdata[:, 1]) + future_reports_num)
+                                    + " records from station ID: " + str(station_id)
+                                    + " Reason: time tags in future")
 
                             # Call write_csv function to write csv file with processed data
                             # TODO test write_csv with convertingself.no_data value to null
