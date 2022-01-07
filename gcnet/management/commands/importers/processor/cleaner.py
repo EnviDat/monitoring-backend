@@ -15,6 +15,7 @@ logger.setLevel(logging.DEBUG)
 
 
 class Cleaner(object):
+
     def __init__(self, init_file_path: str, station_type: str, writer: Writer):
         self.init_file_path = init_file_path
         self.stations_config = self._get_config()
@@ -23,6 +24,7 @@ class Cleaner(object):
         self.writer = writer
 
     def _get_config(self):
+
         # Set relative path to stations config file
         stations_config_file = Path(self.init_file_path)
 
@@ -34,6 +36,7 @@ class Cleaner(object):
 
     # Function to filter values
     def _filter_values(self, unfiltered_values, sect, minimum, maximum):
+
         # Filter out low and high values
         array = unfiltered_values
         array[array < float(self.stations_config.get(sect, minimum))] = self.no_data
@@ -44,12 +47,29 @@ class Cleaner(object):
     # Function to filter values with calibration factor
     def _filter_values_calibrate(self, unfiltered_values, sect, minimum, maximum, calibration,
                                  no_data_min, no_data_max):
+
         # Multiply values by calibration factor, filter out low and high values
         array = unfiltered_values * float(self.stations_config.get(sect, calibration))
         array[array < float(self.stations_config.get(sect, minimum))] = no_data_min
         array[array > float(self.stations_config.get(sect, maximum))] = no_data_max
 
         return array
+
+        # Function to return current date number
+
+    @staticmethod
+    def _get_date_num():
+        # Get current date
+        today = datetime.now()
+        day_of_year = (today - datetime(today.year, 1, 1)).days + 1
+        current_year = today.year
+
+        # Calculate fractional julian day
+        current_julian_day = day_of_year + today.hour / 24
+
+        current_date_num = current_year * 1e3 + current_julian_day
+
+        return current_date_num
 
 
 class ArgosCleaner(Cleaner):
@@ -301,7 +321,7 @@ class ArgosCleanerV2(Cleaner):
     def __init__(self, init_file_path: str, writer: Writer):
         Cleaner.__init__(self, init_file_path, "ARGOS", writer)
 
-    # Function to process ARGOS np array fom a dat file
+    # Function to process ARGOS numpy array fom a dat file
     def clean(self, input_data: np.ndarray):
 
         np.set_printoptions(threshold=sys.maxsize)
@@ -358,7 +378,7 @@ class ArgosCleanerV2(Cleaner):
                 # Assign station_num
                 station_num = int(self.stations_config.get(section, "station_num"))
 
-                logger.info("ArgosCleaner: Processing {0} Station #{1}...".format(self.station_type, station_num))
+                logger.info(f'ArgosCleaner: Processing {self.station_type} Station #{station_num}...')
 
                 if input_data.size != 0:
 
@@ -402,7 +422,6 @@ class ArgosCleanerV2(Cleaner):
                         # Assign num_records to length of table_1_indices
                         num_records = len(table_1_indices)
 
-                        # TODO replace numbers in this section with constants
                         # Assign combined_array as an array that will be used to
                         # combine data from table 1 and table 2, inialize all values as 999
                         combined_array = np.ones((num_records, 43)) * 999
@@ -441,11 +460,8 @@ class ArgosCleanerV2(Cleaner):
                                                        (combined_array[:, COMBINED_JULIAN_DAY_COL] >= 0) &
                                                        (combined_array[:, COMBINED_JULIAN_DAY_COL] < MAX_DAYS_YEAR), :]
 
-                        # print(station_array)
-
                         # Filter and process station_array
                         # Assign variables used to create new array that will be used to write csv files and json files
-                        # TODO check if this if statement is really needed
                         if len(station_array) != 0:
 
                             # Assign no_data values to self.no_data
@@ -456,8 +472,8 @@ class ArgosCleanerV2(Cleaner):
                             year = station_array[:, STATION_NUMBER_COL]
 
                             # Assign julian_day to julian day plus fractional julian day
-                            julian_day = station_array[:, STATION_JULIAN_DAY_COL] + \
-                                         station_array[:, STATION_HOUR_COL] / HOURS_IN_DAY
+                            julian_day = station_array[:, STATION_JULIAN_DAY_COL] \
+                                         + station_array[:, STATION_HOUR_COL] / HOURS_IN_DAY
 
                             # Assign date_number to year * 1000 + julian_day
                             date_num = year * 1.e3 + julian_day
@@ -472,14 +488,12 @@ class ArgosCleanerV2(Cleaner):
                             # Reassign station_array to records with unique timestamps
                             station_array = station_array[unique_date_num_indices, :]
 
-                            # print(np.shape(station_array))
-
                             # Reassign year to year data
                             year = station_array[:, STATION_YEAR_COL]
 
                             # Reassign julian_day to julian day plus fractional julian day
-                            julian_day = station_array[:, STATION_JULIAN_DAY_COL] + \
-                                         station_array[:, STATION_HOUR_COL] / HOURS_IN_DAY
+                            julian_day = station_array[:, STATION_JULIAN_DAY_COL] \
+                                         + station_array[:, STATION_HOUR_COL] / HOURS_IN_DAY
 
                             # Reassign date_number to year * 1000 + julian_day
                             date_num = year * 1.e3 + julian_day
@@ -491,14 +505,12 @@ class ArgosCleanerV2(Cleaner):
                                                f' of: {raw_num} records from station ID: {station_id} '
                                                f'Reason: duplicate time tags')
 
-                            # TODO investigate if this is section is really necessary as station_array was already
-                            # TODO reassigned to unique timestamps in line 464
                             # Assign unique_timestamp_indices to indices of a sort of unique datetime values along time
                             unique_timestamp_indices = np.argsort(unique_date_num_array)
+
                             # Crop data array to unique times
                             station_array = station_array[unique_timestamp_indices, :]
-                            # print(np.shape(station_array))
-                            julian_day = julian_day[unique_timestamp_indices]  # crop jday vector to unique times
+                            julian_day = julian_day[unique_timestamp_indices]  # crop julian_day vector to unique times
                             year = year[unique_timestamp_indices]
                             date_num = date_num[unique_timestamp_indices]  # leave only unique and sorted date_nums
 
@@ -516,8 +528,7 @@ class ArgosCleanerV2(Cleaner):
                                                                   self.no_data, self.no_data)
 
                             # Assign and calibrate net shortwave, negative and positive values
-                            # have different calibration coefficients according to QC code
-                            # TODO investigate use of 999 here
+                            # Different stations have different calibration coefficients according to QC code
                             swnet = 999 * np.ones(np.size(swout, 0))
                             swnet[station_array[:, STATION_SWNET_COL] >= 0] = \
                                 station_array[station_array[:, STATION_SWNET_COL] >= 0, STATION_SWNET_COL] \
@@ -544,7 +555,7 @@ class ArgosCleanerV2(Cleaner):
                             # Filter hmp2 temp
                             hmp2 = self._filter_values(station_array[:, STATION_HMP2_COL], section, "hmpmin", "hmpmax")
 
-                            # Assign and filter relative humidity 1
+                            # Filter relative humidity 1
                             rh1 = station_array[:, STATION_RH1_COL]
                             rh1[rh1 < float(self.stations_config.get(section, "rhmin"))] = self.no_data  # filter low
                             rh1[rh1 > float(self.stations_config.get(section, "rhmax"))] = self.no_data  # filter high
@@ -628,51 +639,40 @@ class ArgosCleanerV2(Cleaner):
                             ws2std = station_array[:, 41]
                             tref = station_array[:, 42]
 
-                            # # note this code does not currently calculate the 2 and 10 m winds
-                            # # and albedo, so this is column 1-42 of the Level C data
+                            # Note this code does not currently calculate the 2 and 10 m winds
+                            # and albedo, so this is column 1-42 of the Level C data
+                            # Assemble data into final level C standard form
                             wdata = np.column_stack(
                                 (station_number, year, julian_day, swin, swout, swnet, tc1, tc2, hmp1, hmp2, rh1, rh2,
-                                 ws1,
-                                 ws2, wd1, wd2, pres, sh1, sh2, snow_temp10, volts, s_winmax, s_woutmax,
-                                 s_wnetmax, tc1max, tc2max, tc1min, tc2min, ws1max, ws2max, ws1std, ws2std,
-                                 tref))  # assemble data into final level C standard form
+                                 ws1, ws2, wd1, wd2, pres, sh1, sh2, snow_temp10, volts, s_winmax, s_woutmax,
+                                 s_wnetmax, tc1max, tc2max, tc1min, tc2min, ws1max, ws2max, ws1std, ws2std, tref)
+                            )
 
-                            # Get current date
-                            today = datetime.now()
-                            day_of_year = (today - datetime(today.year, 1, 1)).days + 1
-                            current_year = today.year
-
-                            # Calculate fractional julian day
-                            current_julian_day = day_of_year + today.hour / HOURS_IN_DAY
-
-                            current_date_num = current_year * 1e3 + current_julian_day
+                            # Get current date number
+                            current_date_num = self._get_date_num()
 
                             # Only take entries in the past
                             wdata = wdata[date_num < current_date_num, :]
                             future_reports_num = len(np.argwhere(date_num > current_date_num))
 
                             if future_reports_num > 0:
-                                logger.warning(
-                                    "ArgosCleaner: Warning: Removed " + str(future_reports_num)
-                                    + " entries out of: " + str(len(wdata[:, 1]) + future_reports_num)
-                                    + " records from station ID: " + str(station_id)
-                                    + " Reason: time tags in future")
+                                logger.warning(f'ArgosCleaner: Warning: Removed {str(future_reports_num)} entries out '
+                                               f'of: {str(len(wdata[:, 1]) + future_reports_num)} records from station '
+                                               f'ID: {str(station_id)} Reason: time tags in future')
 
                             # Call write_csv function to write csv file with processed data
-                            # TODO test write_csv with convertingself.no_data value to null
                             self.writer.write_csv(wdata, station_num, year, julian_day, date_num)
 
                             # Call write_json function to write json long-term and short-term files with processed data
                             self.writer.write_json(wdata, station_num, self.no_data)
 
-                        else:  # if station_array is empty after removing bad dates
-                            wdata = np.array([])
-                            logger.warning("\t{0} Station  #{1} does not have usable data".format(self.station_type,
-                                                                                                  station_num))
+                        # Else station_array is empty after removing bad dates
+                        else:
+                            # wdata = np.array([])
+                            logger.warning(f'\t{self.station_type} Station #{station_num} does not have usable data')
 
                 else:
-                    logger.warning(
-                        "\t{0} Station  #{1} does not have usable data".format(self.station_type, station_num))
+                    logger.warning(f'\t{self.station_type} Station #{station_num} does not have usable data')
 
 
 class GoesCleaner(Cleaner):
