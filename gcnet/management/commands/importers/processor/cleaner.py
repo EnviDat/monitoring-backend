@@ -355,12 +355,34 @@ class ArgosCleanerV2(Cleaner):
         STATION_HMP1_COL = 9
         STATION_HMP2_COL = 10
         STATION_RH1_COL = 11
+        STATION_RH2_COL = 12
+        STATION_WS1_COL = 13
+        STATION_WS2_COL = 14
+        STATION_WD1_COL = 15
+        STATION_WD2_COL = 16
+        STATION_PRESSURE_COL = 17
+        STATION_SH1_COL = 18
+        STATION_SH2_COL = 19
+        STATION_VOLTS_COL = 30
+        STATION_S_WINMAX_COL = 31
+        STATION_S_WOUTMAX_COL = 32
+        STATION_S_WNETMAX_COL = 33
+        STATION_TC1MAX_COL = 34
+        STATION_TC2MAX_COL = 35
+        STATION_TC1MIN_COL = 36
+        STATION_TC2MIN_COL = 37
+        STATION_WS1MAX_COL = 38
+        STATION_WS2MAX_COL = 39
+        STATION_WS1STD_COL = 40
+        STATION_WS2STD_COL = 41
+        STATION_TREF_COL = 42
 
         # Assign other constants
         MAX_DAYS_YEAR = 367
         MAX_DEGREES_WIND = 360
         HOURS_IN_DAY = 24
         MAX_HUMIDITY = 100
+        INITIALIZER_VAL = 999
 
         # Iterate through each station and write json and csv file
         for section in self.stations_config.sections():
@@ -390,7 +412,6 @@ class ArgosCleanerV2(Cleaner):
                         # Assign unique_array to unique_rows after INPUT_STATION_NUM_COL
                         # Assign unique_indices to indices of unique rows after INPUT_STATION_NUM_COL
                         # because data may repeat with different time signature
-                        # unique_arrays, unique_rows = np.unique(station_data[:, 8:], axis=0, return_index=True)
                         unique_array, unique_indices = np.unique(station_data[:, INPUT_STATION_NUM_COL:],
                                                                  axis=0, return_index=True)
 
@@ -423,8 +444,8 @@ class ArgosCleanerV2(Cleaner):
                         num_records = len(table_1_indices)
 
                         # Assign combined_array as an array that will be used to
-                        # combine data from table 1 and table 2, inialize all values as 999
-                        combined_array = np.ones((num_records, 43)) * 999
+                        # combine data from table 1 and table 2, inialize all values as INITIALIZER_VAL
+                        combined_array = np.ones((num_records, 43)) * INITIALIZER_VAL
 
                         # Assign combined_array_columns to columns to be used in combined_array
                         combined_array_columns = np.concatenate(
@@ -529,7 +550,7 @@ class ArgosCleanerV2(Cleaner):
 
                             # Assign and calibrate net shortwave, negative and positive values
                             # Different stations have different calibration coefficients according to QC code
-                            swnet = 999 * np.ones(np.size(swout, 0))
+                            swnet = INITIALIZER_VAL * np.ones(np.size(swout, 0))
                             swnet[station_array[:, STATION_SWNET_COL] >= 0] = \
                                 station_array[station_array[:, STATION_SWNET_COL] >= 0, STATION_SWNET_COL] \
                                 * float(self.stations_config.get(section, "swnet_pos"))
@@ -555,7 +576,7 @@ class ArgosCleanerV2(Cleaner):
                             # Filter hmp2 temp
                             hmp2 = self._filter_values(station_array[:, STATION_HMP2_COL], section, "hmpmin", "hmpmax")
 
-                            # Filter relative humidity 1
+                            # Assign and calibrate relative humidity 1
                             rh1 = station_array[:, STATION_RH1_COL]
                             rh1[rh1 < float(self.stations_config.get(section, "rhmin"))] = self.no_data  # filter low
                             rh1[rh1 > float(self.stations_config.get(section, "rhmax"))] = self.no_data  # filter high
@@ -563,84 +584,94 @@ class ArgosCleanerV2(Cleaner):
                             rh1[(rh1 > MAX_HUMIDITY) & (rh1 < float(self.stations_config.get(section, "rhmax")))] \
                                 = MAX_HUMIDITY
 
-                            # TODO finish assigning constants to station_array column indices
-
-                            # Assign and filter relative humidity 2
-                            rh2 = station_array[:, 12]  # HMP relative humidity 2
+                            # Assign and calibrate relative humidity 2
+                            rh2 = station_array[:, STATION_RH2_COL]
                             rh2[rh2 < float(self.stations_config.get(section, "rhmin"))] = self.no_data  # filter low
                             rh2[rh2 > float(self.stations_config.get(section, "rhmax"))] = self.no_data  # filter high
-                            # Assign values greater than 100 and less than rhmax to 100
+                            # Assign values greater than MAX_HUMIDITY and less than rhmax to MAX_HUMIDITY
                             rh2[(rh2 > MAX_HUMIDITY) & (
                                     rh2 < float(self.stations_config.get(section, "rhmax")))] = MAX_HUMIDITY
 
-                            ws1 = self._filter_values(station_array[:, 13], section, "wmin", "wmax")  # wind speed 1
+                            # Filter wind speed 1
+                            ws1 = self._filter_values(station_array[:, STATION_WS1_COL], section, "wmin", "wmax")
 
-                            ws2 = self._filter_values(station_array[:, 14], section, "wmin", "wmax")  # wind speed 2
+                            # Filter wind speed 2
+                            ws2 = self._filter_values(station_array[:, STATION_WS2_COL], section, "wmin", "wmax")
 
-                            wd1 = self._filter_values(station_array[:, 15], section, "wdmin",
-                                                      "wdmax")  # wind direction 1
+                            # Filter wind direction 1
+                            wd1 = self._filter_values(station_array[:, STATION_WD1_COL], section, "wdmin", "wdmax")
 
-                            wd2 = self._filter_values(station_array[:, 16], section, "wdmin",
-                                                      "wdmax")  # wind direction 2
+                            # Filter wind direction 2
+                            wd2 = self._filter_values(station_array[:, STATION_WD2_COL], section, "wdmin", "wdmax")
 
-                            pres = station_array[:, 17] + float(
-                                self.stations_config.get(section, "pressure_offset"))  # barometric pressure
+                            # Assign and calibrate barometric pressure
+                            pres = station_array[:, STATION_PRESSURE_COL] \
+                                   + float(self.stations_config.get(section, "pressure_offset"))
                             pres[pres < float(self.stations_config.get(section, "pmin"))] = self.no_data  # filter low
                             pres[pres > float(self.stations_config.get(section, "pmax"))] = self.no_data  # filter low
-                            presd = np.diff(pres)  # find difference of subsequent pressure meas
-                            hrdif = np.diff(julian_day) * 24.  # time diff in hrs
+                            pres_diff = np.diff(pres)  # Find difference of subsequent pressure measurements
+                            hr_diff = np.diff(julian_day) * 24.  # Time difference in hours
                             mb_per_hr = np.absolute(
-                                np.divide(presd, hrdif, out=np.zeros_like(presd), where=hrdif != 0))
-                            pjumps = np.argwhere(mb_per_hr > 10)  # find jumps > 10mb/hr (quite unnatural)
-                            pres[pjumps + 1] = self.no_data  # eliminate these single point jumps
+                                np.divide(pres_diff, hr_diff, out=np.zeros_like(pres_diff), where=hr_diff != 0)
+                            )
+                            press_jumps = np.argwhere(mb_per_hr > 10)  # Find jumps > 10mb/hr (quite unnatural)
+                            pres[press_jumps + 1] = self.no_data  # Eliminate these single point jumps
 
-                            sh1 = self._filter_values(station_array[:, 18], section, "shmin",
-                                                      "shmax")  # height above snow 1
+                            # Filter height above snow 1
+                            sh1 = self._filter_values(station_array[:, STATION_SH1_COL], section, "shmin", "shmax")
 
-                            sh2 = self._filter_values(station_array[:, 19], section, "shmin",
-                                                      "shmax")  # height above snow 2
+                            # Filter height above snow 2
+                            sh2 = self._filter_values(station_array[:, STATION_SH2_COL], section, "shmin", "shmax")
 
                             # 10m snow temperature (many of these are non functional or not connected)
                             snow_temp10 = station_array[:, 20:30]
 
-                            volts = self._filter_values(station_array[:, 30], section, "battmin",
-                                                        "battmax")  # battery voltage
+                            # Filter battery voltage
+                            volts = self._filter_values(station_array[:, STATION_VOLTS_COL], section,
+                                                        "battmin", "battmax")
 
-                            s_winmax = self._filter_values_calibrate(station_array[:, 31], section, "swmin", "swmax",
-                                                                     "swin",
+                            s_winmax = self._filter_values_calibrate(station_array[:, STATION_S_WINMAX_COL], section,
+                                                                     "swmin", "swmax", "swin",
                                                                      self.no_data, self.no_data)
 
-                            s_woutmax = self._filter_values_calibrate(station_array[:, 32], section, "swmin", "swmax",
-                                                                      "swout",
-                                                                      0.00, self.no_data)
+                            s_woutmax = self._filter_values_calibrate(station_array[:, STATION_S_WOUTMAX_COL], section,
+                                                                      "swmin", "swmax", "swout", 0.00, self.no_data)
 
-                            s_wnetmax = 999 * np.ones_like(s_woutmax)
-                            s_wnetmax[station_array[:, 33] >= 0] = station_array[station_array[:, 33] >= 0, 33] * float(
-                                self.stations_config.get(section, "swnet_pos"))  # net radiation max
-                            s_wnetmax[station_array[:, 33] < 0] = station_array[station_array[:, 33] < 0, 33] * float(
-                                self.stations_config.get(section, "swnet_neg"))
-                            s_wnetmax[s_wnetmax < -(
-                                float(self.stations_config.get(section, "swmax")))] = self.no_data  # filter low
-                            s_wnetmax[
-                                s_wnetmax > float(
-                                    self.stations_config.get(section, "swmax"))] = self.no_data  # filter high
+                            # Assign and calibrate net radiation max
+                            s_wnetmax = INITIALIZER_VAL * np.ones_like(s_woutmax)
+                            s_wnetmax[station_array[:, STATION_S_WNETMAX_COL] >= 0] \
+                                = station_array[station_array[:, STATION_S_WNETMAX_COL] >= 0, STATION_S_WNETMAX_COL] \
+                                  * float(self.stations_config.get(section, "swnet_pos"))
+                            s_wnetmax[station_array[:, STATION_S_WNETMAX_COL] < 0] \
+                                = station_array[station_array[:, STATION_S_WNETMAX_COL] < 0, STATION_S_WNETMAX_COL] \
+                                  * float(self.stations_config.get(section, "swnet_neg"))
+                            # Filter low
+                            s_wnetmax[s_wnetmax < -(float(self.stations_config.get(section, "swmax")))] = self.no_data
+                            # Filter high
+                            s_wnetmax[s_wnetmax > float(self.stations_config.get(section, "swmax"))] = self.no_data
 
-                            tc1max = self._filter_values(station_array[:, 34], section, "tcmin", "tcmax")
+                            # Filter other measurements
+                            tc1max = self._filter_values(station_array[:, STATION_TC1MAX_COL], section,
+                                                         "tcmin", "tcmax")
 
-                            tc2max = self._filter_values(station_array[:, 35], section, "tcmin", "tcmax")
+                            tc2max = self._filter_values(station_array[:, STATION_TC2MAX_COL], section,
+                                                         "tcmin", "tcmax")
 
-                            tc1min = self._filter_values(station_array[:, 36], section, "tcmin", "tcmax")
+                            tc1min = self._filter_values(station_array[:, STATION_TC1MIN_COL], section,
+                                                         "tcmin", "tcmax")
 
-                            tc2min = self._filter_values(station_array[:, 37], section, "tcmin", "tcmax")
+                            tc2min = self._filter_values(station_array[:, STATION_TC2MIN_COL], section,
+                                                         "tcmin", "tcmax")
 
-                            ws1max = station_array[:, 38]  # stats
-                            ws2max = station_array[:, 39]
-                            ws1std = station_array[:, 40]
-                            ws2std = station_array[:, 41]
-                            tref = station_array[:, 42]
+                            # Assign statistics
+                            ws1max = station_array[:, STATION_WS1MAX_COL]
+                            ws2max = station_array[:, STATION_WS2MAX_COL]
+                            ws1std = station_array[:, STATION_WS1STD_COL]
+                            ws2std = station_array[:, STATION_WS2STD_COL]
+                            tref = station_array[:, STATION_TREF_COL]
 
-                            # Note this code does not currently calculate the 2 and 10 m winds
-                            # and albedo, so this is column 1-42 of the Level C data
+                            # Note this code does not currently calculate the 2 and 10 m winds and albedo,
+                            # so these are columns 1-42 of the Level C data
                             # Assemble data into final level C standard form
                             wdata = np.column_stack(
                                 (station_number, year, julian_day, swin, swout, swnet, tc1, tc2, hmp1, hmp2, rh1, rh2,
@@ -906,6 +937,7 @@ class CleanerFactory(object):
 
     @staticmethod
     def get_cleaner(station_type, init_file_path: str, writer: Writer):
+        # TODO test that ArgosCleanerV2() returns same output as ArgosCleaner()
         if station_type == 'argos':
             # return ArgosCleaner(init_file_path=init_file_path, writer=writer)
             # TEST
