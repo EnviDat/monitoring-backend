@@ -1,6 +1,6 @@
 # EXAMPLE COMMANDS TO RUN main.py
 #    Import data from URL:         main.main(['-r 15', '-i url'])
-#    Import data from directory:   main.main(['-r 15', '-i path'])
+#    Import data from directory:   main.main(['-r 15', '-i file'])
 
 import argparse
 from pathlib import Path
@@ -34,7 +34,7 @@ def get_parser():
     parser.add_argument('--localFolder', '-l', help='Load local .dat files from folder and skip processing')
     parser.add_argument('--repeatInterval', '-r', help='Run continuously every <interval> minutes')
     parser.add_argument('--inputType', '-i', required=True, help='Input data source read from stations config. '
-                                                                 '"path" = directory path (csv_data_dir)'
+                                                                 '"file" = directory path (csv_data_dir)'
                                                                  '"url" = url address hosting files (csv_data_url)')
     return parser
 
@@ -124,7 +124,7 @@ def get_csv_import_command_list(config_parser: configparser, station_type: str, 
                 csv_data = stations_config.get(section, 'csv_data_url')
             else:
                 print('WARNING (import_data.py) invalid argument "{0}" entered for input_type. Must enter'
-                      '"file" or "url"'.format(input_type))
+                      ' "file" or "url"'.format(input_type))
                 return
 
             command_string = 'python manage.py import_data -s {0} -c gcnet/config/stations.ini ' \
