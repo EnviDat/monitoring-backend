@@ -14,10 +14,27 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 
+# from django.conf import settings
+# from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.urls import path, include
-
+# from django.conf.urls.static import static
 
 urlpatterns = [
     path('api/lwf/', include('lwf.urls')),
+    path('api/lwf', include('lwf.urls')),
     path('api/gcnet/', include('gcnet.urls')),
-]
+    path('api/gcnet', include('gcnet.urls'))
+
+    # # url(r'^output/(?P<path>.*)$', 'django.views.static.serve', {
+    # #     'document_root': settings.OUTPUT_ROOT,
+    # # }),
+    # path('api/output/', include(settings.OUTPUT_ROOT)),
+    #
+]  # + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+# urlpatterns += staticfiles_urlpatterns()
+# ]
+
+# if settings.DEBUG:
+#     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+#     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

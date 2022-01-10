@@ -202,7 +202,7 @@ main.py has three arguments::
 
     -i (--inputType) Input data source read from stations.ini config. This is a required argument.
             Options:
-                "path" = directory path (csv_data_dir in stations.ini)
+                "file" = directory path (csv_data_dir in stations.ini)
                 "url" = URL address hosting files (csv_data_url in stations.ini)
 
     -l (--localFolder) Load local .dat files from folder and skip processing. Optional argument.

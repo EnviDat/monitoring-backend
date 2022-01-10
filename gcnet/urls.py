@@ -3,10 +3,11 @@ from django.urls import path
 from gcnet import views
 from gcnet.util.http_errors import model_http_error, parameter_http_error
 from gcnet.util.stream import gcnet_stream
-from gcnet.util.views_helpers import get_model
+from gcnet.util.views_helpers import get_model, get_documentation_context
 from gcnet.util.write_nead_config import gcnet_nead_config
 from gcnet.views import get_model_stations, streaming_csv_view_v1, get_json_data, get_station_parameter_metadata
-from generic.views import generic_get_daily_data, generic_get_data, generic_get_nead
+from generic.views import generic_get_daily_data, generic_get_data, generic_get_nead, generic_get_documentation_context
+
 
 urlpatterns = [
 
@@ -15,6 +16,13 @@ urlpatterns = [
     # API documentation
     path('', views.index, name='index'),
 
+    # API documentation context
+    path('doc_context/', generic_get_documentation_context, {'app': 'gcnet',
+                                                             'child_class': 'summit_06d',
+                                                             'documentation_context': get_documentation_context}),
+    path('doc_context', generic_get_documentation_context, {'app': 'gcnet',
+                                                             'child_class': 'summit_06d',
+                                                             'documentation_context': get_documentation_context}),
     # Models
     path('models/', get_model_stations),
 
