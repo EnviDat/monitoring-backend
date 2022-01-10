@@ -1,6 +1,7 @@
 # ==========================================  VIEWS HELPERS ===========================================================
 
 import os
+# from datetime import datetime, timedelta
 from datetime import datetime
 import importlib
 
@@ -75,10 +76,33 @@ def read_config(config_path: str):
     return gc_config
 
 
+# ------------------------------------------- Documentation Context ---------------------------------------------------
+
+# Get documentation context with field attributes of model_class
+def get_documentation_context(model_class):
+
+    params_dict = {}
+    for field in model_class._meta.get_fields():
+        params_dict[field.name] = {'param': field.name, 'long_name': field.verbose_name, 'units': field.help_text}
+
+    keys_to_remove = ['id', 'timestamp_iso', 'timestamp', 'year', 'julianday', 'quarterday', 'halfday', 'day', 'week']
+    for key in keys_to_remove:
+        params_dict.pop(key)
+
+    context = {'parameters': params_dict}
+
+    return context
+
+
 # -------------------------------------- Date Validators --------------------------------------------------------------
+
 def validate_date_gcnet(start, end):
     if validate_iso_format_gcnet(start) and validate_iso_format_gcnet(end):
         dict_ts = {'timestamp_iso__range': (start, end)}
+        # Note commented out block below because it only works for dates in date format without times
+        # end_plus1 = get_date(end)
+        # dict_ts = {'timestamp_iso__gte': start,
+        #            'timestamp_iso__lt': end_plus1}
         return dict_ts
 
     elif validate_unix_timestamp(int(start)) and validate_unix_timestamp(int(end)):
@@ -87,6 +111,13 @@ def validate_date_gcnet(start, end):
 
     else:
         raise ValueError("Incorrect date formats, start and end dates should both be in ISO format or unix timestamp")
+
+
+# def get_date(input_date, date_format="%Y-%m-%d", add_day=1):
+#
+#     date_plus_1day = datetime.strptime(input_date, date_format) + timedelta(days=add_day)
+#
+#     return date_plus_1day.strftime(date_format)
 
 
 def validate_iso_format_gcnet(date_text):
