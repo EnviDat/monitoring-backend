@@ -157,6 +157,7 @@ class ArgosCleaner(Cleaner):
                             numraw = int(len(datenum))  # number of total datasets before duplicate filtering
                             udatenum, unind = np.unique(datenum, axis=0,
                                                         return_index=True)  # find only unique time stamps
+
                             gdata = gdata[unind, :]  # need to reassign datenum to unique values
                             yr = gdata[:, 1]  # get year data
                             jday = gdata[:, 2] + gdata[:, 3] / 24  # calculate fractional julian day
@@ -324,7 +325,7 @@ class ArgosCleanerV2(Cleaner):
     # Function to process ARGOS numpy array fom a dat file
     def clean(self, input_data: np.ndarray):
 
-        np.set_printoptions(threshold=sys.maxsize)
+        # np.set_printoptions(threshold=sys.maxsize)
 
         # Assign constants for column indices in input numpy array
         INPUT_YEAR1_COL = 0
@@ -343,7 +344,6 @@ class ArgosCleanerV2(Cleaner):
         # Assign constants for column indices and other constants used in station_array processing
         STATION_NO_DATA1 = -8190
         STATION_NO_DATA2 = 2080
-        STATION_NUMBER_COL = 0
         STATION_YEAR_COL = 1
         STATION_JULIAN_DAY_COL = 2
         STATION_HOUR_COL = 3
@@ -490,7 +490,7 @@ class ArgosCleanerV2(Cleaner):
                             station_array[station_array == STATION_NO_DATA2] = self.no_data
 
                             # Assign year to year data
-                            year = station_array[:, STATION_NUMBER_COL]
+                            year = station_array[:, STATION_YEAR_COL]
 
                             # Assign julian_day to julian day plus fractional julian day
                             julian_day = station_array[:, STATION_JULIAN_DAY_COL] \
@@ -509,7 +509,7 @@ class ArgosCleanerV2(Cleaner):
                             # Reassign station_array to records with unique timestamps
                             station_array = station_array[unique_date_num_indices, :]
 
-                            # Reassign year to year data
+                            # Reassign year data
                             year = station_array[:, STATION_YEAR_COL]
 
                             # Reassign julian_day to julian day plus fractional julian day
