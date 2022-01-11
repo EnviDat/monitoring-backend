@@ -344,6 +344,7 @@ class ArgosCleanerV2(Cleaner):
         # Assign constants for column indices and other constants used in station_array processing
         STATION_NO_DATA1 = -8190
         STATION_NO_DATA2 = 2080
+        STATION_NUM_COL = 0
         STATION_YEAR_COL = 1
         STATION_JULIAN_DAY_COL = 2
         STATION_HOUR_COL = 3
@@ -536,7 +537,7 @@ class ArgosCleanerV2(Cleaner):
                             date_num = date_num[unique_timestamp_indices]  # leave only unique and sorted date_nums
 
                             # Assign station_number
-                            station_number = station_array[:, STATION_YEAR_COL]
+                            station_number = station_array[:, STATION_NUM_COL]
 
                             # Assign and calibrate incoming shortwave
                             swin = self._filter_values_calibrate(station_array[:, STATION_SWIN_COL], section,
