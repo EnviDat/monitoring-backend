@@ -1,8 +1,7 @@
 # ==========================================  VIEWS HELPERS ===========================================================
 
 import os
-# from datetime import datetime, timedelta
-from datetime import datetime
+from datetime import datetime, timedelta
 import importlib
 
 from django.core.exceptions import FieldDoesNotExist
@@ -97,12 +96,17 @@ def get_documentation_context(model_class):
 # -------------------------------------- Date Validators --------------------------------------------------------------
 
 def validate_date_gcnet(start, end):
-    if validate_iso_format_gcnet(start) and validate_iso_format_gcnet(end):
+
+    # Check if start and end are both only in day format (and do not include times),
+    # add additional day to end date of dict_ts
+    if validate_day_only_format(start) and validate_day_only_format(end):
+        end_plus1 = get_date(end)
+        dict_ts = {'timestamp_iso__gte': start,
+                   'timestamp_iso__lt': end_plus1}
+        return dict_ts
+
+    elif validate_iso_format_gcnet(start) and validate_iso_format_gcnet(end):
         dict_ts = {'timestamp_iso__range': (start, end)}
-        # Note commented out block below because it only works for dates in date format without times
-        # end_plus1 = get_date(end)
-        # dict_ts = {'timestamp_iso__gte': start,
-        #            'timestamp_iso__lt': end_plus1}
         return dict_ts
 
     elif validate_unix_timestamp(int(start)) and validate_unix_timestamp(int(end)):
@@ -113,11 +117,18 @@ def validate_date_gcnet(start, end):
         raise ValueError("Incorrect date formats, start and end dates should both be in ISO format or unix timestamp")
 
 
-# def get_date(input_date, date_format="%Y-%m-%d", add_day=1):
-#
-#     date_plus_1day = datetime.strptime(input_date, date_format) + timedelta(days=add_day)
-#
-#     return date_plus_1day.strftime(date_format)
+def get_date(input_date, date_format="%Y-%m-%d", add_day=1):
+    date_plus_1day = datetime.strptime(input_date, date_format) + timedelta(days=add_day)
+    return date_plus_1day.strftime(date_format)
+
+
+def validate_day_only_format(date_text):
+    try:
+        day_only_format = "%Y-%m-%d"
+        datetime.strptime(date_text, day_only_format)
+        return True
+    except ValueError:
+        return False
 
 
 def validate_iso_format_gcnet(date_text):
