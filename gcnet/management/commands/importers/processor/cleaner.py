@@ -951,6 +951,11 @@ class GoesCleanerV2(Cleaner):
         STATION_YEAR_MIN = 1990
         STATION_YEAR_MAX = 2050
 
+        # Assign constants for column indices in gdata
+        GDATA_YEAR_COL = 1
+        GDATA_JULIAN_DAY_COL = 2
+        GDATA_HOUR_COL = 3
+
         # Assign other constants
         INITIALIZER_VAL = 999
         NO_DATA1 = -8190
@@ -1046,27 +1051,26 @@ class GoesCleanerV2(Cleaner):
                     gdata[gdata == NO_DATA1] = self.no_data
                     gdata[gdata == NO_DATA2] = self.no_data
 
-                    # print(gdata)
-
-                    # TODO finish refactoring rest of this function
+                    print(gdata)
 
                     # Assign year to year data
-                    year = gdata[:, 1]
-                    jday = gdata[:, 2] + gdata[:, 3] / 24  # calculate fractional julian day
-                    datenum = year * 1e3 + jday  # number that is ascending in time
+                    year = gdata[:, GDATA_YEAR_COL]
+
+                    julian_day = gdata[:,  GDATA_JULIAN_DAY_COL] + gdata[:, GDATA_HOUR_COL] / 24  # calculate fractional julian day
+                    datenum = year * 1e3 + julian_day  # number that is ascending in time
                     numraw = int(len(datenum))  # number of total datasets before duplicate filtering
                     udatenum, unind = np.unique(datenum, axis=0, return_index=True)  # find only unique time stamps
                     gdata = gdata[unind, :]  # need to reassign datenum to unique values
                     year = gdata[:, 1]  # get year data of unique values only
-                    jday = gdata[:, 2] + gdata[:, 3] / 24  # calculate fractional julian day of unique values
-                    datenum = year * 1.e3 + jday  # number that is ascending in time of unique values
+                    julian_day = gdata[:, 2] + gdata[:, 3] / 24  # calculate fractional julian day of unique values
+                    datenum = year * 1.e3 + julian_day  # number that is ascending in time of unique values
                     if len(unind) < numraw:
                         numduptime = numraw - len(unind)
                         logger.warning("GoesCleaner: Warning: Removed " + str(numduptime) + " entries out of: " + str(
                             numraw) + " good pts from station ID: " + str(station_id) + " Reason: duplicate time tags")
                     tind = np.argsort(udatenum)  # find indices of a sort of unique values along time
                     gdata = gdata[tind, :]  # crop data array to unique times
-                    jday = jday[tind]  # crop jday vector to unique times
+                    julian_day = julian_day[tind]  # crop julian_day vector to unique times
                     year = year[tind]
                     datenum = datenum[tind]  # leave only unique and sorted datenums
                     stnum = gdata[:, 0]  # get station number vector
@@ -1092,7 +1096,7 @@ class GoesCleanerV2(Cleaner):
                     pres[pres < float(self.stations_config.get(section, "pmin"))] = self.no_data  # filter low
                     pres[pres > float(self.stations_config.get(section, "pmax"))] = self.no_data  # filter high
                     presd = np.diff(pres)  # find difference of subsequent pressure meas
-                    hrdif = np.diff(jday) * 24.  # time diff in hrs
+                    hrdif = np.diff(julian_day) * 24.  # time diff in hrs
                     mb_per_hr = np.absolute(np.divide(presd, hrdif, out=np.zeros_like(presd), where=hrdif != 0))
                     pjumps = np.argwhere(mb_per_hr > 10)  # find jumps > 10mb/hr (quite unnatural)
                     pres[pjumps + 1] = self.no_data  # eliminate these single point jumps
@@ -1171,7 +1175,7 @@ class GoesCleanerV2(Cleaner):
                     # # note this code does not currently calculate the 2 and 10 m winds
                     # # and albedo, so these are columns 1-42 of the Level C data
                     wdata = np.column_stack(
-                        (stnum, year, jday, swin, swout, swnet, tc1, tc2, hmp1, hmp2, rh1, rh2, ws1, ws2, wd1,
+                        (stnum, year, julian_day, swin, swout, swnet, tc1, tc2, hmp1, hmp2, rh1, rh2, ws1, ws2, wd1,
                          wd2, pres, sh1, sh2, snow_temp10, volts, s_winmax, s_woutmax, s_wnetmax, tc1max,
                          tc2max, tc1min, tc2min, ws1max, ws2max, ws1std, ws2std,
                          tref))  # assemble data into final level C standard form
@@ -1190,7 +1194,7 @@ class GoesCleanerV2(Cleaner):
 
                     # Call write_csv function to write csv files with processed data
                     # TODO test write_csv with convertingself.no_data value to null
-                    self.writer.write_csv(wdata, station_num, year, jday, datenum)
+                    self.writer.write_csv(wdata, station_num, year, julian_day, datenum)
 
                     # Call write_json function to write long-term and short-term json files with processed data
                     self.writer.write_json(wdata, station_num, self.no_data)
