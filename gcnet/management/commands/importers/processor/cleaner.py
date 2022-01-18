@@ -59,6 +59,7 @@ class Cleaner(object):
 
     @staticmethod
     def _get_date_num():
+
         # Get current date
         today = datetime.now()
         day_of_year = (today - datetime(today.year, 1, 1)).days + 1
@@ -960,6 +961,7 @@ class GoesCleanerV2(Cleaner):
         INITIALIZER_VAL = 999
         NO_DATA1 = -8190
         NO_DATA2 = 2080
+        HOURS_IN_DAY = 24
 
         # Iterate through each station and write json and csv file
         for section in self.stations_config.sections():
@@ -991,7 +993,7 @@ class GoesCleanerV2(Cleaner):
                     # continue
 
                     # Assign unique_array unique rows after column 5
-                    # Assign unique_indices to indices of unique rows after
+                    # Assign unique_indices to indices of unique rows after column 5
                     # column 5 because data may repeat with different time signature
                     # TODO assign constant to 5 in line below, update comments above
                     # TODO investigate if this should really be 5, maybe should be 4?
@@ -1013,66 +1015,44 @@ class GoesCleanerV2(Cleaner):
                     #                    f' NO DATA after cleaning')
                     #     continue
 
-                    # Assign gdata to different arrays depending on station_num, station_array formats vary by station
-                    # If station number 0 (10 meter tower)
-                    if station_num == 0:
-                        gdata = np.ones((np.size(station_array, 0), 43)) * INITIALIZER_VAL
-                        gind = np.concatenate((np.arange(0, 7), np.arange(8, 20), np.array([30, 34, 35, 38, 39])))
-                        aind = np.concatenate((np.arange(1, 8), np.arange(8, 20), np.array([24]), np.arange(20, 24)))
-                        gdata[:, gind] = station_array[:, aind]
-
-                    # Else if station number 24 (East Grip)
-                    # Format is different for this station: no snow temp, only 2 radiation statistic measurements
-                    elif station_num == 24:
-                        gdata = np.ones((np.size(station_array, 0), 43)) * INITIALIZER_VAL
-                        gind = np.concatenate((np.arange(0, 7), np.arange(8, 20), np.array([30]), np.arange(34, 43)))
-                        aind = np.concatenate((np.arange(1, 8), np.arange(8, 20), np.array([31]), np.arange(22, 31)))
-                        gdata[:, gind] = station_array[:, aind]
-
-                    # Else if station number is 30 (PE Blue)
-                    # Format is different for this station: no snow temp, only 2 radiation statistic measurements
-                    elif station_num == 30:
-                        gdata = np.ones((np.size(station_array, 0), 43)) * INITIALIZER_VAL
-                        gind = np.concatenate((np.arange(0, 20), np.array([30, 31, 32]), np.arange(34, 40)))
-                        aind = np.concatenate((np.arange(1, 21), np.array([29]), np.arange(21, 29)))
-                        # gdata(:,[1:20,31,32,33,35:40])=station_array(:,[1:20,29,21:28]);
-                        gdata[:, gind] = station_array[:, aind]
-
-                    # Else (all other stations)
-                    else:
-                        # Vector is made from looking at C-level columns and find index of raw data that matches
-                        aind = np.concatenate(
-                            (np.arange(1, 8), np.arange(18, 31), np.arange(8, 18), np.array([43]), np.arange(31, 43)))
-                        # rawindex = [1:7,18:30,8:17,43,31:42];
-                        # gdata=station_array(:,rawindex); %put data into pseudo C-level format!
-                        gdata = np.array(station_array[:, aind])
+                    # Assign gdata to array returned by get_gdata_array(), arrays vary by station_num
+                    gdata = self.get_gdata_array(station_num, station_array)
 
                     # Assign no_data values
                     gdata[gdata == NO_DATA1] = self.no_data
                     gdata[gdata == NO_DATA2] = self.no_data
 
-                    print(gdata)
-
                     # Assign year to year data
                     year = gdata[:, GDATA_YEAR_COL]
 
-                    julian_day = gdata[:,  GDATA_JULIAN_DAY_COL] + gdata[:, GDATA_HOUR_COL] / 24  # calculate fractional julian day
-                    datenum = year * 1e3 + julian_day  # number that is ascending in time
-                    numraw = int(len(datenum))  # number of total datasets before duplicate filtering
-                    udatenum, unind = np.unique(datenum, axis=0, return_index=True)  # find only unique time stamps
-                    gdata = gdata[unind, :]  # need to reassign datenum to unique values
+                    # Assign julian_day to julian day plus fractional hours
+                    julian_day = gdata[:,  GDATA_JULIAN_DAY_COL] + gdata[:, GDATA_HOUR_COL] / HOURS_IN_DAY
+
+                    # Assign date_num to year plus julian_day
+                    date_num = year * 1e3 + julian_day
+
+                    # Assign raw_num to number of total datasets before duplicate filtering
+                    raw_num = int(len(date_num))
+
+                    # Assign unique_date_num to unique time stamps
+                    # Assign unique_date_num_indices to indicies of unique time stamps
+                    unique_date_num, unique_date_num_indices = np.unique(date_num, axis=0, return_index=True)
+
+                    # Reassign gdata values with unique time stamps
+                    gdata = gdata[unique_date_num_indices, :]
+
                     year = gdata[:, 1]  # get year data of unique values only
                     julian_day = gdata[:, 2] + gdata[:, 3] / 24  # calculate fractional julian day of unique values
-                    datenum = year * 1.e3 + julian_day  # number that is ascending in time of unique values
-                    if len(unind) < numraw:
-                        numduptime = numraw - len(unind)
+                    date_num = year * 1.e3 + julian_day  # number that is ascending in time of unique values
+                    if len(unique_date_num_indices) < raw_num:
+                        numduptime = raw_num - len(unique_date_num_indices)
                         logger.warning("GoesCleaner: Warning: Removed " + str(numduptime) + " entries out of: " + str(
-                            numraw) + " good pts from station ID: " + str(station_id) + " Reason: duplicate time tags")
-                    tind = np.argsort(udatenum)  # find indices of a sort of unique values along time
+                            raw_num) + " good pts from station ID: " + str(station_id) + " Reason: duplicate time tags")
+                    tind = np.argsort(unique_date_num)  # find indices of a sort of unique values along time
                     gdata = gdata[tind, :]  # crop data array to unique times
                     julian_day = julian_day[tind]  # crop julian_day vector to unique times
                     year = year[tind]
-                    datenum = datenum[tind]  # leave only unique and sorted datenums
+                    date_num = date_num[tind]  # leave only unique and sorted date_nums
                     stnum = gdata[:, 0]  # get station number vector
 
                     swin = self._filter_values_calibrate(gdata[:, 4], section, "swmin", "swmax", "swin",
@@ -1184,8 +1164,8 @@ class GoesCleanerV2(Cleaner):
                     theyear = today.year
                     todayjday = day_of_year + today.hour / 24  # calculate fractional julian day
                     nowdatenum = theyear * 1e3 + todayjday
-                    wdata = wdata[datenum < nowdatenum, :]  # only take entries in the past
-                    numfuturepts = len(np.argwhere(datenum > nowdatenum))
+                    wdata = wdata[date_num < nowdatenum, :]  # only take entries in the past
+                    numfuturepts = len(np.argwhere(date_num > nowdatenum))
 
                     if numfuturepts > 0:
                         logger.warning("GoesCleaner: Warning: Removed " + str(numfuturepts) + " entries out of: " + str(
@@ -1194,7 +1174,7 @@ class GoesCleanerV2(Cleaner):
 
                     # Call write_csv function to write csv files with processed data
                     # TODO test write_csv with convertingself.no_data value to null
-                    self.writer.write_csv(wdata, station_num, year, julian_day, datenum)
+                    self.writer.write_csv(wdata, station_num, year, julian_day, date_num)
 
                     # Call write_json function to write long-term and short-term json files with processed data
                     self.writer.write_json(wdata, station_num, self.no_data)
@@ -1202,6 +1182,50 @@ class GoesCleanerV2(Cleaner):
                 else:  # if no data in station_array still output empty wdata array so empty file is created
                     wdata = np.array([])
                     logger.warning("\t{0} Station  #{1} does not have usable data".format(self.station_type, station_num))
+
+    # Function returns gdata array depending on station_num, station_array formats vary by station
+    @staticmethod
+    def get_gdata_array(station_num, station_array):
+
+        # Assign constant to initialize values
+        INITIALIZER_VAL = 999
+
+        # If station number 0 (10 meter tower)
+        if station_num == 0:
+            gdata = np.ones((np.size(station_array, 0), 43)) * INITIALIZER_VAL
+            gind = np.concatenate((np.arange(0, 7), np.arange(8, 20), np.array([30, 34, 35, 38, 39])))
+            aind = np.concatenate((np.arange(1, 8), np.arange(8, 20), np.array([24]), np.arange(20, 24)))
+            gdata[:, gind] = station_array[:, aind]
+            return gdata
+
+        # Else if station number 24 (East Grip)
+        # Format is different for this station: no snow temp, only 2 radiation statistic measurements
+        elif station_num == 24:
+            gdata = np.ones((np.size(station_array, 0), 43)) * INITIALIZER_VAL
+            gind = np.concatenate((np.arange(0, 7), np.arange(8, 20), np.array([30]), np.arange(34, 43)))
+            aind = np.concatenate((np.arange(1, 8), np.arange(8, 20), np.array([31]), np.arange(22, 31)))
+            gdata[:, gind] = station_array[:, aind]
+            return gdata
+
+        # Else if station number is 30 (PE Blue)
+        # Format is different for this station: no snow temp, only 2 radiation statistic measurements
+        elif station_num == 30:
+            gdata = np.ones((np.size(station_array, 0), 43)) * INITIALIZER_VAL
+            gind = np.concatenate((np.arange(0, 20), np.array([30, 31, 32]), np.arange(34, 40)))
+            aind = np.concatenate((np.arange(1, 21), np.array([29]), np.arange(21, 29)))
+            # gdata(:,[1:20,31,32,33,35:40])=station_array(:,[1:20,29,21:28]);
+            gdata[:, gind] = station_array[:, aind]
+            return gdata
+
+        # Else (all other stations)
+        else:
+            # Vector is made from looking at C-level columns and find index of raw data that matches
+            aind = np.concatenate(
+                (np.arange(1, 8), np.arange(18, 31), np.arange(8, 18), np.array([43]), np.arange(31, 43)))
+            # rawindex = [1:7,18:30,8:17,43,31:42];
+            # gdata=station_array(:,rawindex); %put data into pseudo C-level format!
+            gdata = np.array(station_array[:, aind])
+            return gdata
 
 
 class CleanerFactory(object):
