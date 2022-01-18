@@ -402,7 +402,7 @@ class ArgosCleanerV2(Cleaner):
                 # Assign station_num
                 station_num = int(self.stations_config.get(section, "station_num"))
 
-                logger.info(f'ArgosCleaner: Processing {self.station_type} Station #{station_num}...')
+                logger.info(f'ArgosCleaner: Processing {self.station_type} Station {station_num}...')
 
                 if input_data.size != 0:
 
@@ -525,9 +525,9 @@ class ArgosCleanerV2(Cleaner):
                             # Log how many records removed because of duplicate time stamps
                             if len(unique_date_num_indices) < raw_num:
                                 duplicate_timestamps_num = raw_num - len(unique_date_num_indices)
-                                logger.warning(f'ArgosCleaner: Warning: Removed {duplicate_timestamps_num} entries out'
-                                               f' of: {raw_num} records from station ID: {station_id} '
-                                               f'Reason: duplicate time tags')
+                                logger.warning(f'ArgosCleaner: Removed {duplicate_timestamps_num} entries out of:'
+                                               f' {raw_num} records from Station {station_num} '
+                                               f'because of duplicate time tags')
 
                             # Assign unique_timestamp_indices to indices of a sort of unique datetime values along time
                             unique_timestamp_indices = np.argsort(unique_date_num_array)
@@ -1009,7 +1009,7 @@ class GoesCleanerV2(Cleaner):
                             & (station_array[:, STATION_JULIAN_DAY_COL] < 367),
                             :]
 
-                    logger.info(f'GoesCleaner: Clean data size {station_array.size} for Station #{station_num}...')
+                    logger.info(f'GoesCleaner: Clean data size {station_array.size} for Station {station_num}...')
                     # if station_array.size <= 0:
                     #     logger.warning(f'Skipping cleaning of {station_array.size} for Station #{station_num},'
                     #                    f' NO DATA after cleaning')
@@ -1041,20 +1041,37 @@ class GoesCleanerV2(Cleaner):
                     # Reassign gdata values with unique time stamps
                     gdata = gdata[unique_date_num_indices, :]
 
-                    year = gdata[:, 1]  # get year data of unique values only
-                    julian_day = gdata[:, 2] + gdata[:, 3] / 24  # calculate fractional julian day of unique values
-                    date_num = year * 1.e3 + julian_day  # number that is ascending in time of unique values
-                    if len(unique_date_num_indices) < raw_num:
-                        numduptime = raw_num - len(unique_date_num_indices)
-                        logger.warning("GoesCleaner: Warning: Removed " + str(numduptime) + " entries out of: " + str(
-                            raw_num) + " good pts from station ID: " + str(station_id) + " Reason: duplicate time tags")
-                    tind = np.argsort(unique_date_num)  # find indices of a sort of unique values along time
-                    gdata = gdata[tind, :]  # crop data array to unique times
-                    julian_day = julian_day[tind]  # crop julian_day vector to unique times
-                    year = year[tind]
-                    date_num = date_num[tind]  # leave only unique and sorted date_nums
-                    stnum = gdata[:, 0]  # get station number vector
+                    # Reassign year to years of unique rows only
+                    year = gdata[:, GDATA_YEAR_COL]
 
+                    # Reassign julian_day to julian day plus fractional hours of unique rows only
+                    julian_day = gdata[:, GDATA_JULIAN_DAY_COL] + gdata[:, GDATA_HOUR_COL] / HOURS_IN_DAY
+
+                    # Ressign date_num to year plus julian_day of unique rows only
+                    date_num = year * 1.e3 + julian_day
+
+                    # Log how many duplicate rows removed
+                    if len(unique_date_num_indices) < raw_num:
+                        duplicates_num = raw_num - len(unique_date_num_indices)
+                        logger.warning(f'GoesCleaner: Removed {duplicates_num} entries out of {raw_num} records'
+                                       f' Station {station_num} because of duplicate time tags')
+
+                    # Assign time_indices to indices that would sort unique rows along time
+                    time_indices = np.argsort(unique_date_num)
+
+                    # Crop gdata array to unique times
+                    gdata = gdata[time_indices, :]
+
+                    # Crop time related variables by time_indices
+                    julian_day = julian_day[time_indices]
+                    year = year[time_indices]
+
+                    # Leave only unique and sorted date_nums
+                    date_num = date_num[time_indices]
+
+                    # Assign station_number to station numbers
+                    station_number = gdata[:, 0]
+                  
                     swin = self._filter_values_calibrate(gdata[:, 4], section, "swmin", "swmax", "swin",
                                                          self.no_data, self.no_data)
 
@@ -1155,7 +1172,7 @@ class GoesCleanerV2(Cleaner):
                     # # note this code does not currently calculate the 2 and 10 m winds
                     # # and albedo, so these are columns 1-42 of the Level C data
                     wdata = np.column_stack(
-                        (stnum, year, julian_day, swin, swout, swnet, tc1, tc2, hmp1, hmp2, rh1, rh2, ws1, ws2, wd1,
+                        (station_number, year, julian_day, swin, swout, swnet, tc1, tc2, hmp1, hmp2, rh1, rh2, ws1, ws2, wd1,
                          wd2, pres, sh1, sh2, snow_temp10, volts, s_winmax, s_woutmax, s_wnetmax, tc1max,
                          tc2max, tc1min, tc2min, ws1max, ws2max, ws1std, ws2std,
                          tref))  # assemble data into final level C standard form
