@@ -118,7 +118,7 @@ class ArgosCleaner(Cleaner):
 
                         lastp2v = np.argwhere(
                             (usdata[:, 0] != usdata[:, 9]) & (usdata[:, 9] <= 360))  # second parts of table
-                        # column 10 of 2nd table is wind direction, realistic values will be less than 360 deg
+                        # column 9 of 2nd table is wind direction, realistic values will be less than 360 deg
 
                         lastp2 = lastp2v[-1:]  # last second part
                         inds = inds[inds < lastp2]  # make sure last record
@@ -318,6 +318,7 @@ class ArgosCleaner(Cleaner):
 
 
 # TODO review and implement ArgosCleanerV2
+# TODO test after extracting get_station_array()
 class ArgosCleanerV2(Cleaner):
 
     def __init__(self, init_file_path: str, writer: Writer):
@@ -326,21 +327,8 @@ class ArgosCleanerV2(Cleaner):
     # Function to process ARGOS numpy array fom a dat file
     def clean(self, input_data: np.ndarray):
 
-        # np.set_printoptions(threshold=sys.maxsize)
-
-        # Assign constants for column indices in input numpy array
-        INPUT_YEAR1_COL = 0
+        # Assign constant for column index in input numpy array
         INPUT_STATION_ID_COL = 7
-        INPUT_STATION_NUM_COL = 8
-        INPUT_YEAR2_COL = 9
-        INPUT_JULIAN_DAY_COL = 10
-        INPUT_WIND_DIRECTION_COL = 9
-
-        # Assign constants for column indices and other constants in combined_array
-        COMBINED_YEAR_COL = 1
-        COMBINED_YEAR_MIN = 1990
-        COMBINED_YEAR_MAX = 2050
-        COMBINED_JULIAN_DAY_COL = 2
 
         # Assign constants for column indices and other constants used in station_array processing
         STATION_NO_DATA1 = -8190
@@ -380,8 +368,6 @@ class ArgosCleanerV2(Cleaner):
         STATION_TREF_COL = 42
 
         # Assign other constants
-        MAX_DAYS_YEAR = 367
-        MAX_DEGREES_WIND = 360
         HOURS_IN_DAY = 24
         MAX_HUMIDITY = 100
         INITIALIZER_VAL = 999
@@ -406,83 +392,13 @@ class ArgosCleanerV2(Cleaner):
 
                 if input_data.size != 0:
 
-                    # Assign station_data to data assoicated with each station
+                    # Assign station_data to data assciated with each station
                     station_data = np.array(input_data[input_data[:, INPUT_STATION_ID_COL] == station_id, :])
 
                     if len(station_data) != 0:
 
-                        # Assign unique_array to unique_rows after INPUT_STATION_NUM_COL
-                        # Assign unique_indices to indices of unique rows after INPUT_STATION_NUM_COL
-                        # because data may repeat with different time signature
-                        unique_array, unique_indices = np.unique(station_data[:, INPUT_STATION_NUM_COL:],
-                                                                 axis=0, return_index=True)
-
-                        # Assign station_data to station_data sorted by unique_indcies
-                        station_data = station_data[np.sort(unique_indices), :]
-
-                        # Assign table_1_indices to indices of rows that are the first part of the two part table
-                        # and have integer Julian day (records with decimal julian day are erroneous)
-                        # and have a realistic Julian day (positive and less than 367 day, leap year will have 366 days)
-                        table_1_indices = np.argwhere(
-                            (station_data[:, INPUT_YEAR1_COL] == station_data[:, INPUT_YEAR2_COL]) &
-                            (np.ceil(station_data[:, INPUT_JULIAN_DAY_COL]) ==
-                             np.floor(station_data[:, INPUT_JULIAN_DAY_COL])) &
-                            (station_data[:, INPUT_JULIAN_DAY_COL] > 0) &
-                            (station_data[:, INPUT_JULIAN_DAY_COL] < MAX_DAYS_YEAR))
-
-                        # Assign table_2_indices to indices of rows that are the second part of the two part table
-                        # column 10 of 2nd table is wind direction, realistic values will be less than 360 degrees
-                        table_2_indices = np.argwhere(
-                            (station_data[:, INPUT_YEAR1_COL] != station_data[:, INPUT_WIND_DIRECTION_COL]) &
-                            (station_data[:, INPUT_WIND_DIRECTION_COL] <= MAX_DEGREES_WIND))
-
-                        # Assign table_2_indices_last_item to last item in table_2_indices
-                        table_2_indices_last_item = table_2_indices[-1:]
-
-                        # Make sure last record in table 1 has a second piece of the table
-                        table_1_indices = table_1_indices[table_1_indices < table_2_indices_last_item]
-
-                        # Assign num_records to length of table_1_indices
-                        num_records = len(table_1_indices)
-
-                        # Assign combined_array as an array that will be used to
-                        # combine data from table 1 and table 2, inialize all values as INITIALIZER_VAL
-                        combined_array = np.ones((num_records, 43)) * INITIALIZER_VAL
-
-                        # Assign combined_array_columns to columns to be used in combined_array
-                        combined_array_columns = np.concatenate(
-                            (np.arange(0, 20), np.arange(30, 33), np.arange(34, 38), np.array([38]), np.array([39])))
-
-                        # Assign table_1_columns to columns in table 1 raw
-                        table_1_columns = np.concatenate(
-                            (np.array([0]), np.array([10]), np.array([3]), np.arange(12, 23)))
-
-                        # Assign table_2_columns to columns in table 2 raw
-                        table_2_columns = np.concatenate((np.arange(9, 14), np.array([22]), np.arange(14, 22)))
-
-                        # Loop through records
-                        for j in range(num_records):
-
-                            # Find second table parts occurring after associated first part
-                            table_2_current_indices = np.argwhere(
-                                station_data[table_1_indices[j]:, 0] != station_data[table_1_indices[j]:, 9])
-
-                            table_1_index = table_1_indices[j]
-
-                            # Assign table_2_index to the closest table 2 line
-                            table_2_index = table_1_indices[j] + table_2_current_indices[INPUT_YEAR1_COL]
-
-                            # Combine corresponding parts of table 1 and table 2 into an array within combined_array
-                            combined_array[j, combined_array_columns] = np.concatenate(
-                                (np.array([station_num]),
-                                 station_data[table_1_index, table_1_columns],
-                                 station_data[table_2_index, table_2_columns]))
-
-                        # Assign station_array to combined_array filtered for realistic years and Julian days
-                        station_array = combined_array[(combined_array[:, COMBINED_YEAR_COL] > COMBINED_YEAR_MIN) &
-                                                       (combined_array[:, COMBINED_YEAR_COL] < COMBINED_YEAR_MAX) &
-                                                       (combined_array[:, COMBINED_JULIAN_DAY_COL] >= 0) &
-                                                       (combined_array[:, COMBINED_JULIAN_DAY_COL] < MAX_DAYS_YEAR), :]
+                        # Assign station_array to array returns from get_station_array()
+                        station_array = self.get_station_array(station_data, station_num)
 
                         # Filter and process station_array
                         # Assign variables used to create new array that will be used to write csv files and json files
@@ -707,6 +623,103 @@ class ArgosCleanerV2(Cleaner):
 
                 else:
                     logger.warning(f'\t{self.station_type} Station #{station_num} does not have usable data')
+
+    # Function returns station_array which is the array for the data from each station
+    # created from the combined first and second parts of the input table
+    @staticmethod
+    def get_station_array(station_data, station_num):
+
+        # Assign constants for column indices in input numpy array
+        INPUT_YEAR1_COL = 0
+        INPUT_STATION_NUM_COL = 8
+        INPUT_YEAR2_COL = 9
+        INPUT_JULIAN_DAY_COL = 10
+        INPUT_WIND_DIRECTION_COL = 9
+
+        # Assign constants for column indices and other constants in combined_array
+        COMBINED_YEAR_COL = 1
+        COMBINED_YEAR_MIN = 1990
+        COMBINED_YEAR_MAX = 2050
+        COMBINED_JULIAN_DAY_COL = 2
+
+        # Assign other constants
+        MAX_DAYS_YEAR = 367
+        MAX_DEGREES_WIND = 360
+        INITIALIZER_VAL = 999
+
+        # Assign unique_array to unique_rows after INPUT_STATION_NUM_COL
+        # Assign unique_indices to indices of unique rows after INPUT_STATION_NUM_COL
+        # because data may repeat with different time signature
+        unique_array, unique_indices = np.unique(station_data[:, INPUT_STATION_NUM_COL:],
+                                                 axis=0, return_index=True)
+
+        # Assign station_data to station_data sorted by unique_indcies
+        station_data = station_data[np.sort(unique_indices), :]
+
+        # Assign table_1_indices to indices of rows that are the first part of the two part table
+        # and have integer Julian day (records with decimal julian day are erroneous)
+        # and have a realistic Julian day (positive and less than 367 day, leap year will have 366 days)
+        table_1_indices = np.argwhere(
+            (station_data[:, INPUT_YEAR1_COL] == station_data[:, INPUT_YEAR2_COL]) &
+            (np.ceil(station_data[:, INPUT_JULIAN_DAY_COL]) ==
+             np.floor(station_data[:, INPUT_JULIAN_DAY_COL])) &
+            (station_data[:, INPUT_JULIAN_DAY_COL] > 0) &
+            (station_data[:, INPUT_JULIAN_DAY_COL] < MAX_DAYS_YEAR))
+
+        # Assign table_2_indices to indices of rows that are the second part of the two part table
+        # column 9 of 2nd table is wind direction, realistic values will be less than 360 degrees
+        table_2_indices = np.argwhere(
+            (station_data[:, INPUT_YEAR1_COL] != station_data[:, INPUT_WIND_DIRECTION_COL]) &
+            (station_data[:, INPUT_WIND_DIRECTION_COL] <= MAX_DEGREES_WIND))
+
+        # Assign table_2_indices_last_item to last item in table_2_indices
+        table_2_indices_last_item = table_2_indices[-1:]
+
+        # Make sure last record in table 1 has a second piece of the table
+        table_1_indices = table_1_indices[table_1_indices < table_2_indices_last_item]
+
+        # Assign num_records to length of table_1_indices
+        num_records = len(table_1_indices)
+
+        # Assign combined_array as an array that will be used to
+        # combine data from table 1 and table 2, inialize all values as INITIALIZER_VAL
+        combined_array = np.ones((num_records, 43)) * INITIALIZER_VAL
+
+        # Assign combined_array_columns to columns to be used in combined_array
+        combined_array_columns = np.concatenate(
+            (np.arange(0, 20), np.arange(30, 33), np.arange(34, 38), np.array([38]), np.array([39])))
+
+        # Assign table_1_columns to columns in table 1 raw
+        table_1_columns = np.concatenate(
+            (np.array([0]), np.array([10]), np.array([3]), np.arange(12, 23)))
+
+        # Assign table_2_columns to columns in table 2 raw
+        table_2_columns = np.concatenate((np.arange(9, 14), np.array([22]), np.arange(14, 22)))
+
+        # Loop through records
+        for j in range(num_records):
+            # Find second table parts occurring after associated first part
+            table_2_current_indices = np.argwhere(
+                station_data[table_1_indices[j]:, 0] != station_data[table_1_indices[j]:, 9])
+
+            table_1_index = table_1_indices[j]
+
+            # Assign table_2_index to the closest table 2 line
+            table_2_index = table_1_indices[j] + table_2_current_indices[INPUT_YEAR1_COL]
+
+            # Combine corresponding parts of table 1 and table 2 into an array within combined_array
+            combined_array[j, combined_array_columns] = np.concatenate(
+                (np.array([station_num]),
+                 station_data[table_1_index, table_1_columns],
+                 station_data[table_2_index, table_2_columns]))
+
+        # Assign station_array to combined_array filtered for realistic years and Julian days
+        station_array = combined_array[(combined_array[:, COMBINED_YEAR_COL] > COMBINED_YEAR_MIN) &
+                                       (combined_array[:, COMBINED_YEAR_COL] < COMBINED_YEAR_MAX) &
+                                       (combined_array[:, COMBINED_JULIAN_DAY_COL] >= 0) &
+                                       (combined_array[:, COMBINED_JULIAN_DAY_COL] < MAX_DAYS_YEAR), :]
+
+        return station_array
 
 
 class GoesCleaner(Cleaner):
@@ -1071,7 +1084,7 @@ class GoesCleanerV2(Cleaner):
 
                     # Assign station_number to station numbers
                     station_number = gdata[:, 0]
-                  
+
                     swin = self._filter_values_calibrate(gdata[:, 4], section, "swmin", "swmax", "swin",
                                                          self.no_data, self.no_data)
 
