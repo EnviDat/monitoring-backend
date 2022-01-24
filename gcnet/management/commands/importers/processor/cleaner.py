@@ -24,7 +24,6 @@ class Cleaner(object):
         self.writer = writer
 
     def _get_config(self):
-
         # Set relative path to stations config file
         stations_config_file = Path(self.init_file_path)
 
@@ -36,7 +35,6 @@ class Cleaner(object):
 
     # Function to filter values
     def _filter_values(self, unfiltered_values, sect, minimum, maximum):
-
         # Filter out low and high values
         array = unfiltered_values
         array[array < float(self.stations_config.get(sect, minimum))] = self.no_data
@@ -47,7 +45,6 @@ class Cleaner(object):
     # Function to filter values with calibration factor
     def _filter_values_calibrate(self, unfiltered_values, sect, minimum, maximum, calibration,
                                  no_data_min, no_data_max):
-
         # Multiply values by calibration factor, filter out low and high values
         array = unfiltered_values * float(self.stations_config.get(sect, calibration))
         array[array < float(self.stations_config.get(sect, minimum))] = no_data_min
@@ -59,7 +56,6 @@ class Cleaner(object):
 
     @staticmethod
     def _get_date_num():
-
         # Get current date
         today = datetime.now()
         day_of_year = (today - datetime(today.year, 1, 1)).days + 1
@@ -965,10 +961,19 @@ class GoesCleanerV2(Cleaner):
         STATION_YEAR_MIN = 1990
         STATION_YEAR_MAX = 2050
 
-        # Assign constants for column indices in gdata
+        # Assign constants for column indices used in gdata processing
+        GDATA_STATION_NUM_COL = 0
         GDATA_YEAR_COL = 1
         GDATA_JULIAN_DAY_COL = 2
         GDATA_HOUR_COL = 3
+        GDATA_SWIN_COL = 4
+        GDATA_SWOUT_COL = 5
+        GDATA_SWNET_COL = 6
+        GDATA_TC1_COL = 7
+        GDATA_TC2_COL = 8
+        GDATA_HMP1_COL = 9
+        GDATA_HMP2_COL = 10
+        GDATA_RH1_COL = 11
 
         # Assign other constants
         INITIALIZER_VAL = 999
@@ -1016,11 +1021,11 @@ class GoesCleanerV2(Cleaner):
                     # Assign station_array to station_array filtered for realistic years and Julian days,
                     # (positive and less than 367 JD, leap year will have 366 days)
                     station_array = station_array[
-                            (station_array[:, STATION_YEAR_COL] > STATION_YEAR_MIN)
-                            & (station_array[:, STATION_YEAR_COL] < STATION_YEAR_MAX)
-                            & (station_array[:, STATION_JULIAN_DAY_COL] >= 0)
-                            & (station_array[:, STATION_JULIAN_DAY_COL] < 367),
-                            :]
+                                    (station_array[:, STATION_YEAR_COL] > STATION_YEAR_MIN)
+                                    & (station_array[:, STATION_YEAR_COL] < STATION_YEAR_MAX)
+                                    & (station_array[:, STATION_JULIAN_DAY_COL] >= 0)
+                                    & (station_array[:, STATION_JULIAN_DAY_COL] < 367),
+                                    :]
 
                     logger.info(f'GoesCleaner: Clean data size {station_array.size} for Station {station_num}...')
                     # if station_array.size <= 0:
@@ -1039,7 +1044,7 @@ class GoesCleanerV2(Cleaner):
                     year = gdata[:, GDATA_YEAR_COL]
 
                     # Assign julian_day to julian day plus fractional hours
-                    julian_day = gdata[:,  GDATA_JULIAN_DAY_COL] + gdata[:, GDATA_HOUR_COL] / HOURS_IN_DAY
+                    julian_day = gdata[:, GDATA_JULIAN_DAY_COL] + gdata[:, GDATA_HOUR_COL] / HOURS_IN_DAY
 
                     # Assign date_num to year plus julian_day
                     date_num = year * 1e3 + julian_day
@@ -1083,23 +1088,56 @@ class GoesCleanerV2(Cleaner):
                     date_num = date_num[time_indices]
 
                     # Assign station_number to station numbers
-                    station_number = gdata[:, 0]
+                    station_number = gdata[:, GDATA_STATION_NUM_COL]
 
-                    swin = self._filter_values_calibrate(gdata[:, 4], section, "swmin", "swmax", "swin",
+                    # Assign swin
+                    swin = self._filter_values_calibrate(gdata[:, GDATA_SWIN_COL], section, "swmin", "swmax", "swin",
                                                          self.no_data, self.no_data)
 
-                    swout = self._filter_values_calibrate(gdata[:, 5], section, "swmin", "swmax", "swout",
+                    # Assign swout
+                    swout = self._filter_values_calibrate(gdata[:, GDATA_SWOUT_COL], section, "swmin", "swmax", "swout",
                                                           self.no_data, self.no_data)
 
-                    # #assign and calibrate net shortwave, negative and positive values
-                    # #have different calibration coefficients according to QC code
-                    swnet = 999 * np.ones(np.size(swout, 0))
-                    swnet[gdata[:, 6] >= 0] = gdata[gdata[:, 6] >= 0, 6] * float(self.stations_config.get(section,
-                                                                                                          "swnet_pos"))
-                    swnet[gdata[:, 6] < 0] = gdata[gdata[:, 6] < 0, 6] * float(self.stations_config.get(section,
-                                                                                                        "swnet_neg"))
-                    swnet[swnet < -(float(self.stations_config.get(section, "swmax")))] = self.no_data  # filter low
-                    swnet[swnet > float(self.stations_config.get(section, "swmax"))] = self.no_data  # filter high
+                    # Assign and calibrate net shortwave, negative and positive values
+                    # Stations have different calibration coefficients according to QC code
+                    swnet = INITIALIZER_VAL * np.ones(np.size(swout, 0))
+                    swnet[gdata[:, GDATA_SWNET_COL] >= 0] \
+                        = gdata[gdata[:, GDATA_SWNET_COL] >= 0, GDATA_SWNET_COL] \
+                          * float(self.stations_config.get(section, "swnet_pos"))
+                    swnet[gdata[:, GDATA_SWNET_COL] < 0] \
+                        = gdata[gdata[:, GDATA_SWNET_COL] < 0, GDATA_SWNET_COL] \
+                          * float(self.stations_config.get(section, "swnet_neg"))
+                    swnet[swnet < -(float(self.stations_config.get(section, "swmax")))] = self.no_data  # Filter low
+                    swnet[swnet > float(self.stations_config.get(section, "swmax"))] = self.no_data  # Filter high
+
+                    # Assign and filter other values
+                    tc1 = self._filter_values(gdata[:, GDATA_TC1_COL], section, "tcmin", "tcmax")  # Thermocouple 1
+                    tc2 = self._filter_values(gdata[:, GDATA_TC2_COL], section, "tcmin", "tcmax")  # Thermocouple 2
+                    hmp1 = self._filter_values(gdata[:, GDATA_HMP1_COL], section, "hmpmin", "hmpmax")  # hmp1 temp
+                    hmp2 = self._filter_values(gdata[:, GDATA_HMP2_COL], section, "hmpmin", "hmpmax")  # hmp2 temp
+
+                    # Assign relative humidity 1
+                    rh1 = gdata[:, GDATA_RH1_COL]
+                    rh1[rh1 < float(self.stations_config.get(section, "rhmin"))] = self.no_data  # Filter low
+                    rh1[rh1 > float(self.stations_config.get(section, "rhmax"))] = self.no_data  # Filter high
+                    # Assign values greater than 100 and less than rhmax to 100
+                    rh1[(rh1 > 100) & (rh1 < float(self.stations_config.get(section, "rhmax")))] = 100
+
+                    rh2 = gdata[:, 12]  # HMP relative humidity 2
+                    rh2[rh2 < float(self.stations_config.get(section, "rhmin"))] = self.no_data  # filter low
+                    rh2[rh2 > float(self.stations_config.get(section, "rhmax"))] = self.no_data  # filter high
+                    rh2[(rh2 > 100) & (
+                            rh2 < float(
+                        self.stations_config.get(section, "rhmax")))] = 100  # Assign values greater than
+                    # 100 and less than rhmax to 100
+
+                    ws1 = self._filter_values(gdata[:, 13], section, "wmin", "wmax")  # wind speed 1
+
+                    ws2 = self._filter_values(gdata[:, 14], section, "wmin", "wmax")  # wind speed 2
+
+                    wd1 = self._filter_values(gdata[:, 15], section, "wdmin", "wdmax")  # wind direction 1
+
+                    wd2 = self._filter_values(gdata[:, 16], section, "wdmin", "wdmax")  # wind direction 2
 
                     pres = gdata[:, 17] + float(self.stations_config.get(section,
                                                                          "pressure_offset"))  # barometeric pressure
@@ -1110,6 +1148,15 @@ class GoesCleanerV2(Cleaner):
                     mb_per_hr = np.absolute(np.divide(presd, hrdif, out=np.zeros_like(presd), where=hrdif != 0))
                     pjumps = np.argwhere(mb_per_hr > 10)  # find jumps > 10mb/hr (quite unnatural)
                     pres[pjumps + 1] = self.no_data  # eliminate these single point jumps
+
+                    sh1 = self._filter_values(gdata[:, 18], section, "shmin", "shmax")  # height above snow 1
+
+                    sh2 = self._filter_values(gdata[:, 19], section, "shmin", "shmax")  # height above snow 2
+
+                    snow_temp10 = gdata[:,
+                                  20:30]  # 10m snow temperature (many of these are non functional or not connected)
+
+                    volts = self._filter_values(gdata[:, 30], section, "battmin", "battmax")  # battery voltage
 
                     s_winmax = self._filter_values_calibrate(gdata[:, 31], section, "swmin", "swmax", "swin",
                                                              self.no_data, self.no_data)
@@ -1128,46 +1175,6 @@ class GoesCleanerV2(Cleaner):
                     s_wnetmax[
                         s_wnetmax > float(self.stations_config.get(section, "swmax"))] = self.no_data  # filter high
 
-                    tc1 = self._filter_values(gdata[:, 7], section, "tcmin", "tcmax")  # thermocouple 1
-
-                    tc2 = self._filter_values(gdata[:, 8], section, "tcmin", "tcmax")  # thermocouple 2
-
-                    hmp1 = self._filter_values(gdata[:, 9], section, "hmpmin", "hmpmax")  # hmp1 temp
-
-                    hmp2 = self._filter_values(gdata[:, 10], section, "hmpmin", "hmpmax")  # hmp2 temp
-
-                    rh1 = gdata[:, 11]  # HMP relative humidity 1
-                    rh1[rh1 < float(self.stations_config.get(section, "rhmin"))] = self.no_data  # filter low
-                    rh1[rh1 > float(self.stations_config.get(section, "rhmax"))] = self.no_data  # filter high
-                    rh1[(rh1 > 100) & (
-                            rh1 < float(
-                        self.stations_config.get(section, "rhmax")))] = 100  # Assign values greater than
-                    # 100 and less than rhmax to 100
-                    rh2 = gdata[:, 12]  # HMP relative humidity 2
-                    rh2[rh2 < float(self.stations_config.get(section, "rhmin"))] = self.no_data  # filter low
-                    rh2[rh2 > float(self.stations_config.get(section, "rhmax"))] = self.no_data  # filter high
-                    rh2[(rh2 > 100) & (
-                            rh2 < float(
-                        self.stations_config.get(section, "rhmax")))] = 100  # Assign values greater than
-                    # 100 and less than rhmax to 100
-
-                    ws1 = self._filter_values(gdata[:, 13], section, "wmin", "wmax")  # wind speed 1
-
-                    ws2 = self._filter_values(gdata[:, 14], section, "wmin", "wmax")  # wind speed 2
-
-                    wd1 = self._filter_values(gdata[:, 15], section, "wdmin", "wdmax")  # wind direction 1
-
-                    wd2 = self._filter_values(gdata[:, 16], section, "wdmin", "wdmax")  # wind direction 2
-
-                    sh1 = self._filter_values(gdata[:, 18], section, "shmin", "shmax")  # height above snow 1
-
-                    sh2 = self._filter_values(gdata[:, 19], section, "shmin", "shmax")  # height above snow 2
-
-                    snow_temp10 = gdata[:,
-                                  20:30]  # 10m snow temperature (many of these are non functional or not connected)
-
-                    volts = self._filter_values(gdata[:, 30], section, "battmin", "battmax")  # battery voltage
-
                     tc1max = self._filter_values(gdata[:, 34], section, "tcmin", "tcmax")
 
                     tc2max = self._filter_values(gdata[:, 35], section, "tcmin", "tcmax")
@@ -1185,7 +1192,8 @@ class GoesCleanerV2(Cleaner):
                     # # note this code does not currently calculate the 2 and 10 m winds
                     # # and albedo, so these are columns 1-42 of the Level C data
                     wdata = np.column_stack(
-                        (station_number, year, julian_day, swin, swout, swnet, tc1, tc2, hmp1, hmp2, rh1, rh2, ws1, ws2, wd1,
+                        (station_number, year, julian_day, swin, swout, swnet, tc1, tc2, hmp1, hmp2, rh1, rh2, ws1, ws2,
+                         wd1,
                          wd2, pres, sh1, sh2, snow_temp10, volts, s_winmax, s_woutmax, s_wnetmax, tc1max,
                          tc2max, tc1min, tc2min, ws1max, ws2max, ws1std, ws2std,
                          tref))  # assemble data into final level C standard form
@@ -1211,7 +1219,8 @@ class GoesCleanerV2(Cleaner):
 
                 else:  # if no data in station_array still output empty wdata array so empty file is created
                     wdata = np.array([])
-                    logger.warning("\t{0} Station  #{1} does not have usable data".format(self.station_type, station_num))
+                    logger.warning(
+                        "\t{0} Station  #{1} does not have usable data".format(self.station_type, station_num))
 
     # Function returns gdata array depending on station_num, station_array formats vary by station
     @staticmethod
