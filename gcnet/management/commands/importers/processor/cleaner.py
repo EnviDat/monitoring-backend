@@ -974,12 +974,22 @@ class GoesCleanerV2(Cleaner):
         GDATA_HMP1_COL = 9
         GDATA_HMP2_COL = 10
         GDATA_RH1_COL = 11
+        GDATA_RH2_COL = 12
+        GDATA_WS1_COL = 13
+        GDATA_WS2_COL = 14
+        GDATA_WD1_COL = 15
+        GDATA_WD2_COL = 16
+        GDATA_PRES_COL = 17
+        GDATA_SH1_COL = 18
+        GDATA_SH2_COL = 19
+        GDATA_VOLTS_COL = 30
 
         # Assign other constants
         INITIALIZER_VAL = 999
         NO_DATA1 = -8190
         NO_DATA2 = 2080
         HOURS_IN_DAY = 24
+        MAX_HUMIDITY = 100
 
         # Iterate through each station and write json and csv file
         for section in self.stations_config.sections():
@@ -1013,8 +1023,6 @@ class GoesCleanerV2(Cleaner):
                     # Assign unique_array unique rows after column 5
                     # Assign unique_indices to indices of unique rows after column 5
                     # column 5 because data may repeat with different time signature
-                    # TODO assign constant to 5 in line below, update comments above
-                    # TODO investigate if this should really be 5, maybe should be 4?
                     unique_array, unique_indices = np.unique(station_array[:, 5:], axis=0, return_index=True)
                     station_array = station_array[np.sort(unique_indices), :]
 
@@ -1028,10 +1036,10 @@ class GoesCleanerV2(Cleaner):
                                     :]
 
                     logger.info(f'GoesCleaner: Clean data size {station_array.size} for Station {station_num}...')
-                    # if station_array.size <= 0:
-                    #     logger.warning(f'Skipping cleaning of {station_array.size} for Station #{station_num},'
-                    #                    f' NO DATA after cleaning')
-                    #     continue
+                    if station_array.size <= 0:
+                        logger.warning(f'Skipping cleaning of {station_array.size} for Station #{station_num},'
+                                       f' NO DATA after cleaning')
+                        continue
 
                     # Assign gdata to array returned by get_gdata_array(), arrays vary by station_num
                     gdata = self.get_gdata_array(station_num, station_array)
@@ -1120,43 +1128,43 @@ class GoesCleanerV2(Cleaner):
                     rh1 = gdata[:, GDATA_RH1_COL]
                     rh1[rh1 < float(self.stations_config.get(section, "rhmin"))] = self.no_data  # Filter low
                     rh1[rh1 > float(self.stations_config.get(section, "rhmax"))] = self.no_data  # Filter high
-                    # Assign values greater than 100 and less than rhmax to 100
-                    rh1[(rh1 > 100) & (rh1 < float(self.stations_config.get(section, "rhmax")))] = 100
+                    # Assign values greater than MAX_HUMIDITY and less than rhmax to MAX_HUMIDITY
+                    rh1[(rh1 > MAX_HUMIDITY) & (rh1 < float(self.stations_config.get(section, "rhmax")))] = MAX_HUMIDITY
 
-                    rh2 = gdata[:, 12]  # HMP relative humidity 2
-                    rh2[rh2 < float(self.stations_config.get(section, "rhmin"))] = self.no_data  # filter low
-                    rh2[rh2 > float(self.stations_config.get(section, "rhmax"))] = self.no_data  # filter high
-                    rh2[(rh2 > 100) & (
-                            rh2 < float(
-                        self.stations_config.get(section, "rhmax")))] = 100  # Assign values greater than
-                    # 100 and less than rhmax to 100
+                    # Assign relative humidity 2
+                    rh2 = gdata[:, GDATA_RH2_COL]
+                    rh2[rh2 < float(self.stations_config.get(section, "rhmin"))] = self.no_data  # Filter low
+                    rh2[rh2 > float(self.stations_config.get(section, "rhmax"))] = self.no_data  # Filter high
+                    # Assign values greater than MAX_HUMIDITY and less than rhmax to MAX_HUMIDITY
+                    rh2[(rh2 > MAX_HUMIDITY) & (rh2 < float(self.stations_config.get(section, "rhmax")))] = MAX_HUMIDITY
 
-                    ws1 = self._filter_values(gdata[:, 13], section, "wmin", "wmax")  # wind speed 1
+                    # Assign and filter other values
+                    ws1 = self._filter_values(gdata[:, GDATA_WS1_COL], section, "wmin", "wmax")  # Wind speed 1
+                    ws2 = self._filter_values(gdata[:, GDATA_WS2_COL], section, "wmin", "wmax")  # Wind speed 2
+                    wd1 = self._filter_values(gdata[:, GDATA_WD1_COL], section, "wdmin", "wdmax")  # Wind direction 1
+                    wd2 = self._filter_values(gdata[:, GDATA_WD2_COL], section, "wdmin", "wdmax")  # Wind direction 2
 
-                    ws2 = self._filter_values(gdata[:, 14], section, "wmin", "wmax")  # wind speed 2
+                    # Assign  barometeric pressure
+                    pres = gdata[:, GDATA_PRES_COL] + float(self.stations_config.get(section, "pressure_offset"))
+                    pres[pres < float(self.stations_config.get(section, "pmin"))] = self.no_data  # Filter low
+                    pres[pres > float(self.stations_config.get(section, "pmax"))] = self.no_data  # Filter high
+                    pressure_difference = np.diff(pres)  # Find difference of subsequent pressure measurement
+                    hour_difference = np.diff(julian_day) * 24.  # Time difference in hours
+                    mb_per_hr = np.absolute(np.divide(pressure_difference, hour_difference,
+                                                      out=np.zeros_like(pressure_difference),
+                                                      where=hour_difference != 0))
+                    pressure_jumps = np.argwhere(mb_per_hr > 10)  # Find jumps > 10mb/hr (quite unnatural)
+                    pres[pressure_jumps + 1] = self.no_data  # Eliminate these single point jumps
 
-                    wd1 = self._filter_values(gdata[:, 15], section, "wdmin", "wdmax")  # wind direction 1
+                    # Assign snow heights
+                    sh1 = self._filter_values(gdata[:, GDATA_SH1_COL], section, "shmin", "shmax")  # Height above snow 1
+                    sh2 = self._filter_values(gdata[:, GDATA_SH2_COL], section, "shmin", "shmax")  # Height above snow 2
 
-                    wd2 = self._filter_values(gdata[:, 16], section, "wdmin", "wdmax")  # wind direction 2
+                    # Assign 10m snow temperature (many of these are non functional or not connected)
+                    snow_temp10 = gdata[:, 20:30]
 
-                    pres = gdata[:, 17] + float(self.stations_config.get(section,
-                                                                         "pressure_offset"))  # barometeric pressure
-                    pres[pres < float(self.stations_config.get(section, "pmin"))] = self.no_data  # filter low
-                    pres[pres > float(self.stations_config.get(section, "pmax"))] = self.no_data  # filter high
-                    presd = np.diff(pres)  # find difference of subsequent pressure meas
-                    hrdif = np.diff(julian_day) * 24.  # time diff in hrs
-                    mb_per_hr = np.absolute(np.divide(presd, hrdif, out=np.zeros_like(presd), where=hrdif != 0))
-                    pjumps = np.argwhere(mb_per_hr > 10)  # find jumps > 10mb/hr (quite unnatural)
-                    pres[pjumps + 1] = self.no_data  # eliminate these single point jumps
-
-                    sh1 = self._filter_values(gdata[:, 18], section, "shmin", "shmax")  # height above snow 1
-
-                    sh2 = self._filter_values(gdata[:, 19], section, "shmin", "shmax")  # height above snow 2
-
-                    snow_temp10 = gdata[:,
-                                  20:30]  # 10m snow temperature (many of these are non functional or not connected)
-
-                    volts = self._filter_values(gdata[:, 30], section, "battmin", "battmax")  # battery voltage
+                    # Assign battery voltage
+                    volts = self._filter_values(gdata[:, GDATA_VOLTS_COL], section, "battmin", "battmax")
 
                     s_winmax = self._filter_values_calibrate(gdata[:, 31], section, "swmin", "swmax", "swin",
                                                              self.no_data, self.no_data)
