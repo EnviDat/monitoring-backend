@@ -614,7 +614,6 @@ class ArgosCleanerV2(Cleaner):
 
                         # Else station_array is empty after removing bad dates
                         else:
-                            # wdata = np.array([])
                             logger.warning(f'\t{self.station_type} Station #{station_num} does not have usable data')
 
                 else:
@@ -983,6 +982,18 @@ class GoesCleanerV2(Cleaner):
         GDATA_SH1_COL = 18
         GDATA_SH2_COL = 19
         GDATA_VOLTS_COL = 30
+        GDATA_S_WINMAX_COL = 31
+        GDATA_S_WOUTMAX_COL = 32
+        GDATA_S_WNETMAX_COL = 33
+        GDATA_TC1MAX_COL = 34
+        GDATA_TC2MAX_COL = 35
+        GDATA_TC1MIN_COL = 36
+        GDATA_TC2MIN_COL = 37
+        GDATA_WS1MAX_COL = 38
+        GDATA_WS2MAX_COL = 39
+        GDATA_WS1STD_COL = 40
+        GDATA_WS2STD_COL = 41
+        GDATA_TREF_COL = 42
 
         # Assign other constants
         INITIALIZER_VAL = 999
@@ -1015,14 +1026,10 @@ class GoesCleanerV2(Cleaner):
                     station_array = np.array(input_data[input_data[:, INPUT_STATION_NUM_COL] == station_num, :])
 
                     logger.info(f'GoesCleaner: Data size {station_array.size} for Station #{station_num}...')
-                    # if station_array.size <= 0:
-                    #     logger.warning(f'Skipping cleaning of {station_array.size} '
-                    #                    f'for Station #{station_num}, NO DATA')
-                    # continue
 
                     # Assign unique_array unique rows after column 5
                     # Assign unique_indices to indices of unique rows after column 5
-                    # column 5 because data may repeat with different time signature
+                    # because data may repeat with different time signature
                     unique_array, unique_indices = np.unique(station_array[:, 5:], axis=0, return_index=True)
                     station_array = station_array[np.sort(unique_indices), :]
 
@@ -1098,6 +1105,8 @@ class GoesCleanerV2(Cleaner):
                     # Assign station_number to station numbers
                     station_number = gdata[:, GDATA_STATION_NUM_COL]
 
+                    # ======== Assign scientific measurements ==========
+
                     # Assign swin
                     swin = self._filter_values_calibrate(gdata[:, GDATA_SWIN_COL], section, "swmin", "swmax", "swin",
                                                          self.no_data, self.no_data)
@@ -1166,69 +1175,71 @@ class GoesCleanerV2(Cleaner):
                     # Assign battery voltage
                     volts = self._filter_values(gdata[:, GDATA_VOLTS_COL], section, "battmin", "battmax")
 
-                    s_winmax = self._filter_values_calibrate(gdata[:, 31], section, "swmin", "swmax", "swin",
-                                                             self.no_data, self.no_data)
+                    # Assign and calibrate s_swinmax
+                    s_winmax = self._filter_values_calibrate(gdata[:, GDATA_S_WINMAX_COL], section, "swmin",
+                                                             "swmax", "swin", self.no_data, self.no_data)
 
-                    s_woutmax = self._filter_values_calibrate(gdata[:, 32], section, "swmin", "swmax", "swout",
-                                                              0.00, self.no_data)
+                    # Assign and calibrate s_woutmax
+                    s_woutmax = self._filter_values_calibrate(gdata[:, GDATA_S_WOUTMAX_COL], section, "swmin",
+                                                              "swmax", "swout", 0.00, self.no_data)
 
-                    s_wnetmax = 999 * np.ones_like(s_woutmax)
-                    # net radiation max
-                    s_wnetmax[gdata[:, 33] >= 0] = gdata[gdata[:, 33] >= 0, 33] * float(
-                        self.stations_config.get(section, "swnet_pos"))
-                    s_wnetmax[gdata[:, 33] < 0] = gdata[gdata[:, 33] < 0, 33] * float(
-                        self.stations_config.get(section, "swnet_neg"))
-                    s_wnetmax[
-                        s_wnetmax < -(float(self.stations_config.get(section, "swmax")))] = self.no_data  # filter low
-                    s_wnetmax[
-                        s_wnetmax > float(self.stations_config.get(section, "swmax"))] = self.no_data  # filter high
+                    # Assign net radiation max
+                    s_wnetmax = INITIALIZER_VAL * np.ones_like(s_woutmax)
+                    s_wnetmax[gdata[:, GDATA_S_WNETMAX_COL] >= 0] \
+                        = gdata[gdata[:, GDATA_S_WNETMAX_COL] >= 0, GDATA_S_WNETMAX_COL] \
+                          * float(self.stations_config.get(section, "swnet_pos"))
+                    s_wnetmax[gdata[:, GDATA_S_WNETMAX_COL] < 0] \
+                        = gdata[gdata[:, GDATA_S_WNETMAX_COL] < 0, GDATA_S_WNETMAX_COL] \
+                          * float(self.stations_config.get(section, "swnet_neg"))
+                    # Filter low
+                    s_wnetmax[s_wnetmax < -(float(self.stations_config.get(section, "swmax")))] = self.no_data
+                    # Filter high
+                    s_wnetmax[s_wnetmax > float(self.stations_config.get(section, "swmax"))] = self.no_data
 
-                    tc1max = self._filter_values(gdata[:, 34], section, "tcmin", "tcmax")
+                    # Assign and filter other values
+                    tc1max = self._filter_values(gdata[:, GDATA_TC1MAX_COL], section, "tcmin", "tcmax")
+                    tc2max = self._filter_values(gdata[:, GDATA_TC2MAX_COL], section, "tcmin", "tcmax")
+                    tc1min = self._filter_values(gdata[:, GDATA_TC1MIN_COL], section, "tcmin", "tcmax")
+                    tc2min = self._filter_values(gdata[:, GDATA_TC2MIN_COL], section, "tcmin", "tcmax")
 
-                    tc2max = self._filter_values(gdata[:, 35], section, "tcmin", "tcmax")
+                    # Assign other values
+                    ws1max = gdata[:, GDATA_WS1MAX_COL]
+                    ws2max = gdata[:, GDATA_WS2MAX_COL]
+                    ws1std = gdata[:, GDATA_WS1STD_COL]
+                    ws2std = gdata[:, GDATA_WS2STD_COL]
+                    tref = gdata[:, GDATA_TREF_COL]
 
-                    tc1min = self._filter_values(gdata[:, 36], section, "tcmin", "tcmax")
-
-                    tc2min = self._filter_values(gdata[:, 37], section, "tcmin", "tcmax")
-
-                    ws1max = gdata[:, 38]  # stats
-                    ws2max = gdata[:, 39]
-                    ws1std = gdata[:, 40]
-                    ws2std = gdata[:, 41]
-                    tref = gdata[:, 42]
-
-                    # # note this code does not currently calculate the 2 and 10 m winds
-                    # # and albedo, so these are columns 1-42 of the Level C data
+                    # Assign wdata, note this code does not currently calculate the 2 and 10 m winds and albedo,
+                    # so these are columns 1-42 of the Level C data
+                    # Assemble data into final level C standard form
                     wdata = np.column_stack(
                         (station_number, year, julian_day, swin, swout, swnet, tc1, tc2, hmp1, hmp2, rh1, rh2, ws1, ws2,
-                         wd1,
-                         wd2, pres, sh1, sh2, snow_temp10, volts, s_winmax, s_woutmax, s_wnetmax, tc1max,
-                         tc2max, tc1min, tc2min, ws1max, ws2max, ws1std, ws2std,
-                         tref))  # assemble data into final level C standard form
-                    today = datetime.now()
-                    day_of_year = (today - datetime(today.year, 1, 1)).days + 1
-                    theyear = today.year
-                    todayjday = day_of_year + today.hour / 24  # calculate fractional julian day
-                    nowdatenum = theyear * 1e3 + todayjday
-                    wdata = wdata[date_num < nowdatenum, :]  # only take entries in the past
-                    numfuturepts = len(np.argwhere(date_num > nowdatenum))
+                         wd1, wd2, pres, sh1, sh2, snow_temp10, volts, s_winmax, s_woutmax, s_wnetmax, tc1max,
+                         tc2max, tc1min, tc2min, ws1max, ws2max, ws1std, ws2std, tref))
 
-                    if numfuturepts > 0:
-                        logger.warning("GoesCleaner: Warning: Removed " + str(numfuturepts) + " entries out of: " + str(
-                            len(wdata[:, 1]) + numfuturepts) + " good pts from station ID: " + str(
-                            station_id) + " Reason: time tags in future")
+                    # Get current date number
+                    current_date_num = self._get_date_num()
+
+                    # Assign wdata only to entries in the past
+                    wdata = wdata[date_num < current_date_num, :]
+
+                    # Assign future_reports_num
+                    future_reports_num = len(np.argwhere(date_num > current_date_num))
+
+                    if future_reports_num > 0:
+                        logger.warning(f'GoesCleaner: Warning: Removed {future_reports_num} entries out of: '
+                                       f'{len(wdata[:, 1]) + future_reports_num} good records from station ID: '
+                                       f'{station_id} Reason: time tags in future')
 
                     # Call write_csv function to write csv files with processed data
-                    # TODO test write_csv with convertingself.no_data value to null
                     self.writer.write_csv(wdata, station_num, year, julian_day, date_num)
 
                     # Call write_json function to write long-term and short-term json files with processed data
                     self.writer.write_json(wdata, station_num, self.no_data)
 
-                else:  # if no data in station_array still output empty wdata array so empty file is created
-                    wdata = np.array([])
-                    logger.warning(
-                        "\t{0} Station  #{1} does not have usable data".format(self.station_type, station_num))
+                # Else station does not have usable data
+                else:
+                    logger.warning(f'{self.station_type} Station  #{station_num} does not have usable data')
 
     # Function returns gdata array depending on station_num, station_array formats vary by station
     @staticmethod
@@ -1285,9 +1296,9 @@ class CleanerFactory(object):
             # TEST
             return ArgosCleanerV2(init_file_path=init_file_path, writer=writer)
         elif station_type == 'goes':
-            # return GoesCleaner(init_file_path=init_file_path, writer=writer)
+            return GoesCleaner(init_file_path=init_file_path, writer=writer)
             # TEST
-            return GoesCleanerV2(init_file_path=init_file_path, writer=writer)
+            # return GoesCleanerV2(init_file_path=init_file_path, writer=writer)
         else:
             logger.error("No cleaner for station type '{0}'".format(station_type))
             return None
