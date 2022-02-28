@@ -1,6 +1,6 @@
 #
 # Purpose: Read, decode, and clean ARGOS and GOES satellite raw data. Also imports data into Postgres database.
-# Output: Writes csv and json files with the decoded data
+# Output: Writes csv and json files with the decoded data.
 #
 # Authors : Rebecca Buchholz, V.Trotsiuk and Lucia de Espona, Swiss Federal Research Institute WSL
 # Date Last Modified: February 28, 2022
@@ -20,15 +20,6 @@
 # repeatInterval and localInput:
 #   main.main(['-r 10', '-l True'])
 #
-# TODO remove below example commands
-# Import data into database from URL :
-#   main.main(['-r 15', '-i url'])
-#
-# Import data into database from directory:
-#   main.main(['-r 15', '-i path'])
-#
-# Add -l folder to directly read raw data from director:
-#   main.main(['-r 10', '-i url', '-l True'])
 
 
 import argparse
@@ -40,8 +31,6 @@ from datetime import datetime
 import subprocess
 from urllib import request
 
-# TODO remove Fortran processing code to legacy folder
-# from gcnet.management.commands.importers.processor.fortranprocessor import FortranProcessorFactory
 from gcnet.management.commands.importers.processor.cleaner import CleanerFactory
 from gcnet.management.commands.importers.processor.process_argos import read_argos, decode_argos
 from gcnet.management.commands.importers.processor.process_goes import decode_goes
@@ -59,11 +48,6 @@ def get_parser():
     parser.add_argument('--repeatInterval', '-r', help='Run continuously every <interval> minutes')
     parser.add_argument('--localInput', '-l', help='Any string used in this argument will load local input files '
                                                    'designated in config and skip downloading files from web')
-    # parser.add_argument('--inputType', '-i', required=True, help='Input data source read from stations config. '
-    #                                                              'This is the data that will be imported into the '
-    #                                                              'database.'
-    #                                                              '"path" = directory path (csv_data_dir)'
-    #                                                              '"url" = url address hosting files (csv_data_url)')
     return parser
 
 
@@ -104,7 +88,6 @@ def get_input_data(config_dict: dict, local_input):
     return data
 
 
-# def get_csv_import_command_list(config_parser: configparser, station_type: str, input_type: str):
 def get_csv_import_command_list(config_parser: configparser, station_type: str):
 
     # Load stations configuration file and assign it to stations_config
@@ -124,20 +107,7 @@ def get_csv_import_command_list(config_parser: configparser, station_type: str):
             csv_temporary = stations_config.get(section, 'csv_temporary')
             csv_input = stations_config.get(section, 'csv_input')
             model = stations_config.get(section, 'model')
-
-            # Check to read either url or stations config file
-            # if input_type == ' path':
-            #     csv_data = stations_config.get(section, 'csv_data_dir')
-            # elif input_type == ' url':
-            #     csv_data = stations_config.get(section, 'csv_data_url')
-            # else:
-            #     print('WARNING (import_data.py) invalid argument "{0}" entered for input_type. Must enter'
-            #           '"file" or "url"'.format(input_type))
-            #     return
-
             csv_data = stations_config.get(section, 'csv_data_dir')
-
-            # csv_data = stations_config.get(section, 'csv_data_dir')
 
             command_string = f'python manage.py import_data -s {csv_temporary} -c gcnet/config/stations.ini ' \
                              f'-i {csv_data}/{csv_input} -m {model} -f True'
@@ -278,12 +248,7 @@ def main(args=None):
         # Assign empty import_processes list
         import_processes = []
 
-        # Get input type
-        # input_type = args.inputType
-
         # Get the import commands
-        # goes_commands = get_csv_import_command_list(stations_config, 'goes', input_type)
-        # argos_commands = get_csv_import_command_list(stations_config, 'argos', input_type)
         goes_commands = get_csv_import_command_list(stations_config, 'goes')
         argos_commands = get_csv_import_command_list(stations_config, 'argos')
 
