@@ -8,7 +8,7 @@ GC-Net (Greenland Climate Network) transmits data from several  meteorological s
 They are equipped with communication satellite transmitters that enable near real-time monitoring of weather conditions on the
 Greenland ice sheet. Data are periodically manually retrieved from station data loggers in Greenland.
 
-The GC-Net API is a Django project that imports .dat and pre-processed csv files with meteorological
+The GC-Net API is a Django project that imports meteorological
 station data, processes and copies the data into a Postgres database, and serves the data
 with a dynamic web API.
 
@@ -24,35 +24,105 @@ His dedication made GC-Net possible and he encouraged the developers of this API
 that the application was robust to guarantee access to the meteorological data.
 Prof. Dr. Steffen was a committed scientist and generous friend and is deeply missed.
 
-----------------------
-Configuration
-----------------------
+---------------------------------------
+Configuration file: gcnet_metadata.ini
+---------------------------------------
 
-- **gcnet_metadata.ini**: This configuration file contains the general application execution parameters such as *newloadflag, short_term_days, etc*.
+Configuration files are in the directory "gcnet/config". Please note that quotation marks are used in the documentation for clarity purposes and should NOT be included in the actual configuration files.
+
+This configuration file contains the general application execution parameters such as *newloadflag, short_term_days, etc*.
 
   * The paths can be expressed with linux-style slashes also for Windows, the software will translate them into the proper format for the current OS. Both absolute and relative paths are accepted.
-  * The [file] section is usually the ONLY that may need to be edited to run this application, in particular the parameters *json_fileloc* and *csv_fileloc* should be set to existing paths in the system.
-  * The [goes] and [argos] sections contain the parameters related to the raw data files retrieval and processing. The raw data processors can only be executed in Windows systems, to make tests in Unix or OSX environments you willl need to provide the corresponding .dat files (see commandline parameters in the section "Continuous Data Processing and Import")
-  * The [columns] section specifies the data columns
+
+**[file] section**
+
+The [file] section is usually the ONLY section that may need to be edited to run this application.
+    * *newload_flag* is usually set to 0, if it is set to 1 then existing files will be overwritten.
+    * *short_term_days* is number of days that the short-term csv files suffixed with "_v" will be written. A value of "14" means that the most recent 14 days of day will be written in the short-term files.
+    * *json_fileloc* should be set to existing paths in the system and end in a slash, for example "gcnet/output/". Output json files will be stored here.
+    * *csv_fileloc* should be set to existing paths in the system and end in a slash, for example "gcnet/output/". Output csv files will be stored here.
+    * *stations* are the station numbers
+    * *groups* are the names that of the measurement groups used in csv and json output files
+
+Example [file] section configuration::
+
+    newloadflag=0
+    short_term_days=14
+    json_fileloc=gcnet/output/
+    csv_fileloc=gcnet/output/
+    stations=4,5,7,22,31,32,33,0,1,2,3,6,8,9,10,11,12,15,23,24,30
+    groups=temp,rh,rad,sheight,stemp,ws,wd,press,battvolt
+
+**[argos] and [goes] sections**
+
+The [goes] and [argos] sections contain the parameters related to the raw data files retrieval and processing.
+  * *data_url* is the URL to download the raw data from, for example "https://envidatrepo.wsl.ch/uploads/gcnet/data/LATEST_ARGOS.raw"
+  * *data_url_file* is the file path to store the downloaded raw data, for example, "gcnet/input/LATEST_ARGOS.raw"
+  * *data_local* is the file path where the raw data is stored, this key is used if the input data will be directly read from a file rather than downloaded from a URL
+
+Example [argos] and [goes] configuration::
+
+    [argos]
+    data_url=https://envidatrepo.wsl.ch/uploads/gcnet/data/LATEST_ARGOS.raw
+    data_url_file=gcnet/input/LATEST_ARGOS.raw
+    data_local=gcnet/input/LATEST_ARGOS.raw
+
+    [goes]
+    data_url=https://envidatrepo.wsl.ch/uploads/gcnet/data/LATEST_GOES.raw
+    data_url_file=gcnet/input/LATEST_GOES.raw
+    data_local=gcnet/input/LATEST_GOES.raw
+
+**[columns] section**
+
+The [columns] section is used to create a dictionary that matches column numbers with the column names. This section should not be altered!
 
 
-All station-specific information and parameters should be defined in stations.ini:
+----------------------------------
+Configuration file: stations.ini
+----------------------------------
 
-- **stations.ini**: This file contains the calibration parameters such as *swmax, swmin, rhmin, etc*.
+Configuration files are in the directory "gcnet/config".
 
-  * The [DEFAULT] section contains the base parameters that can be overwritten in the next sections that correspond to single stations.
-  * The *no_data* value that will replace the values in the data that are missing or out of the bounds defined by the calibration parameters.
-  * To change a calibration parameter it is only necessary to edit this file and restart the backend without editing the code.
-  * **Note**: the *active* parameter in the default section should be set to true in the production environment to ensure the data all stations will be processed.
+All station-specific information and parameters should be defined in stations.ini.
+To change a calibration parameter it is only necessary to edit this file and restart the backend without editing the code.
+
+**[DEFAULT] section**
+
+The [DEFAULT] section contains the base parameters that can be overwritten in the next sections that correspond to single stations.
+  * *csv_data_dir* is the file path where csv files are located that will be used to import data into Postgres database. Do not put a slash at the end of the *csv_data_dir* value!
+  * **Warning**: *csv_data_dir* must be the same location to the "gcnet_metadata.ini" section [file] setting 'csv_fileloc'!!!!!
+  * *no_data* is the value that will replace the values in the data that are missing or out of the bounds defined by the calibration parameters. For example, "999".
+  * **Note**: the *active* parameter in the default section should be set to true in the production environment to ensure that the data of all stations will be processed.
+  * Other values correspond to basic filters for various scientific measurements.
+
+Example [DEFAULT] configuration::
+
+    [DEFAULT]
+    csv_data_dir = gcnet/output
+    no_data = 999
+    swmax = 1300
+    swmin = 0
+    hmpmin = -40
+    hmpmax = 50
+    tcmax = 50
+    tcmin = -100
+    wmax = 50
+    wmin = 0
+    wdmax = 360
+    wdmin = 0
+    pmin = 500
+    pmax = 1200
+    rhmax = 130
+    rhmin = 0
+    shmin = -10
+    shmax = 10
+    battmin = 8
+    battmax = 24
+    active = False
 
 
-**[DEFAULT]**
 
-Be sure to modify as needed the directory and/or URL with the input data in stations.ini::
-
-    csv_data_dir = path/to/input/csv/files
-    csv_data_url = https://www.wsl.ch/gcnet/data
-
+TODO finish updating documetation from this point.
 
 **[<STATION ID NUMBER>]**
 

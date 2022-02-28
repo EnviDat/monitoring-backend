@@ -1,12 +1,10 @@
-import sys
 
 from pathlib import Path
 import numpy as np
-import pandas
 import configparser
 from datetime import datetime
 
-from writer import Writer
+from gcnet.util.writer import Writer
 import logging
 
 logging.basicConfig()
@@ -474,7 +472,6 @@ class ArgosCleaner(Cleaner):
         return station_array
 
 
-# TODO review sections that were commented out
 class GoesCleaner(Cleaner):
 
     def __init__(self, init_file_path: str, writer: Writer):
