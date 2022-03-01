@@ -1,10 +1,10 @@
 GC-Net Data Processing and API
 ===============================
 
-Python software package that processes, filters and calibrate meteorological station data. Serves the data
-in a dynamic Django API.
+Python software package that processes, filters and calibrate meteorological station data and serves the data
+with a flexible Django API.
 
-GC-Net (Greenland Climate Network) transmits data from several  meteorological stations via satellite.
+GC-Net (Greenland Climate Network) transmits data from several  meteorological stations in via satellite.
 They are equipped with communication satellite transmitters that enable near real-time monitoring of weather conditions on the
 Greenland ice sheet. Data are periodically manually retrieved from station data loggers in Greenland.
 
@@ -13,6 +13,8 @@ station data, processes and copies the data into a Postgres database, and serves
 with a dynamic web API.
 
 .. image:: ./gc_net_overview.jpg
+
+`Configuration file: stations.ini`_
 
 -------------------------------------
 In Honor of Prof. Dr. Konrad Steffen
@@ -32,11 +34,13 @@ Configuration files are in the directory "gcnet/config". Please note that quotat
 
 This configuration file contains the general application execution parameters such as *newloadflag, short_term_days, etc*.
 
-  * The paths can be expressed with linux-style slashes also for Windows, the software will translate them into the proper format for the current OS. Both absolute and relative paths are accepted.
+    * The paths can be expressed with linux-style slashes also for Windows, the software will translate them into the proper format for the current OS. Both absolute and relative paths are accepted.
 
 **[file] section**
 
+
 The [file] section is usually the ONLY section that may need to be edited to run this application.
+
     * *newload_flag* is usually set to 0, if it is set to 1 then existing files will be overwritten.
     * *short_term_days* is number of days that the short-term csv files suffixed with "_v" will be written. A value of "14" means that the most recent 14 days of day will be written in the short-term files.
     * *json_fileloc* should be set to existing paths in the system and end in a slash, for example "gcnet/output/". Output json files will be stored here.
@@ -122,14 +126,12 @@ Example [DEFAULT] configuration::
 
 
 
-TODO finish updating documetation from this point.
-
-**[<STATION ID NUMBER>]**
+**[<station ID number> section]**
 
 Each station has its own section in stations.ini
 
 Stations can be added and removed from stations.ini. However, stations must also be added or removed from
-gcnet/models.py and migrations must be run on the database (see section "Create/Modify Database").
+gcnet/models.py and migrations must be run on the database (see documentation for "Create/Modify Database").
 
 Example station configuration::
 
@@ -193,7 +195,7 @@ gcnet/management/commands/importers/processor/dat_import.py or gcnet/management/
 
 Example new station model in models.py::
 
-    # New Station
+    # New Station Name
     class new_station(Station):
         pass
 
@@ -231,23 +233,23 @@ To import a file, copy it to the gcnet/data directory and navigate to project di
 WARNING: Always make sure that the input source data file and model used in an import command are for the same station, otherwise data could be imported into the wrong table.
 
 
-PARAMETERS
-----------
-* **parameter -s, station name:** Station number and name, for example "02_crawford".
+Parameters used in data import commands
+----------------------------------------
+* **-s, station name:** Station number and name, for example "02_crawford".
 
-* **parameter -m, model name:** Django Model to map data import to.
+* **-m, model name:** Django Model to map data import to.
 
-* **parameter -c, config file:** Path to stations config file (.ini).
+* **-c, config file:** Path to stations config file (.ini).
 
-* **parameter -i, input file:** The supported formats are DAT (.dat), CSV (.csv) and NEAD (.csv) described at https://www.envidat.ch/#/metadata/new-environmental-data-archive-nead-format . The format will be guessed from the input so please use the proper extension for the file name to import. It can be a path to a local file or a URL.
+* **-i, input file:** The supported formats are DAT (.dat), CSV (.csv) and NEAD (.csv) described at https://www.envidat.ch/#/metadata/new-environmental-data-archive-nead-format . The format will be guessed from the input so please use the proper extension for the file name to import. It can be a path to a local file or a URL.
 
-* **parameter -f, force import:** Duplicated records (according to timestamp) will lead to complete abort and rollback of the import process ('-f False' by default). If the parameter force is specified as "-f True" then the duplicated records will be ignored and the rest of the rows imported.
+* **-f, force import:** Duplicated records (according to timestamp) will lead to complete abort and rollback of the import process ('-f False' by default). If the parameter force is specified as "-f True" then the duplicated records will be ignored and the rest of the rows imported.
 
 The following parameters are **only available for CSV** file format import:
 
-* **parameter -l, logging only:** If set to True, it will just validate the csv rows to import without saving any data to the database. Information will be shown in the console and written to a temporary file in the indicated output directory ('-d' parameter below).
+* **-l, logging only:** If set to True, it will just validate the csv rows to import without saving any data to the database. Information will be shown in the console and written to a temporary file in the indicated output directory ('-d' parameter below).
 
-* **parameter -d, output directory:** If logging only is selected, then the output will be written to a temporary file in this directory.
+* **-d, output directory:** If logging only is selected, then the output will be written to a temporary file in this directory.
 
 
 There are two batch files to run several csv_import commands.
@@ -266,16 +268,12 @@ Continuous Data Processing and Import
 
 To continuously import data run main.py
 
-main.py has three arguments::
+main.py has two optional arguments::
 
     -r (--repeatInterval) This runs the the import every <interval> minutes
 
-    -i (--inputType) Input data source read from stations.ini config. This is a required argument.
-            Options:
-                "path" = directory path (csv_data_dir in stations.ini)
-                "url" = URL address hosting files (csv_data_url in stations.ini)
-
-    -l (--localFolder) Load local .dat files from folder and skip processing. Optional argument.
+    -l (--localInput) Any string used in this argument will load local input files designated in config
+        and will skip downloading files from web
 
 Open terminal and navigate to project directory. Make sure virtual environment is activated.
 
@@ -287,10 +285,11 @@ Run python and import main::
 
 Then run main.py
 
-Example commands running every 15 minutes::
+Example commands::
 
-    Import data from URL:         main(['-r 15', '-i url'])
-    Import data from directory:   main(['-r 15', '-i file'])
+    No arguments passed:            main.main()
+    repeatInterval:                 main.main(['-r 10'])
+    repeatInterval and localInput:  main.main(['-r 10', '-l True'])
 
 
 - **-l <folder>**: For Unix and OSX environments, you can use this option to provide locally stored dat files that should be present in the designated folder with the exact names *argos_decoded.dat* or *goes_decoded.dat*. For example if you place the input dat files in a subfolder called *input* in the project root directory the command should be::
