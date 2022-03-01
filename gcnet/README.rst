@@ -27,7 +27,7 @@ Documentation Topics
     * `Development Server`_
     * `NGINX Configuration`_
     * `API`_
-    * `API documentation website <https://www.envidat.ch/data-api/gcnet/>`_
+    * API documentation website: https://www.envidat.ch/data-api/gcnet/
 
 
 -------------------------------------
@@ -64,18 +64,19 @@ Configuration file: gcnet_metadata.ini
 Configuration files are in the directory "gcnet/config". Please note that quotation marks are used in the documentation
 for clarity purposes and should NOT be included in the actual configuration files.
 
-This configuration file contains the general application execution parameters such as *newloadflag, short_term_days, etc*.
+The "gcnet_metadata.ini" configuration file contains the general application execution parameters such as *newloadflag, short_term_days, etc*.
 
-    * The paths can be expressed with linux-style slashes also for Windows, the software will translate them into the
-      proper format for the current OS. Both absolute and relative paths are accepted.
+The paths for *json_fileloc* and *csv_fileloc* can be expressed forward or backward slashes,
+the software will translate them into the
+proper format for the current OS. Both absolute and relative paths are accepted.
 
 **[file] section**
 
 
 The [file] section is usually the ONLY section that may need to be edited to run this application.
 
-    * *newload_flag* is usually set to 0, if it is set to 1 then existing files will be overwritten.
-    * *short_term_days* is number of days that the short-term csv files suffixed with "_v" will be written. A value of "14" means that the most recent 14 days of day will be written in the short-term files.
+    * *newload_flag* is usually set to "0", if it is set to "1" then existing files will be overwritten.
+    * *short_term_days* are the number of days that the short-term csv files suffixed with "_v" will be written. A value of "14" means that the most recent 14 days of data will be written in the short-term files.
     * *json_fileloc* should be set to existing paths in the system and end in a slash, for example "gcnet/output/". Output json files will be stored here.
     * *csv_fileloc* should be set to existing paths in the system and end in a slash, for example "gcnet/output/". Output csv files will be stored here.
     * *stations* are the station numbers
@@ -90,12 +91,14 @@ Example [file] section configuration::
     stations=4,5,7,22,31,32,33,0,1,2,3,6,8,9,10,11,12,15,23,24,30
     groups=temp,rh,rad,sheight,stemp,ws,wd,press,battvolt
 
+
 **[argos] and [goes] sections**
 
 The [goes] and [argos] sections contain the parameters related to the raw data files retrieval and processing.
+
   * *data_url* is the URL to download the raw data from, for example "https://envidatrepo.wsl.ch/uploads/gcnet/data/LATEST_ARGOS.raw"
   * *data_url_file* is the file path to store the downloaded raw data, for example, "gcnet/input/LATEST_ARGOS.raw"
-  * *data_local* is the file path where the raw data is stored, this key is used if the input data will be directly read from a file rather than downloaded from a URL
+  * *data_local* is the file path where the raw data is stored, this key is used if the input data will be directly read from a file rather than downloaded from a URL using the "localInput" option in gcnet/main.py, please see `Continuous Data Processing and Import`_
 
 Example [argos] and [goes] configuration::
 
@@ -120,12 +123,13 @@ Configuration file: stations.ini
 
 Configuration files are in the directory "gcnet/config".
 
-All station-specific information and parameters should be defined in stations.ini.
+All station-specific information and parameters should be specified in "stations.ini"
 To change a calibration parameter it is only necessary to edit this file and restart the backend without editing the code.
 
 **[DEFAULT] section**
 
 The [DEFAULT] section contains the base parameters that can be overwritten in the next sections that correspond to single stations.
+
   * *csv_data_dir* is the file path where csv files are located that will be used to import data into Postgres database. Do not put a slash at the end of the *csv_data_dir* value!
   * **Warning**: *csv_data_dir* must be the same location to the "gcnet_metadata.ini" section [file] setting 'csv_fileloc'!!!!!
   * *no_data* is the value that will replace the values in the data that are missing or out of the bounds defined by the calibration parameters. For example, "999".
@@ -159,12 +163,12 @@ Example [DEFAULT] configuration::
 
 
 
-**[<station ID number> section]**
+**[<station ID number>] section**
 
 Each station has its own section in stations.ini
 
 Stations can be added and removed from stations.ini. However, stations must also be added or removed from
-gcnet/models.py and migrations must be run on the database (see documentation for "Create/Modify Database").
+gcnet/models.py and migrations must be run on the database (see documentation topic `Create/Modify Database`_).
 
 Example station configuration::
 
@@ -205,61 +209,62 @@ Station configuration explanation::
 Create/Modify Database
 -----------------------
 
-Before creating a database stations may be added or removed in gcnet/models.py.
+During development this project used a PostgreSQL database (version 12.2). Before creating a database stations may be added or removed in "gcnet/models.py"
 Each station "model" is written as a child class that inherits its fields from the Station parent class.
 Each model is a separate table in the Postgres database. The test model may be used for testing data imports and API calls.
 
-1. Navigate to project directory in terminal and run::
+    1. Navigate to project directory in terminal and run::
 
-    python manage.py makemigrations gcnet
+        python manage.py makemigrations gcnet
 
-    python manage.py migrate gcnet --database=gcnet
+        python manage.py migrate gcnet --database=gcnet
 
 
-2. Open database using PG Admin on local machine or server and verify that the tables in gcnet/models.py migrated correctly.
+    2. Open database using pgAdmin on local machine or server and verify that the tables in gcnet/models.py migrated correctly.
 
-3. It is possible to add or remove models after the initial database setup. First add new station or remove existing station information from
-gcnet/config/stations.ini
+    3. It is possible to add or remove models after the initial database setup. First add new station or remove existing station information from
+    gcnet/config/stations.ini
 
-4. Add or remove models from models.py and then rerun the commands listed in number 1 of this section.
-This project assumes that any new stations will inherit fields from the "Station" parent class. The source data
-for the new station must use one the field structures listed in the DEFAULT_HEADER of
-gcnet/management/commands/importers/processor/dat_import.py or gcnet/management/commands/importers/processor/csv_import.py
+    4. Add or remove models from models.py and then rerun the commands listed in number 1 of this section.
+    This project assumes that any new stations will inherit fields from the "Station" parent class. The source data
+    for the new station must use one the field structures listed in the DEFAULT_HEADER of
+    gcnet/management/commands/importers/processor/dat_import.py or gcnet/management/commands/importers/processor/csv_import.py
 
-Example new station model in models.py::
+    Example new station model in models.py::
 
-    # New Station Name
-    class new_station(Station):
-        pass
+        # New Station Name
+        class new_station(Station):
+            pass
 
 --------------------
 Data Import Commands
 --------------------
 
 After creating a Postgres database there are several options for importing data into the GC-Net Django Postgres database
-using the commands in the gcnet/management/commands directory. Continuous data imports are documented in the
-section "Continuous Data Processing and Import".
+using the commands in the gcnet/management/commands directory. Continuous data imports are documented in documentation
+topic `Continuous Data Processing and Import`_.
 
-During data imports values that were assigned in the source files as errors or missing  are converted to null, to change this modify gcnet/fields.py
+During data imports values that were assigned in the source files as errors or missing  are converted to null,
+to change this modify "gcnet/fields.py" class CustomFloatField
 
     The erroneous values are: '999', '999.0', '999.00', '999.000', '999.0000', '-999', NaN'
 
 
 To import a file, copy it to the gcnet/data directory and navigate to project directory in terminal and run import command (see parameter description below). For example::
 
-        # import a local csv file
+        # Import a local csv file
         python manage.py import_data -s 01_swisscamp -c gcnet/config/stations.ini -i gcnet/data/1_2019_min.csv -m swisscamp_01d
         
-        # import csv from a URL endpoint
+        # Import csv from a URL endpoint
         python manage.py import_data -s 01_swisscamp -c gcnet/config/stations.ini -i https://www.wsl.ch/gcnet/data/1_v.csv -m swisscamp_01d
         
-        # validate (logging-only) a csv local file
+        # Validate (logging-only) a csv local file
         python manage.py import_data -s 01_swisscamp -c gcnet/config/stations.ini -i gcnet/data/1_2019_min.csv  -m swisscamp_01d -l True -d gcnet/data/output
         
-        # import a local dat file
+        # Import a local dat file
         python manage.py import_data -s 01_swisscamp -c gcnet/config/stations.ini -i gcnet/data/1_1996_30lines.dat -m swisscamp_01d
         
-        # import a local NEAD file forcing the import to ignore duplicated records instead breaking on error and rolling back.
+        # Import a local NEAD file forcing the import to ignore duplicated records instead breaking on error and rolling back.
         python manage.py import_data -s 08_dye2 -c gcnet/config/stations.ini -i gcnet/data/8_nead_min.csv  -m dye2_08d -f True
         
 
@@ -267,33 +272,45 @@ WARNING: Always make sure that the input source data file and model used in an i
 
 
 Parameters used in data import commands
-----------------------------------------
-* **-s, station name:** Station number and name, for example "02_crawford".
+------------------------------------------
 
-* **-m, model name:** Django Model to map data import to.
+More information about the NEAD format can be found at https://www.envidat.ch/#/metadata/new-environmental-data-archive-nead-format
 
-* **-c, config file:** Path to stations config file (.ini).
+Parameters::
 
-* **-i, input file:** The supported formats are DAT (.dat), CSV (.csv) and NEAD (.csv) described at https://www.envidat.ch/#/metadata/new-environmental-data-archive-nead-format . The format will be guessed from the input so please use the proper extension for the file name to import. It can be a path to a local file or a URL.
+    -s, station name: Station number and name, for example "02_crawford".
 
-* **-f, force import:** Duplicated records (according to timestamp) will lead to complete abort and rollback of the import process ('-f False' by default). If the parameter force is specified as "-f True" then the duplicated records will be ignored and the rest of the rows imported.
+    -m, model name: Django Model to map data import to.
 
-The following parameters are **only available for CSV** file format import:
+    -c, config file:*Path to stations config file (.ini).
 
-* **-l, logging only:** If set to True, it will just validate the csv rows to import without saving any data to the database. Information will be shown in the console and written to a temporary file in the indicated output directory ('-d' parameter below).
+    -i, input file: The supported formats are DAT (.dat), CSV (.csv) and NEAD (.csv)
+        The format will be guessed from the input so please use the proper extension for the file name to import.
+        It can be a path to a local file or a URL.
 
-* **-d, output directory:** If logging only is selected, then the output will be written to a temporary file in this directory.
+    -f, force import: Duplicated records (according to timestamp) will lead to complete abort and rollback of the
+        import process ('-f False' by default). If the parameter force is specified as "-f True" then the duplicated
+        records will be ignored and the rest of the rows imported.
+
+The following parameters are only available for CSV file format import::
+
+   -l, logging only: If set to True, it will just validate the csv rows to import without saving any data to the database.
+        Information will be shown in the console and written to a temporary file in the indicated output directory ('-d' parameter below).
+
+   -d, output directory: If logging only is selected, then the output will be written to a temporary file in this directory.
 
 
-There are two batch files to run several csv_import commands.
+There are two batch files to run several csv_import commands:
 
-    inputfile in directory: Edit the first line in batch/csv_import_directory.bat to the path of your project directory.
-    Be sure that the csv files are in gcnet/data. Otherwise modify the inputfile (-i) arguments accordingly.
-    Then open a file explorer window and navigate to the project's batch directory, double click on csv_import_directory.bat to execute.
+    1. **inputfile in directory**
+        Edit the first line in batch/csv_import_directory.bat to the path of your project directory.
+        Be sure that the csv files are in gcnet/data. Otherwise modify the inputfile (-i) arguments accordingly.
+        Then open a file explorer window and navigate to the project's batch directory, double click on csv_import_directory.bat to execute.
 
-    inputfile on web: edit the first line in batch/csv_import_web.bat to the path of your project directory.
-    Be sure that the csv files are served at https://www.wsl.ch/gcnet/data. Otherwise modify the inputfile (-i) arguments accordingly.
-    Then open a file explorer window and navigate to the project's batch directory, double click on csv_import_web.bat to execute.
+    2. **inputfile on web**
+        Edit the first line in batch/csv_import_web.bat to the path of your project directory.
+        Be sure that the csv files are served at https://www.wsl.ch/gcnet/data. Otherwise modify the inputfile (-i) arguments accordingly.
+        Then open a file explorer window and navigate to the project's batch directory, double click on csv_import_web.bat to execute.
 
 --------------------------------------
 Continuous Data Processing and Import
@@ -305,8 +322,8 @@ main.py has two optional arguments::
 
     -r (--repeatInterval) This runs the the import every <interval> minutes
 
-    -l (--localInput) Any string used in this argument will load local input files designated in config
-        and will skip downloading files from web
+    -l (--localInput) Any string used in this argument will load local input files designated in config file
+        "gcnet_metadata.ini" keys "data_local" and will skip downloading files from web
 
 Open terminal and navigate to project directory. Make sure virtual environment is activated.
 
@@ -323,11 +340,6 @@ Example commands::
     No arguments passed:            main.main()
     repeatInterval:                 main.main(['-r 10'])
     repeatInterval and localInput:  main.main(['-r 10', '-l True'])
-
-
-- **-l <folder>**: For Unix and OSX environments, you can use this option to provide locally stored dat files that should be present in the designated folder with the exact names *argos_decoded.dat* or *goes_decoded.dat*. For example if you place the input dat files in a subfolder called *input* in the project root directory the command should be::
-
-     main(['-r 15', '-i url', '-l input'])
 
 
 ----------------------
@@ -455,9 +467,9 @@ The API has separate documentation.
 
 Visit https://www.envidat.ch/data-api/gcnet/ or open gcnet/templates/index.html in a browser to view documentation.
 
-Parameters used in API calls::
+Arguments used in API calls::
 
-   {parameter}          NAME [UNITS]
+   {argument}          NAME [UNITS]
 
    swin                 Shortwave Incoming Radiation [W m^-2]
    swout                Shortwave Outgoing Radiation [W m^-2]

@@ -1,3 +1,5 @@
+# Legacy main.py used prior to March 2022
+
 # EXAMPLE COMMANDS TO RUN main.py
 #    Import data from URL:         main.main(['-r 15', '-i url']) or main(['-r 15', '-i url'])
 #    Import data from directory:   main.main(['-r 15', '-i path'])
@@ -10,8 +12,10 @@ import time
 from datetime import datetime
 import subprocess
 
-from gcnet.management.commands.importers.processor.fortranprocessor import FortranProcessorFactory
-from gcnet.management.commands.importers.processor.cleaner import CleanerFactory
+# from gcnet.management.commands.importers.processor.fortranprocessor import FortranProcessorFactory
+from gcnet.legacy.cleaner_legacy import CleanerFactory
+from gcnet.legacy.fortranprocessor import FortranProcessorFactory
+# from gcnet.management.commands.importers.processor.cleaner import CleanerFactory
 from gcnet.util.writer import Writer
 
 import logging
@@ -74,7 +78,8 @@ def execute_process(station_type: str, config_dict: dict, local_dat_file: str):
     # Assign input to data returned from raw_to_dat call
     processor = FortranProcessorFactory.get_processor(station_type=station_type, data_url=data_url, raw_path=raw_file,
                                                       command=process_command,
-                                                      dat_path="gcnet/management/commands/importers/processor/exec/",
+                                                      # dat_path="gcnet/management/commands/importers/processor/exec/",
+                                                      dat_path="gcnet/legacy/exec/",
                                                       start_year=start_year)
     if not processor:
         logger.error("No processor for station type '{0}'".format(station_type))

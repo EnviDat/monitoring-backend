@@ -1,4 +1,4 @@
-import sys
+# Legacy cleaner functions used prior to March 2022
 
 from pathlib import Path
 import numpy as np

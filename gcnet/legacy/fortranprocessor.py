@@ -1,3 +1,5 @@
+# Legacy fortran processor used prior to March 2022
+
 import subprocess
 import urllib.request
 
