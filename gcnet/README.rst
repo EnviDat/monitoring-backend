@@ -2,15 +2,15 @@ GC-Net Data Processing and API
 ===============================
 
 Python software package that processes, filters and calibrate meteorological station data and serves the data
-with a flexible Django API.
+with a Django API.
 
 GC-Net (Greenland Climate Network) transmits data from several  meteorological stations via satellite.
-They are equipped with communication satellite transmitters that enable near real-time monitoring of weather conditions on the
+The stations are equipped with communication satellite transmitters that enable near real-time monitoring of weather conditions on the
 Greenland ice sheet. Data are periodically manually retrieved from station data loggers in Greenland.
 
 The GC-Net API is a Django project that imports meteorological
 station data, processes and copies the data into a Postgres database, and serves the data
-with a dynamic web API.
+in an API.
 
 
 ---------------------
@@ -61,8 +61,10 @@ Authors and Contact Information
 Configuration file: gcnet_metadata.ini
 ---------------------------------------
 
-Configuration files are in the directory "gcnet/config". Please note that quotation marks are used in the documentation
+Please note that quotation marks are used in the documentation
 for clarity purposes and should NOT be included in the actual configuration files.
+
+Configuration files are in the directory "gcnet/config".
 
 The "gcnet_metadata.ini" configuration file contains the general application execution parameters such as *newloadflag, short_term_days, etc*.
 
@@ -131,9 +133,9 @@ To change a calibration parameter it is only necessary to edit this file and res
 The [DEFAULT] section contains the base parameters that can be overwritten in the next sections that correspond to single stations.
 
   * *csv_data_dir* is the file path where csv files are located that will be used to import data into Postgres database. Do not put a slash at the end of the *csv_data_dir* value!
-  * **Warning**: *csv_data_dir* must be the same location to the "gcnet_metadata.ini" section [file] setting 'csv_fileloc'!!!!!
+  * **Warning**: *csv_data_dir* must be the same location defined in "gcnet_metadata.ini" section [file] key 'csv_fileloc'
   * *no_data* is the value that will replace the values in the data that are missing or out of the bounds defined by the calibration parameters. For example, "999".
-  * **Note**: the *active* parameter in the default section should be set to true in the production environment to ensure that the data of all stations will be processed.
+  * **Note**: the *active* key in the should be set to "True" in the production environment to ensure that the data of all stations will be processed.
   * Other values correspond to basic filters for various scientific measurements.
 
 Example [DEFAULT] configuration::
@@ -223,12 +225,12 @@ Each model is a separate table in the Postgres database. The test model may be u
     2. Open database using pgAdmin on local machine or server and verify that the tables in gcnet/models.py migrated correctly.
 
     3. It is possible to add or remove models after the initial database setup. First add new station or remove existing station information from
-    gcnet/config/stations.ini
+       "gcnet/config/stations.ini"
 
     4. Add or remove models from models.py and then rerun the commands listed in number 1 of this section.
-    This project assumes that any new stations will inherit fields from the "Station" parent class. The source data
-    for the new station must use one the field structures listed in the DEFAULT_HEADER of
-    gcnet/management/commands/importers/processor/dat_import.py or gcnet/management/commands/importers/processor/csv_import.py
+       This project assumes that any new stations will inherit fields from the "Station" parent class. The source data
+       for the new station must use one the field structures listed in the DEFAULT_HEADER of
+       "gcnet/management/commands/importers/processor/dat_import.py" or "gcnet/management/commands/importers/processor/csv_import.py"
 
     Example new station model in models.py::
 
@@ -245,12 +247,15 @@ using the commands in the gcnet/management/commands directory. Continuous data i
 topic `Continuous Data Processing and Import`_.
 
 During data imports values that were assigned in the source files as errors or missing  are converted to null,
-to change this modify "gcnet/fields.py" class CustomFloatField
+to change this modify "gcnet/fields.py" class CustomFloatField. Default erroneous values are: '999', '999.0', '999.00',
+'999.000', '999.0000', '-999', NaN'
 
-    The erroneous values are: '999', '999.0', '999.00', '999.000', '999.0000', '-999', NaN'
 
+To import a file, copy it to the gcnet/data directory and navigate to project directory in terminal and run import command (see parameter description below).
 
-To import a file, copy it to the gcnet/data directory and navigate to project directory in terminal and run import command (see parameter description below). For example::
+**WARNING**: Always make sure that the input source data file and model used in an import command are for the same station, otherwise data could be imported into the wrong table.
+
+Example import commands::
 
         # Import a local csv file
         python manage.py import_data -s 01_swisscamp -c gcnet/config/stations.ini -i gcnet/data/1_2019_min.csv -m swisscamp_01d
@@ -267,9 +272,6 @@ To import a file, copy it to the gcnet/data directory and navigate to project di
         # Import a local NEAD file forcing the import to ignore duplicated records instead breaking on error and rolling back.
         python manage.py import_data -s 08_dye2 -c gcnet/config/stations.ini -i gcnet/data/8_nead_min.csv  -m dye2_08d -f True
         
-
-WARNING: Always make sure that the input source data file and model used in an import command are for the same station, otherwise data could be imported into the wrong table.
-
 
 Parameters used in data import commands
 ------------------------------------------
@@ -356,14 +358,11 @@ with Django and other dependencies is activated. Run::
 
 2. By default the development server is hosted at http://localhost:8000/
 
-    To test if the server is working properly browse to a valid API URL: http://localhost:8000/api/models/
-
-    A list of station values by the 'model' keys in the config/stations.ini file should be returned.
-
-    An overview of the API is in the section "API".
-
-    For a detailed explanation of the API please see https://www.envidat.ch/data-api/gcnet/
-    (The source code for the API documentation website is at gcnet/templates/index.html)
+    * To test if the server is working properly browse to a valid API URL: http://localhost:8000/api/models/
+    * A list of station values by the 'model' keys in the config/stations.ini file should be returned.
+    * An overview of the API is in the section "API".
+    * For a detailed explanation of the API please see https://www.envidat.ch/data-api/gcnet/
+    * The source code for the API documentation website is "gcnet/templates/index.html"
 
 --------------------
 NGINX Configuration
@@ -465,11 +464,11 @@ API
 
 The API has separate documentation.
 
-Visit https://www.envidat.ch/data-api/gcnet/ or open gcnet/templates/index.html in a browser to view documentation.
+Visit https://www.envidat.ch/data-api/gcnet/ or open :gcnet/templates/index.html" in a browser to view documentation.
 
 Arguments used in API calls::
 
-   {argument}          NAME [UNITS]
+   ARGUMENT             NAME [UNITS]
 
    swin                 Shortwave Incoming Radiation [W m^-2]
    swout                Shortwave Outgoing Radiation [W m^-2]
