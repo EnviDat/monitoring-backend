@@ -4,7 +4,7 @@ GC-Net Data Processing and API
 Python software package that processes, filters and calibrate meteorological station data and serves the data
 with a flexible Django API.
 
-GC-Net (Greenland Climate Network) transmits data from several  meteorological stations in via satellite.
+GC-Net (Greenland Climate Network) transmits data from several  meteorological stations via satellite.
 They are equipped with communication satellite transmitters that enable near real-time monitoring of weather conditions on the
 Greenland ice sheet. Data are periodically manually retrieved from station data loggers in Greenland.
 
@@ -12,9 +12,23 @@ The GC-Net API is a Django project that imports meteorological
 station data, processes and copies the data into a Postgres database, and serves the data
 with a dynamic web API.
 
-.. image:: ./gc_net_overview.jpg
 
-`Configuration file: stations.ini`_
+---------------------
+Documentation Topics
+---------------------
+    * `In Honor of Prof. Dr. Konrad Steffen`_
+    * `Project Overview Diagram`_
+    * `Authors and Contact Information`_
+    * `Configuration file: gcnet_metadata.ini`_
+    * `Configuration file: stations.ini`_
+    * `Create/Modify Database`_
+    * `Data Import Commands`_
+    * `Continuous Data Processing and Import`_
+    * `Development Server`_
+    * `NGINX Configuration`_
+    * `API`_
+    * `API documentation website <https://www.envidat.ch/data-api/gcnet/>`_
+
 
 -------------------------------------
 In Honor of Prof. Dr. Konrad Steffen
@@ -26,15 +40,34 @@ His dedication made GC-Net possible and he encouraged the developers of this API
 that the application was robust to guarantee access to the meteorological data.
 Prof. Dr. Steffen was a committed scientist and generous friend and is deeply missed.
 
+
+-------------------------
+Project Overview Diagram
+-------------------------
+
+.. image:: ./gc_net_overview.jpg
+
+
+---------------------------------------------
+Authors and Contact Information
+---------------------------------------------
+
+    * *Organization*: `Swiss Federal Research Institute WSL <https://www.wsl.ch>`_
+    * *Authors*: Rebecca Buchholz, V.Trotsiuk, Lucia de Espona, Ionut Iosifescu, Derek Houtz
+    * *Contact Email*: envidat(at)wsl.ch
+    * *Date last modified*: March 1, 2022
+
 ---------------------------------------
 Configuration file: gcnet_metadata.ini
 ---------------------------------------
 
-Configuration files are in the directory "gcnet/config". Please note that quotation marks are used in the documentation for clarity purposes and should NOT be included in the actual configuration files.
+Configuration files are in the directory "gcnet/config". Please note that quotation marks are used in the documentation
+for clarity purposes and should NOT be included in the actual configuration files.
 
 This configuration file contains the general application execution parameters such as *newloadflag, short_term_days, etc*.
 
-    * The paths can be expressed with linux-style slashes also for Windows, the software will translate them into the proper format for the current OS. Both absolute and relative paths are accepted.
+    * The paths can be expressed with linux-style slashes also for Windows, the software will translate them into the
+      proper format for the current OS. Both absolute and relative paths are accepted.
 
 **[file] section**
 
@@ -455,5 +488,3 @@ Parameters used in API calls::
    windspeed_u1_stdev   Wind Speed 1 Standard Deviation [m s^-1]
    windspeed_u2_stdev   Wind Speed 2 Standard Deviation [m s^-1]
    reftemp              Reference Temperature [degC]
-
-

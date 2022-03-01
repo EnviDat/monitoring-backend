@@ -2,7 +2,7 @@
 # Purpose: Read, decode, and clean ARGOS and GOES satellite raw data. Also imports data into Postgres database.
 # Output: Writes csv and json files with the decoded data.
 #
-# Authors : Rebecca Buchholz, V.Trotsiuk and Lucia de Espona, Swiss Federal Research Institute WSL
+# Contributing Authors : Rebecca Buchholz, V.Trotsiuk and Lucia de Espona, Swiss Federal Research Institute WSL
 # Date Last Modified: February 28, 2022
 #
 # Example commands to run main() (make sure virtual environment is activated):
