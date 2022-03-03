@@ -17,7 +17,7 @@ in an API.
 Documentation Topics
 ---------------------
     * `In Honor of Prof. Dr. Konrad Steffen`_
-    * `Project Overview Diagram`_
+    * `Application  Overview Diagram`_
     * `Authors and Contact Information`_
     * `Configuration file: gcnet_metadata.ini`_
     * `Configuration file: stations.ini`_
@@ -41,9 +41,9 @@ that the application was robust to guarantee access to the meteorological data.
 Prof. Dr. Steffen was a committed scientist and generous friend and is deeply missed.
 
 
--------------------------
-Project Overview Diagram
--------------------------
+------------------------------
+Application  Overview Diagram
+------------------------------
 
 .. image:: ./gc_net_overview.jpg
 
