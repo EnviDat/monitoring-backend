@@ -8,10 +8,11 @@ colorama==0.4.4
 configparser==5.0.2
 cryptography==3.4.5
 DateTime==4.3
-Django==3.2.4
+Django==4.0.3
 django-environ==0.4.5
 django-postgres-copy==2.5.0
 djangorestframework==3.12.2
+environ==1.0
 et-xmlfile==1.0.1
 idna==2.10
 iniconfig==1.1.1
@@ -36,6 +37,7 @@ requests==2.25.1
 six==1.15.0
 sqlparse==0.3.1
 toml==0.10.2
+tzdata==2021.5
 urllib3==1.26.5
 waitress==2.0.0
 zope.interface==5.1.0
