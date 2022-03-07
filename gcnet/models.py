@@ -67,55 +67,64 @@ class Station(models.Model):
     swin = CustomFloatField(
         verbose_name='SWin',
         null=True,
-        db_column='swin'
+        db_column='swin',
+        help_text='W m^-2'
     )
 
     # Unit: SW_up [W m-2]
     swout = CustomFloatField(
         verbose_name='SWout',
         null=True,
+        help_text='W m^-2'
     )
 
     # Unit: Net Radiation F [W m-2]
     netrad = CustomFloatField(
         verbose_name='Net Radiation',
         null=True,
+        help_text='W m^-2'
     )
 
     # Unit: TC Air 1 G Air Temperature [degC]
     airtemp1 = CustomFloatField(
         verbose_name='Air Temperature-TC Air 1',
         null=True,
+        help_text='°C',
     )
 
     # Unit: TC Air 2 H Air Temperature [degC]
     airtemp2 = CustomFloatField(
         verbose_name='Air Temperature-TC Air 2',
         null=True,
+        help_text='°C',
     )
 
     # Unit:  CS500 T Air 1 I Air Temperature [degC]
     airtemp_cs500air1 = CustomFloatField(
         verbose_name='Air Temperature-CS500 T Air 1',
         null=True,
+        help_text='°C',
     )
 
     # Unit: CS500 T Air 2 J Air Temperature [degC]
     airtemp_cs500air2 = CustomFloatField(
         verbose_name='Air Temperature-CS500 T Air 2',
         null=True,
+        help_text='°C',
     )
 
     # Unit: RH 1 K Relative Humidity [%]
     rh1 = CustomFloatField(
         verbose_name='Relative Humidity-RH 1',
         null=True,
+        help_text='%',
     )
 
     # Unit: RH 2 L Relative Humidity [%]
     rh2 = CustomFloatField(
         verbose_name='Relative Humidity-RH 2',
         null=True,
+        help_text='%',
     )
 
     # Unit: U1 M Wind Speed [m/s]
@@ -347,4 +356,9 @@ class tunu_n_07d(Station):
 
 # Petermann Glacier 22
 class petermann_22d(Station):
+    pass
+
+
+# test3
+class test3(Station):
     pass
