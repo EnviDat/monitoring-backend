@@ -100,9 +100,10 @@ def get_csv_import_command_list(config_parser: configparser, station_type: str):
     # command strings to run csv imports for each station
     for section in stations_config.sections():
 
-        # Check config if api should be processed (set to 'True') for station and if 'type' is current station_type
-        # being processed (either ARGOS or GOES)
-        if stations_config.get(section, 'api') == 'True' and stations_config.get(section, 'type') == station_type:
+        # Check config key 'active' if data for station should be processed
+        # A value of 'True' means that station data will be processed
+        # Any other value means that station data will not be processed
+        if stations_config.get(section, 'active') == 'True' and stations_config.get(section, 'type') == station_type:
 
             csv_temporary = stations_config.get(section, 'csv_temporary')
             csv_input = stations_config.get(section, 'csv_input')
@@ -241,9 +242,7 @@ def main(args=None):
             return -1
 
         # Import csv files into Postgres database so that data are available for API
-        print(
-            "\n **************************** START DATA IMPORT ITERATION **************************** "
-        )
+        print("\n **************************** START DATA IMPORT ITERATION **************************** ")
 
         # Assign empty import_processes list
         import_processes = []
