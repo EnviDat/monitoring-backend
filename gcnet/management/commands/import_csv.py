@@ -1,12 +1,7 @@
 # TODO add header comments
 #
 # Example commands:
-# python manage.py import_csv -s local -i gcnet/data/24_v.csv -a gcnet -m east_grip_24d
-#
-# TODO remove old commands
-# python manage.py csv_import -i lwf/data/test.csv -t directory -d lwf/data -a lwf -m test41
-# python manage.py csv_import -i https://os.zhdk.cloud.switch.ch/envidat4lwf/p1_meteo/historical/1.csv -t web -d lwf/data -a lwf -m test41
-# python manage.py csv_import -i https://os.zhdk.cloud.switch.ch/envidat4lwf/p1_meteo/1.csv -t web -d lwf/data -a lwf -m test41
+# python manage.py import_csv -s local -i gcnet/data/24_east_grip_v.csv -a gcnet -m east_grip_24d
 
 
 import importlib
@@ -51,14 +46,6 @@ class Command(BaseCommand):
             help='Path or URL to input csv file'
         )
 
-        # parser.add_argument(
-        #     '-d',
-        #     '--directory',
-        #     required=True,
-        #     help='Path to directory which will contain temporary intermediate processing csv file '
-        #          'and if using web option temporary downloaded file. '
-        # )
-
         parser.add_argument(
             '-a',
             '--app',
@@ -75,10 +62,9 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
 
-        # Assign kwargs from command to variables
+        # Assign command arguments to variables
         inputfile = kwargs['inputfile']
         source = kwargs['source']
-        # directory = kwargs['directory']
         app = kwargs['app']
         model = kwargs['model']
 
@@ -126,90 +112,74 @@ class Command(BaseCommand):
             logger.error(e)
             return
 
-        # Assign other variables used to write csv_temporary
+        # Assign variables used to write csv_temporary
         csv_temporary = Path(f'{data_dir}/{model}_temporary.csv')
-        # input_fields = model_class.input_fields
-        # model_fields = [field.name for field in model_class._meta.fields if field.name != 'id']
         model_fields = [field.name for field in model_class._meta.get_fields() if field.name != 'id']
-        print(model_fields)
-        print('HA')
         # date_format = model_class.date_format
         written_timestamps = []
         rows_before = 24
         rows_after = 0
         rows_buffer = []
-        nead_header = []
 
         # Write data in input_file into csv_temporary with additional computed fields
-        # try:
-        #     with open(csv_temporary, 'w', newline='') as sink, open(input_file, 'r') as source:
-        #
-        #         sink.write(','.join(model_fields) + '\n')
-        #         records_written = 0
-        #
-        #         # Skip number of header lines designated in parent class header line count is it is desidnated
-        #         if model_class.header_line_count:
-        #             for i in range(model_class.header_line_count):
-        #                 first_lines = source.readline()
-        #                 nead_header.append(first_lines)
-        #                 next(source, None)
-        #
-        #         while True:
-        #
-        #             line = source.readline()
-        #
-        #             if not line:
-        #                 break
-        #             line_array = [v for v in line.strip().split(model_class.delimiter) if len(v) > 0]
-        #
-        #             # Skip header lines that start with designated parent class header symbol
-        #             # For example: the '#' character
-        #             if model_class.header_symbol and line.startswith(model_class.header_symbol):
-        #                 nead_header.append(line)
-        #                 continue
-        #
-        #             if len(line_array) != len(model_fields):
-        #                 error_msg = f'ERROR: line has {len(line_array)} values, header has {len(model_fields)} columns'
-        #                 logger.error(error_msg)
-        #                 raise ValueError(error_msg)
-        #
-        #             row = {model_fields[i]: line_array[i] for i in range(len(line_array))}
-        #
-        #             # Process row and add new computed fields
-        #             # line_clean = line_cleaner(row, date_format)
-        #
-        #             # Make timestamp_iso value a UTC timezone aware datetime object
-        #             dt_obj = line_clean['timestamp_iso']
-        #             aware_dt = make_aware(dt_obj)
-        #
-        #             # Check if record with identical timestamp already exists in table, otherwise write record to
-        #             # temporary csv file after checking for record with duplicate timestamp
-        #             try:
-        #                 model_class.objects.get(timestamp_iso=aware_dt)
-        #             except model_class.DoesNotExist:
-        #                 if line_clean['timestamp_iso'] not in written_timestamps:
-        #                     # keep timestamps length small
-        #                     written_timestamps = written_timestamps[(-1) * min(len(written_timestamps), 1000):]
-        #                     written_timestamps += [line_clean['timestamp_iso']]
-        #
-        #                     # slide the row buffer window
-        #                     rows_buffer = rows_buffer[(-1) * min(len(rows_buffer), rows_before + rows_after):] + [
-        #                         line_clean]
-        #
-        #                     # check values before and after
-        #                     if len(rows_buffer) > rows_after:
-        #                         sink.write(
-        #                             ','.join(["{0}".format(v) for v in rows_buffer[-(1 + rows_after)].values()]) + '\n')
-        #                         records_written += 1
-        #
-        #         # Write nead header configuration file if applicable
-        #         if nead_header:
-        #             header_symbol = model_class.header_symbol
-        #             write_nead_config(app, nead_header, model, parent_class_name, header_symbol)
-        #
-        # except FileNotFoundError as e:
-        #     logger.error(f'ERROR file not found {input_file}, exception {e}')
-        #     return
+        try:
+            with open(csv_temporary, 'w', newline='') as sink, open(input_file, 'r') as source:
+
+                sink.write(','.join(model_fields) + '\n')
+                records_written = 0
+
+                # Iterate line by line though source file
+                while True:
+
+                    line = source.readline()
+
+                    if not line:
+                        break
+
+                    line_array = [v for v in line.strip().split(',') if len(v) > 0]
+
+                    # if len(line_array) != len(model_fields):
+                    #     error_msg = f'ERROR: line has {len(line_array)} values, header has {len(model_fields)} columns'
+                    #     logger.error(error_msg)
+                    #     raise ValueError(error_msg)
+                    #
+                    # row = {model_fields[i]: line_array[i] for i in range(len(line_array))}
+                    #
+                    # # Process row and add new computed fields
+                    # # line_clean = line_cleaner(row, date_format)
+                    #
+                    # # Make timestamp_iso value a UTC timezone aware datetime object
+                    # dt_obj = line_clean['timestamp_iso']
+                    # aware_dt = make_aware(dt_obj)
+                    #
+                    # # Check if record with identical timestamp already exists in table, otherwise write record to
+                    # # temporary csv file after checking for record with duplicate timestamp
+                    # try:
+                    #     model_class.objects.get(timestamp_iso=aware_dt)
+                    # except model_class.DoesNotExist:
+                    #     if line_clean['timestamp_iso'] not in written_timestamps:
+                    #         # keep timestamps length small
+                    #         written_timestamps = written_timestamps[(-1) * min(len(written_timestamps), 1000):]
+                    #         written_timestamps += [line_clean['timestamp_iso']]
+                    #
+                    #         # slide the row buffer window
+                    #         rows_buffer = rows_buffer[(-1) * min(len(rows_buffer), rows_before + rows_after):] + [
+                    #             line_clean]
+                    #
+                    #         # check values before and after
+                    #         if len(rows_buffer) > rows_after:
+                    #             sink.write(
+                    #                 ','.join(["{0}".format(v) for v in rows_buffer[-(1 + rows_after)].values()]) + '\n')
+                    #             records_written += 1
+
+                # Write nead header configuration file if applicable
+                if nead_header:
+                    header_symbol = model_class.header_symbol
+                    write_nead_config(app, nead_header, model, parent_class_name, header_symbol)
+
+        except FileNotFoundError as e:
+            logger.error(f'ERROR file not found {input_file}, exception {e}')
+            return
 
         # # Assign copy_dictionary from model_fields
         # copy_dictionary = {model_fields[i]: model_fields[i] for i in range(0, len(model_fields))}
