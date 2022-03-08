@@ -1,7 +1,10 @@
-# TODO add header comments
 #
-# Example commands:
-# python manage.py import_csv -s local -i gcnet/data/24_east_grip_v.csv -a gcnet -m east_grip_24d
+# Purpose: Command imports csv data into database
+#
+# Example commands
+#   Local import:   python manage.py import_csv -s local -i gcnet/output/24_v.csv -a gcnet -m test
+#   URL import:     python manage.py import_csv -s url -i https://www.envidat.ch/gcnet/data/24_v.csv -a gcnet -m test2
+#
 
 
 import importlib
@@ -14,15 +17,13 @@ from django.utils.timezone import make_aware
 from django.apps import apps
 
 from gcnet.util.constants import Columns
-# from lwf.util.cleaners import get_lwf_station_line_clean
 from gcnet.management.commands.importers.helpers.import_date_helpers import gcnet_utc_datetime, gcnet_utc_timestamp, \
     quarter_day, half_day, year_day, year_week
 
 # Setup logging
 import logging
 
-logging.basicConfig(filename=Path('generic/logs/csv_import.log'), format='%(asctime)s  %(filename)s: %(message)s',
-                    datefmt='%d-%b-%y %H:%M:%S')
+logging.basicConfig()
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
@@ -75,7 +76,7 @@ class Command(BaseCommand):
         if source == 'url':
             # Write content from url into csv file
             url = str(inputfile)
-            logger.info(f'STARTED importing input URL: {url}')
+            logger.info(f' STARTED importing input URL: {url}')
             req = requests.get(url)
             url_content = req.content
             input_file = Path(f'{data_dir}/{model}_downloaded.csv')
@@ -84,9 +85,9 @@ class Command(BaseCommand):
             csv_file.close()
         elif source == 'local':
             input_file = Path(inputfile)
-            logger.info(f'STARTED importing local input file: {input_file}')
+            logger.info(f' STARTED importing local input file: {input_file}')
         else:
-            logger.error(f'ERROR non-valid value entered for argument "source": {source}. '
+            logger.error(f' ERROR non-valid value entered for argument "source": {source}. '
                          f'Valid options are a local machine file "local" or a url "url".')
             return
 
@@ -99,22 +100,18 @@ class Command(BaseCommand):
         try:
             model_class = self.get_model_cl(app, model)
         except AttributeError as e:
-            logger.error(f'ERROR model {model} not found, exception {e}')
+            logger.error(f' ERROR model {model} not found, exception {e}')
             return
 
-        # Get parent class name as string
+        # Get model's parent class name as string
         parent_class = model_class.__base__.__name__
 
         # Get input_fields
         input_fields = self.get_input_fields(parent_class)
 
-        # Get line cleaner function
-        # line_cleaner = self.get_line_cleaner(parent_class)
-
         # Assign variables used to write csv_temporary
         csv_temporary = Path(f'{data_dir}/{model}_temporary.csv')
         model_fields = [field.name for field in model_class._meta.get_fields() if field.name != 'id']
-        # date_format = model_class.date_format
         written_timestamps = []
         rows_before = 24
         rows_after = 0
@@ -138,71 +135,71 @@ class Command(BaseCommand):
                     line_array = [v for v in line.strip().split(',') if len(v) > 0]
 
                     if len(line_array) != len(input_fields):
-                        error_msg = f'ERROR: line has {len(line_array)} values, header has {len(input_fields)} columns'
+                        error_msg = f' ERROR: line has {len(line_array)} values, ' \
+                                    f'expected {len(input_fields)} input values per line'
                         logger.error(error_msg)
                         raise ValueError(error_msg)
 
                     row = {input_fields[i]: line_array[i] for i in range(len(line_array))}
 
-                    # Process row and add new computed fields
-                    # line_clean = line_cleaner(row, date_format)
+                    # Assign line_clean to cleaned row (process row and add new computed fields)
                     line_clean = self.get_clean_line(parent_class, row)
 
-                    # Make timestamp_iso value a UTC timezone aware datetime object
-                    # dt_obj = line_clean['timestamp_iso']
-                    # aware_dt = make_aware(dt_obj)
+                    # Check if record with identical timestamp already exists in table,
+                    # if not write record to temporary csv file
+                    try:
 
-                    # # Check if record with identical timestamp already exists in table, otherwise write record to
-                    # # temporary csv file after checking for record with duplicate timestamp
-                    # try:
-                    #     model_class.objects.get(timestamp_iso=aware_dt)
-                    # except model_class.DoesNotExist:
-                    #     if line_clean['timestamp_iso'] not in written_timestamps:
-                    #         # keep timestamps length small
-                    #         written_timestamps = written_timestamps[(-1) * min(len(written_timestamps), 1000):]
-                    #         written_timestamps += [line_clean['timestamp_iso']]
-                    #
-                    #         # slide the row buffer window
-                    #         rows_buffer = rows_buffer[(-1) * min(len(rows_buffer), rows_before + rows_after):] + [
-                    #             line_clean]
-                    #
-                    #         # check values before and after
-                    #         if len(rows_buffer) > rows_after:
-                    #             sink.write(
-                    #                 ','.join(["{0}".format(v) for v in rows_buffer[-(1 + rows_after)].values()]) + '\n')
-                    #             records_written += 1
+                        model_class.objects.get(timestamp_iso=line_clean['timestamp_iso'])
+
+                    except model_class.DoesNotExist:
+
+                        if line_clean['timestamp_iso'] not in written_timestamps:
+
+                            # Keep timestamps length small
+                            written_timestamps = written_timestamps[(-1) * min(len(written_timestamps), 1000):]
+                            written_timestamps += [line_clean['timestamp_iso']]
+
+                            # Slide the row buffer window
+                            rows_buffer = rows_buffer[(-1) * min(len(rows_buffer), rows_before + rows_after):] + [
+                                line_clean]
+
+                            # Check values before and after
+                            if len(rows_buffer) > rows_after:
+                                sink.write(
+                                    ','.join(["{0}".format(v) for v in rows_buffer[-(1 + rows_after)].values()]) + '\n')
+                                records_written += 1
 
         except FileNotFoundError as e:
-            logger.error(f'ERROR file not found {input_file}, exception {e}')
+            logger.error(f' ERROR file not found {input_file}, exception {e}')
             return
 
-        # # Assign copy_dictionary from model_fields
-        # copy_dictionary = {model_fields[i]: model_fields[i] for i in range(0, len(model_fields))}
-        #
-        # # Import processed and cleaned data into Postgres database
-        # c = CopyMapping(
-        #
-        #     # Assign model
-        #     model_class,
-        #
-        #     # Temporary CSV with input data and computed fields
-        #     csv_temporary,
-        #
-        #     # Dictionary mapping the model fields to CSV fields
-        #     copy_dictionary,
-        # )
-        # # Then save it.
-        # c.save()
-        #
-        # # Log import message
-        # logger.info(f'FINISHED importing {input_file}, {records_written} new records written in {model}')
-        #
-        # # Delete csv_temporary
-        # os.remove(csv_temporary)
+        # Assign copy_dictionary from model_fields
+        copy_dictionary = {model_fields[i]: model_fields[i] for i in range(0, len(model_fields))}
+
+        # Import processed and cleaned data into Postgres database
+        c = CopyMapping(
+
+            # Assign model
+            model_class,
+
+            # Temporary CSV with input data and computed fields
+            csv_temporary,
+
+            # Dictionary mapping the model fields to CSV fields
+            copy_dictionary,
+        )
+        # Then save it.
+        c.save()
+
+        # Log import message
+        logger.info(f' FINISHED importing {input_file}, {records_written} new records written in {model}')
+
+        # Delete csv_temporary file
+        os.remove(csv_temporary)
 
         # If file downloaded from web delete it
-        # if os.path.isfile(f'{data_dir}/{model}_downloaded.csv'):
-        #     os.remove(f'{data_dir}/{model}_downloaded.csv')
+        if os.path.isfile(f'{data_dir}/{model}_downloaded.csv'):
+            os.remove(f'{data_dir}/{model}_downloaded.csv')
 
     @staticmethod
     # Returns model class
@@ -260,5 +257,5 @@ class Command(BaseCommand):
                     }
 
         else:
-            raise Exception(f'ERROR parent class {parent_class} does not exist '
+            raise Exception(f' ERROR parent class {parent_class} does not exist '
                             f'or is not specified in "import_csv.get_clean_line"')
