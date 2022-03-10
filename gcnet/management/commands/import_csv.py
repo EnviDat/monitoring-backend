@@ -1,5 +1,7 @@
 #
-# Purpose: Command imports csv data into database
+# Purpose: Command imports csv data into Postgres database
+#
+# Assumption: Application has directory named 'data' to temporarily store downloaded and processing csv files
 #
 # Example commands
 #   Local import:   python manage.py import_csv -s local -i gcnet/output/24_v.csv -a gcnet -m test
@@ -69,6 +71,26 @@ class Command(BaseCommand):
         app = kwargs['app']
         model = kwargs['model']
 
+        # ======================================= VALIDATE AND ASSIGN ARGUMENTS =======================================
+        # Validate app
+        if not apps.is_installed(app):
+            logger.error(f'ERROR app {app} not found')
+            return
+
+        # Validate model
+        try:
+            model_class = self.get_model_cl(app, model)
+        except AttributeError as e:
+            logger.error(f' ERROR model {model} not found, exception {e}')
+            return
+
+        # Get model's parent class name as string
+        parent_class = model_class.__base__.__name__
+
+        # Get list of input_fields
+        input_fields = self.get_input_fields(parent_class)
+
+        # ======================================= RETRIEVE DATA =======================================================
         # Assign data_dir to 'data' directory inside application
         data_dir = f'{app}/data'
 
@@ -88,27 +110,10 @@ class Command(BaseCommand):
             logger.info(f' STARTED importing local input file: {input_file}')
         else:
             logger.error(f' ERROR non-valid value entered for argument "source": {source}. '
-                         f'Valid options are a local machine file "local" or a url "url".')
+                         f'Valid options are "local" or "url".')
             return
 
-        # Validate app
-        if not apps.is_installed(app):
-            logger.error(f'ERROR app {app} not found')
-            return
-
-        # Get model
-        try:
-            model_class = self.get_model_cl(app, model)
-        except AttributeError as e:
-            logger.error(f' ERROR model {model} not found, exception {e}')
-            return
-
-        # Get model's parent class name as string
-        parent_class = model_class.__base__.__name__
-
-        # Get input_fields
-        input_fields = self.get_input_fields(parent_class)
-
+        # ================================= TRANSFORM INPUT DATA TO DATABASE FORMAT ===================================
         # Assign variables used to write csv_temporary
         csv_temporary = Path(f'{data_dir}/{model}_temporary.csv')
         model_fields = [field.name for field in model_class._meta.get_fields() if field.name != 'id']
@@ -121,7 +126,9 @@ class Command(BaseCommand):
         try:
             with open(csv_temporary, 'w', newline='') as sink, open(input_file, 'r') as source:
 
+                # Write sink header
                 sink.write(','.join(model_fields) + '\n')
+
                 records_written = 0
 
                 # Iterate line by line though source
@@ -140,6 +147,7 @@ class Command(BaseCommand):
                         logger.error(error_msg)
                         raise ValueError(error_msg)
 
+                    # Assign row to dictionary of input_fields keys with line_array values
                     row = {input_fields[i]: line_array[i] for i in range(len(line_array))}
 
                     # Assign line_clean to cleaned row (process row and add new computed fields)
@@ -155,7 +163,7 @@ class Command(BaseCommand):
 
                         if line_clean['timestamp_iso'] not in written_timestamps:
 
-                            # Keep timestamps length small
+                            # Keep written_timestamps length small
                             written_timestamps = written_timestamps[(-1) * min(len(written_timestamps), 1000):]
                             written_timestamps += [line_clean['timestamp_iso']]
 
@@ -173,6 +181,7 @@ class Command(BaseCommand):
             logger.error(f' ERROR file not found {input_file}, exception {e}')
             return
 
+        # ======================================= IMPORT DATA INTO POSTGRES DATABASE ==================================
         # Assign copy_dictionary from model_fields
         copy_dictionary = {model_fields[i]: model_fields[i] for i in range(0, len(model_fields))}
 
@@ -192,17 +201,18 @@ class Command(BaseCommand):
         c.save()
 
         # Log import message
-        logger.info(f' FINISHED importing {input_file}, {records_written} new records written in {model}')
+        logger.info(f' FINISHED importing {inputfile}, {records_written} new records written in {model}')
 
+        # ======================================= REMOVE DOWNLOADED AND TEMPORARY FILES ===============================
         # Delete csv_temporary file
         os.remove(csv_temporary)
 
-        # If file downloaded from web delete it
+        # If file downloaded from URL delete it
         if os.path.isfile(f'{data_dir}/{model}_downloaded.csv'):
             os.remove(f'{data_dir}/{model}_downloaded.csv')
 
-    @staticmethod
     # Returns model class
+    @staticmethod
     def get_model_cl(app, model):
         package = importlib.import_module(f'{app}.models')
         return getattr(package, model)
