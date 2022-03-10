@@ -1,9 +1,9 @@
 {
   "page_title": "LWF API",
   "api_title": "LWF API Documentation",
-  "into_text": "introduction text",
+  "intro_text": "introduction text",
   "nodata": "NA",
-  "api_host": "http://127.0.0.1:8000/api",
+  "api_host": "https://www.envidat.ch/data-api",
   "app": "lwf",
   "model": "alpthal_bestand_1",
   "parameter": "air_temperature_10",

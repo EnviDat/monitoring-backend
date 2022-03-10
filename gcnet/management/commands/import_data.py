@@ -4,7 +4,7 @@
 #   python manage.py import_data -s 01_swisscamp -c gcnet/config/stations.ini -i gcnet/data/1_2019_min.csv  -m swisscamp_01d -l True -d gcnet/data/output
 #   python manage.py import_data -s 01_swisscamp -c gcnet/config/stations.ini -i gcnet/data/1_1996_30lines.dat -m swisscamp_01d
 #   python manage.py import_data -s 08_dye2 -c gcnet/config/stations.ini -i gcnet/data/8_nead_min.csv  -m dye2_08d -f 1
-
+import argparse
 from pathlib import Path
 import requests
 from django.core.management.base import BaseCommand
@@ -20,8 +20,9 @@ from django.core.exceptions import ValidationError
 # Setup logging
 import logging
 
-logging.basicConfig(filename=Path('gcnet/logs/import_data.log'), format='%(asctime)s   %(filename)s: %(message)s',
-                    datefmt='%d-%b-%y %H:%M:%S')
+# logging.basicConfig(filename=Path('gcnet/logs/import_data.log'), format='%(asctime)s   %(filename)s: %(message)s',
+# #                     datefmt='%d-%b-%y %H:%M:%S')
+logging.basicConfig()
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 

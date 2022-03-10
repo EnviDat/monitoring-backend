@@ -1,7 +1,9 @@
+# Legacy fortran processor used prior to March 2022
+
 import subprocess
 import urllib.request
 
-import requests
+# import requests
 from pathlib import Path
 import warnings
 import numpy as np
@@ -59,9 +61,9 @@ class FortranProcessor(object):
 
         # Try to open and return new .dat file
         try:
-            # dat_file = open(dat_file_path, "r")
+            dat_file = open(dat_file_path, "r")
             # TEST
-            dat_file = open('gcnet/management/commands/importers/processor/exec/argos_decoded.dat', "r")
+            # dat_file = open('gcnet/management/commands/importers/processor/exec/goes_decoded.dat', "r")
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore")  # ignores warnings about lines with incorrect columns
                 # (some columns are corrupt and missing values)

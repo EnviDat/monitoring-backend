@@ -3,6 +3,7 @@ import importlib
 from django.apps import apps
 from django.core.exceptions import FieldDoesNotExist
 from datetime import datetime
+# from django.db.models import Func, Min, Max, Avg, Sum
 from django.db.models import Func, Min, Max, Avg
 
 
@@ -134,6 +135,7 @@ def get_dict_fields(display_values):
         dict_fields[parameter + '_min'] = Round3(Min(parameter))
         dict_fields[parameter + '_max'] = Round3(Max(parameter))
         dict_fields[parameter + '_avg'] = Round3(Avg(parameter))
+        # dict_fields[parameter + '_sum'] = Round3(Sum(parameter))
 
     return dict_fields
 

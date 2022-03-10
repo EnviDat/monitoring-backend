@@ -1,17 +1,39 @@
-# EXAMPLE COMMANDS TO RUN main.py
-#    Import data from URL:         main.main(['-r 15', '-i url'])
-#    Import data from directory:   main.main(['-r 15', '-i file'])
+#
+# Purpose: Read, decode, and clean ARGOS and GOES satellite raw data. Also imports data into Postgres database.
+# Output: Writes csv and json files with the decoded data.
+#
+# Contributing Authors : Rebecca Buchholz, V.Trotsiuk and Lucia de Espona, Swiss Federal Research Institute WSL
+# Date Last Modified: February 28, 2022
+#
+# Example commands to run main() (make sure virtual environment is activated):
+#   python
+#   from main import main
+#
+# Then call main and pass arguments as needed.
+#
+# No arguments:
+#   main.main()
+#
+# repeatInterval:
+#   main.main(['-r 10'])
+#
+# repeatInterval and localInput:
+#   main.main(['-r 10', '-l True'])
+#
+
 
 import argparse
 from pathlib import Path
 import configparser
-import multiprocessing as mp
+import multiprocessing
 import time
 from datetime import datetime
 import subprocess
+from urllib import request
 
-from gcnet.management.commands.importers.processor.fortranprocessor import FortranProcessorFactory
 from gcnet.management.commands.importers.processor.cleaner import CleanerFactory
+from gcnet.management.commands.importers.processor.process_argos import read_argos, decode_argos
+from gcnet.management.commands.importers.processor.process_goes import decode_goes
 from gcnet.util.writer import Writer
 
 import logging
@@ -20,39 +42,27 @@ logging.basicConfig()
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
-__version__ = '0.0.1'
-__author__ = u'Lucia de Espona, Rebecca Kurup Buchholz, Matthias Haeni, Ionut Iosifescu, Derek Houtz, WSL'
-
 
 def get_parser():
-    """
-    Creates a new argument parser.
-    """
-    parser = argparse.ArgumentParser("GCNetDataProcessing")
-    version = '%(prog)s ' + __version__
-    parser.add_argument('--version', '-v', action='version', version=version)
-    parser.add_argument('--localFolder', '-l', help='Load local .dat files from folder and skip processing')
+    parser = argparse.ArgumentParser("GCNetProcessing")
     parser.add_argument('--repeatInterval', '-r', help='Run continuously every <interval> minutes')
-    parser.add_argument('--inputType', '-i', required=True, help='Input data source read from stations config. '
-                                                                 '"file" = directory path (csv_data_dir)'
-                                                                 '"url" = url address hosting files (csv_data_url)')
+    parser.add_argument('--localInput', '-l', help='Any string used in this argument will load local input files '
+                                                   'designated in config and skip downloading files from web')
     return parser
 
 
 def read_config(config_path: str):
+
     config_file = Path(config_path)
+    config = configparser.ConfigParser()
+    config.read(config_file)
+    logger.info(f' Read configuration file: {config_path}')
 
-    # Load gcnet configuration file
-    gc_config = configparser.ConfigParser()
-    gc_config.read(config_file)
+    if len(config.sections()) < 1:
+        logger.error(' Invalid config file, missing sections')
+        raise ValueError('Invalid config file, missing sections')
 
-    logger.info("Read config params file: {0}, sections: {1}".format(config_path, ', '.join(gc_config.sections())))
-
-    if len(gc_config.sections()) < 1:
-        logger.error("Invalid config file, missing sections")
-        return None
-
-    return gc_config
+    return config
 
 
 def get_writer_config_dict(config_parser: configparser):
@@ -61,44 +71,25 @@ def get_writer_config_dict(config_parser: configparser):
     return config_dict
 
 
-# Function to retrieve and process data
-def execute_process(station_type: str, config_dict: dict, local_dat_file: str):
-    raw_file = config_dict['raw_file']
-    data_url = config_dict['data_url']
-    start_year = config_dict['start_year']
-    process_command = config_dict['process_command']
+def get_input_data(config_dict: dict, local_input):
 
-    # get writer configured for the cleaner output
-    writer = Writer.new_from_dict(config_dict['writer'])
+    # If command line localInput argument passed (with any string) assign data to 'data_local' from config
+    if local_input:
+        data = config_dict['data_local']
+        logger.info(f' Skipping downloading input data, using local file: {data}')
 
-    # Assign input to data returned from raw_to_dat call
-    processor = FortranProcessorFactory.get_processor(station_type=station_type, data_url=data_url, raw_path=raw_file,
-                                                      command=process_command,
-                                                      dat_path="gcnet/management/commands/importers/processor/exec/",
-                                                      start_year=start_year)
-    if not processor:
-        logger.error("No processor for station type '{0}'".format(station_type))
-        return -1
+    # Else assign data to file downloaded from data_url
+    else:
+        data = config_dict['data_url_file']
+        data_url = config_dict['data_url']
+        request.urlretrieve(data_url, data)
+        logger.info(f' Downloaded input data from URL and wrote file: {data}')
 
-    # process the data
-    output_data = processor.process(local_dat_file)
-    if output_data is None:
-        logger.error("Failed processing for station type '{0}' (NO DATA)".format(station_type))
-        return -1
-
-    # Call cleaner to process ARGOS input data and write json and csv output files
-    stations_config_path = "gcnet/config/stations.ini"
-    cleaner = CleanerFactory.get_cleaner(station_type, stations_config_path, writer)
-    if not cleaner:
-        logger.error("No cleaner for station type '{0}'".format(station_type))
-        return -1
-
-    cleaner.clean(output_data)
-
-    return 0
+    return data
 
 
-def get_csv_import_command_list(config_parser: configparser, station_type: str, input_type: str):
+def get_csv_import_command_list(config_parser: configparser, station_type: str):
+
     # Load stations configuration file and assign it to stations_config
     stations_config = config_parser
 
@@ -109,27 +100,24 @@ def get_csv_import_command_list(config_parser: configparser, station_type: str, 
     # command strings to run csv imports for each station
     for section in stations_config.sections():
 
-        # Check config if api should be processed (set to 'True') for station and if 'type' is current station_type
-        # being processed (either ARGOS or GOES)
-        if stations_config.get(section, 'api') == 'True' and stations_config.get(section, 'type') == station_type:
+        # Check config key 'active' if data for station should be processed
+        # A value of 'True' means that station data will be processed
+        # Any other value means that station data will not be processed
+        if stations_config.get(section, 'active') == 'True' and stations_config.get(section, 'type') == station_type:
 
-            csv_temporary = stations_config.get(section, 'csv_temporary')
             csv_input = stations_config.get(section, 'csv_input')
             model = stations_config.get(section, 'model')
+            csv_data = stations_config.get(section, 'csv_data_dir')
 
-            # Check to read either url or stations config file
-            if input_type == ' file':
-                csv_data = stations_config.get(section, 'csv_data_dir')
-            elif input_type == ' url':
-                csv_data = stations_config.get(section, 'csv_data_url')
-            else:
-                print('WARNING (import_data.py) invalid argument "{0}" entered for input_type. Must enter'
-                      ' "file" or "url"'.format(input_type))
-                return
+            # Previous version used 'import_data' management command to import data
+            # csv_temporary = stations_config.get(section, 'csv_temporary')
+            # command_string = f'python manage.py import_data -s {csv_temporary} -c gcnet/config/stations.ini ' \
+            #                  f'-i {csv_data}/{csv_input} -m {model} -f True'
 
-            command_string = 'python manage.py import_data -s {0} -c gcnet/config/stations.ini ' \
-                             '-i {1}/{2} -m {3} -f True' \
-                .format(csv_temporary, csv_data, csv_input, model)
+            # Management command 'import_csv' will be used to import processed station data stored locally
+            # into corresponding database model
+            command_string = f'python manage.py import_csv -s local -i {csv_data}/{csv_input} -a gcnet -m {model}'
+
             commands.append(command_string)
 
     return commands
@@ -139,30 +127,66 @@ def execute_commands(commands_list):
     # Iterate through commands_list and execute each command
     for station_command in commands_list:
         try:
-            process_result = subprocess.run(station_command, shell=True, check=True,
-                                            stdout=subprocess.PIPE, universal_newlines=True)
-            # NOTE: the line line below must be included otherwise the import commands do not work!!!
-            print('RUNNING: {0}   STDOUT: {1}'.format(station_command, process_result.stdout))
+            subprocess.run(station_command, shell=True, check=True, stdout=subprocess.PIPE, universal_newlines=True)
         except subprocess.CalledProcessError:
-            print('COULD NOT RUN: {0}'.format(station_command))
-            print('')
+            logger.error(f'Could not run command: {station_command}')
             continue
+
+
+def process_data(station_type: str, config_dict: dict, local_input=None):
+
+    # Get input data
+    data = get_input_data(config_dict, local_input)
+
+    # Get writer configured for the cleaner output
+    writer = Writer.new_from_dict(config_dict['writer'])
+
+    # Decode ARGOS data
+    if station_type == 'argos':
+        data_raw = read_argos(data, nrows=None)
+        data_decode = decode_argos(data_raw, remove_duplicate=True, sort=True)
+
+    # Decode GOES data
+    elif station_type == 'goes':
+        data_decode = decode_goes(data)
+
+    else:
+        logger.error(f' Invalid station type: {station_type}')
+        raise ValueError(f'Invalid station type: {station_type}')
+
+    # Convert decoded data pandas dataframe to Numpy array
+    data_array = data_decode.to_numpy()
+
+    # Clean data and write csv and json files
+    stations_config_path = 'gcnet/config/stations.ini'
+    cleaner = CleanerFactory.get_cleaner(station_type, stations_config_path, writer)
+
+    if not cleaner:
+        logger.error(f'No cleaner exists for station type: {station_type}')
+        raise ValueError(f'No cleaner exists for station type: {station_type}')
+
+    # Clean Numpy array data by applying basic filters
+    # Cleaner also writes csv and json files
+    cleaner.clean(data_array)
+
+    return
 
 
 def main(args=None):
     """
-    Main entry point.
+    Main entry point for processing ARGOS and GOES satellite transmissions.
     """
 
+    # Access arguments passed in command line
     parser = get_parser()
     args = parser.parse_args(args)
 
-    # read the config file
-    gc_metadata_path = "gcnet/config/gcnet_metadata.ini"
-    gc_config = read_config(gc_metadata_path)
+    # Read config file
+    metadata_path = "gcnet/config/gcnet_metadata.ini"
+    config = read_config(metadata_path)
 
-    if not gc_config:
-        logger.error("Not valid config file: {0}".format(gc_metadata_path))
+    if not config:
+        logger.error(f'Not valid config file: {metadata_path}')
         return -1
 
     # Process and clean input data, write csv and json files, import csv files data into Postgres database
@@ -174,7 +198,7 @@ def main(args=None):
 
         start_time = time.time()
 
-        logger.info("\n **************************** START DATA PROCESSING ITERATION (start time: {0}) "
+        logger.info(" **************************** START DATA PROCESSING ITERATION (start time: {0}) "
                     "**************************** "
                     .format(datetime.fromtimestamp(start_time)
                             .strftime('%Y-%m-%d %H:%M:%S')))
@@ -183,25 +207,19 @@ def main(args=None):
         processes = []
 
         # Start process
-        # for station_type in ['argos', 'goes']:
-        # TEST
-        for station_type in ['argos']:
-            # Assign and start process
-            config_dict = dict(gc_config.items(station_type))
-            config_dict['writer'] = get_writer_config_dict(gc_config)
-            config_dict['start_year'] = gc_config.get("file", 'start_year')
+        for station_type in ['argos', 'goes']:
 
-            # Add local if commandline option selected
-            local_dat = None
-            if args.localFolder:
-                local_dat = f'{station_type}_decoded.dat'
-                # local_dat = "{0}/{1}_decoded.dat".format(args.localFolder, station_type)
-                # local_dat.strip()
+            # Get config_dict configured for station_type
+            config_dict = dict(config.items(station_type))
+            config_dict['writer'] = get_writer_config_dict(config)
 
+            local_input = None
+            # Assign local_input if commandline option localInput is passed
+            if args.localInput:
+                local_input = args.localInput
 
-            # Execute processing
-            process = mp.Process(target=execute_process, args=(station_type, config_dict,
-                                                               local_dat))
+            # Process data from each station_type concurrently using multiprocessing
+            process = multiprocessing.Process(target=process_data, args=(station_type, config_dict, local_input))
             processes.append(process)
             process.start()
 
@@ -209,9 +227,9 @@ def main(args=None):
             process.join()
 
         # Write short-term csv files
-        station_array = list((gc_config.get("file", "stations")).split(","))
-        csv_short_days = int(gc_config.get("file", "short_term_days"))
-        csv_writer_config = get_writer_config_dict(gc_config)
+        station_array = list((config.get("file", "stations")).split(","))
+        csv_short_days = int(config.get("file", "short_term_days"))
+        csv_writer_config = get_writer_config_dict(config)
         csv_writer = Writer.new_from_dict(csv_writer_config)
         csv_writer.write_csv_short_term(station_array, csv_short_days)
 
@@ -221,30 +239,25 @@ def main(args=None):
 
         # Check if stations_config exists
         if not stations_config:
-            print("WARNING non-valid config file: {0}".format(stations_path))
+            logger.error("Non-valid config file: {0}".format(stations_path))
             return -1
 
         # Import csv files into Postgres database so that data are available for API
-        print(
-            "\n **************************** START DATA IMPORT ITERATION **************************** "
-        )
+        logger.info(" **************************** START DATA IMPORT ITERATION **************************** ")
 
         # Assign empty import_processes list
         import_processes = []
 
-        # Get input type
-        input_type = args.inputType
-
         # Get the import commands
-        goes_commands = get_csv_import_command_list(stations_config, 'goes', input_type)
-        argos_commands = get_csv_import_command_list(stations_config, 'argos', input_type)
+        goes_commands = get_csv_import_command_list(stations_config, 'goes')
+        argos_commands = get_csv_import_command_list(stations_config, 'argos')
 
         # Create list with both ARGOS and GOES commands
         import_commands = [goes_commands, argos_commands]
 
         # Process ARGOS and GOES import commands in parallel
         for command_list in import_commands:
-            process = mp.Process(target=execute_commands, args=(command_list,))
+            process = multiprocessing.Process(target=execute_commands, args=(command_list,))
             import_processes.append(process)
             process.start()
 
@@ -252,13 +265,13 @@ def main(args=None):
             process.join()
 
         exec_time = int(time.time() - start_time)
-        logger.info('FINISHED DATA PROCESSING AND DATA IMPORT ITERATION. That took {} seconds'.format(exec_time))
+        logger.info(f' FINISHED data processing and data import iteration, that took {exec_time} seconds')
 
         if repeat:
             interval = int(args.repeatInterval) * 60
             if interval > exec_time:
                 wait_time = interval - exec_time
-                logger.info('SLEEPING {} seconds before next iteration...'.format(wait_time))
+                logger.info(f' SLEEPING {wait_time} seconds before next iteration...\n')
                 time.sleep(wait_time)
 
     return 0

@@ -12,7 +12,6 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 
-# TODO Review variable names and replace by more intuitive names and use underscores
 class Writer(object):
 
     def __init__(self, csv_file_path: str, json_file_path: str,
@@ -44,7 +43,7 @@ class Writer(object):
                       '%.2f,%.2f,%.2f,%.2f,%.2f '
             try:
                 np.savetxt(fid, dataset, fmt=formstr)
-                logger.info("Successfully saved {0} entries to file: {1}".format(len(dataset[:, 1]), fid.name))
+                logger.info(" Successfully saved {0} entries to file: {1}".format(len(dataset[:, 1]), fid.name))
             except:
                 # TODO catch specific extensions and print their info
                 logger.error("Could not write CSV")
@@ -188,7 +187,7 @@ class Writer(object):
                 # TODO properly catch the file not found exception and return an error otherwise, print exception info
                 with open(filename, 'w') as fidn:
                     self.write_csv_file(fidn, processed_data)
-                logger.info("No existing .csv file for station #{0} found. Writing new .csv".format(station_num))
+                logger.info(" No existing .csv file for station #{0} found. Writing new .csv".format(station_num))
 
     # Function to write short-term csv files
     def write_csv_short_term(self, station_array: List[str], csv_short_days: int):
@@ -232,4 +231,4 @@ class Writer(object):
 
             except:
                 # TODO improve exception catching
-                logger.error('Station {0} has no csv file'.format(stations[i]))
+                logger.error(' Station {0} has no csv file'.format(stations[i]))
