@@ -255,6 +255,25 @@ To import a file, copy it to the gcnet/data directory and navigate to project di
 
 **WARNING**: Always make sure that the input source data file and model used in an import command are for the same station, otherwise data could be imported into the wrong table.
 
+Example usages of command gcnet/management/commands/import_csv.py::
+
+        # Import a local csv file
+        python manage.py import_csv -s local -i gcnet/output/1_v.csv -a gcnet -m swisscamp_01d
+
+        # Import csv from a URL endpoint
+        python manage.py import_csv -s url -i https://www.wsl.ch/gcnet/data/1_v.csv -a gcnet -m swisscamp_01d
+
+Parameters used in "import_csv" command::
+
+    -s, --source: Input data source. Valid options are a local machine file "local" or a url to download file from "url".
+
+    -i, --inputfile: Path or URL to input csv file, for example "gcnet/output/1_v.csv" or "https://www.wsl.ch/gcnet/data/1_v.csv".
+
+    -a, --app: App that Django model belongs to, for example "gcnet" or "lwf".
+
+    -m, --model: Django Model to map data import to, for example "swisscamp_01d".
+
+
 Example usages of command gcnet/management/commands/import_data.py::
 
         # Import a local csv file
@@ -273,33 +292,30 @@ Example usages of command gcnet/management/commands/import_data.py::
         python manage.py import_data -s 08_dye2 -c gcnet/config/stations.ini -i gcnet/data/8_nead_min.csv  -m dye2_08d -f True
         
 
-Parameters used in "import_data" command
-------------------------------------------
-
 More information about the NEAD format can be found at https://www.envidat.ch/#/metadata/new-environmental-data-archive-nead-format
 
-Parameters::
+Parameters used in "import_data" command::
 
-    -s, station name: Station number and name, for example "02_crawford".
+    -s, --station: Station number and name, for example "02_crawford".
 
-    -m, model name: Django Model to map data import to.
+    -c, --config: Path to stations config file (.ini).
 
-    -c, config file:*Path to stations config file (.ini).
-
-    -i, input file: The supported formats are DAT (.dat), CSV (.csv) and NEAD (.csv)
+    -i, --inputfile: The supported formats are DAT (.dat), CSV (.csv) and NEAD (.csv)
         The format will be guessed from the input so please use the proper extension for the file name to import.
         It can be a path to a local file or a URL.
 
-    -f, force import: Duplicated records (according to timestamp) will lead to complete abort and rollback of the
+    -f, --force: Duplicated records (according to timestamp) will lead to complete abort and rollback of the
         import process ('-f False' by default). If the parameter force is specified as "-f True" then the duplicated
         records will be ignored and the rest of the rows imported.
 
+    -m, --model: Django Model to map data import to.
+
 The following parameters are only available for CSV file format import::
 
-   -l, logging only: If set to True, it will just validate the csv rows to import without saving any data to the database.
+   -l, --loggeronly: If set to True, it will just validate the csv rows to import without saving any data to the database.
         Information will be shown in the console and written to a temporary file in the indicated output directory ('-d' parameter below).
 
-   -d, output directory: If logging only is selected, then the output will be written to a temporary file in this directory.
+   -d, --directory: If logging only is selected, then the output will be written to a temporary file in this directory.
 
 
 There are two batch files to run several csv_import commands:
