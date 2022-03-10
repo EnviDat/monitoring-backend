@@ -183,7 +183,9 @@ def main(args=None):
         processes = []
 
         # Start process
-        for station_type in ['argos', 'goes']:
+        # for station_type in ['argos', 'goes']:
+        # TEST
+        for station_type in ['argos']:
             # Assign and start process
             config_dict = dict(gc_config.items(station_type))
             config_dict['writer'] = get_writer_config_dict(gc_config)
@@ -192,7 +194,10 @@ def main(args=None):
             # Add local if commandline option selected
             local_dat = None
             if args.localFolder:
-                local_dat = "{0}/{1}_decoded.dat".format(args.localFolder, station_type)
+                local_dat = f'{station_type}_decoded.dat'
+                # local_dat = "{0}/{1}_decoded.dat".format(args.localFolder, station_type)
+                # local_dat.strip()
+
 
             # Execute processing
             process = mp.Process(target=execute_process, args=(station_type, config_dict,
