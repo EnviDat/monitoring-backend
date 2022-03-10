@@ -48,7 +48,7 @@ class Command(BaseCommand):
             '--directory',
             required=True,
             help='Path to directory which will contain temporary intermediate processing csv file '
-                 'and if using web option temprary downloaded file. '
+                 'and if using web option temporary downloaded file. '
         )
 
         parser.add_argument(
