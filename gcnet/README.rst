@@ -255,7 +255,7 @@ To import a file, copy it to the gcnet/data directory and navigate to project di
 
 **WARNING**: Always make sure that the input source data file and model used in an import command are for the same station, otherwise data could be imported into the wrong table.
 
-Example import commands::
+Example usages of command gcnet/management/commands/import_data.py::
 
         # Import a local csv file
         python manage.py import_data -s 01_swisscamp -c gcnet/config/stations.ini -i gcnet/data/1_2019_min.csv -m swisscamp_01d
@@ -273,7 +273,7 @@ Example import commands::
         python manage.py import_data -s 08_dye2 -c gcnet/config/stations.ini -i gcnet/data/8_nead_min.csv  -m dye2_08d -f True
         
 
-Parameters used in data import commands
+Parameters used in "import_data" command
 ------------------------------------------
 
 More information about the NEAD format can be found at https://www.envidat.ch/#/metadata/new-environmental-data-archive-nead-format
