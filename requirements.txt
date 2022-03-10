@@ -17,7 +17,7 @@ et-xmlfile==1.0.1
 idna==2.10
 iniconfig==1.1.1
 jdcal==1.4.1
-numpy==1.19.1
+numpy==1.22.3
 packaging==20.4
 pandas==1.2.4
 pathlib==1.0.1

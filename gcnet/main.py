@@ -3,7 +3,7 @@
 # Output: Writes csv and json files with the decoded data.
 #
 # Contributing Authors : Rebecca Buchholz, V.Trotsiuk and Lucia de Espona, Swiss Federal Research Institute WSL
-# Date Last Modified: February 28, 2022
+# Date Last Modified: March 10, 2022
 #
 # Example commands to run main() (make sure virtual environment is activated):
 #   python
