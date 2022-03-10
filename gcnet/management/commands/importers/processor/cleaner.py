@@ -757,7 +757,7 @@ class GoesCleaner(Cleaner):
                     future_reports_num = len(np.argwhere(date_num > current_date_num))
 
                     if future_reports_num > 0:
-                        logger.warning(f'GoesCleaner: Warning: Removed {future_reports_num} entries out of: '
+                        logger.warning(f'GoesCleaner: Removed {future_reports_num} entries out of: '
                                        f'{len(wdata[:, 1]) + future_reports_num} good records from station ID: '
                                        f'{station_id} Reason: time tags in future')
 

@@ -9,7 +9,7 @@
 #   python
 #   from main import main
 #
-# Then call main passing arguments as needed.
+# Then call main and pass arguments as needed.
 #
 # No arguments:
 #   main.main()
@@ -59,7 +59,7 @@ def read_config(config_path: str):
     logger.info(f' Read configuration file: {config_path}')
 
     if len(config.sections()) < 1:
-        logger.error('Invalid config file, missing sections')
+        logger.error(' Invalid config file, missing sections')
         raise ValueError('Invalid config file, missing sections')
 
     return config
@@ -105,13 +105,19 @@ def get_csv_import_command_list(config_parser: configparser, station_type: str):
         # Any other value means that station data will not be processed
         if stations_config.get(section, 'active') == 'True' and stations_config.get(section, 'type') == station_type:
 
-            csv_temporary = stations_config.get(section, 'csv_temporary')
             csv_input = stations_config.get(section, 'csv_input')
             model = stations_config.get(section, 'model')
             csv_data = stations_config.get(section, 'csv_data_dir')
 
-            command_string = f'python manage.py import_data -s {csv_temporary} -c gcnet/config/stations.ini ' \
-                             f'-i {csv_data}/{csv_input} -m {model} -f True'
+            # Previous version used 'import_data' management command to import data
+            # csv_temporary = stations_config.get(section, 'csv_temporary')
+            # command_string = f'python manage.py import_data -s {csv_temporary} -c gcnet/config/stations.ini ' \
+            #                  f'-i {csv_data}/{csv_input} -m {model} -f True'
+
+            # Management command 'import_csv' will be used to import processed station data stored locally
+            # into corresponding database model
+            command_string = f'python manage.py import_csv -s local -i {csv_data}/{csv_input} -a gcnet -m {model}'
+
             commands.append(command_string)
 
     return commands
@@ -121,13 +127,9 @@ def execute_commands(commands_list):
     # Iterate through commands_list and execute each command
     for station_command in commands_list:
         try:
-            process_result = subprocess.run(station_command, shell=True, check=True,
-                                            stdout=subprocess.PIPE, universal_newlines=True)
-            # NOTE: the line line below must be included otherwise the import commands do not work!!!
-            print('RUNNING: {0}   STDOUT: {1}'.format(station_command, process_result.stdout))
+            subprocess.run(station_command, shell=True, check=True, stdout=subprocess.PIPE, universal_newlines=True)
         except subprocess.CalledProcessError:
-            print('COULD NOT RUN: {0}'.format(station_command))
-            print('')
+            logger.error(f'Could not run command: {station_command}')
             continue
 
 
@@ -149,7 +151,7 @@ def process_data(station_type: str, config_dict: dict, local_input=None):
         data_decode = decode_goes(data)
 
     else:
-        logger.error(f'Invalid station type: {station_type}')
+        logger.error(f' Invalid station type: {station_type}')
         raise ValueError(f'Invalid station type: {station_type}')
 
     # Convert decoded data pandas dataframe to Numpy array
@@ -170,7 +172,6 @@ def process_data(station_type: str, config_dict: dict, local_input=None):
     return
 
 
-# TODO finish testing Goes output csv and json files
 def main(args=None):
     """
     Main entry point for processing ARGOS and GOES satellite transmissions.
@@ -197,7 +198,7 @@ def main(args=None):
 
         start_time = time.time()
 
-        logger.info("\n **************************** START DATA PROCESSING ITERATION (start time: {0}) "
+        logger.info(" **************************** START DATA PROCESSING ITERATION (start time: {0}) "
                     "**************************** "
                     .format(datetime.fromtimestamp(start_time)
                             .strftime('%Y-%m-%d %H:%M:%S')))
@@ -238,11 +239,11 @@ def main(args=None):
 
         # Check if stations_config exists
         if not stations_config:
-            print("WARNING non-valid config file: {0}".format(stations_path))
+            logger.error("Non-valid config file: {0}".format(stations_path))
             return -1
 
         # Import csv files into Postgres database so that data are available for API
-        print("\n **************************** START DATA IMPORT ITERATION **************************** ")
+        logger.info(" **************************** START DATA IMPORT ITERATION **************************** ")
 
         # Assign empty import_processes list
         import_processes = []

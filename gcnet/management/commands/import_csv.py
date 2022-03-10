@@ -107,7 +107,7 @@ class Command(BaseCommand):
             csv_file.close()
         elif source == 'local':
             input_file = Path(inputfile)
-            logger.info(f' STARTED importing local input file: {input_file}')
+            logger.info(f' STARTED importing local input file: {inputfile}')
         else:
             logger.error(f' ERROR non-valid value entered for argument "source": {source}. '
                          f'Valid options are "local" or "url".')
@@ -201,7 +201,7 @@ class Command(BaseCommand):
         c.save()
 
         # Log import message
-        logger.info(f' FINISHED importing {inputfile}, {records_written} new records written in {model}')
+        logger.info(f' FINISHED importing {inputfile}: {records_written} new records written in {model}')
 
         # ======================================= REMOVE DOWNLOADED AND TEMPORARY FILES ===============================
         # Delete csv_temporary file
