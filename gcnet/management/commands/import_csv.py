@@ -98,7 +98,7 @@ class Command(BaseCommand):
         if source == 'url':
             # Write content from url into csv file
             url = str(inputfile)
-            logger.info(f' STARTED importing input URL: {url}')
+            logger.info(f' STARTED importing URL: {url}')
             req = requests.get(url)
             url_content = req.content
             input_file = Path(f'{data_dir}/{model}_downloaded.csv')
@@ -107,7 +107,7 @@ class Command(BaseCommand):
             csv_file.close()
         elif source == 'local':
             input_file = Path(inputfile)
-            logger.info(f' STARTED importing local input file: {inputfile}')
+            logger.info(f' STARTED importing local file: {inputfile}')
         else:
             logger.error(f' ERROR non-valid value entered for argument "source": {source}. '
                          f'Valid options are "local" or "url".')
