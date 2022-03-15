@@ -26,6 +26,7 @@ import argparse
 from pathlib import Path
 import configparser
 import multiprocessing
+
 import time
 from datetime import datetime
 import subprocess
@@ -73,19 +74,27 @@ def get_writer_config_dict(config_parser: configparser):
 
 def get_input_data(config_dict: dict, local_input):
 
-    # If command line localInput argument passed (with any string) assign data to 'data_local' from config
+    # If command line localInput argument passed (with any string) assign data_file to 'data_local' from config
     if local_input:
-        data = config_dict['data_local']
-        logger.info(f' Skipping downloading input data, using local file: {data}')
+        data_file = config_dict['data_local']
+        logger.info(f' Skipping downloading input data, using local file: {data_file}')
 
-    # Else assign data to file downloaded from data_url
+    # Else assign data_file to file downloaded from data_url
     else:
-        data = config_dict['data_url_file']
         data_url = config_dict['data_url']
-        request.urlretrieve(data_url, data)
-        logger.info(f' Downloaded input data from URL and wrote file: {data}')
+        data_file = config_dict['data_url_file']
 
-    return data
+        # Download data from URL
+        with request.urlopen(data_url) as data:
+            content = data.read()
+
+        # Save data to data_file
+        with open(data_file, 'wb') as download_file:
+            download_file.write(content)
+
+        logger.info(f' Downloaded input data from URL and wrote file: {data_file}')
+
+    return data_file
 
 
 def get_csv_import_command_list(config_parser: configparser, station_type: str):
