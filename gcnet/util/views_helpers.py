@@ -174,7 +174,7 @@ def get_model_url_dict():
     # model_url:model key:value pairs
     model_dict = {}
     for section in stations_config.sections():
-        if stations_config.get(section, 'api') == 'True':
+        if stations_config.get(section, 'active') == 'True':
             model_id = stations_config.get(section, 'model')
             model_url = stations_config.get(section, 'model_url')
             model_dict[model_url] = model_id

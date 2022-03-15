@@ -114,9 +114,9 @@ def get_csv_import_command_list(config_parser: configparser, station_type: str, 
     # command strings to run csv imports for each station
     for section in stations_config.sections():
 
-        # Check config if api should be processed (set to 'True') for station and if 'type' is current station_type
-        # being processed (either ARGOS or GOES)
-        if stations_config.get(section, 'api') == 'True' and stations_config.get(section, 'type') == station_type:
+        # Check config if station data should be processed (active=True') for station
+        # and if 'type' is current station_type being processed (either ARGOS or GOES)
+        if stations_config.get(section, 'active') == 'True' and stations_config.get(section, 'type') == station_type:
 
             csv_temporary = stations_config.get(section, 'csv_temporary')
             csv_input = stations_config.get(section, 'csv_input')

@@ -187,13 +187,12 @@ Example station configuration::
     csv_temporary = 00_swisscamp_10m
     csv_input = 0_v.csv
     model = swisscamp_10m_tower_00d
-    api = True
 
 Station configuration explanation::
 
     name = <station name>
     station_num = <station number>
-    active = <if station is currently active>
+    active = <if station is currently active, this means data will be processed and served in API>
     position = <latitude and longitude coordinates of station>
     type = <argos or goes> (this is the type of satellite transmission)
     swin = <specific calibration for station>
@@ -204,7 +203,6 @@ Station configuration explanation::
     csv_temporary = <first part of name of temporary csv file used in management/commands/csv_import.py>
     csv_input = <input csv file>
     model = <model to import data into, must match name of model used in gcnet/models.py>
-    api = <True> (should be used in API) or <False> (should not be used in API)
 
 
 -----------------------

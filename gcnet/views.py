@@ -43,7 +43,7 @@ def get_model_stations(request):
     # Assign variables to stations_config values and loop through each station in stations_config, create list of
     # model_id strings for each station
     for section in stations_config.sections():
-        if stations_config.get(section, 'api') == 'True':
+        if stations_config.get(section, 'active') == 'True':
             model_id = stations_config.get(section, 'model_url')
             model_stations.append(model_id)
 
@@ -79,10 +79,10 @@ def get_station_parameter_metadata(request, app, **kwargs):
     if not stations_config:
         return station_http_error()
 
-    # loop through each station in stations_config and assign corresponding section number to model kwarg passed in url
+    # Loop through each station in stations_config and assign corresponding section number to model kwarg passed in url
     section_num = ''
     for section in stations_config.sections():
-        if stations_config.get(section, 'api') == 'True' and stations_config.get(section, 'model_url') == model:
+        if stations_config.get(section, 'active') == 'True' and stations_config.get(section, 'model_url') == model:
             section_num = section
 
     # ===================================  RETURN JSON RESPONSE ========================================================
