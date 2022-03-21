@@ -7,6 +7,7 @@ import importlib
 from django.core.exceptions import FieldDoesNotExist
 from django.db.models import Min, Max, Avg, Func
 from django.http import HttpResponseNotFound
+from datetime import timezone
 from pathlib import Path
 import configparser
 
@@ -79,7 +80,6 @@ def read_config(config_path: str):
 
 # Get documentation context with field attributes of model_class
 def get_documentation_context(model_class):
-
     params_dict = {}
     for field in model_class._meta.get_fields():
         params_dict[field.name] = {'param': field.name, 'long_name': field.verbose_name, 'units': field.help_text}
@@ -96,7 +96,6 @@ def get_documentation_context(model_class):
 # -------------------------------------- Date Validators --------------------------------------------------------------
 
 def validate_date_gcnet(start, end):
-
     # Check if start and end are both only in day format (and do not include times),
     # add additional day to end date of dict_ts
     if validate_day_only_format(start) and validate_day_only_format(end):
@@ -106,7 +105,7 @@ def validate_date_gcnet(start, end):
         return dict_ts
 
     elif validate_iso_format_gcnet(start) and validate_iso_format_gcnet(end):
-        dict_ts = {'timestamp_iso__range': (start, end)}
+        dict_ts = {'timestamp_iso__range': (format_timestamp(start), format_timestamp(end))}
         return dict_ts
 
     elif validate_unix_timestamp(int(start)) and validate_unix_timestamp(int(end)):
@@ -122,6 +121,16 @@ def get_date(input_date, date_format="%Y-%m-%d", add_day=1):
     return date_plus_1day.strftime(date_format)
 
 
+# Returns timestamp string with UTC timezone if it matches designated format, for example '2021-12-04 17:00:00+00:00'
+# Else returns timestamp string unaltered
+def format_timestamp(timestamp):
+    try:
+        dt_object = datetime.strptime(timestamp, '%Y-%m-%dT%H:%M:%S').replace(tzinfo=timezone.utc)
+        return dt_object
+    except ValueError:
+        return timestamp
+
+
 def validate_day_only_format(date_text):
     try:
         day_only_format = "%Y-%m-%d"
@@ -135,7 +144,7 @@ def validate_iso_format_gcnet(date_text):
     try:
         datetime.fromisoformat(date_text)
         return True
-    except:
+    except ValueError:
         return False
 
 
@@ -143,7 +152,7 @@ def validate_unix_timestamp(date_text):
     try:
         datetime.fromtimestamp(date_text)
         return True
-    except:
+    except ValueError:
         return False
 
 
