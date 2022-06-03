@@ -94,14 +94,24 @@ def get_timestamp_iso_range_day_dict(start, end):
 # --------------------------------------- Dynamic Parameters Validator -------------------------------------------------
 
 # Validate parameters and return them as display_values list
+# If 'multiple' passed returns all parameters (except 'id' and time related fields)
 # parameters are comma separated string from kwargs['parameters']
 # model_class is validated model as a class
 def validate_display_values(parameters, model_class):
+
+    display_values = []
+
+    # If parameters == 'multiple' return all parameters (except 'id' and time related fields)
+    if parameters == 'multiple':
+        fields_excluded = ['id', 'timestamp_iso', 'timestamp', 'year',
+                           'julianday', 'quarterday', 'halfday', 'day', 'week']
+        display_values = [field.name for field in model_class._meta.get_fields() if field.name not in fields_excluded]
+        return display_values
+
     # Split parameters comma separated string into parameter_list
     parameters_list = convert_string_to_list(parameters)
 
     # Validate parameters in parameters_list and add to display_values
-    display_values = []
     for parameter in parameters_list:
         try:
             model_class._meta.get_field(parameter)
