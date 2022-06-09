@@ -12,6 +12,12 @@ def get_utc_datetime(date_string, date_format):
     return dt_object
 
 
+# Return unix timestamp (assumes date_string is in UTC timezone)
+def get_unix_timestamp(date_string, date_format):
+    dt_object = get_utc_datetime(date_string, date_format)
+    return int(datetime.timestamp(dt_object.replace(tzinfo=timezone.utc)))
+
+
 # Returns year from date string
 def get_year(date_string):
     return date_parser.parse(date_string).year
