@@ -108,7 +108,6 @@ class Command(BaseCommand):
             return
 
         parent_class_name = model_class.__base__.__name__
-        print(parent_class_name)
 
         # Get line cleaner function
         # try:
@@ -119,7 +118,7 @@ class Command(BaseCommand):
 
         # Assign other variables used to write csv_temporary
         csv_temporary = Path(f'{tempdir}/{model}_temporary.csv')
-        print(csv_temporary)
+
         # input_fields = model_class.input_fields
         database_fields = [field.name for field in model_class._meta.fields if field.name != 'id']
         # print(database_fields)
@@ -134,8 +133,11 @@ class Command(BaseCommand):
         try:
             with open(csv_temporary, 'w', newline='') as sink, open(input_file, 'r') as source:
 
-                nead_config = self.get_nead_config(source)
-                print({section: dict(nead_config[section]) for section in nead_config.sections()})
+                fields = self.get_nead_fields(source)
+                print(fields)
+
+                # nead_config = self.get_nead_config(source)
+                # print({section: dict(nead_config[section]) for section in nead_config.sections()})
 
                 sink.write(','.join(database_fields) + '\n')
                 records_written = 0
@@ -245,6 +247,27 @@ class Command(BaseCommand):
             raise Exception(f'ERROR parent class {parent_class_name} does not exist '
                             f'or is not specified in nead_import.py')
 
+    # Read NEAD header and return fields as list
+    @staticmethod
+    def get_nead_fields(source):
+
+        fields_starting_strings = ['# fields', '#fields']
+        fields_lines = []
+
+        for line in source:
+            if any(item in line for item in fields_starting_strings):
+                fields_lines.append(line)
+
+        if len(fields_lines) == 1:
+            fields_string = fields_lines.pop()
+            fields_values = ((fields_string.split('=', 1))[1]).strip().rstrip('\n')
+            fields = fields_values.split(',')
+            return fields
+        else:
+            raise Exception(f'ERROR input NEAD file does not have exactly one line starting with one of these values:'
+                            f' {fields_starting_strings}')
+
+    # TODO determine if this method is still needed
     # Read NEAD header and return nead_config
     @staticmethod
     def get_nead_config(source):
@@ -263,5 +286,3 @@ class Command(BaseCommand):
             nead_config = ConfigParser(allow_no_value=True)
             nead_config.read_string(nead_config_text)
             return nead_config
-        return None
-
