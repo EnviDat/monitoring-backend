@@ -1,29 +1,22 @@
 # TODO this is still in development and is a work in progress!!!!
 
 # Example commands:
-# python manage.py nead_import -i lwf/data/test.csv -s local -t lwf/data -a lwf -m test41
-# python manage.py nead_import -i https://os.zhdk.cloud.switch.ch/envidat4lwf/p1_meteo/historical/1.csv -s web -t lwf/data -a lwf -m test41
-# python manage.py nead_import -i https://os.zhdk.cloud.switch.ch/envidat4lwf/p1_meteo/1.csv -s web -t lwf/data -a lwf -m test41
 # python manage.py nead_import -i gcnet/data/01-SwissCamp.csv -s local -t gcnet/data -a gcnet -m test
-import csv
+
 import os
 from pathlib import Path
 import requests
+
 from django.core.management.base import BaseCommand
-from postgres_copy import CopyMapping
 from django.utils.timezone import make_aware
-from configparser import ConfigParser
 from django.apps import apps
 
 from gcnet.management.commands.importers.helpers.import_date_helpers import dict_from_csv_line
 from gcnet.util.cleaners import get_gcnet_line_clean
 from generic.util.views_helpers import get_model_cl
-from generic.util.nead import write_nead_config
-from lwf.util.cleaners import get_lwf_meteo_line_clean, get_lwf_station_line_clean
 
 # Setup logging
 import logging
-
 logging.basicConfig(filename=Path('generic/logs/nead_import.log'), format='%(asctime)s  %(filename)s: %(message)s',
                     datefmt='%d-%b-%y %H:%M:%S')
 logger = logging.getLogger(__name__)
@@ -109,26 +102,20 @@ class Command(BaseCommand):
             logger.error(f'ERROR model {model} not found, exception {e}')
             return
 
-        parent_class_name = model_class.__base__.__name__
-
         # Get line cleaner function that corresponds to parent class
+        parent_class_name = model_class.__base__.__name__
         try:
             line_cleaner = self.get_line_cleaner(parent_class_name)
         except Exception as e:
             logger.error(e)
             return
 
+        # TODO eliminate this block
         # Assign other variables used to write csv_temporary
         csv_temporary = Path(f'{tempdir}/{model}_temporary.csv')
-
-        # input_fields = model_class.input_fields
         model_fields = [field.name for field in model_class._meta.fields if field.name != 'id']
-        # date_format = model_class.date_format
-        # written_timestamps = []
-        # rows_before = 24
-        # rows_after = 0
-        # rows_buffer = []
-        # nead_header = []
+
+        # Initalize counters
         records_written = 0
         line_number = 0
 
@@ -137,13 +124,16 @@ class Command(BaseCommand):
             with open(input_file) as source:
                 nead_database_fields = self.get_nead_database_fields(source)
 
+            # TODO remove sink code and combine this with block above
+            # TODO revise comment line below
             # Write data in input_file into csv_temporary with additional computed fields
             with open(csv_temporary, 'w', newline='') as sink, open(input_file) as source:
 
                 # Reading the source here causes the csv reader below to fail!
                 # nead_database_fields = self.get_nead_database_fields(source)
 
-                sink.write(','.join(model_fields) + '\n')
+                # TODO remove
+                # sink.write(','.join(model_fields) + '\n')
 
                 while True:
 
@@ -159,7 +149,7 @@ class Command(BaseCommand):
                     if line.startswith('#') or (len(line.strip()) == 0):
                         continue
 
-                    # Transform the line in a dictionary
+                    # Transform the line into a dictionary
                     row = dict_from_csv_line(line, nead_database_fields, sep=',')
 
                     # Raise ValueError if row does not have as many columns as nead_database_fields
@@ -176,168 +166,24 @@ class Command(BaseCommand):
                     aware_dt = make_aware(dt_obj)
                     line_clean['timestamp_iso'] = aware_dt
 
+                    # Update record if it exists, else create new record
                     if line_clean['timestamp']:
                         try:
                             timestamp_dict = {'timestamp': line_clean['timestamp']}
                             obj, created = model_class.objects.update_or_create(**timestamp_dict, defaults=line_clean)
                             if created:
                                 records_written += 1
-
-
-                            # created = True
-                            # if force:
-                            #     key_dict = {Columns.TIMESTAMP.value: line_clean[Columns.TIMESTAMP.value],
-                            #                 Columns.TIMESTAMP_ISO.value: line_clean[Columns.TIMESTAMP_ISO.value]}
-                            #     obj, created = model_class.objects.get_or_create(**key_dict, defaults=line_clean)
-                            # else:
-                            #     model_class.objects.create(**line_clean)
-                            # if created:
-                            #     records_written += 1
                         except Exception as e:
                             raise e
 
-                    # defaults = {'first_name': 'Bob'}
-                    # try:
-                    #     obj = model_class.objects.get(timestamp=line_clean['timestamp'])
-                    #     for key, value in line_clean.items():
-                    #         setattr(obj, key, value)
-                    #     obj.save()
-                    # except model_class.DoesNotExist:
-                    #     # new_values = {'first_name': 'John', 'last_name': 'Lennon'}
-                    #     # new_values.update(defaults)
-                    #     obj = model_class(**line_clean)
-                    #     print(obj)
-                    #     obj.save()
-
-                    # obj, created = model_class.objects.update_or_create(**line_clean)
-                    # print(obj)
-                    # print(created)
-
-
-
-                    # Make timestamp_iso value a UTC timezone aware datetime object
-                    # dt_obj = line_clean['timestamp_iso']
-                    # aware_dt = make_aware(dt_obj)
-
-                    # Check if record with identical timestamp already exists in table
-                    # try:
-                    #     # obj = model_class.objects.get(timestamp_iso=aware_dt)
-                    #     obj = model_class.objects.get(timestamp=line_clean['timestamp'])
-                    #     print(obj)
-                    # except model_class.DoesNotExist:
-                    #     print(obj)
-                    #     pass
-
-
-                    # , otherwise write record to
-                    # temporary csv file after checking for record with duplicate timestamp
-                    # try:
-                    #     model_class.objects.get(timestamp_iso=aware_dt)
-                    # except model_class.DoesNotExist:
-                    #     if line_clean['timestamp_iso'] not in written_timestamps:
-                    #         # keep timestamps length small
-                    #         written_timestamps = written_timestamps[(-1) * min(len(written_timestamps), 1000):]
-                    #         written_timestamps += [line_clean['timestamp_iso']]
-                    #
-                    #         # slide the row buffer window
-                    #         rows_buffer = rows_buffer[(-1) * min(len(rows_buffer), rows_before + rows_after):] + [
-                    #             line_clean]
-                    #
-                    #         # check values before and after
-                    #         if len(rows_buffer) > rows_after:
-                    #             sink.write(
-                    #                 ','.join(["{0}".format(v) for v in rows_buffer[-(1 + rows_after)].values()]) + '\n')
-                    #             records_written += 1
-
-
-        #         # Skip number of header lines designated in parent class header line count
-        #         for i in range(model_class.header_line_count):
-        #             first_lines = source.readline()
-        #             nead_header.append(first_lines)
-        #             next(source, None)
-        #
-        # while True:
-        #
-        #     # Skip comment lines
-        #
-        #
-        #
-        #     line = source.readline()
-        #
-        #     if not line:
-        #         break
-        #     line_array = [v for v in line.strip().split(model_class.delimiter) if len(v) > 0]
-
-        #             # Skip header lines that start with designated parent class header symbol
-        #             # For example: the '#' character
-        #             if line.startswith(model_class.header_symbol):
-        #                 nead_header.append(line)
-        #                 continue
-        #
-        #             if len(line_array) != len(input_fields):
-        #                 error_msg = f'ERROR: line has {len(line_array)} values, header has {len(input_fields)} columns'
-        #                 logger.error(error_msg)
-        #                 raise ValueError(error_msg)
-        #
-        #             row = {input_fields[i]: line_array[i] for i in range(len(line_array))}
-        #
-        #             # Process row and add new computed fields
-        #             line_clean = line_cleaner(row, date_format)
-        #
-        #             # Make timestamp_iso value a UTC timezone aware datetime object
-        #             dt_obj = line_clean['timestamp_iso']
-        #             aware_dt = make_aware(dt_obj)
-        #
-        #             # Check if record with identical timestamp already exists in table, otherwise write record to
-        #             # temporary csv file after checking for record with duplicate timestamp
-        #             try:
-        #                 model_class.objects.get(timestamp_iso=aware_dt)
-        #             except model_class.DoesNotExist:
-        #                 if line_clean['timestamp_iso'] not in written_timestamps:
-        #                     # keep timestamps length small
-        #                     written_timestamps = written_timestamps[(-1) * min(len(written_timestamps), 1000):]
-        #                     written_timestamps += [line_clean['timestamp_iso']]
-        #
-        #                     # slide the row buffer window
-        #                     rows_buffer = rows_buffer[(-1) * min(len(rows_buffer), rows_before + rows_after):] + [
-        #                         line_clean]
-        #
-        #                     # check values before and after
-        #                     if len(rows_buffer) > rows_after:
-        #                         sink.write(
-        #                             ','.join(["{0}".format(v) for v in rows_buffer[-(1 + rows_after)].values()]) + '\n')
-        #                         records_written += 1
-        #
-        #         # Write nead header configuration file if applicable
-        #         if nead_header:
-        #             header_symbol = model_class.header_symbol
-        #             write_nead_config(app, nead_header, model, parent_class_name, header_symbol)
-        #
         except FileNotFoundError as e:
             logger.error(f'ERROR file not found {input_file}, exception {e}')
             return
-        #
-        # # Assign copy_dictionary from database_fields
-        # copy_dictionary = {database_fields[i]: database_fields[i] for i in range(0, len(database_fields))}
-        #
-        # # Import processed and cleaned data into Postgres database
-        # c = CopyMapping(
-        #
-        #     # Assign model
-        #     model_class,
-        #
-        #     # Temporary CSV with input data and computed fields
-        #     csv_temporary,
-        #
-        #     # Dictionary mapping the model fields to CSV fields
-        #     copy_dictionary,
-        # )
-        # # Then save it.
-        # c.save()
-        #
+
         # Log import message
         logger.info(f'FINISHED importing {input_file}, {records_written} new records written in {model}')
 
+        # TODO remove this block
         # Delete csv_temporary
         # os.remove(csv_temporary)
 
@@ -349,13 +195,7 @@ class Command(BaseCommand):
     @staticmethod
     def get_line_cleaner(parent_class_name):
 
-        if parent_class_name == 'LWFMeteo':
-            return get_lwf_meteo_line_clean
-
-        elif parent_class_name == 'LWFStation':
-            return get_lwf_station_line_clean
-
-        elif parent_class_name == 'Station':
+        if parent_class_name == 'Station':
             return get_gcnet_line_clean
 
         else:
@@ -381,23 +221,3 @@ class Command(BaseCommand):
         else:
             raise Exception(f'ERROR input NEAD file does not have exactly one line starting with one of these values:'
                             f' {fields_starting_strings}')
-
-    # TODO determine if this method is still needed
-    # Read NEAD header and return nead_config
-    @staticmethod
-    def get_nead_config(source):
-        config_lines = []
-        for line in source:
-            # Skip header lines that start with '#'
-            if line.startswith('#') and (line.find('[DATA]') < 0):
-                config_lines += [line[1:].strip()]
-            elif len(line.strip()) == 0:
-                continue
-            else:
-                break
-
-        if config_lines:
-            nead_config_text = u'\n'.join(config_lines[1:])
-            nead_config = ConfigParser(allow_no_value=True)
-            nead_config.read_string(nead_config_text)
-            return nead_config
