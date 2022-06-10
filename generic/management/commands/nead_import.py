@@ -1,4 +1,7 @@
 #
+# TODO add type hints for function arguments and return types
+# TODO test running script with multiple stations and from a batch file
+#
 # Summary: Command used to import data in NEAD format into database.
 #
 # WARNING: Existing records (selected by field 'timestamp') WILL BE UPDATED with the data in the input file,
@@ -23,8 +26,10 @@
 
 import importlib
 import os
+
 from pathlib import Path
 import requests
+from typing import Callable
 
 from django.core.management.base import BaseCommand
 from django.utils.timezone import make_aware
@@ -159,7 +164,8 @@ class Command(BaseCommand):
     # Updates existing records (identified by 'timestamp' field)
     # or creates new records if timestamp does not exist
     # Returns number of existing records updated and number of new records created
-    def update_database(self, input_file, nead_database_fields, line_cleaner, model_class, **kwargs):
+    def update_database(self, input_file: str, nead_database_fields: list, line_cleaner: Callable[[], dict],
+                        model_class, **kwargs) -> tuple[int, int]:
 
         # Assign kwargs from command to variables
         null_value = kwargs['nullvalue']
