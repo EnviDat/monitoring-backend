@@ -145,8 +145,8 @@ class Command(BaseCommand):
             nead_database_fields = self.get_nead_database_fields(source)
 
         # Update database with input_file data cleaned with line_cleaner function
-        # records_written = self.update_database(input_file, nead_database_fields, line_cleaner, model_class, **kwargs)
-        records_updated, records_created = self.update_database(input_file, nead_database_fields, line_cleaner, model_class, **kwargs)
+        records_updated, records_created = self.update_database(input_file, nead_database_fields, line_cleaner,
+                                                                model_class, **kwargs)
         logger.info(f'FINISHED importing {input_file} into model {model}: '
                     f'{records_created} new records created; '
                     f'{records_updated} existing records updated')
@@ -158,7 +158,7 @@ class Command(BaseCommand):
     # Write data in input_file into database after transorming data with line_cleaner function
     # Updates existing records (identified by 'timestamp' field)
     # or creates new records if timestamp does not exist
-    # Returns number of new records written
+    # Returns number of existing records updated and number of new records created
     def update_database(self, input_file, nead_database_fields, line_cleaner, model_class, **kwargs):
 
         # Assign kwargs from command to variables
@@ -203,25 +203,11 @@ class Command(BaseCommand):
                     # Make line_clean['timestamp_iso'] a UTC timezone aware datetime object
                     line_clean['timestamp_iso'] = make_aware(line_clean['timestamp_iso'])
 
-                    # # Update record if it exists (selected by field 'timestamp'), else create new record
-                    # if line_clean['timestamp']:
-                    #     try:
-                    #         timestamp_dict = {'timestamp': line_clean['timestamp']}
-                    #         obj, created = model_class.objects.update_or_create(**timestamp_dict, defaults=line_clean)
-                    #         # TODO determine if created only True for new records or also True for updated records
-                    #         if created:
-                    #             records_created += 1
-                    #     except Exception as e:
-                    #         raise e
-
                     # Update record if it exists (selected by field 'timestamp'), else create new record
                     if line_clean['timestamp']:
                         try:
                             timestamp_dict = {'timestamp': line_clean['timestamp']}
-                            # line_clean_timestamp = line_clean['timestamp']
                             obj = model_class.objects.get(**timestamp_dict)
-                            # obj, created = model_class.objects.get(timestamp=line_clean['timestamp'])
-                            # obj, created = model_class.objects.get(timestamp=line_clean_timestamp)
                             for key, value in line_clean.items():
                                 setattr(obj, key, value)
                             obj.save()
