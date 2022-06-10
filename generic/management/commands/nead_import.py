@@ -145,8 +145,11 @@ class Command(BaseCommand):
             nead_database_fields = self.get_nead_database_fields(source)
 
         # Update database with input_file data cleaned with line_cleaner function
-        records_written = self.update_database(input_file, nead_database_fields, line_cleaner, model_class, **kwargs)
-        logger.info(f'FINISHED importing {input_file}, {records_written} new records written in model {model}')
+        # records_written = self.update_database(input_file, nead_database_fields, line_cleaner, model_class, **kwargs)
+        records_updated, records_created = self.update_database(input_file, nead_database_fields, line_cleaner, model_class, **kwargs)
+        logger.info(f'FINISHED importing {input_file} into model {model}: '
+                    f'{records_created} new records created; '
+                    f'{records_updated} existing records updated')
 
         # If file downloaded from web delete it
         if os.path.isfile(f'{tempdir}/{model}_downloaded.csv'):
@@ -167,8 +170,9 @@ class Command(BaseCommand):
             with open(input_file) as source:
 
                 # Initalize counters
-                records_written = 0
                 line_number = 0
+                records_updated = 0
+                records_created = 0
 
                 while True:
 
@@ -178,8 +182,8 @@ class Command(BaseCommand):
                         break
 
                     # TEST used during testing
-                    # if line_number > 30:
-                    #     break
+                    if line_number > 30:
+                        break
 
                     # Skip header comment lines that start with '#' or are empty
                     if line.startswith('#') or (len(line.strip()) == 0):
@@ -199,18 +203,35 @@ class Command(BaseCommand):
                     # Make line_clean['timestamp_iso'] a UTC timezone aware datetime object
                     line_clean['timestamp_iso'] = make_aware(line_clean['timestamp_iso'])
 
+                    # # Update record if it exists (selected by field 'timestamp'), else create new record
+                    # if line_clean['timestamp']:
+                    #     try:
+                    #         timestamp_dict = {'timestamp': line_clean['timestamp']}
+                    #         obj, created = model_class.objects.update_or_create(**timestamp_dict, defaults=line_clean)
+                    #         # TODO determine if created only True for new records or also True for updated records
+                    #         if created:
+                    #             records_created += 1
+                    #     except Exception as e:
+                    #         raise e
+
                     # Update record if it exists (selected by field 'timestamp'), else create new record
                     if line_clean['timestamp']:
                         try:
                             timestamp_dict = {'timestamp': line_clean['timestamp']}
-                            obj, created = model_class.objects.update_or_create(**timestamp_dict, defaults=line_clean)
-                            # TODO determine if created only True for new records or also True for updated records
-                            if created:
-                                records_written += 1
-                        except Exception as e:
-                            raise e
+                            # line_clean_timestamp = line_clean['timestamp']
+                            obj = model_class.objects.get(**timestamp_dict)
+                            # obj, created = model_class.objects.get(timestamp=line_clean['timestamp'])
+                            # obj, created = model_class.objects.get(timestamp=line_clean_timestamp)
+                            for key, value in line_clean.items():
+                                setattr(obj, key, value)
+                            obj.save()
+                            records_updated += 1
+                        except model_class.DoesNotExist:
+                            obj = model_class(**line_clean)
+                            obj.save()
+                            records_created += 1
 
-                return records_written
+                return records_updated, records_created
 
         except FileNotFoundError as e:
             logger.error(f'ERROR file not found {input_file}, exception {e}')
