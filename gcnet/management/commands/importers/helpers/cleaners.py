@@ -1,4 +1,3 @@
-
 # TODO copy lwf.time_fields.py to gcnet app and adjust improts
 
 from lwf.util.time_fields import get_utc_datetime, get_year, get_julian_day, quarter_day, half_day, year_day, \
@@ -9,9 +8,8 @@ from gcnet.util.constants import Columns
 
 # Return line_clean dictionary for GC-Net data parent class: Station in gcnet/models.py
 # Keys are Station model names, values are from NEAD datbase_fields key in FIELDS section
-# null_value items are replaced with None
+# Values matching null_value are replaced with None
 def get_gcnet_line_clean(row, date_format, null_value):
-
     row = {
         Columns.TIMESTAMP_ISO.value: get_utc_datetime(row['timestamp_iso'], date_format),
         Columns.TIMESTAMP.value: get_unix_timestamp(row['timestamp_iso'], date_format),
@@ -44,9 +42,12 @@ def get_gcnet_line_clean(row, date_format, null_value):
         Columns.REFTEMP.value: row['reftemp']
     }
 
+    # null_value is converted to float and then back to string to compare with row values
+    null_value_float = str(float(null_value))
+
     # Assign values to None that match null_value
     for key, value in row.items():
-        if value == null_value:
+        if value == null_value_float:
             row[key] = None
 
     return row
