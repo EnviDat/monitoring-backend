@@ -1,9 +1,13 @@
-# TODO this is still in development and is a work in progress!!!!
-
 #
 # Summary: Command used to import data in NEAD format into database.
+#
 # WARNING: Existing records (selected by field 'timestamp') WILL BE UPDATED with the data in the input file,
 #          records that do not exist will be created!!!!
+#
+# WARNING: To insure that 'timestamp_iso' values will be aware datetime objects with time zone 'UTC',
+#          check that project/settings.py has the following settings:
+#               USE_TZ = True
+#               TIME_ZONE = 'UTC'
 #
 # Usage: To see information about command arguments see method add_arguments() or
 #        open terminal (with virual environment activated) and run:
@@ -95,12 +99,26 @@ class Command(BaseCommand):
 
         # Assign kwargs from command to variables
         inputfile = kwargs['inputfile']
-        null_value = kwargs['nullvalue']
         app = kwargs['app']
         model = kwargs['model']
         source = kwargs['source']
         tempdir = kwargs['tempdir']
-        dateformat = kwargs['dateformat']
+
+        # Validate app
+        if not apps.is_installed(app):
+            logger.error(f'ERROR app {app} not found')
+            return
+
+        # Validate model
+        try:
+            model_class = self.get_model_cl(app, model)
+        except AttributeError as e:
+            logger.error(f'ERROR model {model} not found, exception {e}')
+            return
+
+        # Get line cleaner function that corresponds to parent class
+        parent_class_name = model_class.__base__.__name__
+        line_cleaner = self.get_line_cleaner(parent_class_name)
 
         # Validate inputfile
         if source == 'web':
@@ -122,106 +140,28 @@ class Command(BaseCommand):
             logger.error(f'ERROR non-valid value entered for "source": {source}')
             return
 
-        # Validate app
-        if not apps.is_installed(app):
-            logger.error(f'ERROR app {app} not found')
-            return
-
-        # Validate model
-        try:
-            model_class = self.get_model_cl(app, model)
-        except AttributeError as e:
-            logger.error(f'ERROR model {model} not found, exception {e}')
-            return
-
-        # Get line cleaner function that corresponds to parent class
-        parent_class_name = model_class.__base__.__name__
-        line_cleaner = self.get_line_cleaner(parent_class_name)
-
         # Get NEAD database fields
         with open(input_file) as source:
             nead_database_fields = self.get_nead_database_fields(source)
 
-        # # Write data in input_file into database
-        # # Updates existing records (identified by 'timestamp' field)
-        # # or creates new records if timestamp does not exist
-        # try:
-        #
-        #     with open(input_file) as source:
-        #
-        #         # Initalize counters
-        #         records_written = 0
-        #         line_number = 0
-        #
-        #         while True:
-        #
-        #             line_number += 1
-        #             line = source.readline()
-        #             if not line:
-        #                 break
-        #
-        #             # TEST used during testing
-        #             if line_number > 30:
-        #                 break
-        #
-        #             # Skip header comment lines that start with '#' or are empty
-        #             if line.startswith('#') or (len(line.strip()) == 0):
-        #                 continue
-        #
-        #             # Transform the line into a dictionary
-        #             row = self.dict_from_csv_line(line, nead_database_fields, sep=',')
-        #
-        #             # Raise ValueError if row does not have as many columns as nead_database_fields
-        #             if not row:
-        #                 raise ValueError(f'ERROR: Line number  {line_number} should have the same number of columns as '
-        #                                  f'the nead_database_fields: {len(nead_database_fields)}')
-        #
-        #             # Process row and add new calculated fields
-        #             # TODO add date format and null value as optional arguments with these default values
-        #             # line_clean = line_cleaner(row, '%Y-%m-%d %H:%M:%S+00:00', '-999.0')
-        #             line_clean = line_cleaner(row, dateformat, null_value)
-        #
-        #             # Make line_clean['timestamp_iso'] a UTC timezone aware datetime object
-        #             # TODO add warning about timezone in settings.py
-        #             dt_obj = line_clean['timestamp_iso']
-        #             aware_dt = make_aware(dt_obj)
-        #             line_clean['timestamp_iso'] = aware_dt
-        #
-        #             # Update record if it exists, else create new record
-        #             if line_clean['timestamp']:
-        #                 try:
-        #                     timestamp_dict = {'timestamp': line_clean['timestamp']}
-        #                     obj, created = model_class.objects.update_or_create(**timestamp_dict, defaults=line_clean)
-        #                     if created:
-        #                         records_written += 1
-        #                 except Exception as e:
-        #                     raise e
-        #
-        # except FileNotFoundError as e:
-        #     logger.error(f'ERROR file not found {input_file}, exception {e}')
-        #     return
-
-        # Log import message
-
-        # TEST
+        # Update database with input_file data cleaned with line_cleaner function
         records_written = self.update_database(input_file, nead_database_fields, line_cleaner, model_class, **kwargs)
-        print(records_written)
-
         logger.info(f'FINISHED importing {input_file}, {records_written} new records written in model {model}')
 
         # If file downloaded from web delete it
         if os.path.isfile(f'{tempdir}/{model}_downloaded.csv'):
             os.remove(f'{tempdir}/{model}_downloaded.csv')
 
+    # Write data in input_file into database after transorming data with line_cleaner function
+    # Updates existing records (identified by 'timestamp' field)
+    # or creates new records if timestamp does not exist
+    # Returns number of new records written
     def update_database(self, input_file, nead_database_fields, line_cleaner, model_class, **kwargs):
 
         # Assign kwargs from command to variables
         null_value = kwargs['nullvalue']
         dateformat = kwargs['dateformat']
 
-        # Write data in input_file into database
-        # Updates existing records (identified by 'timestamp' field)
-        # or creates new records if timestamp does not exist
         try:
 
             with open(input_file) as source:
@@ -238,8 +178,8 @@ class Command(BaseCommand):
                         break
 
                     # TEST used during testing
-                    if line_number > 30:
-                        break
+                    # if line_number > 30:
+                    #     break
 
                     # Skip header comment lines that start with '#' or are empty
                     if line.startswith('#') or (len(line.strip()) == 0):
@@ -254,21 +194,17 @@ class Command(BaseCommand):
                                          f'the nead_database_fields: {len(nead_database_fields)}')
 
                     # Process row and add new calculated fields
-                    # TODO add date format and null value as optional arguments with these default values
-                    # line_clean = line_cleaner(row, '%Y-%m-%d %H:%M:%S+00:00', '-999.0')
                     line_clean = line_cleaner(row, dateformat, null_value)
 
                     # Make line_clean['timestamp_iso'] a UTC timezone aware datetime object
-                    # TODO add warning about timezone in settings.py
-                    dt_obj = line_clean['timestamp_iso']
-                    aware_dt = make_aware(dt_obj)
-                    line_clean['timestamp_iso'] = aware_dt
+                    line_clean['timestamp_iso'] = make_aware(line_clean['timestamp_iso'])
 
-                    # Update record if it exists, else create new record
+                    # Update record if it exists (selected by field 'timestamp'), else create new record
                     if line_clean['timestamp']:
                         try:
                             timestamp_dict = {'timestamp': line_clean['timestamp']}
                             obj, created = model_class.objects.update_or_create(**timestamp_dict, defaults=line_clean)
+                            # TODO determine if created only True for new records or also True for updated records
                             if created:
                                 records_written += 1
                         except Exception as e:
