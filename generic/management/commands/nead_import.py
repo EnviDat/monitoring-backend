@@ -1,6 +1,6 @@
 #
-# TODO add type hints for function arguments and return types
 # TODO test running script with multiple stations and from a batch file
+# TODO FUTURE DEVELOPMENT refactor 'tempdir' argument and storing data downloaded from web rather than temporary file
 #
 # Summary: Command used to import data in NEAD format into database.
 #
@@ -22,24 +22,24 @@
 # Example command:
 #       python manage.py nead_import -s local -i gcnet/data/01-SwissCamp.csv -n -999 -a gcnet -m test
 
-# TODO FUTURE DEVELOPMENT refactor 'tempdir' argument and storing data downloaded from web rather than temporary file
 
 import importlib
 import os
 
 from pathlib import Path
 import requests
-from typing import Callable
 
 from django.core.management.base import BaseCommand
 from django.utils.timezone import make_aware
 from django.apps import apps
+from django.forms import model_to_dict
+
+from deepdiff import DeepDiff
 
 from gcnet.management.commands.importers.helpers.cleaners import get_gcnet_line_clean
 
 # Setup logging
 import logging
-
 logging.basicConfig(filename=Path('generic/logs/nead_import.log'), format='%(asctime)s  %(filename)s: %(message)s',
                     datefmt='%d-%b-%y %H:%M:%S')
 logger = logging.getLogger(__name__)
@@ -164,12 +164,12 @@ class Command(BaseCommand):
     # Updates existing records (identified by 'timestamp' field)
     # or creates new records if timestamp does not exist
     # Returns number of existing records updated and number of new records created
-    def update_database(self, input_file: str, nead_database_fields: list, line_cleaner: Callable[[], dict],
-                        model_class, **kwargs) -> tuple[int, int]:
+    def update_database(self, input_file: str, nead_database_fields: list, line_cleaner, model_class, **kwargs):
 
         # Assign kwargs from command to variables
         null_value = kwargs['nullvalue']
         dateformat = kwargs['dateformat']
+        model = kwargs['model']
 
         try:
 
@@ -214,10 +214,19 @@ class Command(BaseCommand):
                         try:
                             timestamp_dict = {'timestamp': line_clean['timestamp']}
                             obj = model_class.objects.get(**timestamp_dict)
+                            old_obj_dict = model_to_dict(obj, exclude='id')
+
                             for key, value in line_clean.items():
                                 setattr(obj, key, value)
                             obj.save()
                             records_updated += 1
+                            new_obj_dict = model_to_dict(obj, exclude='id')
+
+                            # Log difference between old record and update record
+                            obj_difference = DeepDiff(old_obj_dict, new_obj_dict)
+                            if not bool(dict):
+                                logger.info(f'UPDATED record difference for model {model}:  {obj_difference}')
+
                         except model_class.DoesNotExist:
                             obj = model_class(**line_clean)
                             obj.save()
