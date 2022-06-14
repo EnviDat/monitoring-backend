@@ -40,10 +40,26 @@ from gcnet.management.commands.importers.helpers.cleaners import get_gcnet_line_
 
 # Setup logging
 import logging
-logging.basicConfig(filename=Path('generic/logs/nead_import.log'), format='%(asctime)s  %(filename)s: %(message)s',
-                    datefmt='%d-%b-%y %H:%M:%S')
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+
+
+def setup_logger(logger_name, log_file, level=logging.DEBUG):
+    log = logging.getLogger(logger_name)
+    log.setLevel(level)
+
+    fileHandler = logging.FileHandler(log_file, mode='a')
+    formatter = logging.Formatter("%(asctime)s.%(msecs)03d [%(levelname)s] "
+                                  "%(name)s | %(funcName)s:%(lineno)d | %(message)s")
+    fileHandler.setFormatter(formatter)
+    streamHandler = logging.StreamHandler(stream=None)
+
+    log.addHandler(fileHandler)
+    log.addHandler(streamHandler)
+
+
+setup_logger('logger', 'generic/logs/nead_import.log')
+setup_logger('updater_logger', 'generic/logs/nead_import_updater.log')
+logger = logging.getLogger('logger')
+updater_logger = logging.getLogger('updater_logger')
 
 
 class Command(BaseCommand):
@@ -223,9 +239,9 @@ class Command(BaseCommand):
                             new_obj_dict = model_to_dict(obj, exclude='id')
 
                             # Log difference between old record and update record
-                            obj_difference = DeepDiff(old_obj_dict, new_obj_dict)
-                            if not bool(dict):
-                                logger.info(f'UPDATED record difference for model {model}:  {obj_difference}')
+                            difference_dict = DeepDiff(old_obj_dict, new_obj_dict)
+                            if difference_dict:
+                                updater_logger.info(f'UPDATED record difference for model {model}:  {difference_dict}')
 
                         except model_class.DoesNotExist:
                             obj = model_class(**line_clean)
