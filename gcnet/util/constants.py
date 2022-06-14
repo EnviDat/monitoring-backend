@@ -39,6 +39,8 @@ class Columns(Enum):
     SH2 = 'sh2'
     BATTVOLT = 'battvolt'
     REFTEMP = 'reftemp'
+    SWIN_STDEV = 'swin_stdev'
+    NETRAD_STDEV = 'netrad_stdev'
 
     @staticmethod
     def get_columns():
