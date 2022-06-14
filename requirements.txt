@@ -8,6 +8,7 @@ colorama==0.4.4
 configparser==5.0.2
 cryptography==3.4.5
 DateTime==4.3
+deepdiff==5.8.1
 Django==4.0.3
 django-environ==0.4.5
 django-postgres-copy==2.5.0
