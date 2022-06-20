@@ -181,15 +181,29 @@ class Station(models.Model):
         null=True,
     )
 
+    # NOTE" this is the old field which had an incorrect name! Correct field name is 'swin_stdev'
     # Unit: [W m-2]
-    swout_minimum = CustomFloatField(
-        verbose_name='SWoutMin',
+    # swout_minimum = CustomFloatField(
+    #     verbose_name='SWoutMin',
+    #     null=True,
+    # )
+
+    # Unit: [W m-2]
+    swin_stdev = CustomFloatField(
+        verbose_name='SWinStDev',
         null=True,
     )
 
+    # NOTE: this is the old field which had an incorrect name! Correct field name is 'netrad_stdev'
     # Unit: NetRadMax[W m-2]
-    netrad_maximum = CustomFloatField(
-        verbose_name='NetRadMax',
+    # netrad_maximum = CustomFloatField(
+    #     verbose_name='NetRadMax',
+    #     null=True,
+    # )
+
+    # Unit: NetRadMax[W m-2]
+    netrad_stdev = CustomFloatField(
+        verbose_name='NetRadStDev',
         null=True,
     )
 
@@ -356,9 +370,4 @@ class tunu_n_07d(Station):
 
 # Petermann Glacier 22
 class petermann_22d(Station):
-    pass
-
-
-# test3
-class test3(Station):
     pass
