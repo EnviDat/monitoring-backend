@@ -43,23 +43,29 @@ import logging
 
 
 def setup_logger(logger_name, log_file, level=logging.DEBUG):
-    log = logging.getLogger(logger_name)
-    log.setLevel(level)
 
+    # Get logger
+    log = logging.getLogger(logger_name)
+
+    # Configure file handler
     fileHandler = logging.FileHandler(log_file, mode='a')
     formatter = logging.Formatter("%(asctime)s.%(msecs)03d [%(levelname)s] "
                                   "%(name)s | %(funcName)s:%(lineno)d | %(message)s")
     fileHandler.setFormatter(formatter)
-    streamHandler = logging.StreamHandler(stream=None)
 
+    # Configure log
     log.addHandler(fileHandler)
-    log.addHandler(streamHandler)
+    log.propagate = False
+    log.setLevel(level)
 
-
+# logger used for general logging
 setup_logger('logger', 'generic/logs/nead_import.log')
-setup_logger('updater_logger', 'generic/logs/nead_import_updater.log')
 logger = logging.getLogger('logger')
+
+# updater_logger used specifically to log updated records
+setup_logger('updater_logger', 'generic/logs/nead_import_updater.log')
 updater_logger = logging.getLogger('updater_logger')
+
 
 
 class Command(BaseCommand):
@@ -204,8 +210,8 @@ class Command(BaseCommand):
                         break
 
                     # TEST used during testing
-                    if line_number > 30:
-                        break
+                    # if line_number > 30:
+                    #     break
 
                     # Skip header comment lines that start with '#' or are empty
                     if line.startswith('#') or (len(line.strip()) == 0):
@@ -241,7 +247,9 @@ class Command(BaseCommand):
                             # Log difference between old record and update record
                             difference_dict = DeepDiff(old_obj_dict, new_obj_dict)
                             if difference_dict:
-                                updater_logger.info(f'UPDATED record difference for model {model}:  {difference_dict}')
+                                timestamp_iso = line_clean['timestamp_iso']
+                                updater_logger.info(f'UPDATED record difference for model {model}, '
+                                                    f'timestamp {timestamp_iso}:  {difference_dict}')
 
                         except model_class.DoesNotExist:
                             obj = model_class(**line_clean)
