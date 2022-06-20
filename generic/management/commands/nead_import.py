@@ -36,7 +36,7 @@ from django.forms import model_to_dict
 
 from deepdiff import DeepDiff
 
-from gcnet.management.commands.importers.helpers.cleaners import get_gcnet_line_clean
+from gcnet.management.commands.importers.helpers.cleaners import get_gcnet_record_clean
 
 # Setup logging
 import logging
@@ -210,7 +210,7 @@ class Command(BaseCommand):
                         break
 
                     # TEST used during testing
-                    # if line_number > 30:
+                    # if line_number > 26:
                     #     break
 
                     # Skip header comment lines that start with '#' or are empty
@@ -267,7 +267,7 @@ class Command(BaseCommand):
     def get_line_cleaner(parent_class_name):
 
         if parent_class_name == 'Station':
-            return get_gcnet_line_clean
+            return get_gcnet_record_clean
 
         else:
             raise Exception(f'ERROR parent class {parent_class_name} does not exist '
