@@ -1,9 +1,51 @@
-
 from datetime import timezone
 from datetime import datetime
 import dateutil.parser as date_parser
 
 from gcnet.util.constants import Columns
+
+
+# Returns dictionary for timestamped record in GC-Net data parent class: Station in gcnet/models.py
+# Keys are Station model names, values are from NEAD database_fields key in FIELDS section
+# If database_field does not exist then assign to None
+# Values matching null_value are replaced with None
+def get_gcnet_record_clean(row, date_format, null_value):
+
+    # Computed time fields
+    time_fields = {
+        Columns.TIMESTAMP_ISO.value: get_utc_datetime(row['timestamp_iso'], date_format),
+        Columns.TIMESTAMP.value: get_unix_timestamp(row['timestamp_iso'], date_format),
+        Columns.YEAR.value: get_year(row['timestamp_iso']),
+        Columns.JULIANDAY.value: get_julian_day(row['timestamp_iso'], date_format),
+        Columns.QUARTERDAY.value: quarter_day(row['timestamp_iso']),
+        Columns.HALFDAY.value: half_day(row['timestamp_iso']),
+        Columns.DAY.value: year_day(row['timestamp_iso'], date_format),
+        Columns.WEEK.value: year_week(row['timestamp_iso'], date_format),
+    }
+
+    # Fields directly from input file
+    # If field does not exist then assign parameters[col] to None
+    columns = Columns.get_parameters()
+    parameters = {}
+    for col in columns:
+        try:
+            val = float(row[col])
+        except KeyError:
+            val = None
+        parameters[col] = val
+
+    # Assemble record
+    record = {**time_fields, **parameters}
+
+    # null_value is converted to float to compare with record values
+    null_value_float = float(null_value)
+
+    # Assign values to None that match null_value
+    for key, value in record.items():
+        if value == null_value_float:
+            record[key] = None
+
+    return record
 
 
 # Return line_clean dictionary for GC-Net data parent class: Station in gcnet/models.py
@@ -111,7 +153,6 @@ def get_minute(date_string):
 
 # Returns True if time is "quarterday" (every 6 hours 00:00, 6:00, 12:00, 18:00)
 def quarter_day(date_string):
-
     hour = get_hour(date_string)
     minute = get_minute(date_string)
 
@@ -123,7 +164,6 @@ def quarter_day(date_string):
 
 # Returns True if time is "halfday" (every 12 hours 00:00 or 12:00)
 def half_day(date_string):
-
     hour = get_hour(date_string)
     minute = get_minute(date_string)
 
