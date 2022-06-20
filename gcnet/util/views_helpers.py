@@ -28,9 +28,9 @@ ALL_DISPLAY_VALUES_STRING = 'multiple'
 ALL_DISPLAY_VALUES = ['swin',
                       'swin_maximum',
                       'swout',
-                      'swout_minimum',
+                      'swin_stdev',
                       'netrad',
-                      'netrad_maximum',
+                      'netrad_stdev',
                       'airtemp1',
                       'airtemp1_maximum',
                       'airtemp1_minimum',
@@ -273,6 +273,7 @@ def validate_display_values(parameters, model_class):
 # If parameters == ALL_DISPLAY_VALUES_STRING assign display_values to values in returned_parameters
 # Else validate parameter(s) passed in URL
 def get_display_values(parameters, model_class):
+
     if parameters == ALL_DISPLAY_VALUES_STRING:
         return ALL_DISPLAY_VALUES
 
