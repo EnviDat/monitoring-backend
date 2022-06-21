@@ -9,7 +9,6 @@ from postgres_copy import CopyManager
 class MetadataSet(models.QuerySet):
 
     def metadata(self, parameter):
-
         filter_dict = {f'{parameter}__isnull': False}
 
         dict_timestamps = {'timestamp_iso_latest': Max('timestamp_iso'),
@@ -181,14 +180,14 @@ class Station(models.Model):
         null=True,
     )
 
-    # NOTE" this is the old field which had an incorrect name! Correct field name is 'swin_stdev'
+    # NOTE this is the old field which had an incorrect name! Correct field name is 'swin_stdev'
     # Unit: [W m-2]
     # swout_minimum = CustomFloatField(
     #     verbose_name='SWoutMin',
     #     null=True,
     # )
 
-    # Unit: [W m-2]
+    # Unit: SW Incoming Radiation Standard Deviation [W m-2]
     swin_stdev = CustomFloatField(
         verbose_name='SWinStDev',
         null=True,
