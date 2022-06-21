@@ -78,6 +78,14 @@ def generic_get_data(request, app,
     # Add timestamp_iso to display_values
     display_values = ['timestamp_iso'] + display_values
 
+    # Validate 'start' and 'end' if they are passed
+    if len(start) > 0 and len(end) > 0:
+        # Check if timestamps are in whole date format: YYYY-MM-DD ('2019-12-04')
+        try:
+            get_timestamp_iso_range_day_dict(start, end)
+        except ValueError:
+            return date_http_error()
+
     # ---------------------------------------- Stream CSV ------------------------------------------------------------
     # Check if 'nodata' was passed, if so stream CSV
     if len(nodata) > 0:
