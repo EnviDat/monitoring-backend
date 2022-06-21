@@ -209,7 +209,7 @@ class Command(BaseCommand):
                     if not line:
                         break
 
-                    # TEST used during testing
+                    # Only used during testing, otherwise comment out
                     # if line_number > 26:
                     #     break
 

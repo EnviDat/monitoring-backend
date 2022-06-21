@@ -7,7 +7,7 @@ from gcnet.util.constants import Columns
 
 # Returns dictionary for timestamped record in GC-Net data parent class: Station in gcnet/models.py
 # Keys are Station model names, values are from NEAD database_fields key in FIELDS section
-# If database_field does not exist then assign to None
+# If database_field does not exist in NEAD input file then assigns value to None for that key
 # Values matching null_value are replaced with None
 def get_gcnet_record_clean(row, date_format, null_value):
 
@@ -23,8 +23,8 @@ def get_gcnet_record_clean(row, date_format, null_value):
         Columns.WEEK.value: year_week(row['timestamp_iso'], date_format),
     }
 
-    # Fields directly from input file
-    # If field does not exist then assign parameters[col] to None
+    # Values directly from input file
+    # If value does not exist then assign to None
     columns = Columns.get_parameters()
     parameters = {}
     for col in columns:
@@ -185,3 +185,6 @@ def year_week(date_string, date_format):
     year = get_year(date_string)
     week = get_week(date_string, date_format)
     return f'{year}-{week}'
+
+
+
