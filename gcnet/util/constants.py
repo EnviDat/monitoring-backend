@@ -13,9 +13,7 @@ class Columns(Enum):
     SWIN = 'swin'
     SWIN_MAX = 'swin_maximum'
     SWOUT = 'swout'
-    SWOUT_MIN = 'swout_minimum'
     NETRAD = 'netrad'
-    NETRAD_MAX = 'netrad_maximum'
     AIRTEMP1 = 'airtemp1'
     AIRTEMP1_MAX = 'airtemp1_maximum'
     AIRTEMP1_MIN = 'airtemp1_minimum'
@@ -39,7 +37,9 @@ class Columns(Enum):
     SH2 = 'sh2'
     BATTVOLT = 'battvolt'
     REFTEMP = 'reftemp'
+    # SWOUT_MIN = 'swout_minimum'
     SWIN_STDEV = 'swin_stdev'
+    # NETRAD_MAX = 'netrad_maximum'
     NETRAD_STDEV = 'netrad_stdev'
 
     @staticmethod
