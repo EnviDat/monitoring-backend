@@ -225,7 +225,7 @@ class Command(BaseCommand):
             return ['StationID', 'Year', 'Doyd', 'SWin', 'SWout', 'NetRad', 'AirTC1', 'AirTC2', 'AirT1',
                     'AirT2', 'RH1', 'RH2', 'WS1', 'WS2', 'WD1', 'WD2', 'press', 'Sheight1', 'Sheight2',
                     'SnowT1', 'SnowT2', 'SnowT3', 'SnowT4', 'SnowT5', 'SnowT6', 'SnowT7', 'SnowT8', 'SnowT9',
-                    'SnowT10', 'BattVolt', 'SWinMax', 'SWoutMin', 'NetRadMax', 'AirTC1Max', 'AirTC2Max',
+                    'SnowT10', 'BattVolt', 'SWinMax', 'SWinStDev', 'NetRadStDev', 'AirTC1Max', 'AirTC2Max',
                     'AirTC1Min', 'AirTC2Min', 'WS1Max', 'WS2Max', 'WS1Std', 'WS2Std', 'TempRef']
 
         else:
@@ -256,7 +256,7 @@ class Command(BaseCommand):
                     Columns.PRESSURE.value: row['press'],
                     Columns.SH1.value: row['Sheight1'], Columns.SH2.value: row['Sheight2'],
                     Columns.BATTVOLT.value: row['BattVolt'], Columns.SWIN_MAX.value: row['SWinMax'],
-                    Columns.SWOUT_MIN.value: row['SWoutMin'], Columns.NETRAD_MAX.value: row['NetRadMax'],
+                    Columns.SWIN_STDEV.value: row['SWinStDev'], Columns.NETRAD_STDEV.value: row['NetRadStDev'],
                     Columns.AIRTEMP1_MAX.value: row['AirTC1Max'], Columns.AIRTEMP2_MAX.value: row['AirTC2Max'],
                     Columns.AIRTEMP1_MIN.value: row['AirTC1Min'], Columns.AIRTEMP2_MIN.value: row['AirTC2Min'],
                     Columns.WINDSPEED_U1_MAX.value: row['WS1Max'],
