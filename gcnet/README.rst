@@ -55,7 +55,7 @@ Authors and Contact Information
     * *Organization*: `Swiss Federal Research Institute WSL <https://www.wsl.ch>`_
     * *Authors*: Rebecca Buchholz, V.Trotsiuk, Lucia de Espona, Ionut Iosifescu, Derek Houtz
     * *Contact Email*: envidat(at)wsl.ch
-    * *Date last modified*: March 1, 2022
+
 
 ---------------------------------------
 Configuration file: gcnet_metadata.ini
@@ -395,24 +395,23 @@ https://www.youtube.com/watch?v=BBKq6H9Rm5g
 
 2. Edit nginx_waitress/monitoring_nginx.conf::
 
-    LINE 8: Edit the port number the site will be served on,
-            it should not be the same port that the database uses in project/.env
+    Edit the port number the site will be served on,
+    it should not be the same port that the database uses in project/.env
 
-    LINE 11: Edit the server_name to your machine's IP address or FQDN
+    Edit the server_name to your machine's IP address or FQDN
 
-    LINES 23-25: If using static files uncomment these lines and put the path to your project's
-        static folder in LINE 24
+    If using static files uncomment these lines and set the path to your project's static folder
 
-    LINE 29: Edit proxy_pass if wanted to match the server running from Waitress (i.e. runserver.py, LINE 8).
-        This will usually be localhost or your IP address.
+    Edit proxy_pass if wanted to match the server running from Waitress (designated in runserver.py).
+    This will usually be localhost or your IP address.
 
 3. Open runserver.py::
 
-    LINE 8: Make sure that host and port are match the settings used in gcnet_nginx.conf
+    Make sure that host and port are match the settings used in nginx_waitress/monitoring_nginx.conf
 
-    For example, if you used localhost and port 60 in gcnet_nginx.conf like this:
-        LINE 8:  listen      60;
-        LINE 29: proxy_pass http://localhost:8060;
+    For example, if you used localhost and port 60 in nginx_waitress/monitoring_nginx.conf like this:
+        listen      60;
+        proxy_pass http://localhost:8060;
 
 4. Create two directories inside of C:/nginx/ or wherever you downloaded nginx::
 
