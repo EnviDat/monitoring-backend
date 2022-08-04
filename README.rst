@@ -30,31 +30,18 @@ To install gcnet-backend follow these steps:
     https://github.com/EnviDat/monitoring-backend.git
 
 
+2. Ensure PDM is installed on your system and pep528 support is enabled.
 
-2. It is recommended to create a virtual environment for this project.
+   https://pdm.fming.dev/latest/usage/pep582/
+
+
+3. Install the dependencies using PDM
 
    For example::
 
-    python -m venv <path/to/project/<venv-name>
+    pdm install
 
-
-3. Activate new virtual environment::
-
-    On macOS and Linux:
-    source <venv_name>/bin/activate
-
-    On Windows:
-    .\<venv_name>\Scripts\activate
-
-
-4. Install the dependencies into your virtual environment::
-
-     pip install -r requirements.txt
-
-
-5. Verify dependencies are installed correctly by running::
-
-    pip list --local
+    As per PEP582, dependencies are located under __pypackages__
 
 
 --------------------------------------

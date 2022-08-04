@@ -1,5 +1,5 @@
-/venv-monitor/*
-/venv
+.pdm.toml
+__pypackages__/
 .idea
 __pycache__/
 *.log
