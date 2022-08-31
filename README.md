@@ -77,8 +77,7 @@ GCNET\_DB\_xxx settings.
 
     SECRET_KEY=<secret key>
 
-    ALLOWED_HOST_1=<localhost or IP address of server>
-    ALLOWED_HOST_2=<localhost or IP address of server>
+    ALLOWED_HOST=<IP address of server>
     PORT=<port number used by NGINX server in runserver.py>
 
     DATABASE_NAME=<db_name>
