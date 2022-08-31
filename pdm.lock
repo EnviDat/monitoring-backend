@@ -18,7 +18,8 @@ summary = "Classes Without Boilerplate"
 
 [[package]]
 name = "certifi"
-version = "2020.12.5"
+version = "2022.6.15"
+requires_python = ">=3.6"
 summary = "Python package for providing Mozilla's CA Bundle."
 
 [[package]]
@@ -173,11 +174,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "pathlib"
-version = "1.0.1"
-summary = "Object-oriented filesystem paths"
-
-[[package]]
 name = "pluggy"
 version = "0.13.1"
 requires_python = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
@@ -324,7 +320,7 @@ dependencies = [
 
 [metadata]
 lock_version = "4.0"
-content_hash = "sha256:8ba251f5a46ec6f685a9e897b32525a6d6e63766fa5758c642566a9aef5a9a94"
+content_hash = "sha256:4fb9d782f317120b4b5fb7ec23184d2d73c2e4076cc647d5beced401f018ad88"
 
 [metadata.files]
 "asgiref 3.4.1" = [
@@ -339,9 +335,9 @@ content_hash = "sha256:8ba251f5a46ec6f685a9e897b32525a6d6e63766fa5758c642566a9ae
     {url = "https://files.pythonhosted.org/packages/c3/aa/cb45262569fcc047bf070b5de61813724d6726db83259222cd7b4c79821a/attrs-20.3.0-py2.py3-none-any.whl", hash = "sha256:31b2eced602aa8423c2aea9c76a724617ed67cf9513173fd3a4f03e3a929c7e6"},
     {url = "https://files.pythonhosted.org/packages/f0/cb/80a4a274df7da7b8baf083249b0890a0579374c3d74b5ac0ee9291f912dc/attrs-20.3.0.tar.gz", hash = "sha256:832aa3cde19744e49938b91fea06d69ecb9e649c93ba974535d08ad92164f700"},
 ]
-"certifi 2020.12.5" = [
-    {url = "https://files.pythonhosted.org/packages/5e/a0/5f06e1e1d463903cf0c0eebeb751791119ed7a4b3737fdc9a77f1cdfb51f/certifi-2020.12.5-py2.py3-none-any.whl", hash = "sha256:719a74fb9e33b9bd44cc7f3a8d94bc35e4049deebe19ba7d8e108280cfd59830"},
-    {url = "https://files.pythonhosted.org/packages/06/a9/cd1fd8ee13f73a4d4f491ee219deeeae20afefa914dfb4c130cfc9dc397a/certifi-2020.12.5.tar.gz", hash = "sha256:1a4995114262bffbc2413b159f2a1a480c969de6e6eb13ee966d470af86af59c"},
+"certifi 2022.6.15" = [
+    {url = "https://files.pythonhosted.org/packages/e9/06/d3d367b7af6305b16f0d28ae2aaeb86154fa91f144f036c2d5002a5a202b/certifi-2022.6.15-py3-none-any.whl", hash = "sha256:fe86415d55e84719d75f8b69414f6438ac3547d2078ab91b67e779ef69378412"},
+    {url = "https://files.pythonhosted.org/packages/cc/85/319a8a684e8ac6d87a1193090e06b6bbb302717496380e225ee10487c888/certifi-2022.6.15.tar.gz", hash = "sha256:84c85a9078b11105f04f3036a9482ae10e4621616db313fe045dd24743a0820d"},
 ]
 "cffi 1.14.4" = [
     {url = "https://files.pythonhosted.org/packages/3b/f5/5d47895916a2d7c774b6ffc7f6b43e98132cf1f4b6605de5f726c5b70f0d/cffi-1.14.4-cp27-cp27m-macosx_10_9_x86_64.whl", hash = "sha256:ebb253464a5d0482b191274f1c8bf00e33f7e0b9c66405fbffc61ed2c839c775"},
@@ -513,10 +509,6 @@ content_hash = "sha256:8ba251f5a46ec6f685a9e897b32525a6d6e63766fa5758c642566a9ae
     {url = "https://files.pythonhosted.org/packages/0c/95/310673f34fd3c29104b9f93cc197ff5461b85b77d9b9e7ef47869fd1dafd/pandas-1.2.4-cp39-cp39-win32.whl", hash = "sha256:d0877407359811f7b853b548a614aacd7dea83b0c0c84620a9a643f180060950"},
     {url = "https://files.pythonhosted.org/packages/f8/58/027a1564dbdea488f135d8a8555531cc92b654640455d440a1cf483d1ac0/pandas-1.2.4-cp39-cp39-win_amd64.whl", hash = "sha256:2b063d41803b6a19703b845609c0b700913593de067b552a8b24dd8eeb8c9895"},
     {url = "https://files.pythonhosted.org/packages/e8/81/f7be049fe887865200a0450b137f2c574647b9154503865502cfd720ab5d/pandas-1.2.4.tar.gz", hash = "sha256:649ecab692fade3cbfcf967ff936496b0cfba0af00a55dfaacd82bdda5cb2279"},
-]
-"pathlib 1.0.1" = [
-    {url = "https://files.pythonhosted.org/packages/78/f9/690a8600b93c332de3ab4a344a4ac34f00c8f104917061f779db6a918ed6/pathlib-1.0.1-py3-none-any.whl", hash = "sha256:f35f95ab8b0f59e6d354090350b44a80a80635d22efdedfa84c7ad1cf0a74147"},
-    {url = "https://files.pythonhosted.org/packages/ac/aa/9b065a76b9af472437a0059f77e8f962fe350438b927cb80184c32f075eb/pathlib-1.0.1.tar.gz", hash = "sha256:6940718dfc3eff4258203ad5021090933e5c04707d5ca8cc9e73c94a7894ea9f"},
 ]
 "pluggy 0.13.1" = [
     {url = "https://files.pythonhosted.org/packages/a0/28/85c7aa31b80d150b772fbe4a229487bc6644da9ccb7e427dd8cc60cb8a62/pluggy-0.13.1-py2.py3-none-any.whl", hash = "sha256:966c145cd83c96502c3c3868f50408687b38434af77734af1e9ca461a4081d2d"},
