@@ -73,7 +73,7 @@ COPY --from=build \
     /opt/python/bin
 WORKDIR /opt/app
 
-COPY . /opt/app/
+COPY ./monitoring-api /opt/app/
 
 # Pre-compile deps to .pyc, add envidat user, permissions
 RUN python -c "import compileall; compileall.compile_path(maxlevels=10, quiet=1)" \

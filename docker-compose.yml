@@ -19,7 +19,7 @@ services:
         - EXTERNAL_REG=${EXTERNAL_REG}
       target: debug
     volumes:
-      - ./monitoring-api:/opt/app/monitoring-api:ro
+      - ./monitoring-api:/opt/app:ro
     ports:
       - "9111:8080"
     extra_hosts:
