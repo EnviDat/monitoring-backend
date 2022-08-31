@@ -43,6 +43,7 @@ spec:
           livenessProbe:
             httpGet:
               path: /api/gcnet/models
+              host: 127.0.0.1
               port: http
             failureThreshold: 1
             periodSeconds: 30
@@ -57,7 +58,7 @@ spec:
                 - "--fail"
                 - "-o"
                 - "/dev/null"
-                - "http://localhost:8080/api/gcnet/models"
+                - "http://127.0.0.1:8080/api/gcnet/models"
             failureThreshold: 5
             initialDelaySeconds: 10
             periodSeconds: 5
@@ -67,6 +68,7 @@ spec:
           startupProbe:
             httpGet:
               path: /api/gcnet/models
+              host: 127.0.0.1
               port: http
             failureThreshold: 5
             periodSeconds: 10

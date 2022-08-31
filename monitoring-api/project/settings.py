@@ -10,9 +10,10 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
-import os
-import environ
 import logging
+import os
+
+import environ
 
 log = logging.getLogger()
 
@@ -21,7 +22,7 @@ env = environ.Env()
 environ.Env.read_env()
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
@@ -35,90 +36,85 @@ DEBUG = env("DEBUG", default=False)
 if DEBUG:
     ALLOWED_HOSTS = ["*"]
 else:
-    ALLOWED_HOSTS = [env("ALLOWED_HOST")]
+    ALLOWED_HOSTS = ["127.0.0.1", env("ALLOWED_HOST")]
 
 # Application definition
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-
-    'lwf',
-    'gcnet',
-    'generic',
-    'rest_framework'
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
+    "lwf",
+    "gcnet",
+    "generic",
+    "rest_framework",
 ]
 
 
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "django.middleware.security.SecurityMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-ROOT_URLCONF = 'project.urls'
+ROOT_URLCONF = "project.urls"
 
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates')],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [os.path.join(BASE_DIR, "templates")],
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.debug",
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
             ],
         },
     },
 ]
 
-WSGI_APPLICATION = 'project.wsgi.application'
+WSGI_APPLICATION = "project.wsgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
-DATABASE_ROUTERS = ['project.routers.MonitoringRouter']
+DATABASE_ROUTERS = ["project.routers.MonitoringRouter"]
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': env("DATABASE_NAME"),
-        'USER': env("DATABASE_USER"),
-        'PASSWORD': env("DATABASE_PASSWORD"),
-        'HOST': env("DATABASE_HOST"),
-        'PORT': env("DATABASE_PORT"),
+    "default": {
+        "ENGINE": "django.db.backends.postgresql_psycopg2",
+        "NAME": env("DATABASE_NAME"),
+        "USER": env("DATABASE_USER"),
+        "PASSWORD": env("DATABASE_PASSWORD"),
+        "HOST": env("DATABASE_HOST"),
+        "PORT": env("DATABASE_PORT"),
     },
-    'lwf': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'OPTIONS': {
-            'options': env("LWF_DB_SCHEMA")
-        },
-        'NAME': env("LWF_DB_NAME"),
-        'USER': env("LWF_DB_USER"),
-        'PASSWORD': env("LWF_DB_PASSWORD"),
-        'HOST': env("LWF_DB_HOST"),
-        'PORT': env("LWF_DB_PORT"),
+    "lwf": {
+        "ENGINE": "django.db.backends.postgresql_psycopg2",
+        "OPTIONS": {"options": env("LWF_DB_SCHEMA")},
+        "NAME": env("LWF_DB_NAME"),
+        "USER": env("LWF_DB_USER"),
+        "PASSWORD": env("LWF_DB_PASSWORD"),
+        "HOST": env("LWF_DB_HOST"),
+        "PORT": env("LWF_DB_PORT"),
     },
-    'gcnet': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'OPTIONS': {
-            'options': env("GCNET_DB_SCHEMA")
-        },
-        'NAME': env("GCNET_DB_NAME"),
-        'USER': env("GCNET_DB_USER"),
-        'PASSWORD': env("GCNET_DB_PASSWORD"),
-        'HOST': env("GCNET_DB_HOST"),
-        'PORT': env("GCNET_DB_PORT"),
+    "gcnet": {
+        "ENGINE": "django.db.backends.postgresql_psycopg2",
+        "OPTIONS": {"options": env("GCNET_DB_SCHEMA")},
+        "NAME": env("GCNET_DB_NAME"),
+        "USER": env("GCNET_DB_USER"),
+        "PASSWORD": env("GCNET_DB_PASSWORD"),
+        "HOST": env("GCNET_DB_HOST"),
+        "PORT": env("GCNET_DB_PORT"),
     },
 }
 
@@ -127,25 +123,28 @@ DATABASES = {
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        "NAME": (
+            "django.contrib.auth.password_validation."
+            "UserAttributeSimilarityValidator"
+        ),
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.0/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = "UTC"
 
 USE_I18N = True
 
@@ -157,11 +156,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
 # STATIC_ROOT = os.path.join(BASE_DIR, 'static')
-STATIC_URL = '/static/'
+STATIC_URL = "/static/"
 
-STATICFILES_DIRS = (
-    os.path.join(BASE_DIR, 'static'),
-)
+STATICFILES_DIRS = (os.path.join(BASE_DIR, "static"),)
 
 # # Dynamic output content is saved here
 # MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
@@ -171,5 +168,4 @@ STATICFILES_DIRS = (
 #     '127.0.0.1',
 #  ]
 
-DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
-
+DEFAULT_AUTO_FIELD = "django.db.models.AutoField"

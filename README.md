@@ -55,7 +55,7 @@ SECRET_KEY:
 <https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/#secret-key>
 
 ALLOWED_HOST is the IP address of the server.
-This is set to 'localhost' during development automatically.
+This is set to '\*' during development automatically.
 
 PORT is the port number used by the NGINX server in runserver.py
 
