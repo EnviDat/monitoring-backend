@@ -1,3 +1,4 @@
+{{- $svcPort := .Values.service.port -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -43,7 +44,7 @@ spec:
           livenessProbe:
             httpGet:
               path: /api/gcnet/models
-              host: "http://{{ .Release.Name }}.{{ .Release.Namespace }}.svc.cluster.local"
+              host: {{ .Release.Name }}.{{ .Release.Namespace }}.svc.cluster.local
               port: http
             failureThreshold: 1
             periodSeconds: 30
@@ -68,7 +69,7 @@ spec:
           startupProbe:
             httpGet:
               path: /api/gcnet/models
-              host: "http://{{ .Release.Name }}.{{ .Release.Namespace }}.svc.cluster.local"
+              host: {{ .Release.Name }}.{{ .Release.Namespace }}.svc.cluster.local
               port: http
             failureThreshold: 5
             periodSeconds: 10
