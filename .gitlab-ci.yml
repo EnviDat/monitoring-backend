@@ -182,7 +182,7 @@ create-helm-chart:
     - .helm
   stage: package
   rules:
-    - if: $CI_COMMIT_REF_NAME == "main"
+    - if: $CI_COMMIT_REF_NAME == "master"
       when: always
   script:
     - >
@@ -196,7 +196,7 @@ helm-deploy:
   extends:
     - .helm
   rules:
-    - if: $CI_COMMIT_REF_NAME == "main"
+    - if: $CI_COMMIT_REF_NAME == "master"
       when: always
   variables:
     GIT_STRATEGY: none
