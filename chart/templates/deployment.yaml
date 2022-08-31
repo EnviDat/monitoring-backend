@@ -43,7 +43,7 @@ spec:
           livenessProbe:
             httpGet:
               path: /api/gcnet/models
-              host: 127.0.0.1
+              host: "http://{{ .Release.Name }}.{{ .Release.Namespace }}.svc.cluster.local"
               port: http
             failureThreshold: 1
             periodSeconds: 30
@@ -58,7 +58,7 @@ spec:
                 - "--fail"
                 - "-o"
                 - "/dev/null"
-                - "http://127.0.0.1:8080/api/gcnet/models"
+                - "http://{{ .Release.Name }}.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.service.port }}/api/gcnet/models"
             failureThreshold: 5
             initialDelaySeconds: 10
             periodSeconds: 5
@@ -68,7 +68,7 @@ spec:
           startupProbe:
             httpGet:
               path: /api/gcnet/models
-              host: 127.0.0.1
+              host: "http://{{ .Release.Name }}.{{ .Release.Namespace }}.svc.cluster.local"
               port: http
             failureThreshold: 5
             periodSeconds: 10
