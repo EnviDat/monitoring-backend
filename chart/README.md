@@ -53,6 +53,7 @@ Requires secrets to be pre-populated.
 
 - **monitoring-gcnet-vars** gcnet db creds
 
+  - key: GCNET_DB_SCHEMA  (format: '-c search_path=<SCHEMA>')
   - key: GCNET_DB_NAME
   - key: GCNET_DB_USER
   - key: GCNET_DB_PASSWORD
@@ -61,6 +62,7 @@ Requires secrets to be pre-populated.
 
   ```bash
   kubectl create secret generic monitoring-gcnet-vars \
+  --from-literal=GCNET_DB_SCHEMA='-c search_path=gcnet' \
   --from-literal=GCNET_DB_NAME=xxxxxxx \
   --from-literal=GCNET_DB_USER=xxxxxxx \
   --from-literal=GCNET_DB_PASSWORD=xxxxxxx \
