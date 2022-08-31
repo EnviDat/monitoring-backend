@@ -12,6 +12,9 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 
 import os
 import environ
+import logging
+
+log = logging.getLogger()
 
 env = environ.Env()
 # Reading .env file
@@ -27,9 +30,12 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = env("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = env("DEBUG", default=False)
 
-ALLOWED_HOSTS = [env("ALLOWED_HOST_1"), env("ALLOWED_HOST_2"), 'testserver']
+if DEBUG:
+    ALLOWED_HOSTS = ["*"]
+else:
+    ALLOWED_HOSTS = [env("ALLOWED_HOST")]
 
 # Application definition
 

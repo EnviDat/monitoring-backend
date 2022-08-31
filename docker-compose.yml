@@ -1,0 +1,35 @@
+version: "3"
+
+networks:
+  monitoring-internal:
+  traefik-proxy:
+    external: true
+
+services:
+  api:
+    container_name: monitoring_api
+    image: "${INTERNAL_REG}/monitoring-api:${APP_VERSION}-debug"
+    build:
+      context: .
+      args:
+        - APP_VERSION=${APP_VERSION}
+        - PYTHON_IMG_TAG=${PYTHON_IMG_TAG}
+        - APP_MAINTAINER=${APP_MAINTAINER}
+        - DEVOPS_MAINTAINER=${DEVOPS_MAINTAINER}
+        - EXTERNAL_REG=${EXTERNAL_REG}
+      target: debug
+    volumes:
+      - ./monitoring-api:/opt/app:ro
+    ports:
+      - "9111:8080"
+    extra_hosts:
+      - "postgres.wsl.ch:10.30.1.29"
+      - "dbpg01.wsl.ch:10.30.1.34"
+    env_file:
+      - monitoring-api/project/.env
+    environment:
+      DEBUG: "True"
+    networks:
+      - monitoring-internal
+      - traefik-proxy
+    restart: unless-stopped
