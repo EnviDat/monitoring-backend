@@ -53,9 +53,9 @@ license = {text = "MIT"}
 [project.optional-dependencies]
 
 [project.urls]
-homepage = "https://mastweb.wsl.ch"
-documentation = "https://gitlabext.wsl.ch/mastweb/backend"
-repository = "https://gitlabext.wsl.ch/mastweb/backend"
+homepage = "https://envidat.ch"
+documentation = "https://gitlabext.wsl.ch/envidat/monitoring-backend"
+repository = "https://gitlabext.wsl.ch/envidat/monitoring-backend"
 
 [tool.pdm]
 version = {from = "monitoring-api/project/__version__.py"}
