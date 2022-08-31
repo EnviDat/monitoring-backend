@@ -1,0 +1,31 @@
+version: "3"
+
+networks:
+  monitoring-internal:
+
+services:
+  api:
+    container_name: monitoring_api
+    image: "${INTERNAL_REG}/monitoring-api:${APP_VERSION}-debug"
+    build:
+      context: .
+      args:
+        - APP_VERSION=${APP_VERSION}
+        - PYTHON_IMG_TAG=${PYTHON_IMG_TAG}
+        - APP_MAINTAINER=${APP_MAINTAINER}
+        - DEVOPS_MAINTAINER=${DEVOPS_MAINTAINER}
+        - EXTERNAL_REG=${EXTERNAL_REG}
+      target: debug
+    volumes:
+      - ./monitoring-api:/opt/app/monitoring-api:ro
+    ports:
+      - "8080:8080"
+    extra_hosts:
+      - "postgres.wsl.ch:10.30.1.29"
+    env_file:
+      - monitoring-api/project/.env
+    environment:
+      DEBUG: "True"
+    networks:
+      - monitoring-internal
+    restart: unless-stopped

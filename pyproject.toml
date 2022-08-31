@@ -1,6 +1,6 @@
 [project]
-name = "Monitoring Backend"
-version = "1.0.0"
+name = "monitoring-api"
+dynamic = ["version"]
 description = "Django API and data import/export Python software package for long-term environmental monitoring data."
 authors = [
     {name = "Rebecca Kurup Buchholz", email = "rebecca.kurup@wsl.ch"},
@@ -9,7 +9,7 @@ dependencies = [
     "asgiref==3.4.1",
     "atomicwrites==1.4.0",
     "attrs==20.3.0",
-    "certifi==2020.12.5",
+    "certifi==2022.6.15",
     "cffi==1.14.4",
     "chardet==3.0.4",
     "colorama==0.4.4",
@@ -27,9 +27,7 @@ dependencies = [
     "jdcal==1.4.1",
     "numpy==1.22.3",
     "ordered-set==4.1.0",
-    "packaging==20.4",
     "pandas==1.2.4",
-    "pathlib==1.0.1",
     "pluggy==0.13.1",
     "postgres==3.0.0",
     "psycopg2-binary==2.8.6",
@@ -48,12 +46,20 @@ dependencies = [
     "tzdata==2021.5",
     "urllib3==1.26.5",
     "zope.interface==5.1.0",
+    "gunicorn>=20.1.0",
 ]
 requires-python = ">=3.8"
 license = {text = "MIT"}
 [project.optional-dependencies]
 
+[project.urls]
+homepage = "https://mastweb.wsl.ch"
+documentation = "https://gitlabext.wsl.ch/mastweb/backend"
+repository = "https://gitlabext.wsl.ch/mastweb/backend"
+
 [tool.pdm]
+version = {from = "monitoring-api/project/__version__.py"}
+
 [[tool.pdm.source]]
 name = "pypi"
 url = "https://pypi.org/simple"
@@ -67,3 +73,13 @@ dev = [
 [build-system]
 requires = ["pdm-pep517"]
 build-backend = "pdm.pep517.api"
+
+[tool.commitizen]
+name = "cz_conventional_commits"
+version = "0.2.0"
+version_files = [
+    "pyproject.toml:version",
+    "monitoring-api/project/__version__.py",
+    ".env:APP_VERSION",
+    "chart/Chart.yaml:appVersion",
+]
