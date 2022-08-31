@@ -92,8 +92,8 @@ WORKDIR /opt/app
 USER envidat
 ENTRYPOINT ["python", "-m", "debugpy", "--wait-for-client", "--listen", \
             "0.0.0.0:5678", "-m"]
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", \
-    "--reload", "--log-level", "error", "--no-access-log"]
+CMD ["gunicorn", "project.wsgi:application", "--bind", "0.0.0.0:8080", \
+    "--reload", "--log-level", "debug"]
 
 
 
