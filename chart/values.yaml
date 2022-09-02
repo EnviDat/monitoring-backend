@@ -61,9 +61,9 @@ probes:
   livenessProbe:
     enabled: false
   readinessProbe:
-    enabled: true
+    enabled: false
   startupProbe:
-    enabled: true
+    enabled: false
 
 service:
   type: ClusterIP
