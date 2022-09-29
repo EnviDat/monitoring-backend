@@ -1,4 +1,4 @@
-"""Monitoring Backend URL Configuration
+"""Monitoring Backend URL Configuration.
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/3.0/topics/http/urls/
@@ -16,15 +16,19 @@ Including another URLconf
 
 # from django.conf import settings
 # from django.contrib.staticfiles.urls import staticfiles_urlpatterns
-from django.urls import path, include
+from django.urls import include, re_path
 # from django.conf.urls.static import static
+from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
 urlpatterns = [
-    path('api/lwf/', include('lwf.urls')),
-    path('api/lwf', include('lwf.urls')),
-    path('api/gcnet/', include('gcnet.urls')),
-    path('api/gcnet', include('gcnet.urls'))
-
+    re_path(r"api/lwf/?$", include("lwf.urls")),
+    re_path(r"api/gcnet/?$", include("gcnet.urls")),
+    re_path(r"api/schema/?$", SpectacularAPIView.as_view(), name="schema"),
+    re_path(
+        r"api/docs/?$",
+        SpectacularSwaggerView.as_view(url_name="schema"),
+        name="swagger-ui",
+    ),
     # # url(r'^output/(?P<path>.*)$', 'django.views.static.serve', {
     # #     'document_root': settings.OUTPUT_ROOT,
     # # }),
