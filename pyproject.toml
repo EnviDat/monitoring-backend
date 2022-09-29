@@ -47,6 +47,7 @@ dependencies = [
     "urllib3==1.26.5",
     "zope.interface==5.1.0",
     "gunicorn>=20.1.0",
+    "drf-spectacular>=0.24.2",
 ]
 requires-python = ">=3.8"
 license = {text = "MIT"}
@@ -76,10 +77,11 @@ build-backend = "pdm.pep517.api"
 
 [tool.commitizen]
 name = "cz_conventional_commits"
-version = "0.2.0"
+version = "1.0.1"
 version_files = [
     "pyproject.toml:version",
     "monitoring-api/project/__version__.py",
+    "monitoring-api/project/settings.py:spectacular_version",
     ".env:APP_VERSION",
     "chart/Chart.yaml:appVersion",
 ]
