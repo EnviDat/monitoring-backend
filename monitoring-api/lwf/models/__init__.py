@@ -1,60 +1,62 @@
 
-from .LWFMeteo import leb
+from .LWFStation import test
 
-from .LWFMeteo import baf
+from .LWFStation import test2
 
-from .LWFMeteo import bab
+from .LWFStation import alpthal_bestand_1
 
-from .LWFMeteo import clb
+from .LWFStation import beatenberg_bestand_2
 
-from .LWFMeteo import clf
+from .LWFStation import beatenberg_freiland_3
 
-from .LWFMeteo import jub
+from .LWFStation import bettlachstock_bestand_4
 
-from .LWFMeteo import juf
+from .LWFStation import bettlachstock_freiland_5
 
-from .LWFMeteo import isb
+from .LWFStation import celerina_bestand_6
 
-from .LWFMeteo import isf
+from .LWFStation import celerina_freiland_7
 
-from .LWFMeteo import btf
+from .LWFStation import chironico_bestand_8
 
-from .LWFMeteo import btb
+from .LWFStation import chironico_freiland_9
 
-from .LWFMeteo import nab
+from .LWFStation import isone_bestand_12
 
-from .LWFMeteo import naf
+from .LWFStation import isone_freiland_13
 
-from .LWFMeteo import vsb
+from .LWFStation import jussy_bestand_14
 
-from .LWFMeteo import vsf
+from .LWFStation import jussy_freiland_15
 
-from .LWFMeteo import lab
+from .LWFStation import lausanne_bestand_18
 
-from .LWFMeteo import laf
+from .LWFStation import lausanne_freiland_19
 
-from .LWFMeteo import vob
+from .LWFStation import lens_bestand_20
 
-from .LWFMeteo import vof
+from .LWFStation import nationalpark_bestand_22
 
-from .LWFMeteo import neb
+from .LWFStation import nationalpark_freiland_23
 
-from .LWFMeteo import nef
+from .LWFStation import neunkirch_bestand_24
 
-from .LWFMeteo import nob
+from .LWFStation import neunkirch_freiland_25
 
-from .LWFMeteo import nof
+from .LWFStation import novaggio_bestand_26
 
-from .LWFMeteo import otb
+from .LWFStation import novaggio_freiland_27
 
-from .LWFMeteo import otf
+from .LWFStation import othmarsingen_bestand_28
 
-from .LWFMeteo import scb
+from .LWFStation import schaenis_bestand_31
 
-from .LWFMeteo import scf
+from .LWFStation import schaenis_freiland_32
 
-from .LWFMeteo import alb
+from .LWFStation import visp_bestand_33
 
-from .LWFMeteo import cib
+from .LWFStation import visp_freiland_34
 
-from .LWFMeteo import cif
+from .LWFStation import vordemwald_bestand_35
+
+from .LWFStation import vordemwald_freiland_36

@@ -1,0 +1,16 @@
+{
+  "page_title": "LWF API",
+  "api_title": "LWF API Documentation",
+  "into_text": " Long-term Forest Ecosystem Research (LWF). At the 19 LWF research sites (Level II in the European ICP Forests network), we record approximately 25 million values annually using around 50 measuring sensors and collectors (see diagram). This network is complemented by several sites on which we combine long-term forest ecosystem research with experiments involving, for example, the irrigation of individual plots of land in the Pfyn forest in order to study the impact of drought.",
+  "nodata": "NA",
+  "api_host": "https://www.envidat.ch/data-api",
+  "app": "lwf",
+  "model": "alpthal_bestand_1",
+  "parameter": "air_temperature_10",
+  "parameter_several": "air_temperature_10,dewpoint_10",
+  "start_date": "1997-10-01",
+  "end_date": "2021-12-31",
+  "start_datetime": "1997-10-01T00:00:00",
+  "end_datetime": "2021-12-31T00:00:00",
+  "parent_class": "LWFStation"
+}
