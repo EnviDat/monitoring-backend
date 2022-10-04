@@ -16,16 +16,20 @@ Including another URLconf
 
 # from django.conf import settings
 # from django.contrib.staticfiles.urls import staticfiles_urlpatterns
-from django.urls import include, re_path
+from django.urls import include, path
 # from django.conf.urls.static import static
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
 urlpatterns = [
-    re_path(r"api/lwf/?$", include("lwf.urls")),
-    re_path(r"api/gcnet/?$", include("gcnet.urls")),
-    re_path(r"api/schema/?$", SpectacularAPIView.as_view(), name="schema"),
-    re_path(
-        r"api/docs/?$",
+    # re_path(r"api/lwf/?$", include("lwf.urls")),
+    # re_path(r"api/gcnet/?$", include("gcnet.urls")),
+    path("api/lwf/", include("lwf.urls")),
+    path("api/lwf", include("lwf.urls")),
+    path("api/gcnet/", include("gcnet.urls")),
+    path("api/gcnet", include("gcnet.urls")),
+    path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
+    path(
+        "api/docs/",
         SpectacularSwaggerView.as_view(url_name="schema"),
         name="swagger-ui",
     ),

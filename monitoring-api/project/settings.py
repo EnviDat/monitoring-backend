@@ -191,4 +191,5 @@ SPECTACULAR_SETTINGS = {
     ),
     "VERSION": spectacular_version,
     "SERVE_INCLUDE_SCHEMA": False,
+    "COMPONENT_SPLIT_REQUEST": True,
 }
