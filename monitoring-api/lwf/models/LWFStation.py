@@ -359,3 +359,159 @@ class LWFStation(models.Model):
     # Declare LWFStation as an abstract class so it can be inherited
     class Meta:
         abstract = True
+
+
+# Test
+class test(LWFStation):
+    pass
+
+
+# Test 2
+class test2(LWFStation):
+    pass
+
+
+
+# Alpthal Bestand 1
+class alpthal_bestand_1(LWFStation):
+    pass
+
+
+# Beatenberg Bestand 2
+class beatenberg_bestand_2(LWFStation):
+    pass
+
+
+# Beatenberg Freiland 3
+class beatenberg_freiland_3(LWFStation):
+    pass
+
+
+# Bettlachstock Bestand 4
+class bettlachstock_bestand_4(LWFStation):
+    pass
+
+
+# Bettlachstock Freiland 5
+class bettlachstock_freiland_5(LWFStation):
+    pass
+
+
+# Celerina Bestand 6
+class celerina_bestand_6(LWFStation):
+    pass
+
+
+# Celerina Freiland 7
+class celerina_freiland_7(LWFStation):
+    pass
+
+
+# Chironico Bestand 8
+class chironico_bestand_8(LWFStation):
+    pass
+
+
+# Chironico Freiland 9
+class chironico_freiland_9(LWFStation):
+    pass
+
+
+# Isone Bestand 12
+class isone_bestand_12(LWFStation):
+    pass
+
+
+# Isone Freiland 13
+class isone_freiland_13(LWFStation):
+    pass
+
+
+# Jussy Bestand 14
+class jussy_bestand_14(LWFStation):
+    pass
+
+
+# Jussy Freiland 15
+class jussy_freiland_15(LWFStation):
+    pass
+
+
+# Lausanne Bestand 18
+class lausanne_bestand_18(LWFStation):
+    pass
+
+
+# Lausanne Freiland 19
+class lausanne_freiland_19(LWFStation):
+    pass
+
+
+# Lens Bestand 20
+class lens_bestand_20(LWFStation):
+    pass
+
+
+# Nationalpark Bestand 22
+class nationalpark_bestand_22(LWFStation):
+    pass
+
+
+# Nationalpark Freiland 23
+class nationalpark_freiland_23(LWFStation):
+    pass
+
+
+# Neunkirch Bestand 24
+class neunkirch_bestand_24(LWFStation):
+    pass
+
+
+# Neunkirch Freiland 25
+class neunkirch_freiland_25(LWFStation):
+    pass
+
+
+# Novaggio Bestand 26
+class novaggio_bestand_26(LWFStation):
+    pass
+
+
+# Novaggio Freiland 27
+class novaggio_freiland_27(LWFStation):
+    pass
+
+
+# Othmarsingen Bestand 28
+class othmarsingen_bestand_28(LWFStation):
+    pass
+
+
+# Schaenis Bestand 31
+class schaenis_bestand_31(LWFStation):
+    pass
+
+
+# Schaenis Freiland 32
+class schaenis_freiland_32(LWFStation):
+    pass
+
+
+# Visp Bestand 33
+class visp_bestand_33(LWFStation):
+    pass
+
+
+# Visp Freiland 34
+class visp_freiland_34(LWFStation):
+    pass
+
+
+# Vordemwald Bestand 35
+class vordemwald_bestand_35(LWFStation):
+    pass
+
+
+# Vordemwald Freiland 36
+class vordemwald_freiland_36(LWFStation):
+    pass
