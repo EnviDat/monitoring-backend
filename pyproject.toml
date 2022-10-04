@@ -20,7 +20,6 @@ dependencies = [
     "django==3.2.14",
     "django-environ==0.9.0",
     "django-postgres-copy==2.5.0",
-    "djangorestframework==3.12.2",
     "et-xmlfile==1.0.1",
     "idna==2.10",
     "iniconfig==1.1.1",
@@ -47,7 +46,6 @@ dependencies = [
     "urllib3==1.26.5",
     "zope.interface==5.1.0",
     "gunicorn>=20.1.0",
-    "drf-spectacular>=0.24.2",
 ]
 requires-python = ">=3.8"
 license = {text = "MIT"}

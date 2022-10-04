@@ -1,6 +1,6 @@
 # EnviDat Monitoring Backend Chart
 
-Chart for EnviDat Monitoring Backend in Django REST Framework.
+Chart for EnviDat Monitoring Backend in Django.
 
 - Interfaces with production database.
 - Can autoscale with load.

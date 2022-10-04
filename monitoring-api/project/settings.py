@@ -53,8 +53,6 @@ INSTALLED_APPS = [
     "lwf",
     "gcnet",
     "generic",
-    "rest_framework",
-    "drf_spectacular",
 ]
 
 
@@ -177,19 +175,3 @@ STATICFILES_DIRS = (
 #  ]
 
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
-
-REST_FRAMEWORK = {
-    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
-}
-
-spectacular_version = "1.0.1"
-SPECTACULAR_SETTINGS = {
-    "TITLE": "EnviDat Monitoring API",
-    "DESCRIPTION": (
-        "Django API and data import/export Python software "
-        "package for long-term environmental monitoring data."
-    ),
-    "VERSION": spectacular_version,
-    "SERVE_INCLUDE_SCHEMA": False,
-    "COMPONENT_SPLIT_REQUEST": True,
-}
