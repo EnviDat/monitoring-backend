@@ -1,3 +1,16 @@
+## 1.0.2 (2022-10-06)
+
+### Refactor
+
+- remove missed spectacular version in pyproject from drf-spectacular
+- remove unused DRF dependency, plus all references in code
+- revert re_paths, drf-spectacular save state before removal
+
+### Fix
+
+- log format for importers, remove file handler lwf, blacken, isort
+- use re_path for urls to allow slash, add spectacular openapi endpoints (+swagger)
+
 ## 1.0.1 (2022-09-29)
 
 ### Refactor
