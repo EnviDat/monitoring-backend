@@ -79,7 +79,6 @@ version = "1.0.1"
 version_files = [
     "pyproject.toml:version",
     "monitoring-api/project/__version__.py",
-    "monitoring-api/project/settings.py:spectacular_version",
     ".env:APP_VERSION",
     "chart/Chart.yaml:appVersion",
 ]
