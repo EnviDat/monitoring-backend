@@ -1,4 +1,11 @@
 repos:
+  # Versioning: Commit Messages & Changelog
+  - repo: https://github.com/commitizen-tools/commitizen
+    rev: v2.27.1
+    hooks:
+      - id: commitizen
+        stages: [commit-msg]
+
   # Autoupdate: Python code
   - repo: https://github.com/asottile/pyupgrade
     rev: v2.31.1
