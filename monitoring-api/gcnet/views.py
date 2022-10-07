@@ -1,13 +1,14 @@
-
 from django.core.exceptions import FieldError
 from django.http import JsonResponse, StreamingHttpResponse, HttpResponseNotFound
 from django.shortcuts import render
 
 from gcnet.main import read_config
-from gcnet.util.http_errors import model_http_error, parameter_http_error, timestamp_meaning_http_error, \
+from gcnet.util.http_errors import model_http_error, parameter_http_error, \
+    timestamp_meaning_http_error, \
     station_http_error, timestamp_http_error, date_http_error
 from gcnet.util.stream import gcnet_stream
-from gcnet.util.views_helpers import validate_date_gcnet, get_model, get_hashed_lines, get_null_value, \
+from gcnet.util.views_helpers import validate_date_gcnet, get_model, get_hashed_lines, \
+    get_null_value, \
     get_dict_fields, get_display_values, get_dict_timestamps
 from gcnet.util.write_nead_config import write_nead_config
 
@@ -15,20 +16,30 @@ from generic.util.views_helpers import get_timestamp_iso_range_day_dict
 
 from pathlib import Path
 
+from rest_framework.decorators import api_view
+
+
 import os
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "project.settings")
 
 
-# Return 'index.html' with API documentation
+@api_view()
 def index(request):
+    """
+    # Return 'index.html' with API documentation
+    """
     return render(request, 'index.html')
 
 
-# Returns list of stations in stations.ini config file by their 'model' (string that is the name of the station
-# model in gcnet/models.py)
-# These model strings are used in the API calls (<str:model>): get_dynamic_data() and get_derived_data()
+@api_view()
 def get_model_stations(request):
+    """
+    Returns list of stations in stations.ini config file by their 'model' (string
+    that is the name of the station model in gcnet/models.py) These model strings are
+    used in the API calls (<str:model>): get_dynamic_data() and get_derived_data()
+    """
+
     # Read the stations config file
     stations_path = Path('gcnet/config/stations.ini')
     stations_config = read_config(stations_path)
@@ -40,8 +51,8 @@ def get_model_stations(request):
     # Assign variable to contain model_id list for all stations in stations.ini
     model_stations = []
 
-    # Assign variables to stations_config values and loop through each station in stations_config, create list of
-    # model_id strings for each station
+    # Assign variables to stations_config values and loop through each station in
+    # stations_config, create list of model_id strings for each station
     for section in stations_config.sections():
         if stations_config.get(section, 'active') == 'True':
             model_id = stations_config.get(section, 'model_url')
@@ -50,9 +61,26 @@ def get_model_stations(request):
     return JsonResponse(model_stations, safe=False)
 
 
-# Return metadata about one station and one or more parameters
+@api_view()
 def get_station_parameter_metadata(request, app, **kwargs):
-    # ===================================  VALIDATE KWARGS and ASSIGN VARIABLES ========================================
+    """
+    Return metadata about one station and one or more parameters including earliest
+    timestamps. Also returns both earliest and latest timestamps for specified
+    parameters in ISO and UNIX (millisecond) formats.
+
+    Args:
+
+        model (str): corresponds to a model name listed at
+            https://www.envidat.ch/data-api/gcnet/models/, for example "swisscamp"
+
+        parameters (str): a type of measurement, for example airtemp1
+        can also be several types of measurements separated by commas,
+        for example "airtemp1,airtemp2,swin,rh1", using "multiple" means that all
+        parameters and their aggregated values will be included in the returned JSON
+        data
+    """
+
+    # ================= VALIDATE KWARGS and ASSIGN VARIABLES ===============
     # Validate model and assign model_class
     model = kwargs['model']
     try:
@@ -79,24 +107,29 @@ def get_station_parameter_metadata(request, app, **kwargs):
     if not stations_config:
         return station_http_error()
 
-    # Loop through each station in stations_config and assign corresponding section number to model kwarg passed in url
+    # Loop through each station in stations_config and assign corresponding section
+    # number to model kwarg passed in url
     section_num = ''
     for section in stations_config.sections():
-        if stations_config.get(section, 'active') == 'True' and stations_config.get(section, 'model_url') == model:
+        if stations_config.get(section, 'active') == 'True' and stations_config.get(
+                section, 'model_url') == model:
             section_num = section
 
-    # ===================================  RETURN JSON RESPONSE ========================================================
+    # ================  RETURN JSON RESPONSE ===========================
     try:
 
         model_objects = model_class.objects.all()
 
         queryset = {'name': stations_config.get(section_num, 'name'),
-                    'timestamp_iso_earliest': stations_config.get(section_num, 'timestamp_iso_earliest'),
-                    'timestamp_earliest': stations_config.get(section_num, 'timestamp_earliest')}
+                    'timestamp_iso_earliest': stations_config.get(section_num,
+                                                                  'timestamp_iso_earliest'),
+                    'timestamp_earliest': stations_config.get(section_num,
+                                                              'timestamp_earliest')}
 
         # Code block that returns earliest timestamps for station from database
         # queryset = {'name': stations_config.get(section_num, 'name')}
-        # queryset['timestamp_iso_earliest'] = model_objects.aggregate(Min('timestamp_iso'))
+        # queryset['timestamp_iso_earliest'] =
+        #   model_objects.aggregate(Min('timestamp_iso'))
         # queryset['timestamp_earliest'] = model_objects.aggregate(Min('timestamp'))
 
         for parameter in display_values:
@@ -108,14 +141,15 @@ def get_station_parameter_metadata(request, app, **kwargs):
                                    .filter(**filter_dict)
                                    .aggregate(**dict_timestamps))
 
-            # TODO remove the following block that converts unix timestamps
+            # Note possible remove the following block that converts unix timestamps
             #  from whole seconds into milliseconds after data re-imported
             timestamp_latest = queryset[parameter].get('timestamp_latest')
             timestamp_earliest = queryset[parameter].get('timestamp_earliest')
             if timestamp_latest is not None and timestamp_earliest is not None:
                 timestamp_latest_dict = {'timestamp_latest': timestamp_latest * 1000}
                 queryset[parameter].update(timestamp_latest_dict)
-                timestamp_earliest_dict = {'timestamp_earliest': timestamp_earliest * 1000}
+                timestamp_earliest_dict = {
+                    'timestamp_earliest': timestamp_earliest * 1000}
                 queryset[parameter].update(timestamp_earliest_dict)
 
         return JsonResponse(queryset, safe=False)
@@ -124,20 +158,23 @@ def get_station_parameter_metadata(request, app, **kwargs):
         print(f'ERROR (views.py): {e}')
 
 
-# User customized view that returns JSON data based on parameter(s) specified by station
-# Users can enter as many parameters as desired by using a comma separated string for kwargs['parameters']
-# Parameter: if KWARG_RETURNED_PARAMETERS selected then returns returned_parameters
-# Accepts ISO timestamp ranges
+@api_view()
 def get_json_data(request, app, **kwargs):
+    """
+    User customized view that returns JSON data based on parameter(s) specified by
+    station. Users can enter as many parameters as desired by using a comma separated
+    string for kwargs['parameters']. Accepts ISO timestamp ranges.
+    """
+
     # Assign kwargs from url to variables
     start = kwargs['start']
     end = kwargs['end']
     model = kwargs['model']
     parameters = kwargs['parameters']
 
-    # ===================================  VALIDATE KWARGS ============================================================
-    # Check if 'start' and 'end' kwargs are in ISO format or unix timestamp format, assign filter to corresponding
-    # timestamp field in dict_timestamps
+    # ===================================  VALIDATE KWARGS ======================
+    # Check if 'start' and 'end' kwargs are in ISO format or unix timestamp format,
+    # assign filter to corresponding timestamp field in dict_timestamps
     try:
         dict_timestamps = validate_date_gcnet(start, end)
     except ValueError:
@@ -158,7 +195,7 @@ def get_json_data(request, app, **kwargs):
     # Add timestamp_iso and timestamp to display_values
     display_values = ['timestamp_iso'] + ['timestamp'] + display_values
 
-    # ===================================  RETURN JSON RESPONSE =======================================================
+    # ===================================  RETURN JSON RESPONSE =================
     try:
         queryset = list(model_class.objects
                         .values(*display_values)
@@ -174,17 +211,22 @@ def get_json_data(request, app, **kwargs):
         print('ERROR (views.py): {0}'.format(e))
 
 
-# Returns aggregate data values by day: 'avg' (average), 'max' (maximum) and 'min' (minimum)
-# Users can enter as many parameters as desired by using a comma separated string for kwargs['parameters']
-# User customized view that returns data based on parameters specified
+@api_view()
 def get_aggregate_data(request, app, timestamp_meaning='', nodata='', **kwargs):
+    """
+    Returns aggregate data values by day: 'avg' (average), 'max' (maximum) and 'min'
+    (minimum). Users can enter as many parameters as desired by using a comma separated
+    string for kwargs['parameters']. User customized view that returns data based on
+    parameters specified.
+    """
+
     # Assign kwargs from url to variables
     start = kwargs['start']
     end = kwargs['end']
     parameters = kwargs['parameters']
     model = kwargs['model']
 
-    # ===================================  VALIDATE KWARGS ===========================================================
+    # ===================================  VALIDATE KWARGS =========================
     # Get the model
     try:
         model_class = get_model(app, model=model)
@@ -253,11 +295,13 @@ def get_aggregate_data(request, app, timestamp_meaning='', nodata='', **kwargs):
     # ===================================  STREAM DATA ===========================================================
     # Check if 'timestamp_meaning' and 'nodata' were passed, if so stream CSV
     if len(timestamp_meaning) > 0 and len(nodata) > 0:
-        # Assign empty strings to 'version' and 'hash_lines' because they are not used in this view
+        # Assign empty strings to 'version' and 'hash_lines' because they are not
+        # used in this view
         version = ''
         hash_lines = ''
 
-        # Check if 'empty' passed for 'nodata', if so assign 'nodata' to empty string: ''
+        # Check if 'empty' passed for 'nodata', if so assign 'nodata' to
+        # empty string: ''
         if nodata == 'empty':
             nodata = ''
 
@@ -274,13 +318,13 @@ def get_aggregate_data(request, app, timestamp_meaning='', nodata='', **kwargs):
         # Create the streaming response object and output csv
         response = StreamingHttpResponse(
             gcnet_stream(version, hash_lines, model_class, display_values,
-                         nodata, start, end, timestamp_meaning=timestamp_meaning ,dict_fields=dictionary_fields),
+                         nodata, start, end, timestamp_meaning=timestamp_meaning,
+                         dict_fields=dictionary_fields),
             content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename=' + output_csv
         return response
 
-    # ===================================  RETURN JSON RESPONSE =======================================================
-    # Else return JSON response
+    # ===================================  RETURN JSON RESPONSE ====================
     else:
         try:
             queryset = list(model_class.objects
@@ -293,16 +337,19 @@ def get_aggregate_data(request, app, timestamp_meaning='', nodata='', **kwargs):
         return JsonResponse(queryset, safe=False)
 
 
-# Streams GC-Net station data to csv file in NEAD format
-# kwargs['model'] corresponds to the station names that are listed in models.py
-# kwargs['nodata'] assigns string to populate null values in database
-# If kwargs['nodata'] is 'empty' then null values are populated with empty string: ''
-# kwargs['timestamp_meaning'] corresponds to the meaning of timestamp_iso
-# kwargs['timestamp_meaning'] must be 'beginning' or 'end'
-# Format is "NEAD 1.0 UTF-8"
+@api_view()
 def streaming_csv_view_v1(request, app, start='', end='', **kwargs):
+    """
+    Streams GC-Net station data to csv file in NEAD format. kwargs['model'] corresponds
+    to the station names that are listed in models.py.
+    kwargs['nodata'] assigns string to populate null values in database.
+    If kwargs['nodata'] is 'empty' then null values are populated with empty string: ''.
+    kwargs['timestamp_meaning'] corresponds to the meaning of timestamp_iso.
+    kwargs['timestamp_meaning'] must be 'beginning' or 'end'.
+     Format is "NEAD 1.0 UTF-8"
+    """
 
-    # ===================================== ASSIGN VARIABLES ========================================================
+    # ===================================== ASSIGN VARIABLES =======================
     version = "# NEAD 1.0 UTF-8\n"
     nead_config = 'gcnet/config/nead_header.ini'
     null_value = get_null_value(kwargs['nodata'])
@@ -310,7 +357,7 @@ def streaming_csv_view_v1(request, app, start='', end='', **kwargs):
     timestamp_meaning = kwargs['timestamp_meaning']
     output_csv = station_model + '.csv'
 
-    # ================================  VALIDATE VARIABLES =========================================================
+    # ================================  VALIDATE VARIABLES ==========================
     # Get and validate the model_class
     try:
         model_class = get_model(app, model=station_model)
@@ -329,16 +376,19 @@ def streaming_csv_view_v1(request, app, start='', end='', **kwargs):
         except ValueError:
             return date_http_error()
 
-    # =============================== PROCESS NEAD HEADER ===========================================================
+    # =============================== PROCESS NEAD HEADER ===========================
     # Get NEAD header
-    config_buffer, nead_config_parser = write_nead_config(config_path=nead_config, model=station_model,
-                                                          stringnull=null_value, delimiter=',',
+    config_buffer, nead_config_parser = write_nead_config(config_path=nead_config,
+                                                          model=station_model,
+                                                          stringnull=null_value,
+                                                          delimiter=',',
                                                           ts_meaning=timestamp_meaning)
 
     # Check if config_buffer or nead_config_parser are None
     if nead_config_parser is None or config_buffer is None:
         return HttpResponseNotFound("<h1>Page not found</h1>"
-                                    "<h3>Check that valid 'model' (station) entered in URL: {0}</h3>"
+                                    "<h3>Check that valid 'model' (station) entered in "
+                                    "URL: {0}</h3>"
                                     .format(kwargs['model']))
 
     # Fill hash_lines with config_buffer lines prepended with '# '
@@ -348,14 +398,13 @@ def streaming_csv_view_v1(request, app, start='', end='', **kwargs):
     database_fields = nead_config_parser.get('FIELDS', 'database_fields')
     display_values = list(database_fields.split(','))
 
-    # ===================================  STREAM NEAD DATA ===========================================================
+    # ===================================  STREAM NEAD DATA ========================
     # Create the streaming response object and output csv
-    response = StreamingHttpResponse(gcnet_stream(version, hash_lines, model_class, display_values,
-                                                  null_value, start, end,
-                                                  dict_fields={}, timestamp_meaning=timestamp_meaning,),
-                                     content_type='text/csv')
+    response = StreamingHttpResponse(
+        gcnet_stream(version, hash_lines, model_class, display_values,
+                     null_value, start, end,
+                     dict_fields={}, timestamp_meaning=timestamp_meaning, ),
+        content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename=' + output_csv
 
     return response
-
-
