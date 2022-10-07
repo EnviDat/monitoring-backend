@@ -130,7 +130,7 @@ spec:
               port: {{ .Values.service.port }}
               httpHeaders:
               - name: Host
-                value: $MONITORING_API_HOST
+                value: "{{ .Release.Name }}.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.service.port }}"
             initialDelaySeconds: 30
           {{- end }}
         {{- end }}

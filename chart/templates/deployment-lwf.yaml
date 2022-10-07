@@ -1,0 +1,92 @@
+{{- if .Values.lwfImporter.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "chart.fullname" . }}-import-gcnet
+  labels:
+    {{- include "chart.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "chart.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "chart.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "chart.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      hostAliases:
+        {{- toYaml .Values.hostAliases | nindent 8 }}
+      containers:
+        - name: importer
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports: []
+          command: ['sh', '-c', 'python', '-c']
+          args: ['from lwf import main; main(["-r 10"])']
+          resources:
+            {{- toYaml .Values.lwfImporter.resources | nindent 12 }}
+          env:
+            {{- toYaml .Values.extraEnv | nindent 12 }}
+          envFrom:
+            {{- toYaml .Values.extraEnvFrom | nindent 12 }}
+          volumeMounts: []
+          {{- if .Values.probes.livenessProbe.enabled }}
+          livenessProbe:
+            httpGet:
+              path: /api/gcnet/models
+              host: localhost
+              port: {{ .Values.service.port }}
+            failureThreshold: 1
+            periodSeconds: 30
+            initialDelaySeconds: 10
+            timeoutSeconds: 10
+          {{- end }}
+          {{- if .Values.probes.readinessProbe.enabled }}
+          readinessProbe:
+            exec:
+              command:
+              - /bin/sh
+              - -c
+              - exec pg_isready --host $DATABASE_HOST
+            failureThreshold: 3
+            successThreshold: 1
+            timeoutSeconds: 5
+          {{- end }}
+          {{- if .Values.probes.startupProbe.enabled }}
+          startupProbe:
+            httpGet:
+              path: /api/gcnet/models
+              host: localhost
+              port: {{ .Values.service.port }}
+            failureThreshold: 5
+            periodSeconds: 10
+            initialDelaySeconds: 20
+            timeoutSeconds: 10
+          {{- end }}
+      volumes: []
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}
