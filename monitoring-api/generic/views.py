@@ -8,9 +8,14 @@ from generic.util.stream import get_null_value, stream
 from generic.util.views_helpers import get_models_list, validate_date, get_model_class, \
     get_dict_fields, get_timestamp_iso_range_day_dict, validate_display_values, get_dict_timestamps, get_model_cl
 
+from rest_framework.decorators import api_view
 
-# Returns API documentation context
+
+@api_view()
 def generic_get_documentation_context(request, app, child_class, documentation_context):
+    """
+    # Returns API documentation context
+    """
 
     # Validate the model class
     try:
@@ -24,8 +29,12 @@ def generic_get_documentation_context(request, app, child_class, documentation_c
     return JsonResponse(context, safe=False)
 
 
-# Returns API documentation
-def generic_get_documentation(request, html_template, app, child_class, documentation_context):
+@api_view()
+def generic_get_documentation(request, html_template, app, child_class,
+                              documentation_context):
+    """
+    # Returns API documentation
+    """
 
     # Validate the model class
     try:
@@ -39,27 +48,37 @@ def generic_get_documentation(request, html_template, app, child_class, document
     return render(request, html_template, context)
 
 
-# View returns a list of models currently in an app
+@api_view()
 def generic_get_models(request, app, parent_class=''):
+    """
+    # View returns a list of models currently in an app
+    """
     models = get_models_list(app, parent_class)
     return JsonResponse(models, safe=False)
 
 
-# User customized view that returns data based on parameter(s) specified by station
-# Users can enter as many parameters as desired by using a comma separated string for kwargs['parameters']
-# Streams data as CSV if kwarg 'nodata' is passed, else returns data as JSON response
+@api_view()
 def generic_get_data(request, app,
                      model_validator=get_model_class, model_error=model_http_error,
                      parent_class_error=parent_class_http_error,
-                     display_values_validator=validate_display_values, display_values_error=parameter_http_error,
+                     display_values_validator=validate_display_values,
+                     display_values_error=parameter_http_error,
                      stream_function=stream,
-                     timestamp_meaning='', nodata='', parent_class='', start='', end='', **kwargs):
+                     timestamp_meaning='', nodata='', parent_class='', start='',
+                     end='',
+                     **kwargs):
+    """
+    User customized view that returns data based on parameter(s) specified by station.
+    Users can enter as many parameters as desired by using a comma separated string for
+    kwargs['parameters'].
+    Streams data as CSV if kwarg 'nodata' is passed, else returns data as JSON response
+    """
 
     # Assign kwargs from url to variables
     model = kwargs['model']
     parameters = kwargs['parameters']
 
-    # ---------------------------------------- Validate KWARGS --------------------------------------------------------
+    # ---------------------------------------- Validate KWARGS ----------------------
 
     # Validate the model
     try:
@@ -86,7 +105,7 @@ def generic_get_data(request, app,
         except ValueError:
             return date_http_error()
 
-    # ---------------------------------------- Stream CSV ------------------------------------------------------------
+    # ---------------------------------------- Stream CSV -------------------------
     # Check if 'nodata' was passed, if so stream CSV
     if len(nodata) > 0:
 
@@ -97,15 +116,18 @@ def generic_get_data(request, app,
         output_csv = model + '.csv'
         nodata = get_null_value(nodata)
 
-        # Stream response from either a stream for a specific application or use generic stream
+        # Stream response from either a stream for a specific application or use
+        # generic stream
         response = StreamingHttpResponse(
-            stream_function(version, hash_lines, model_class, display_values, nodata, start, end, dict_fields,
-                            timestamp_meaning=timestamp_meaning), content_type='text/csv')
+            stream_function(version, hash_lines, model_class, display_values, nodata,
+                            start, end, dict_fields,
+                            timestamp_meaning=timestamp_meaning),
+            content_type='text/csv')
         response['Content-Disposition'] = f'attachment; filename={output_csv}'
 
         return response
 
-    # ------------------------------------- Return JSON Response ------------------------------------------------------
+    # ------------------------------------- Return JSON Response ------------------
     # Else return JSON response
     else:
         try:
@@ -125,23 +147,30 @@ def generic_get_data(request, app,
             print(f'ERROR (views.py): {e}')
 
 
-# User customized view that returns data based on parameters specified
-# Returns aggregate data values by day: 'avg' (average), 'max' (maximum) and 'min' (minimum)
-# Streams data as CSV if kwarg 'nodata' is passed, else returns data as JSON response
-# Users can enter as many parameters as desired by using a comma separated string for kwargs['parameters']
+@api_view()
 def generic_get_daily_data(request, app,
                            model_validator=get_model_class, model_error=model_http_error,
                            parent_class_error=parent_class_http_error,
-                           display_values_validator=validate_display_values, display_values_error=parameter_http_error,
+                           display_values_validator=validate_display_values,
+                           display_values_error=parameter_http_error,
                            stream_function=stream,
                            timestamp_meaning='', parent_class='', nodata='', **kwargs):
+    """
+    User customized view that returns data based on parameters specified/
+    Returns aggregate data values by day: 'avg' (average), 'max' (maximum) and
+    'min' (minimum).
+    Streams data as CSV if kwarg 'nodata' is passed, else returns data as JSON response.
+    Users can enter as many parameters as desired by using a comma separated string for
+    kwargs['parameters'].
+    """
+
     # Assign kwargs from url to variables
     start = kwargs['start']
     end = kwargs['end']
     model = kwargs['model']
     parameters = kwargs['parameters']
 
-    # ---------------------------------------- Validate KWARGS --------------------------------------------------------
+    # ---------------------------------------- Validate KWARGS ---------------------
     # Get the model
     try:
         model_class = model_validator(app, model=model, parent_class=parent_class)
@@ -159,7 +188,7 @@ def generic_get_daily_data(request, app,
     # Assign dictionary_fields with fields and values to be displayed
     dictionary_fields = get_dict_fields(display_values)
 
-    # ---------------------------------------- Stream CSV ------------------------------------------------------------
+    # ---------------------------------------- Stream CSV --------------------------
     # Check if 'nodata' was passed, if so stream CSV
     if len(nodata) > 0:
 
@@ -175,15 +204,18 @@ def generic_get_daily_data(request, app,
         version = ''
         hash_lines = ''
 
-        # Stream response from either a stream for a specific application or use generic stream
+        # Stream response from either a stream for a specific application or use
+        # generic stream
         response = StreamingHttpResponse(
-            stream_function(version, hash_lines, model_class, display_values, nodata, start, end,
-                            dictionary_fields, timestamp_meaning=timestamp_meaning), content_type='text/csv')
+            stream_function(version, hash_lines, model_class, display_values, nodata,
+                            start, end,
+                            dictionary_fields, timestamp_meaning=timestamp_meaning),
+                            content_type='text/csv')
         response['Content-Disposition'] = f'attachment; filename={output_csv}'
 
         return response
 
-    # ------------------------------------- Return JSON Response ------------------------------------------------------
+    # ------------------------------------- Return JSON Response -------------------
     # Else return JSON response
     else:
         try:
@@ -204,16 +236,19 @@ def generic_get_daily_data(request, app,
             print(f'ERROR (views.py): {e}')
 
 
-# Streams data to csv file in NEAD format
-# kwargs['nodata'] assigns string to populate null values in database
-# If kwargs['nodata'] is 'empty' then null values are populated with empty string: ''
-# Format is "NEAD 1.0 UTF-8"
+@api_view()
 def generic_get_nead(request, app,
                      model_validator=get_model_class, model_error=model_http_error,
                      parent_class_error=parent_class_http_error,
                      nead_config=get_nead_config,
                      stream_function=stream,
                      timestamp_meaning='', parent_class='', start='', end='', **kwargs):
+    """
+    Streams data to csv file in NEAD format.
+    kwargs['nodata'] assigns string to populate null values in database
+    If kwargs['nodata'] is 'empty' then null values are populated with empty string: ''
+     Format is "NEAD 1.0 UTF-8"
+    """
 
     # Assign variables
     version = "# NEAD 1.0 UTF-8\n"
@@ -221,8 +256,7 @@ def generic_get_nead(request, app,
     null_value = get_null_value(kwargs['nodata'])
     output_csv = model + '.csv'
 
-    # ---------------------------------------- Validate KWARGS --------------------------------------------------------
-    # Get the model
+    # ---------------------------------------- Validate KWARGS ---------------------
     try:
         model_class = model_validator(app, model=model, parent_class=parent_class)
     except AttributeError:
@@ -242,7 +276,7 @@ def generic_get_nead(request, app,
         except ValueError:
             return date_http_error()
 
-    # ---------------------------------------- Process NEAD Header ----------------------------------------------------
+    # ---------------------------------------- Process NEAD Header ------------------
     # Get NEAD configuration file
     nead_config = nead_config(app, model=model, parent_class=parent_class)
     if not nead_config:
@@ -258,24 +292,31 @@ def generic_get_nead(request, app,
     database_fields = get_database_fields(nead_config)
     display_values = list(database_fields.split(','))
 
-    # ---------------------------------------- Stream NEAD Data -------------------------------------------------------
-    # Stream response from either a stream for a specific application or use generic stream
+    # ---------------------------------------- Stream NEAD Data -------------------
+    # Stream response from either a stream for a specific application or use generic
+    # stream
     response = StreamingHttpResponse(
-        stream_function(version, hash_lines, model_class, display_values, null_value, start, end, dict_fields={},
+        stream_function(version, hash_lines, model_class, display_values, null_value,
+                        start, end, dict_fields={},
                         timestamp_meaning=timestamp_meaning), content_type='text/csv')
     response['Content-Disposition'] = f'attachment; filename={output_csv}'
 
     return response
 
 
-# Return metadata about one station and one parameter
+@api_view()
 def generic_get_station_parameter_metadata(request, app,
                                            dict_timestamps_func=get_dict_timestamps,
-                                           model_validator=get_model_class, model_error=model_http_error,
+                                           model_validator=get_model_class,
+                                           model_error=model_http_error,
                                            parent_class_error=parent_class_http_error,
-                                           display_values_validator=validate_display_values,
+                                           display_values_validator=
+                                           validate_display_values,
                                            display_values_error=parameter_http_error,
                                            parent_class='', **kwargs):
+    """
+    Return metadata about one station and one parameter
+    """
     # Assign variables
     model = kwargs['model']
     parameters = kwargs['parameters']
@@ -283,7 +324,7 @@ def generic_get_station_parameter_metadata(request, app,
     # Assign dict_timestamps
     dict_timestamps = dict_timestamps_func()
 
-    # ---------------------------------------- Validate KWARGS --------------------------------------------------------
+    # ---------------------------------------- Validate KWARGS ---------------------
     # Get the model
     try:
         model_class = model_validator(app, model=model, parent_class=parent_class)
@@ -298,7 +339,7 @@ def generic_get_station_parameter_metadata(request, app,
     if not display_values:
         return display_values_error(parameters)
 
-    # ------------------------------------- Return JSON Response ------------------------------------------------------
+    # ------------------------------------- Return JSON Response --------------------
     try:
 
         model_objects = model_class.objects.all()
