@@ -1,3 +1,9 @@
+## 1.0.3 (2022-10-07)
+
+### Fix
+
+- add postgres-client to docker image for db init checks
+
 ## 1.0.2 (2022-10-06)
 
 ### Refactor
