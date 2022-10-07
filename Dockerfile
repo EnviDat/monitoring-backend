@@ -62,6 +62,7 @@ RUN set -ex \
         -y --no-install-recommends \
             nano \
             curl \
+            postgresql-client \
     && rm -rf /var/lib/apt/lists/*
 
 
@@ -87,7 +88,8 @@ WORKDIR /opt/python
 COPY pyproject.toml pdm.lock ./
 RUN pip install --no-cache-dir pdm==2.1.3 \
     && pdm config python.use_venv false \
-    && pdm export --dev --no-default | pip install -r /dev/stdin
+    && pdm export --dev --no-default | \
+       pip install --no-cache-dir -r /dev/stdin
 WORKDIR /opt/app
 USER envidat
 ENTRYPOINT ["python", "-m", "debugpy", "--wait-for-client", "--listen", \
