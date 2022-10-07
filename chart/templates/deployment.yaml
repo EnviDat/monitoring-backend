@@ -135,15 +135,15 @@ spec:
           {{- end }}
         {{- end }}
 
-        {{- if .Values.gcnetImporter.enabled -}}
+        {{- if .Values.gcnetImporter.enabled }}
         - name: import-gcnet
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports: []
-          command: ['sh', '-c', 'python', '-c']
-          args: ['from gcnet import main; main(["-r 10"])']
+          command: ["sh", "-c", "python", "-c"]
+          args: ["from gcnet import main; main(['-r 10'])"]
           resources:
             {{- toYaml .Values.gcnetImporter.resources | nindent 12 }}
           env:
@@ -151,9 +151,42 @@ spec:
           envFrom:
             {{- toYaml .Values.extraEnvFrom | nindent 12 }}
           volumeMounts: []
+          {{- if .Values.probes.livenessProbe.enabled }}
+          livenessProbe:
+            httpGet:
+              path: /api/gcnet/models
+              host: {{ .Release.Name }}.{{ .Release.Namespace }}.svc.cluster.local
+              port: http
+            failureThreshold: 1
+            periodSeconds: 30
+            initialDelaySeconds: 10
+            timeoutSeconds: 10
+          {{- end }}
+          {{- if .Values.probes.readinessProbe.enabled }}
+          readinessProbe:
+            exec:
+              command:
+              - /bin/sh
+              - -c
+              - exec pg_isready --host $DATABASE_HOST
+            failureThreshold: 3
+            successThreshold: 1
+            timeoutSeconds: 5
+          {{- end }}
+          {{- if .Values.probes.startupProbe.enabled }}
+          startupProbe:
+            httpGet:
+              path: /api/gcnet/models
+              host: {{ .Release.Name }}.{{ .Release.Namespace }}.svc.cluster.local
+              port: http
+            failureThreshold: 5
+            periodSeconds: 10
+            initialDelaySeconds: 20
+            timeoutSeconds: 10
+          {{- end }}
         {{- end }}
 
-        {{- if .Values.lwfImporter.enabled -}}
+        {{- if .Values.lwfImporter.enabled }}
         - name: import-lwf
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
@@ -163,12 +196,45 @@ spec:
           command: ['sh', '-c', 'python', '-c']
           args: ['from lwf import main; main(["-r 10"])']
           resources:
-            {{- toYaml .Values.gcnetImporter.resources | nindent 12 }}
+            {{- toYaml .Values.lwfImporter.resources | nindent 12 }}
           env:
             {{- toYaml .Values.extraEnv | nindent 12 }}
           envFrom:
             {{- toYaml .Values.extraEnvFrom | nindent 12 }}
           volumeMounts: []
+          {{- if .Values.probes.livenessProbe.enabled }}
+          livenessProbe:
+            httpGet:
+              path: /api/gcnet/models
+              host: {{ .Release.Name }}.{{ .Release.Namespace }}.svc.cluster.local
+              port: http
+            failureThreshold: 1
+            periodSeconds: 30
+            initialDelaySeconds: 10
+            timeoutSeconds: 10
+          {{- end }}
+          {{- if .Values.probes.readinessProbe.enabled }}
+          readinessProbe:
+            exec:
+              command:
+              - /bin/sh
+              - -c
+              - exec pg_isready --host $DATABASE_HOST
+            failureThreshold: 3
+            successThreshold: 1
+            timeoutSeconds: 5
+          {{- end }}
+          {{- if .Values.probes.startupProbe.enabled }}
+          startupProbe:
+            httpGet:
+              path: /api/gcnet/models
+              host: {{ .Release.Name }}.{{ .Release.Namespace }}.svc.cluster.local
+              port: http
+            failureThreshold: 5
+            periodSeconds: 10
+            initialDelaySeconds: 20
+            timeoutSeconds: 10
+          {{- end }}
         {{- end }}
 
       volumes:
