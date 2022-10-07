@@ -53,6 +53,9 @@ INSTALLED_APPS = [
     "lwf",
     "gcnet",
     "generic",
+    "rest_framework",
+    "drf_spectacular",
+    "drf_spectacular_sidecar",  # required for Django collectstatic discovery
 ]
 
 
@@ -153,6 +156,26 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
+
+REST_FRAMEWORK = {
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'monitoring-backend API Documentation',
+    'DESCRIPTION': 'Django API for WSL long-term environmental monitoring data.',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+    'SWAGGER_UI_DIST': 'SIDECAR',  # shorthand to use the sidecar instead
+    'SWAGGER_UI_FAVICON_HREF': 'SIDECAR',
+    'REDOC_DIST': 'SIDECAR',
+    'SCHEMA_PATH_PREFIX': r'/api',
+    # 'SCHEMA_PATH_PREFIX_TRIM': True,
+    # 'SCHEMA_PATH_PREFIX_INSERT': 'https://www.envidat.ch/data-api',
+    # 'PREPROCESSING_HOOKS': 'project.hooks.preprocessing_hooks',
+    # 'PREPROCESSING_HOOKS': 'drf_spectacular.hooks.preprocess_exclude_path_format'
+    # 'PREPROCESSING_HOOKS': 'drf_spectacular.hooks'
+}
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
