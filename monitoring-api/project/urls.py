@@ -14,25 +14,33 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 
+from django.urls import include, path
+from drf_spectacular.views import (
+    SpectacularAPIView,
+    SpectacularRedocView,
+    SpectacularSwaggerView,
+)
+
 # from django.conf import settings
 # from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 # from django.conf.urls.static import static
-from django.urls import include, path
-
-from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, \
-    SpectacularSwaggerView
 
 urlpatterns = [
-    path('api/lwf/', include('lwf.urls')),
-    path('api/lwf', include('lwf.urls')),
-    path('api/gcnet/', include('gcnet.urls')),
-    path('api/gcnet', include('gcnet.urls')),
-    path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
-    path('api/schema/swagger-ui/', SpectacularSwaggerView.as_view(url_name='schema'),
-         name='swagger-ui'),
-    path('api/schema/redoc/', SpectacularRedocView.as_view(url_name='schema'),
-         name='redoc'),
-
+    path("api/lwf/", include("lwf.urls")),
+    path("api/lwf", include("lwf.urls")),
+    path("api/gcnet/", include("gcnet.urls")),
+    path("api/gcnet", include("gcnet.urls")),
+    path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
+    path(
+        "api/docs", SpectacularSwaggerView.as_view(url_name="schema"), name="swagger-ui"
+    ),
+    path(
+        "api/docs/",
+        SpectacularSwaggerView.as_view(url_name="schema"),
+        name="swagger-ui",
+    ),
+    path("api/redoc", SpectacularRedocView.as_view(url_name="schema"), name="redoc"),
+    path("api/redoc/", SpectacularRedocView.as_view(url_name="schema"), name="redoc"),
     # # url(r'^output/(?P<path>.*)$', 'django.views.static.serve', {
     # #     'document_root': settings.OUTPUT_ROOT,
     # # }),
