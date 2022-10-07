@@ -1,3 +1,13 @@
+## 1.0.4 (2022-10-07)
+
+### Fix
+
+- STATIC_ROOT setting in project settings
+
+### Refactor
+
+- fix helm chart syntax, add probes to importers
+
 ## 1.0.3 (2022-10-07)
 
 ### Fix
