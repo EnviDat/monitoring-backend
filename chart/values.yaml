@@ -15,6 +15,25 @@ imagePullSecrets:
 nameOverride: ""
 fullnameOverride: ""
 
+gcnetImporter:
+  enabled: true
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 1000Mi
+    requests:
+      cpu: 100m
+      memory: 100Mi
+lwfImporter:
+  enabled: true
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 1000Mi
+    requests:
+      cpu: 100m
+      memory: 100Mi
+
 extraEnv:
   - name: APP_NAME
     value: "monitoring-api"
@@ -59,11 +78,11 @@ securityContext: {}
 
 probes:
   livenessProbe:
-    enabled: false
+    enabled: true
   readinessProbe:
-    enabled: false
+    enabled: true
   startupProbe:
-    enabled: false
+    enabled: true
 
 service:
   type: ClusterIP
@@ -87,11 +106,19 @@ ingress:
 
 resources:
   limits:
+    cpu: 2000m
+    memory: 2Gi
+  requests:
+    cpu: 200m
+    memory: 500Mi
+
+initResources:
+  limits:
     cpu: 1000m
     memory: 1Gi
   requests:
-    cpu: 200m
-    memory: 200Mi
+    cpu: 500m
+    memory: 256Mi
 
 autoscaling:
   enabled: true

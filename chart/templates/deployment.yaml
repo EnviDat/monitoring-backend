@@ -29,8 +29,26 @@ spec:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       hostAliases:
         {{- toYaml .Values.hostAliases | nindent 8 }}
+
+      initContainers:
+
+        - name: collectstatic
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          volumeMounts:
+          - name: frontend-static
+            mountPath: "/opt/app/static"
+          env:
+            {{- toYaml .Values.extraEnv | nindent 12 }}
+          envFrom:
+            {{- toYaml .Values.extraEnvFrom | nindent 12 }}
+          resources:
+            {{- toYaml .Values.initResources | nindent 12 }}
+          command: ['sh', '-c', 'python manage.py collectstatic --noinput']
+
       containers:
-        - name: {{ .Chart.Name }}
+
+        - name: api
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
@@ -54,15 +72,12 @@ spec:
           readinessProbe:
             exec:
               command:
-                - "curl"
-                - "--fail"
-                - "-o"
-                - "/dev/null"
-                - "http://{{ .Release.Name }}.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.service.port }}/api/gcnet/models"
-            failureThreshold: 5
-            initialDelaySeconds: 10
-            periodSeconds: 5
-            timeoutSeconds:  10
+              - /bin/sh
+              - -c
+              - exec pg_isready --host $DATABASE_HOST
+            failureThreshold: 3
+            successThreshold: 1
+            timeoutSeconds: 5
           {{- end }}
           {{- if .Values.probes.startupProbe.enabled }}
           startupProbe:
@@ -72,7 +87,7 @@ spec:
               port: http
             failureThreshold: 5
             periodSeconds: 10
-            initialDelaySeconds: 5
+            initialDelaySeconds: 20
             timeoutSeconds: 10
           {{- end }}
           resources:
@@ -82,23 +97,83 @@ spec:
           envFrom:
             {{- toYaml .Values.extraEnvFrom | nindent 12 }}
           volumeMounts: []
+
         {{- if .Values.proxy.enabled }}
-        - name: {{ .Chart.Name }}-proxy
+        - name: proxy
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}-proxy:{{ .Values.proxy.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http
-              containerPort: 80
+              containerPort: {{ .Values.proxy.port }}
               protocol: TCP
           resources:
             {{- toYaml .Values.proxy.resources | nindent 12 }}
           env:
           - name: MONITORING_API_HOST
             value: "{{ .Release.Name }}.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.service.port }}"
+          volumeMounts:
+          - name: frontend-static
+            mountPath: "/opt/app/static"
+          {{- if .Values.probes.livenessProbe.enabled }}
+          livenessProbe:
+            httpGet:
+              path: /nghealth
+              port: {{ .Values.proxy.port }}
+            periodSeconds: 20
+          {{- end }}
+          {{- if .Values.probes.readinessProbe.enabled }}
+          readinessProbe:
+            httpGet:
+              path: /
+              port: {{ .Values.service.port }}
+              httpHeaders:
+              - name: Host
+                value: $MONITORING_API_HOST
+            initialDelaySeconds: 30
+          {{- end }}
         {{- end }}
-      volumes: []
+
+        {{- if .Values.gcnetImporter.enabled -}}
+        - name: import-gcnet
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports: []
+          command: ['sh', '-c', 'python', '-c']
+          args: ['from gcnet import main; main(["-r 10"])']
+          resources:
+            {{- toYaml .Values.gcnetImporter.resources | nindent 12 }}
+          env:
+            {{- toYaml .Values.extraEnv | nindent 12 }}
+          envFrom:
+            {{- toYaml .Values.extraEnvFrom | nindent 12 }}
+          volumeMounts: []
+        {{- end }}
+
+        {{- if .Values.lwfImporter.enabled -}}
+        - name: import-lwf
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports: []
+          command: ['sh', '-c', 'python', '-c']
+          args: ['from lwf import main; main(["-r 10"])']
+          resources:
+            {{- toYaml .Values.gcnetImporter.resources | nindent 12 }}
+          env:
+            {{- toYaml .Values.extraEnv | nindent 12 }}
+          envFrom:
+            {{- toYaml .Values.extraEnvFrom | nindent 12 }}
+          volumeMounts: []
+        {{- end }}
+
+      volumes:
+      - name: frontend-static
+        emptyDir: {}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
