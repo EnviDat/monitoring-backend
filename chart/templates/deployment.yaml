@@ -61,12 +61,12 @@ spec:
           livenessProbe:
             httpGet:
               path: /api/gcnet/models
-              host: {{ .Release.Name }}.{{ .Release.Namespace }}.svc.cluster.local
+              host: "{{ .Release.Name }}.{{ .Release.Namespace }}.svc.cluster.local"
               port: http
             failureThreshold: 1
             periodSeconds: 30
             initialDelaySeconds: 10
-            timeoutSeconds: 10
+            timeoutSeconds: 15
           {{- end }}
           {{- if .Values.probes.readinessProbe.enabled }}
           readinessProbe:
@@ -83,12 +83,12 @@ spec:
           startupProbe:
             httpGet:
               path: /api/gcnet/models
-              host: {{ .Release.Name }}.{{ .Release.Namespace }}.svc.cluster.local
+              host: "{{ .Release.Name }}.{{ .Release.Namespace }}.svc.cluster.local"
               port: http
             failureThreshold: 5
             periodSeconds: 10
             initialDelaySeconds: 20
-            timeoutSeconds: 10
+            timeoutSeconds: 15
           {{- end }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
