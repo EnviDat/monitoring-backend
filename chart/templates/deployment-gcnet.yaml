@@ -34,8 +34,8 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports: []
-          command: ["sh", "-c", "python", "-c"]
-          args: ["from gcnet import main; main(['-r 10'])"]
+          command: ['sh', '-c', 'python', '-c']
+          args: ['from gcnet import main; main.main(["-r 10"])']
           resources:
             {{- toYaml .Values.gcnetImporter.resources | nindent 12 }}
           env:
@@ -52,7 +52,7 @@ spec:
             failureThreshold: 1
             periodSeconds: 30
             initialDelaySeconds: 10
-            timeoutSeconds: 10
+            timeoutSeconds: 15
           {{- end }}
           {{- if .Values.probes.readinessProbe.enabled }}
           readinessProbe:
@@ -74,7 +74,7 @@ spec:
             failureThreshold: 5
             periodSeconds: 10
             initialDelaySeconds: 20
-            timeoutSeconds: 10
+            timeoutSeconds: 15
           {{- end }}
       volumes: []
       {{- with .Values.nodeSelector }}
