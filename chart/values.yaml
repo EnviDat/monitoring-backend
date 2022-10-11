@@ -78,11 +78,11 @@ securityContext: {}
 
 probes:
   livenessProbe:
-    enabled: true
+    enabled: false
   readinessProbe:
-    enabled: true
+    enabled: false
   startupProbe:
-    enabled: true
+    enabled: false
 
 service:
   type: ClusterIP
