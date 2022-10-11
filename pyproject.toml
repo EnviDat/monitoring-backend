@@ -83,4 +83,5 @@ version_files = [
     "monitoring-api/project/__version__.py",
     ".env:APP_VERSION",
     "chart/Chart.yaml:appVersion",
+    "monitoring-api/project/settings.py:app_version",
 ]

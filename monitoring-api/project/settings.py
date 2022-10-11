@@ -160,12 +160,14 @@ REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
 }
 
+app_version = "1.0.5"
 SPECTACULAR_SETTINGS = {
-    "TITLE": "monitoring-backend API Documentation",
+    "TITLE": "EnviDat Monitoring API",
     "DESCRIPTION": "Django API for WSL long-term environmental monitoring data.",
-    "VERSION": "1.0.0",
+    "VERSION": app_version,
     "SERVE_INCLUDE_SCHEMA": False,
     "SCHEMA_PATH_PREFIX": r"/api",
+    "COMPONENT_SPLIT_REQUEST": True,
     # 'SCHEMA_PATH_PREFIX_TRIM': True,
     # 'SCHEMA_PATH_PREFIX_INSERT': 'https://www.envidat.ch/data-api',
     # 'PREPROCESSING_HOOKS': 'project.hooks.preprocessing_hooks',
