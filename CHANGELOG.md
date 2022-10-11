@@ -1,3 +1,16 @@
+## 1.0.5 (2022-10-11)
+
+### Fix
+
+- remove drf-spectacular sidecar
+
+### Refactor
+
+- update swagger and redoc endpoint urls
+- added swagger schema endpoints to project/urls.py
+- update helm chart, remove importers from api deployment
+- fix name issue in helm deployment gcnet --> lwf
+
 ## 1.0.4 (2022-10-07)
 
 ### Fix
