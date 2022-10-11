@@ -34,8 +34,13 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports: []
-          command: ['sh', '-c', 'python', '-c']
-          args: ['from lwf import main; main.main(["-r 10"])']
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              python -c '
+              from lwf import main
+              main.main(["-r 10"])
+              '
           resources:
             {{- toYaml .Values.lwfImporter.resources | nindent 12 }}
           env:
