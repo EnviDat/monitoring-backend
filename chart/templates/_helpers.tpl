@@ -49,6 +49,14 @@ Selector labels
 app.kubernetes.io/name: {{ include "chart.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
+{{- define "chart.selectorLabelsLWF" -}}
+app.kubernetes.io/name: {{ include "chart.name" . }}-lwf
+app.kubernetes.io/instance: {{ .Release.Name }}-lwf
+{{- end }}
+{{- define "chart.selectorLabelsGCNET" -}}
+app.kubernetes.io/name: {{ include "chart.name" . }}-gcnet
+app.kubernetes.io/instance: {{ .Release.Name }}-gcnet
+{{- end }}
 
 {{/*
 Create the name of the service account to use
