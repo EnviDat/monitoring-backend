@@ -1,25 +1,27 @@
-#
-# Purpose: Read, decode, and clean ARGOS and GOES satellite raw data. Also imports data into Postgres database.
-# Output: Writes csv and json files with the decoded data.
-#
-# Contributing Authors : Rebecca Buchholz, V.Trotsiuk and Lucia de Espona, Swiss Federal Research Institute WSL
-# Date Last Modified: March 10, 2022
-#
-# Example commands to run main() (make sure virtual environment is activated):
-#   python
-#   from main import main
-#
-# Then call main and pass arguments as needed.
-#
-# No arguments:
-#   main.main()
-#
-# repeatInterval:
-#   main.main(['-r 10'])
-#
-# repeatInterval and localInput:
-#   main.main(['-r 10', '-l True'])
-#
+"""
+Purpose: Read, decode, and clean ARGOS and GOES satellite raw data. Also imports data
+into Postgres database.
+Output: Writes csv and json files with the decoded data.
+
+Contributing Authors : Rebecca Buchholz, V.Trotsiuk and Lucia de Espona,
+Orgnization: Swiss Federal Research Institute WSL
+Date Last Modified: October 13, 2022
+
+Example commands to run main() (make sure virtual environment is activated):
+  python
+  from gcnet.main import main
+
+Then call main and pass arguments as needed.
+
+No arguments:
+  main()
+
+repeatInterval:
+  main(['-r 10'])
+
+repeatInterval and localInput:
+  main(['-r 10', '-l True'])
+"""
 
 
 import argparse
@@ -81,7 +83,8 @@ def get_writer_config_dict(config_parser: configparser):
 
 def get_input_data(config_dict: dict, local_input):
 
-    # If command line localInput argument passed (with any string) assign data_file to 'data_local' from config
+    # If command line localInput argument passed (with any string) assign data_file to
+    # 'data_local' from config
     if local_input:
         data_file = config_dict["data_local"]
         logger.info(f" Skipping downloading input data, using local file: {data_file}")
@@ -113,8 +116,9 @@ def get_csv_import_command_list(config_parser: configparser, station_type: str):
     # Assign variable to contain command list
     commands = []
 
-    # Assign variables to stations_config values and loop through each station in stations_config, create list of
-    # command strings to run csv imports for each station
+    # Assign variables to stations_config values and loop through each station in
+    # stations_config, create list of command strings to run csv imports
+    # for each station
     for section in stations_config.sections():
 
         # Check config key 'active' if data for station should be processed
@@ -128,17 +132,22 @@ def get_csv_import_command_list(config_parser: configparser, station_type: str):
             csv_input = stations_config.get(section, "csv_input")
             model = stations_config.get(section, "model")
             csv_data = stations_config.get(section, "csv_data_dir")
+            source = stations_config.get(section, "source")
 
-            # Previous version used 'import_data' management command to import data
-            # csv_temporary = stations_config.get(section, 'csv_temporary')
-            # command_string = f'python manage.py import_data -s {csv_temporary} -c gcnet/config/stations.ini ' \
-            #                  f'-i {csv_data}/{csv_input} -m {model} -f True'
-
-            # Management command 'import_csv' will be used to import processed station data stored locally
+            # Management command 'import_csv' will be used to import processed
+            # station data stored locally or served at a URL
             # into corresponding database model
-            command_string = f"python manage.py import_csv -s local -i {csv_data}/{csv_input} -a gcnet -m {model}"
+            command_string = ""
+            if source == 'local':
+                command_string = f"python manage.py import_csv -s {source} " \
+                                 f"-i {csv_data}/{csv_input} -a gcnet -m {model}"
+            elif source == 'url':
+                source_url = stations_config.get(section, "source_url")
+                command_string = f"python manage.py import_csv -s {source} " \
+                                 f"-i {source_url}/{csv_input} -a gcnet -m {model}"
 
-            commands.append(command_string)
+            if len(command_string) > 0:
+                commands.append(command_string)
 
     return commands
 
@@ -215,7 +224,8 @@ def main(args=None):
         logger.error(f"Not valid config file: {metadata_path}")
         return -1
 
-    # Process and clean input data, write csv and json files, import csv files data into Postgres database
+    # Process and clean input data, write csv and json files, import csv files data
+    # into Postgres database
     repeat = True
     while repeat:
 
@@ -225,7 +235,8 @@ def main(args=None):
         start_time = time.time()
 
         logger.info(
-            " **************************** START DATA PROCESSING ITERATION (start time: {}) "
+            " **************************** START DATA PROCESSING ITERATION"
+            " (start time: {}) "
             "**************************** ".format(
                 datetime.fromtimestamp(start_time).strftime("%Y-%m-%d %H:%M:%S")
             )
@@ -274,7 +285,8 @@ def main(args=None):
 
         # Import csv files into Postgres database so that data are available for API
         logger.info(
-            " **************************** START DATA IMPORT ITERATION **************************** "
+            " **************************** START DATA IMPORT ITERATION ****************"
+            "************ "
         )
 
         # Assign empty import_processes list
@@ -300,7 +312,8 @@ def main(args=None):
 
         exec_time = int(time.time() - start_time)
         logger.info(
-            f" FINISHED data processing and data import iteration, that took {exec_time} seconds"
+            f" FINISHED data processing and data import iteration, "
+            f"that took {exec_time} seconds"
         )
 
         if repeat:
