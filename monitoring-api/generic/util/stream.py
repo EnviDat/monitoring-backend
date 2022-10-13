@@ -1,5 +1,6 @@
 import csv
 from io import StringIO
+
 from django.core.exceptions import FieldError
 from generic.util.views_helpers import get_timestamp_iso_range_day_dict
 
@@ -7,8 +8,8 @@ from generic.util.views_helpers import get_timestamp_iso_range_day_dict
 # ----------------------------------------  Streaming Helpers ---------------------------------------------------------
 # Assign null_value
 def get_null_value(nodata_kwarg):
-    if nodata_kwarg == 'empty':
-        null_value = ''
+    if nodata_kwarg == "empty":
+        null_value = ""
     else:
         null_value = nodata_kwarg
     return null_value
@@ -21,11 +22,21 @@ def write_row(writer, null_value, row):
 
 # ----------------------------------------  Data Generator ------------------------------------------------------------
 # Define a generator to stream data directly to the client
-def stream(nead_version, hashed_lines, model_class, display_values, null_value, start, end, dict_fields, **kwargs):
+def stream(
+    nead_version,
+    hashed_lines,
+    model_class,
+    display_values,
+    null_value,
+    start,
+    end,
+    dict_fields,
+    **kwargs,
+):
 
     # If kwargs 'start' and 'end' passed in URL validate and assign to dict_timestamps
     dict_timestamps = {}
-    if '' not in [start, end]:
+    if "" not in [start, end]:
         dict_timestamps = get_timestamp_iso_range_day_dict(start, end)
 
     # Create buffer_ and writer objects
@@ -39,19 +50,20 @@ def stream(nead_version, hashed_lines, model_class, display_values, null_value, 
         buffer_.writelines(hashed_lines)
     # Else: Write 'display_values' to buffer_
     else:
-        buffer_.writelines(','.join(display_values) + '\n')
+        buffer_.writelines(",".join(display_values) + "\n")
 
     # Generator expressions to write each row in the queryset by calculating each row as needed and not all at once
     # Write values that are null in database as the value assigned to 'null_value'
     # Check if 'dict_fields' passed, if so stream aggregate daily data
     if len(dict_fields) > 0:
 
-        queryset = model_class.objects \
-            .values_list('day') \
-            .annotate(**dict_fields) \
-            .filter(**dict_timestamps) \
-            .order_by('timestamp_first') \
+        queryset = (
+            model_class.objects.values_list("day")
+            .annotate(**dict_fields)
+            .filter(**dict_timestamps)
+            .order_by("timestamp_first")
             .iterator()
+        )
 
         for row in queryset:
             # Call write_row
@@ -67,11 +79,12 @@ def stream(nead_version, hashed_lines, model_class, display_values, null_value, 
     # Elif kwargs 'start' and 'end' passed then apply timestamps filter
     elif len(dict_timestamps) > 0:
 
-        queryset = model_class.objects \
-            .values_list(*display_values) \
-            .filter(**dict_timestamps) \
-            .order_by('timestamp_iso') \
+        queryset = (
+            model_class.objects.values_list(*display_values)
+            .filter(**dict_timestamps)
+            .order_by("timestamp_iso")
             .iterator()
+        )
 
         for row in queryset:
             # Call write_row
@@ -87,10 +100,11 @@ def stream(nead_version, hashed_lines, model_class, display_values, null_value, 
     # Elif retrieve all data currently in database table if 'display_values' passed and 'start' and 'end' are not passed
     elif len(display_values) > 0:
 
-        queryset = model_class.objects \
-            .values_list(*display_values) \
-            .order_by('timestamp_iso') \
+        queryset = (
+            model_class.objects.values_list(*display_values)
+            .order_by("timestamp_iso")
             .iterator()
+        )
 
         for row in queryset:
             # Call write_row

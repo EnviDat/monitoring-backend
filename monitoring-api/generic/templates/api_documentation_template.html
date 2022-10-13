@@ -1,228 +1,892 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-    <link rel="stylesheet" href="api_documentation_template.css">
+  <head>
+    <link rel="stylesheet" href="api_documentation_template.css" />
     <title id="page_title"></title>
-</head>
+  </head>
 
-
-<body>
-
+  <body>
     <div class="header">
+      <div id="toc_container">
+        <ul class="toc_list">
+          <li style="font-size: x-large; margin-top: 1em">
+            <a href="#Introduction"><b>Introduction</b></a>
+            <br />
+            <br />
+          </li>
 
-        <div id="toc_container">
-            <ul class="toc_list">
+          <li style="font-size: x-large; margin-bottom: 0.5em">
+            <a href="#API_Examples"><b>API Endpoints</b></a> <br />
+          </li>
 
-                <li style="font-size: x-large; margin-top: 1em;"><a href="#Introduction"><b>Introduction</b></a>
-                <br>
-                <br>
+          <li><a href="#details_stations">1. Stations</a></li>
+          <li><a href="#details_nead">2. NEAD</a></li>
+          <li><a href="#details_csv">3. CSV</a></li>
+          <li><a href="#details_json">4. JSON</a></li>
+          <li><a href="#details_json_daily_summary">5. Daily JSON</a></li>
+          <li><a href="#details_csv_daily_summary">6. Daily CSV</a></li>
+          <li><a href="#details_metadata">7. Metadata</a></li>
+          <br />
+          <br />
 
-                <li style="font-size: x-large; margin-bottom: 0.5em;"><a href="#API_Examples"><b>API Endpoints</b></a>
-                <br>
-                        <li><a href="#details_stations">1. Stations</a></li>
-                        <li><a href="#details_nead">2. NEAD</a></li>
-                        <li><a href="#details_csv">3. CSV</a></li>
-                        <li><a href="#details_json">4. JSON</a></li>
-                        <li><a href="#details_json_daily_summary">5. Daily JSON</a></li>
-                        <li><a href="#details_csv_daily_summary">6. Daily CSV</a></li>
-                        <li><a href="#details_metadata">7. Metadata</a></li>
-                <br>
-                <br>
+          <li style="font-size: x-large">
+            <a href="#parameter_list"><b>Parameter List</b></a>
+          </li>
+          <br />
+        </ul>
+      </div>
 
-                <li style="font-size: x-large"><a href="#parameter_list"><b>Parameter List</b></a></li>
-                <br>
-
-            </ul>
+      <div class="main_content" id="Introduction">
+        <div style="text-align: center">
+          <h1 id="api_title"></h1>
+          <br />
         </div>
 
-        <div class="main_content" id="Introduction">
+        <div class="intro">
+          <p id="intro_text"></p>
 
-            <div style="text-align: center;">
-                <h1 id="api_title"></h1>
-                <br>
-            </div>
-
-            <div class="intro">
-                <p id="intro_text"></p>
-
-                <div class="special_notes">
-                    <p><span class="detail_link"><b><u>Special Notes</u></b>
-                            <ul>
-                                <li>special notes
-                                </li>
-                            </ul>
-                        </span></p>
-                </div>
-
-            </div>
+          <div class="special_notes">
+            <p>
+              <span class="detail_link"
+                ><b><u>Special Notes</u></b>
+                <ul>
+                  <li>special notes</li>
+                </ul>
+              </span>
+            </p>
+          </div>
         </div>
+      </div>
     </div>
 
-    <br>
-    <br>
-    <br>
-
+    <br />
+    <br />
+    <br />
 
     <div class="main_content">
+      <div style="text-align: center">
+        <hr />
+        <h2 id="API_Examples">API Endpoints</h2>
+        <br />
+      </div>
 
-        <div style="text-align: center;">
-            <hr>
-            <h2 id="API_Examples">API Endpoints</h2>
-            <br>
-        </div>
+      <h3 id="details_stations">1. Return List of Stations</h3>
+      <h4>
+        <ul>
+          URL:
+          <a class="url_models"></a>
+        </ul>
+      </h4>
+      <p></p>
+      <ul>
+        Returns list of stations referred to as 'model' in other endpoints.
+      </ul>
+      <ul>
+        Sample Output:
+      </ul>
+      <ul>
+        <ul>
+          <span class="output">
+            [
+            <ul>
+              "station1",
+              <br />"station2",
+            </ul>
+            ]
+          </span>
+        </ul>
+      </ul>
+      <br />
+      <br />
 
-        <h3 id="details_stations">1. Return List of Stations</h3>
-        <h4><ul>URL: <a class="url_models"></a></ul></h4>
-        <p><ul>Returns list of stations referred to as 'model' in other endpoints.</ul>
-           <ul>Sample Output:</ul>
-               <ul><ul><span class="output">
-               [
-                <ul>"station1",
-                <br>"station2",
-                </ul>
-                ]
-           </span></ul></ul>
-        <br>
-        <br>
+      <script>
+        function myFunction() {
+          let urlNeadElements = document.querySelectorAll(".url_nead");
+          let testString2 =
+            "https://www.envidat.ch/data-api/app/nead/model/end/empty/2020-11-02/2020-11-07";
+          window.open(testString2);
+        }
+      </script>
 
-        <script>
-            function myFunction() {
-             let urlNeadElements = document.querySelectorAll(".url_nead");
-             let testString2 = 'https://www.envidat.ch/data-api/app/nead/model/end/empty/2020-11-02/2020-11-07';
-             window.open(testString2);
-         }
-        </script>
+      <h3 id="details_nead">2. Download NEAD</h3>
+      <p>
+        <span class="details_link"
+          ><a href="https://www.doi.org/10.16904/envidat.187"
+            >Click here for information about the NEAD format</a
+          ></span
+        >
+      </p>
+      <h4>
+        <ul>
+          <span class="url">URL template with time range:</span>
+          https://www.envidat.ch/data-api/<span class="app_name"></span
+          >/nead/<span class="model">model</span
+          >/<span class="nodata">nodata</span
+          >/<span class="parent_class">parent_class</span
+          >/<span class="start_end">start</span
+          >/<span class="start_end">end</span>
+        </ul>
+      </h4>
+      <h4>
+        <ul>
+          Example with time range:
+          <br /><a class="url_nead"></a>
+        </ul>
+      </h4>
+      <h4>
+        <ul>
+          <span class="url">URL template returning all records:</span>
+          https://www.envidat.ch/data-api/<span class="app_name"></span
+          >/nead/<span class="model">model</span
+          >/<span class="nodata">nodata</span
+          >/<span class="parent_class">parent_class</span
+          >/
+        </ul>
+      </h4>
+      <h4>
+        <ul>
+          Example returning all records:
+          <br /><a class="url_nead_all"></a>
+        </ul>
+      </h4>
+      <p></p>
+      <ul>
+        <ul>
+          <span class="parent_class">parent_class</span>
+          should correspond be
+          <span class="parent_class_name"></span>
+        </ul>
+      </ul>
+      <ul>
+        <ul>
+          <span class="nodata">nodata</span>
+          represents "null" values in the database
+        </ul>
+      </ul>
+      <ul>
+        <ul>
+          <ul>
+            <li>
+              <span class="nodata_light"
+                ><span class="nodata_name"></span
+              ></span>
+              means that all "null" values will be "<span
+                class="nodata_name"
+              ></span
+              >" in the NEAD file
+            </li>
+          </ul>
+        </ul>
+      </ul>
+      <ul>
+        <ul>
+          <ul>
+            <li>
+              <span class="nodata_light">empty</span> means that all "null"
+              values will be "" (empty strings) in the NEAD file
+            </li>
+          </ul>
+        </ul>
+      </ul>
+      <ul>
+        <ul>
+          <span class="nodata">nodata</span>
+          represents "null" values in the database
+        </ul>
+      </ul>
+      <ul>
+        <ul>
+          <ul>
+            <li>
+              <span class="nodata_light"
+                ><span class="nodata_name"></span
+              ></span>
+              means that all "null" values will be "<span
+                class="nodata_name"
+              ></span
+              >" in the NEAD file
+            </li>
+          </ul>
+        </ul>
+      </ul>
+      <ul>
+        <ul>
+          <ul>
+            <li>
+              <span class="nodata_light">empty</span> means that all "null"
+              values will be "" (empty strings) in the NEAD file
+            </li>
+          </ul>
+        </ul>
+      </ul>
+      <ul>
+        <ul>
+          <span class="start_end">start</span>
+          is the start date of the dataset
+        </ul>
+      </ul>
+      <ul>
+        <ul>
+          <span class="start_end">end</span>
+          is the end date of the dataset (exclusive)
+        </ul>
+      </ul>
+      <ul>
+        <ul>
+          <ul>
+            <li>
+              <span class="start_end_light">start</span> and
+              <span class="start_end_light">end</span> dates must be in in ISO
+              timestamp date format: YYYY-MM-DD ('2019-12-20')
+            </li>
+          </ul>
+        </ul>
+      </ul>
+      <ul>
+        <ul>
+          <ul>
+            <li>
+              <span class="start_end_light">start</span> date must precede
+              <span class="start_end_light">end</span> date
+            </li>
+          </ul>
+        </ul>
+      </ul>
+      <br />
+      <br />
 
-        <h3 id="details_nead">2. Download NEAD</h3>
-        <p><span class="details_link"><a href="https://www.doi.org/10.16904/envidat.187" >Click here for information about the NEAD format</a></span></p>
-        <h4><ul><span class="url">URL template with time range:</span> https://www.envidat.ch/data-api/<span class="app_name"></span>/nead/<span class="model">model</span>/<span class="nodata">nodata</span>/<span class="parent_class">parent_class</span>/<span class="start_end">start</span>/<span class="start_end">end</span></ul></h4>
-         <h4><ul>Example with time range:
-             <br><a class="url_nead"></a></ul></h4>
-        <h4><ul><span class="url">URL template returning all records:</span> https://www.envidat.ch/data-api/<span class="app_name"></span>/nead/<span class="model">model</span>/<span class="nodata">nodata</span>/<span class="parent_class">parent_class</span>/</ul></h4>
-        <h4><ul>Example returning all records:
-            <br><a class="url_nead_all"></a></ul></h4>
-        <p><ul><ul><span class="parent_class">parent_class</span> should correspond be <span class="parent_class_name"></span></ul></ul>
-           <ul><ul><span class="nodata">nodata</span> represents "null" values in the database</ul></ul>
-               <ul><ul><ul><li><span class="nodata_light"><span class="nodata_name"></span></span> means that all "null" values will be "<span class="nodata_name"></span>" in the NEAD file</li></ul></ul></ul>
-               <ul><ul><ul><li><span class="nodata_light">empty</span> means that all "null" values will be "" (empty strings) in the NEAD file</li></ul></ul></ul>
-         <ul><ul><span class="nodata">nodata</span> represents "null" values in the database</ul></ul>
-               <ul><ul><ul><li><span class="nodata_light"><span class="nodata_name"></span></span> means that all "null" values will be "<span class="nodata_name"></span>" in the NEAD file</li></ul></ul></ul>
-               <ul><ul><ul><li><span class="nodata_light">empty</span> means that all "null" values will be "" (empty strings) in the NEAD file</li></ul></ul></ul>
-           <ul><ul><span class="start_end">start</span> is the start date of the dataset</ul></ul>
-           <ul><ul><span class="start_end">end</span> is the end date of the dataset (exclusive)</ul></ul>
-               <ul><ul><ul><li><span class="start_end_light">start</span> and <span class="start_end_light">end</span> dates must be in in ISO timestamp date format: YYYY-MM-DD ('2019-12-20')</li></ul></ul></ul>
-               <ul><ul><ul><li><span class="start_end_light">start</span> date must precede <span class="start_end_light">end</span> date</li></ul></ul></ul>
-        <br>
-        <br>
+      <h3 id="details_csv">3. Download CSV</h3>
+      <h4>
+        <ul>
+          <span class="url">URL template:</span>
+          https://www.envidat.ch/data-api/<span class="app_name"></span
+          >/csv/<span class="model">model</span
+          >/<span class="parameter">parameter</span
+          >/<span class="nodata">nodata</span
+          >/<span class="parent_class">parent_class</span
+          >/<span class="start_end">start</span
+          >/<span class="start_end">end</span
+          >/
+        </ul>
+      </h4>
+      <h4>
+        <ul>
+          Example returning one parameter:
+          <br /><a class="url_csv"></a>
+        </ul>
+      </h4>
+      <h4>
+        <ul>
+          Example returning several parameters:
+          <br /><a class="url_csv_several"></a>
+        </ul>
+      </h4>
+      <p></p>
+      <ul>
+        <ul>
+          <span class="model">model</span>
+          should correspond to a model name listed at
+          <a class="url_models"></a
+          >, for example
+          <span class="model_name"></span>
+        </ul>
+      </ul>
+      <ul>
+        <ul>
+          <span class="parameter">parameter</span>
+          should be a type of measurement, for example
+          <span class="parameter_light"
+            ><span class="parameter_name"></span
+          ></span>
+        </ul>
+      </ul>
+      <ul>
+        <ul>
+          <span class="parameter">parameter</span>
+          can also be several types of measurements separated by commas, for
+          example
+          <span class="parameter_light"
+            ><span class="parameter_several"></span
+          ></span>
+        </ul>
+      </ul>
+      <ul>
+        <ul>
+          <ul>
+            <li>
+              <a href="#parameter_list" target="_blank"
+                >Click here for list of parameters</a
+              >
+            </li>
+          </ul>
+        </ul>
+      </ul>
+      <ul>
+        <ul>
+          <ul>
+            <li>
+              <span class="parameter_light">multiple</span> means that all
+              parameters will be included in the CSV
+            </li>
+          </ul>
+        </ul>
+      </ul>
+      <ul>
+        <ul>
+          <span class="nodata">nodata</span>
+          represents "null" values in the database
+        </ul>
+      </ul>
+      <ul>
+        <ul>
+          <ul>
+            <li>
+              <span class="nodata_light"
+                ><span class="nodata_name"></span
+              ></span>
+              means that all "null" values will be "<span
+                class="nodata_name"
+              ></span
+              >" in the CSV file
+            </li>
+          </ul>
+        </ul>
+      </ul>
+      <ul>
+        <ul>
+          <ul>
+            <li>
+              <span class="nodata_light">empty</span> means that all "null"
+              values will be "" (empty strings) in the CSV file
+            </li>
+          </ul>
+        </ul>
+      </ul>
+      <p></p>
+      <ul>
+        <ul>
+          <span class="parent_class">parent_class</span>
+          should be
+          <span class="parent_class_name"></span>
+        </ul>
+      </ul>
+      <ul>
+        <ul>
+          <span class="start_end">start</span>
+          is the start date of the dataset
+        </ul>
+      </ul>
+      <ul>
+        <ul>
+          <span class="start_end">end</span>
+          is the end date of the dataset (exclusive)
+        </ul>
+      </ul>
+      <ul>
+        <ul>
+          <ul>
+            <li>
+              <span class="start_end_light">start</span> and
+              <span class="start_end_light">end</span> dates must be in in ISO
+              timestamp date format: YYYY-MM-DD ('2019-12-20')
+            </li>
+          </ul>
+        </ul>
+      </ul>
+      <ul>
+        <ul>
+          <ul>
+            <li>
+              <span class="start_end_light">start</span> date must precede
+              <span class="start_end_light">end</span> date
+            </li>
+          </ul>
+        </ul>
+      </ul>
+      <br />
+      <br />
 
-        <h3 id="details_csv">3. Download CSV</h3>
-        <h4><ul><span class="url">URL template:</span> https://www.envidat.ch/data-api/<span class="app_name"></span>/csv/<span class="model">model</span>/<span class="parameter">parameter</span>/<span class="nodata">nodata</span>/<span class="parent_class">parent_class</span>/<span class="start_end">start</span>/<span class="start_end">end</span>/</ul></h4>
-            <h4><ul>Example returning one parameter:
-            <br><a class="url_csv"></a></ul></h4>
-            <h4><ul>Example returning several parameters:
-            <br><a class="url_csv_several"></a></ul></h4>
-        <p><ul><ul><span class="model">model</span> should correspond to a model name listed at <a class="url_models"></a>, for example <span class="model_name"></span></ul></ul>
-            <ul><ul><span class="parameter">parameter</span> should be a type of measurement, for example <span class="parameter_light"><span class="parameter_name"></span></span></ul></ul>
-            <ul><ul><span class="parameter">parameter</span> can also be several types of measurements separated by commas, for example <span class="parameter_light"><span class="parameter_several"></span></span></ul></ul>
-                 <ul><ul><ul><li><a href="#parameter_list" target="_blank">Click here for list of parameters</a></li></ul></ul></ul>
-                 <ul><ul><ul><li><span class="parameter_light">multiple</span> means that all parameters will be included in the CSV</li></ul></ul></ul>
-           <ul><ul><span class="nodata">nodata</span> represents "null" values in the database</ul></ul>
-        <ul><ul><ul><li><span class="nodata_light"><span class="nodata_name"></span></span> means that all "null" values will be "<span class="nodata_name"></span>" in the CSV file</li></ul></ul></ul>
-               <ul><ul><ul><li><span class="nodata_light">empty</span> means that all "null" values will be "" (empty strings) in the CSV file</li></ul></ul></ul>
-           <p><ul><ul><span class="parent_class">parent_class</span> should be <span class="parent_class_name"></span></ul></ul>
-           <ul><ul><span class="start_end">start</span> is the start date of the dataset</ul></ul>
-           <ul><ul><span class="start_end">end</span> is the end date of the dataset (exclusive)</ul></ul>
-               <ul><ul><ul><li><span class="start_end_light">start</span> and <span class="start_end_light">end</span> dates must be in in ISO timestamp date format: YYYY-MM-DD ('2019-12-20')</li></ul></ul></ul>
-               <ul><ul><ul><li><span class="start_end_light">start</span> date must precede <span class="start_end_light">end</span> date</li></ul></ul></ul>
-        <br>
-        <br>
+      <h3 id="details_json">4. Return JSON Data</h3>
+      <h4>
+        <ul>
+          <span class="url">URL template:</span>
+          https://www.envidat.ch/data-api/<span class="app_name"></span
+          >/json/<span class="model">model</span
+          >/<span class="parameter">parameter</span
+          >/<span class="parent_class">parent_class</span
+          >/<span class="start_end">start</span
+          >/<span class="start_end">end</span
+          >/
+        </ul>
+      </h4>
+      <h4>
+        <ul>
+          Example:
+          <a class="url_json"></a>
+        </ul>
+      </h4>
+      <h4>
+        <ul>
+          Example returning several parameters:
+          <br /><a class="url_json_several"></a>
+        </ul>
+      </h4>
+      <p></p>
+      <ul>
+        <ul>
+          <span class="model">model</span>
+          should correspond to a model name listed at
+          <a class="url_models"></a
+          >, for example
+          <span class="model_name"></span>
+        </ul>
+      </ul>
+      <ul>
+        <ul>
+          <span class="parameter">parameter</span>
+          should be a type of measurement, for example
+          <span class="parameter_light"
+            ><span class="parameter_name"></span
+          ></span>
+        </ul>
+      </ul>
+      <ul>
+        <ul>
+          <span class="parameter">parameter</span>
+          can also be several types of measurements separated by commas, for
+          example
+          <span class="parameter_light"
+            ><span class="parameter_several"></span
+          ></span>
+        </ul>
+      </ul>
+      <ul>
+        <ul>
+          <ul>
+            <li>
+              <a href="#parameter_list" target="_blank"
+                >Click here for list of parameters</a
+              >
+            </li>
+          </ul>
+        </ul>
+      </ul>
+      <p></p>
+      <ul>
+        <ul>
+          <span class="parent_class">parent_class</span>
+          should be
+          <span class="parent_class_name"></span>
+        </ul>
+      </ul>
+      <ul>
+        <ul>
+          <span class="start_end">start</span>
+          is the start date and time of the dataset
+        </ul>
+      </ul>
+      <ul>
+        <ul>
+          <span class="start_end">end</span>
+          is the end date and time of the dataset
+        </ul>
+      </ul>
+      <ul>
+        <ul>
+          <ul>
+            <li>
+              <span class="start_end_light">start</span> date must precede
+              <span class="start_end_light">end</span> date
+            </li>
+          </ul>
+        </ul>
+      </ul>
+      <ul>
+        <ul>
+          <ul>
+            <li>
+              <span class="start_end_light">start</span> and
+              <span class="start_end_light">end</span> must be in in ISO
+              timestamp date and time format: YYYY-MM-DDTHH:MM:SS
+              ('2020-10-20T17:00:00)
+            </li>
+          </ul>
+        </ul>
+      </ul>
+      <br />
+      <br />
 
-        <h3 id="details_json">4. Return JSON Data</h3>
-        <h4><ul><span class="url">URL template:</span> https://www.envidat.ch/data-api/<span class="app_name"></span>/json/<span class="model">model</span>/<span class="parameter">parameter</span>/<span class="parent_class">parent_class</span>/<span class="start_end">start</span>/<span class="start_end">end</span>/</ul></h4>
-        <h4><ul>Example: <a class="url_json"></a></ul></h4>
-        <h4><ul>Example returning several parameters:
-            <br><a class="url_json_several"></a></ul></h4>
-        <p><ul><ul><span class="model">model</span> should correspond to a model name listed at <a class="url_models"></a>, for example <span class="model_name"></span></ul></ul>
-            <ul><ul><span class="parameter">parameter</span> should be a type of measurement, for example <span class="parameter_light"><span class="parameter_name"></span></span></ul></ul>
-            <ul><ul><span class="parameter">parameter</span> can also be several types of measurements separated by commas, for example <span class="parameter_light"><span class="parameter_several"></span></span></ul></ul>
-                 <ul><ul><ul><li><a href="#parameter_list" target="_blank">Click here for list of parameters</a></li></ul></ul></ul>
-            <p><ul><ul><span class="parent_class">parent_class</span> should be <span class="parent_class_name"></span></ul></ul>
-            <ul><ul><span class="start_end">start</span> is the start date and time of the dataset</ul></ul>
-            <ul><ul><span class="start_end">end</span> is the end date and time of the dataset</ul></ul>
-                 <ul><ul><ul><li><span class="start_end_light">start</span> date must precede <span class="start_end_light">end</span> date</li></ul></ul></ul>
-                 <ul><ul><ul><li><span class="start_end_light">start</span> and <span class="start_end_light">end</span> must be in in ISO timestamp date and time format: YYYY-MM-DDTHH:MM:SS ('2020-10-20T17:00:00)</li></ul></ul></ul>
-        <br>
-        <br>
+      <h3 id="details_json_daily_summary">5. Return Daily Summary JSON Data</h3>
+      <h4>
+        <ul>
+          <span class="url">URL template:</span>
+          https://www.envidat.ch/data-api/<span class="app_name"></span
+          >/json/daily/<span class="model">model</span
+          >/<span class="parameter">parameter</span
+          >/<span class="parent_class">parent_class</span
+          >/<span class="start_end">start</span
+          >/<span class="start_end">end</span
+          >/
+        </ul>
+      </h4>
+      <h4>
+        <ul>
+          Example:
+          <a class="url_daily_json"></a>
+        </ul>
+      </h4>
+      <h4>
+        <ul>
+          Example returning several parameters:
+          <br /><a class="url_daily_json_several"></a>
+        </ul>
+      </h4>
+      <p></p>
+      <ul>
+        <ul>
+          <span class="model">model</span>
+          should correspond to a model name listed at
+          <a class="url_models"></a
+          >, for example
+          <span class="model_name"></span>
+        </ul>
+      </ul>
+      <ul>
+        <ul>
+          <span class="parameter">parameter</span>
+          should be a type of measurement, for example
+          <span class="parameter_light"
+            ><span class="parameter_name"></span
+          ></span>
+        </ul>
+      </ul>
+      <ul>
+        <ul>
+          <span class="parameter">parameter</span>
+          can also be several types of measurements separated by commas, for
+          example
+          <span class="parameter_light"
+            ><span class="parameter_several"></span
+          ></span>
+        </ul>
+      </ul>
+      <ul>
+        <ul>
+          <ul>
+            <li>
+              <a href="#parameter_list" target="_blank"
+                >Click here for list of parameters</a
+              >
+            </li>
+          </ul>
+        </ul>
+      </ul>
+      <p></p>
+      <ul>
+        <ul>
+          <span class="parent_class">parent_class</span>
+          should be
+          <span class="parent_class_name"></span>
+        </ul>
+      </ul>
+      <ul>
+        <ul>
+          <span class="start_end">start</span>
+          is the start date of the dataset
+        </ul>
+      </ul>
+      <ul>
+        <ul>
+          <span class="start_end">end</span>
+          is the end date of the dataset (exclusive)
+        </ul>
+      </ul>
+      <ul>
+        <ul>
+          <ul>
+            <li>
+              <span class="start_end_light">start</span> and
+              <span class="start_end_light">end</span> dates must be in in ISO
+              timestamp date format: YYYY-MM-DD ('2019-12-20')
+            </li>
+          </ul>
+        </ul>
+      </ul>
+      <ul>
+        <ul>
+          <ul>
+            <li>
+              <span class="start_end_light">start</span> date must precede
+              <span class="start_end_light">end</span> date
+            </li>
+          </ul>
+        </ul>
+      </ul>
+      <ul>
+        <ul>
+          Parameters are aggregated daily for the following derived values:
+          minimum ('_min'), maximum ('_max'), and average ('_avg)
+        </ul>
+      </ul>
+      <ul>
+        <ul>
+          'day' values are in "year-"day number" format
+        </ul>
+      </ul>
+      <ul>
+        <ul>
+          'timestamp_first' and 'timestamp_last' are the range of timestamps
+          (inclusive) used for calculating the daily aggregated values
+        </ul>
+      </ul>
+      <br />
+      <br />
 
-        <h3 id="details_json_daily_summary">5. Return Daily Summary JSON Data</h3>
-        <h4><ul><span class="url">URL template:</span> https://www.envidat.ch/data-api/<span class="app_name"></span>/json/daily/<span class="model">model</span>/<span class="parameter">parameter</span>/<span class="parent_class">parent_class</span>/<span class="start_end">start</span>/<span class="start_end">end</span>/</ul></h4>
-        <h4><ul>Example: <a class="url_daily_json"></a></ul></h4>
-        <h4><ul>Example returning several parameters:
-            <br><a class="url_daily_json_several"></a></ul></h4>
-        <p><ul><ul><span class="model">model</span> should correspond to a model name listed at <a class="url_models"></a>, for example <span class="model_name"></span></ul></ul>
-            <ul><ul><span class="parameter">parameter</span> should be a type of measurement, for example <span class="parameter_light"><span class="parameter_name"></span></span></ul></ul>
-            <ul><ul><span class="parameter">parameter</span> can also be several types of measurements separated by commas, for example <span class="parameter_light"><span class="parameter_several"></span></span></ul></ul>
-                 <ul><ul><ul><li><a href="#parameter_list" target="_blank">Click here for list of parameters</a></li></ul></ul></ul>
-            <p><ul><ul><span class="parent_class">parent_class</span> should be <span class="parent_class_name"></span></ul></ul>
-            <ul><ul><span class="start_end">start</span> is the start date of the dataset</ul></ul>
-            <ul><ul><span class="start_end">end</span> is the end date of the dataset (exclusive)</ul></ul>
-               <ul><ul><ul><li><span class="start_end_light">start</span> and <span class="start_end_light">end</span> dates must be in in ISO timestamp date format: YYYY-MM-DD ('2019-12-20')</li></ul></ul></ul>
-               <ul><ul><ul><li><span class="start_end_light">start</span> date must precede <span class="start_end_light">end</span> date</li></ul></ul></ul>
-            <ul><ul>Parameters are aggregated daily for the following derived values: minimum ('_min'), maximum ('_max'), and average ('_avg)</ul></ul>
-            <ul><ul>'day' values are in "year-"day number" format</ul></ul>
-            <ul><ul>'timestamp_first' and 'timestamp_last' are the range of timestamps (inclusive) used for calculating the daily aggregated values</ul></ul>
-        <br>
-        <br>
+      <h3 id="details_csv_daily_summary">6. Download Daily Summary CSV</h3>
+      <h4>
+        <ul>
+          <span class="url">URL template:</span>
+          https://www.envidat.ch/data-api/<span class="app_name"></span
+          >/csv/daily/<span class="model">model</span
+          >/<span class="parameter">parameter</span
+          >/<span class="nodata">nodata</span
+          >/<span class="parent_class">parent_class</span
+          >/<span class="start_end">start</span
+          >/<span class="start_end">end</span
+          >/
+        </ul>
+      </h4>
+      <h4>
+        <ul>
+          Example returning on parameter:
+          <br /><a class="url_daily_csv"></a>
+        </ul>
+      </h4>
+      <h4>
+        <ul>
+          Example returning several parameters:
+          <br /><a class="url_daily_csv_several"></a>
+        </ul>
+      </h4>
+      <p></p>
+      <ul>
+        <ul>
+          <span class="model">model</span>
+          should correspond to a model name listed at
+          <a class="url_models"></a
+          >, for example
+          <span class="model_name"></span>
+        </ul>
+      </ul>
+      <ul>
+        <ul>
+          <span class="parameter">parameter</span>
+          should be a type of measurement, for example
+          <span class="parameter_light"
+            ><span class="parameter_name"></span
+          ></span>
+        </ul>
+      </ul>
+      <ul>
+        <ul>
+          <span class="parameter">parameter</span>
+          can also be several types of measurements separated by commas, for
+          example
+          <span class="parameter_light"
+            ><span class="parameter_several"></span
+          ></span>
+        </ul>
+      </ul>
+      <ul>
+        <ul>
+          <ul>
+            <li>
+              <a href="#parameter_list" target="_blank"
+                >Click here for list of parameters</a
+              >
+            </li>
+          </ul>
+        </ul>
+      </ul>
+      <ul>
+        <ul>
+          <span class="nodata">nodata</span>
+          represents "null" values in the database
+        </ul>
+      </ul>
+      <ul>
+        <ul>
+          <ul>
+            <li>
+              <span class="nodata_light"
+                ><span class="nodata_name"></span
+              ></span>
+              means that all "null" values will be "<span
+                class="nodata_name"
+              ></span
+              >" in the CSV file
+            </li>
+          </ul>
+        </ul>
+      </ul>
+      <ul>
+        <ul>
+          <ul>
+            <li>
+              <span class="nodata_light">empty</span> means that all "null"
+              values will be "" (empty strings) in the CSV file
+            </li>
+          </ul>
+        </ul>
+      </ul>
+      <p></p>
+      <ul>
+        <ul>
+          <span class="parent_class">parent_class</span>
+          should be
+          <span class="parent_class_name"></span>
+        </ul>
+      </ul>
+      <ul>
+        <ul>
+          <span class="start_end">start</span>
+          is the start date of the dataset
+        </ul>
+      </ul>
+      <ul>
+        <ul>
+          <span class="start_end">end</span>
+          is the end date of the dataset (exclusive)
+        </ul>
+      </ul>
+      <ul>
+        <ul>
+          <ul>
+            <li>
+              <span class="start_end_light">start</span> and
+              <span class="start_end_light">end</span> dates must be in in ISO
+              timestamp date format: YYYY-MM-DD ('2019-12-20')
+            </li>
+          </ul>
+        </ul>
+      </ul>
+      <ul>
+        <ul>
+          <ul>
+            <li>
+              <span class="start_end_light">start</span> date must precede
+              <span class="start_end_light">end</span> date
+            </li>
+          </ul>
+        </ul>
+      </ul>
+      <ul>
+        <ul>
+          Parameters are aggregated daily for the following derived values:
+          minimum ('_min'), maximum ('_max'), and average ('_avg)
+        </ul>
+      </ul>
+      <ul>
+        <ul>
+          'day' values are in "year-"day number" format
+        </ul>
+      </ul>
+      <ul>
+        <ul>
+          'timestamp_first' and 'timestamp_last' are the range of timestamps
+          (inclusive) used for calculating the daily aggregated values
+        </ul>
+      </ul>
+      <br />
+      <br />
 
-        <h3 id="details_csv_daily_summary">6. Download Daily Summary CSV</h3>
-        <h4><ul><span class="url">URL template:</span> https://www.envidat.ch/data-api/<span class="app_name"></span>/csv/daily/<span class="model">model</span>/<span class="parameter">parameter</span>/<span class="nodata">nodata</span>/<span class="parent_class">parent_class</span>/<span class="start_end">start</span>/<span class="start_end">end</span>/</ul></h4>
-        <h4><ul>Example returning on parameter:
-            <br><a class="url_daily_csv"></a></ul></h4>
-        <h4><ul>Example returning several parameters:
-            <br><a class="url_daily_csv_several"></a></ul></h4>
-        <p><ul><ul><span class="model">model</span> should correspond to a model name listed at <a class="url_models"></a>, for example <span class="model_name"></span></ul></ul>
-            <ul><ul><span class="parameter">parameter</span> should be a type of measurement, for example <span class="parameter_light"><span class="parameter_name"></span></span></ul></ul>
-            <ul><ul><span class="parameter">parameter</span> can also be several types of measurements separated by commas, for example <span class="parameter_light"><span class="parameter_several"></span></span></ul></ul>
-                 <ul><ul><ul><li><a href="#parameter_list" target="_blank">Click here for list of parameters</a></li></ul></ul></ul>
-           <ul><ul><span class="nodata">nodata</span> represents "null" values in the database</ul></ul>
-               <ul><ul><ul><li><span class="nodata_light"><span class="nodata_name"></span></span> means that all "null" values will be "<span class="nodata_name"></span>" in the CSV file</li></ul></ul></ul>
-               <ul><ul><ul><li><span class="nodata_light">empty</span> means that all "null" values will be "" (empty strings) in the CSV file</li></ul></ul></ul>
-           <p><ul><ul><span class="parent_class">parent_class</span> should be <span class="parent_class_name"></span></ul></ul>
-           <ul><ul><span class="start_end">start</span> is the start date of the dataset</ul></ul>
-               <ul><ul><span class="start_end">end</span> is the end date of the dataset (exclusive)</ul></ul>
-               <ul><ul><ul><li><span class="start_end_light">start</span> and <span class="start_end_light">end</span> dates must be in in ISO timestamp date format: YYYY-MM-DD ('2019-12-20')</li></ul></ul></ul>
-               <ul><ul><ul><li><span class="start_end_light">start</span> date must precede <span class="start_end_light">end</span> date</li></ul></ul></ul>
-           <ul><ul>Parameters are aggregated daily for the following derived values: minimum ('_min'), maximum ('_max'), and average ('_avg)</ul></ul>
-            <ul><ul>'day' values are in "year-"day number" format</ul></ul>
-            <ul><ul>'timestamp_first' and 'timestamp_last' are the range of timestamps (inclusive) used for calculating the daily aggregated values</ul></ul>
-        <br>
-        <br>
+      <h3 id="details_metadata">7. Metadata</h3>
+      <p></p>
+      <ul>
+        Returns metadata for each station including earliest timestamps.
+      </ul>
+      <p></p>
+      <ul>
+        Also returns both earliest and latest timestamps for specified
+        parameters.
+      </ul>
+      <h4>
+        <ul>
+          <span class="url">URL template:</span>
+          https://www.envidat.ch/data-api/<span class="app_name"></span
+          >/metadata/<span class="model">model</span
+          >/<span class="parameter">parameter</span
+          >/<span class="parent_class">parent_class</span>
+        </ul>
+      </h4>
+      <h4>
+        <ul>
+          Example:
+          <a class="url_metadata"></a>
+        </ul>
+      </h4>
+      <h4>
+        <ul>
+          Example returning several parameters:
+          <br /><a class="url_metadata_several"></a>
+        </ul>
+      </h4>
+      <p></p>
+      <ul>
+        <ul>
+          <span class="model">model</span>
+          should correspond to a model name listed at
+          <a class="url_models"></a
+          >, for example
+          <span class="model_name"></span>
+        </ul>
+      </ul>
+      <ul>
+        <ul>
+          <span class="parameter">parameter</span>
+          should be a type of measurement, for example
+          <span class="parameter_light"
+            ><span class="parameter_name"></span
+          ></span>
+        </ul>
+      </ul>
+      <ul>
+        <ul>
+          <span class="parameter">parameter</span>
+          can also be several types of measurements separated by commas, for
+          example
+          <span class="parameter_light"
+            ><span class="parameter_several"></span
+          ></span>
+        </ul>
+      </ul>
+      <ul>
+        <ul>
+          <ul>
+            <li>
+              <a href="#parameter_list" target="_blank"
+                >Click here for list of parameters</a
+              >
+            </li>
+          </ul>
+        </ul>
+      </ul>
+      <p></p>
+      <ul>
+        <ul>
+          <span class="parent_class">parent_class</span>
+          should be
+          <span class="parent_class_name"></span>
+        </ul>
+      </ul>
+      <br />
+      <br />
 
-        <h3 id="details_metadata">7. Metadata</h3>
-        <p><ul>Returns metadata for each station including earliest timestamps.</ul>
-        <p><ul>Also returns both earliest and latest timestamps for specified parameters.</ul>
-        <h4><ul><span class="url">URL template:</span> https://www.envidat.ch/data-api/<span class="app_name"></span>/metadata/<span class="model">model</span>/<span class="parameter">parameter</span>/<span class="parent_class">parent_class</span></ul></h4>
-          <h4><ul>Example: <a class="url_metadata"></a></ul></h4>
-        <h4><ul>Example returning several parameters:
-            <br><a class="url_metadata_several"></a></ul></h4>
-        <p><ul><ul><span class="model">model</span> should correspond to a model name listed at <a class="url_models"></a>, for example <span class="model_name"></span></ul></ul>
-            <ul><ul><span class="parameter">parameter</span> should be a type of measurement, for example <span class="parameter_light"><span class="parameter_name"></span></span></ul></ul>
-            <ul><ul><span class="parameter">parameter</span> can also be several types of measurements separated by commas, for example <span class="parameter_light"><span class="parameter_several"></span></span></ul></ul>
-                 <ul><ul><ul><li><a href="#parameter_list" target="_blank">Click here for list of parameters</a></li></ul></ul></ul>
-        <p><ul><ul><span class="parent_class">parent_class</span> should be <span class="parent_class_name"></span></ul></ul>
-        <br>
-        <br>
+      <h3 id="parameter_list">Parameter List</h3>
 
-        <h3 id="parameter_list">Parameter List</h3>
-
-        <div id="parameter_table">{{ parameters|json_script:"parameters" }}</div>
-
+      <div id="parameter_table">{{ parameters|json_script:"parameters" }}</div>
     </div>
 
-
-   <script src="api_documentation_template.js"></script>
-
-</body>
-
+    <script src="api_documentation_template.js"></script>
+  </body>
 </html>

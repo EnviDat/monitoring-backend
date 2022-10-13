@@ -17,21 +17,22 @@ def get_gcnet_geometry(position_string):
     position_longlat = replace_substring(position_string, latlon_string, longlat_string)
 
     if len(latlon_list) == 3:
-        point_geometry = replace_substring(position_longlat, 'latlon', 'POINTZ')
-        geometry_no_commas = replace_substring(point_geometry, ',', '')
+        point_geometry = replace_substring(position_longlat, "latlon", "POINTZ")
+        geometry_no_commas = replace_substring(point_geometry, ",", "")
         return geometry_no_commas
     elif len(latlon_list) == 2:
-        point_geometry = replace_substring(position_longlat, 'latlon', 'POINT')
-        geometry_no_commas = replace_substring(point_geometry, ',', '')
+        point_geometry = replace_substring(position_longlat, "latlon", "POINT")
+        geometry_no_commas = replace_substring(point_geometry, ",", "")
         return geometry_no_commas
     else:
         print(
-            'WARNING (geometry.py): "{0}" must have two or three items in between parentheses'.format(position_string))
+            f'WARNING (geometry.py): "{position_string}" must have two or three items in between parentheses'
+        )
         return
 
 
 # Returns list of strings to string with space
-def convert_list_to_string(input_list, separator=' '):
+def convert_list_to_string(input_list, separator=" "):
     return separator.join(input_list)
 
 
@@ -44,15 +45,15 @@ def switch_two_elements(input_list, a, b):
 # Returns string in between parentheses
 # Example inputting 'latlon (69.5647, 49.3308, 1176)' outputs '69.5647, 49.3308, 1176'
 def get_string_in_parentheses(input_string):
-    start = input_string.find('(') + len('(')
-    end = input_string.find(')')
+    start = input_string.find("(") + len("(")
+    end = input_string.find(")")
     substring = input_string[start:end]
     return substring
 
 
 # Returns comma delimited string as list
 def convert_string_to_list(string):
-    new_list = [item.strip() for item in string.split(',')]
+    new_list = [item.strip() for item in string.split(",")]
     return new_list
 
 

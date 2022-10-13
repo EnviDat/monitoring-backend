@@ -1,9 +1,10 @@
-from datetime import datetime, timezone
-import pytz
 import math
+from datetime import datetime, timezone
+
+import pytz
 
 
-def dict_from_csv_line(line, header, sep=','):
+def dict_from_csv_line(line, header, sep=","):
     line_array = [v.strip() for v in line.strip().split(sep)]
 
     if len(line_array) != len(header):
@@ -18,7 +19,7 @@ def get_julian_day(iso_timestamp):
 
 
 def get_quarter_day(date):
-    gmt_date = date.astimezone(pytz.timezone('GMT0'))
+    gmt_date = date.astimezone(pytz.timezone("GMT0"))
     if (gmt_date.minute == 0) and (gmt_date.hour in [0, 6, 18, 12]):
         return True
     else:
@@ -26,7 +27,7 @@ def get_quarter_day(date):
 
 
 def get_half_day(date):
-    gmt_date = date.astimezone(pytz.timezone('GMT0'))
+    gmt_date = date.astimezone(pytz.timezone("GMT0"))
     if (gmt_date.minute == 0) and (gmt_date.hour in [0, 12]):
         return True
     else:
@@ -34,11 +35,11 @@ def get_half_day(date):
 
 
 def get_year_week(date):
-    return "{0}-{1}".format(date.year, date.isocalendar()[1])
+    return f"{date.year}-{date.isocalendar()[1]}"
 
 
 def get_year_day(date):
-    return "{0}-{1}".format(date.year, date.timetuple().tm_yday)
+    return f"{date.year}-{date.timetuple().tm_yday}"
 
 
 def get_linux_timestamp(date):
@@ -62,7 +63,7 @@ def half_day(dec_day):
 
 def year_day(year, decday):
     day = str(math.floor(float(decday)))
-    return year + '-' + day
+    return year + "-" + day
 
 
 def year_week(year, decday):
@@ -103,7 +104,7 @@ def gcnet_utc_timestamp(year, decimal_day):
     padded_minutes = str(minutes).zfill(2)
     padded_hours = str(hours).zfill(2)
 
-    date = "{0}/{1}/{2}:{3}".format(year, padded_day, padded_hours, padded_minutes)
+    date = f"{year}/{padded_day}/{padded_hours}:{padded_minutes}"
     element = datetime.strptime(date, "%Y/%j/%H:%M")
     timestamp = int(element.replace(tzinfo=timezone.utc).timestamp())
 

@@ -1,90 +1,77 @@
-
 from django.db import models
-from postgres_copy import CopyManager
-
 from lwf.fields import LWFMeteoFloatField
+from postgres_copy import CopyManager
 
 
 # Parent class that defines fields for LWF Meteo stations
 class LWFMeteo(models.Model):
     timestamp_iso = models.DateTimeField(
-        verbose_name='Timestamp ISO format',
-        unique=True
+        verbose_name="Timestamp ISO format", unique=True
     )
 
     year = models.IntegerField(
-        verbose_name='Year',
+        verbose_name="Year",
     )
 
     # Unit: Day of Year [days]
     julianday = models.IntegerField(
-        verbose_name='Julian Day',
+        verbose_name="Julian Day",
     )
 
     # Quarter day (every 6 hours (00:00, 6:00, 12:00, 18:00))
-    quarterday = models.BooleanField(
-        verbose_name='Quarter Day'
-    )
+    quarterday = models.BooleanField(verbose_name="Quarter Day")
 
     # Half day (every 12 hours (0:00, 12:00))
-    halfday = models.BooleanField(
-        verbose_name='Half Day'
-    )
+    halfday = models.BooleanField(verbose_name="Half Day")
 
     # Julian day prefixed by year and hyphen (ex. 1996-123)
     day = models.CharField(
-        verbose_name='Whole Day',
+        verbose_name="Whole Day",
         max_length=8,
     )
 
     # Week of year prefixed by year and hyphen (ex. 1996-27)
     week = models.CharField(
-        verbose_name='Week Number',
+        verbose_name="Week Number",
         max_length=8,
     )
 
     # Air temperature [°C]
-    temp = LWFMeteoFloatField(
-        verbose_name='Air Temperature',
-        null=True
-    )
+    temp = LWFMeteoFloatField(verbose_name="Air Temperature", null=True)
 
     # Relative humidity [%]
-    rh = LWFMeteoFloatField(
-        verbose_name='Relative Humidity',
-        null=True
-    )
+    rh = LWFMeteoFloatField(verbose_name="Relative Humidity", null=True)
 
     # Precipitation [mm hh^-1]
-    precip = LWFMeteoFloatField(
-        verbose_name='Precipitation',
-        null=True
-    )
+    precip = LWFMeteoFloatField(verbose_name="Precipitation", null=True)
 
     # PAR (photosynthetically active radiation) [W m^-2]
     par = LWFMeteoFloatField(
-        verbose_name='Photosynthetically Active Radiation',
-        null=True
+        verbose_name="Photosynthetically Active Radiation", null=True
     )
 
     # Wind speed [m s^-1]
-    ws = LWFMeteoFloatField(
-        verbose_name='Wind Speed',
-        null=True
-    )
+    ws = LWFMeteoFloatField(verbose_name="Wind Speed", null=True)
 
     # Create copy manager for postgres_copy
     objects = CopyManager()
 
-    delimiter = ';'
+    delimiter = ";"
 
     header_line_count = 1
 
-    header_symbol = '#'
+    header_symbol = "#"
 
-    input_fields = ['timestamp', 'temp', 'rH', 'precip', 'PAR', 'ws',]
+    input_fields = [
+        "timestamp",
+        "temp",
+        "rH",
+        "precip",
+        "PAR",
+        "ws",
+    ]
 
-    date_format = '%Y-%m-%d %H:%M:%S'
+    date_format = "%Y-%m-%d %H:%M:%S"
 
     # Declare Station has an abstract class so it can be inherited
     class Meta:

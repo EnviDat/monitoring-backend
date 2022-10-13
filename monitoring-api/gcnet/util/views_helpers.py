@@ -1,70 +1,72 @@
 # ==========================================  VIEWS HELPERS ===========================================================
 
-import os
-from datetime import datetime, timedelta
-import importlib
-
-from django.core.exceptions import FieldDoesNotExist
-from django.db.models import Min, Max, Avg, Func
-from django.http import HttpResponseNotFound
-from datetime import timezone
-from pathlib import Path
 import configparser
-
-from gcnet.util.geometry import convert_string_to_list
+import importlib
+import os
+from datetime import datetime, timedelta, timezone
+from pathlib import Path
 
 import django
+from django.core.exceptions import FieldDoesNotExist
+from django.db.models import Avg, Func, Max, Min
+from django.http import HttpResponseNotFound
+from gcnet.util.geometry import convert_string_to_list
 
 django.setup()
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'project.settings')
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "project.settings")
 
 # =========================================== CONSTANTS ===============================================================
 
 # String passed in kwargs['parameters'] that is used to return returned_parameters
-ALL_DISPLAY_VALUES_STRING = 'multiple'
+ALL_DISPLAY_VALUES_STRING = "multiple"
 
 # Specifies which fields to return from database table
-ALL_DISPLAY_VALUES = ['swin',
-                      'swin_maximum',
-                      'swout',
-                      'swin_stdev',
-                      'netrad',
-                      'netrad_stdev',
-                      'airtemp1',
-                      'airtemp1_maximum',
-                      'airtemp1_minimum',
-                      'airtemp2',
-                      'airtemp2_maximum',
-                      'airtemp2_minimum',
-                      'airtemp_cs500air1',
-                      'airtemp_cs500air2',
-                      'rh1',
-                      'rh2',
-                      'windspeed1',
-                      'windspeed_u1_maximum',
-                      'windspeed_u1_stdev',
-                      'windspeed2',
-                      'windspeed_u2_maximum',
-                      'windspeed_u2_stdev',
-                      'winddir1',
-                      'winddir2',
-                      'pressure',
-                      'sh1',
-                      'sh2',
-                      'battvolt',
-                      'reftemp']
+ALL_DISPLAY_VALUES = [
+    "swin",
+    "swin_maximum",
+    "swout",
+    "swin_stdev",
+    "netrad",
+    "netrad_stdev",
+    "airtemp1",
+    "airtemp1_maximum",
+    "airtemp1_minimum",
+    "airtemp2",
+    "airtemp2_maximum",
+    "airtemp2_minimum",
+    "airtemp_cs500air1",
+    "airtemp_cs500air2",
+    "rh1",
+    "rh2",
+    "windspeed1",
+    "windspeed_u1_maximum",
+    "windspeed_u1_stdev",
+    "windspeed2",
+    "windspeed_u2_maximum",
+    "windspeed_u2_stdev",
+    "winddir1",
+    "winddir2",
+    "pressure",
+    "sh1",
+    "sh2",
+    "battvolt",
+    "reftemp",
+]
 
 
 # =========================================== FUNCTIONS ===============================================================
 
 # ------------------------------------------- Read Config ------------------------------------------------------------
 
+
 def read_config(config_path: str):
     config_file = Path(config_path)
 
     # Load gcnet configuration file
-    gc_config = configparser.RawConfigParser(inline_comment_prefixes='#', allow_no_value=True)
+    gc_config = configparser.RawConfigParser(
+        inline_comment_prefixes="#", allow_no_value=True
+    )
     gc_config.read(config_file)
 
     # print("Read config params file: {0}, sections: {1}".format(config_path, ', '.join(gc_config.sections())))
@@ -82,42 +84,62 @@ def read_config(config_path: str):
 def get_documentation_context(model_class):
     params_dict = {}
     for field in model_class._meta.get_fields():
-        params_dict[field.name] = {'param': field.name, 'long_name': field.verbose_name, 'units': field.help_text}
+        params_dict[field.name] = {
+            "param": field.name,
+            "long_name": field.verbose_name,
+            "units": field.help_text,
+        }
 
-    keys_to_remove = ['id', 'timestamp_iso', 'timestamp', 'year', 'julianday', 'quarterday', 'halfday', 'day', 'week']
+    keys_to_remove = [
+        "id",
+        "timestamp_iso",
+        "timestamp",
+        "year",
+        "julianday",
+        "quarterday",
+        "halfday",
+        "day",
+        "week",
+    ]
     for key in keys_to_remove:
         params_dict.pop(key)
 
-    context = {'parameters': params_dict}
+    context = {"parameters": params_dict}
 
     return context
 
 
 # -------------------------------------- Date Validators --------------------------------------------------------------
 
+
 def validate_date_gcnet(start, end):
     # Check if start and end are both only in day format (and do not include times),
     # add additional day to end date of dict_ts
     if validate_day_only_format(start) and validate_day_only_format(end):
         end_plus1 = get_date(end)
-        dict_ts = {'timestamp_iso__gte': start,
-                   'timestamp_iso__lt': end_plus1}
+        dict_ts = {"timestamp_iso__gte": start, "timestamp_iso__lt": end_plus1}
         return dict_ts
 
     elif validate_iso_format_gcnet(start) and validate_iso_format_gcnet(end):
-        dict_ts = {'timestamp_iso__range': (format_timestamp(start), format_timestamp(end))}
+        dict_ts = {
+            "timestamp_iso__range": (format_timestamp(start), format_timestamp(end))
+        }
         return dict_ts
 
     elif validate_unix_timestamp(int(start)) and validate_unix_timestamp(int(end)):
-        dict_ts = {'timestamp__range': (start, end)}
+        dict_ts = {"timestamp__range": (start, end)}
         return dict_ts
 
     else:
-        raise ValueError("Incorrect date formats, start and end dates should both be in ISO format or unix timestamp")
+        raise ValueError(
+            "Incorrect date formats, start and end dates should both be in ISO format or unix timestamp"
+        )
 
 
 def get_date(input_date, date_format="%Y-%m-%d", add_day=1):
-    date_plus_1day = datetime.strptime(input_date, date_format) + timedelta(days=add_day)
+    date_plus_1day = datetime.strptime(input_date, date_format) + timedelta(
+        days=add_day
+    )
     return date_plus_1day.strftime(date_format)
 
 
@@ -125,7 +147,9 @@ def get_date(input_date, date_format="%Y-%m-%d", add_day=1):
 # Else returns timestamp string unaltered
 def format_timestamp(timestamp):
     try:
-        dt_object = datetime.strptime(timestamp, '%Y-%m-%dT%H:%M:%S').replace(tzinfo=timezone.utc)
+        dt_object = datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%S").replace(
+            tzinfo=timezone.utc
+        )
         return dt_object
     except ValueError:
         return timestamp
@@ -158,10 +182,10 @@ def validate_unix_timestamp(date_text):
 
 # ----------------------------------------  Get Model Functions -------------------------------------------------------
 def get_model(app, **kwargs):
-    model = kwargs['model']
-    model_url = model.rsplit('.', 1)[-1]
+    model = kwargs["model"]
+    model_url = model.rsplit(".", 1)[-1]
     class_name = get_model_from_config(model_url)
-    package = importlib.import_module(f'{app}.models')
+    package = importlib.import_module(f"{app}.models")
     return getattr(package, class_name)
 
 
@@ -172,7 +196,7 @@ def get_model_class(class_name):
 
 def get_model_url_dict():
     # Read the stations config file
-    stations_path = Path('gcnet/config/stations.ini')
+    stations_path = Path("gcnet/config/stations.ini")
     stations_config = read_config(stations_path)
 
     # Check if stations_config exists
@@ -183,9 +207,9 @@ def get_model_url_dict():
     # model_url:model key:value pairs
     model_dict = {}
     for section in stations_config.sections():
-        if stations_config.get(section, 'active') == 'True':
-            model_id = stations_config.get(section, 'model')
-            model_url = stations_config.get(section, 'model_url')
+        if stations_config.get(section, "active") == "True":
+            model_id = stations_config.get(section, "model")
+            model_url = stations_config.get(section, "model_url")
             model_dict[model_url] = model_id
     return model_dict
 
@@ -202,8 +226,8 @@ def get_model_from_config(model_url):
 
 # Assign null_value
 def get_null_value(nodata_kwargs):
-    if nodata_kwargs == 'empty':
-        null_value = ''
+    if nodata_kwargs == "empty":
+        null_value = ""
     else:
         null_value = nodata_kwargs
     return null_value
@@ -212,13 +236,14 @@ def get_null_value(nodata_kwargs):
 # Fill hash_lines with config_buffer lines prepended with '# '
 def get_hashed_lines(config_buffer):
     hash_lines = []
-    for line in config_buffer.replace('\r\n', '\n').split('\n'):
-        line = '# ' + line + '\n'
+    for line in config_buffer.replace("\r\n", "\n").split("\n"):
+        line = "# " + line + "\n"
         hash_lines.append(line)
     return hash_lines
 
 
 # --------------------------------------- Aggregate View Helpers ------------------------------------------------------
+
 
 class Round2(Func):
     function = "ROUND"
@@ -227,23 +252,27 @@ class Round2(Func):
 
 # Get 'dict_fields' for aggregate views
 def get_dict_fields(display_values):
-    dict_fields = {'timestamp_first': Min('timestamp_iso'),
-                   'timestamp_last': Max('timestamp_iso')}
+    dict_fields = {
+        "timestamp_first": Min("timestamp_iso"),
+        "timestamp_last": Max("timestamp_iso"),
+    }
 
     for parameter in display_values:
-        dict_fields[parameter + '_min'] = Min(parameter)
-        dict_fields[parameter + '_max'] = Max(parameter)
-        dict_fields[parameter + '_avg'] = Round2(Avg(parameter))
+        dict_fields[parameter + "_min"] = Min(parameter)
+        dict_fields[parameter + "_max"] = Max(parameter)
+        dict_fields[parameter + "_avg"] = Round2(Avg(parameter))
 
     return dict_fields
 
 
 # Get dict_timestamps for metadata view
 def get_dict_timestamps():
-    dict_timestamps = {'timestamp_iso_earliest': Min('timestamp_iso'),
-                       'timestamp_earliest': (Min('timestamp')),
-                       'timestamp_iso_latest': Max('timestamp_iso'),
-                       'timestamp_latest': Max('timestamp')}
+    dict_timestamps = {
+        "timestamp_iso_earliest": Min("timestamp_iso"),
+        "timestamp_earliest": (Min("timestamp")),
+        "timestamp_iso_latest": Max("timestamp_iso"),
+        "timestamp_latest": Max("timestamp"),
+    }
 
     return dict_timestamps
 
@@ -281,21 +310,22 @@ def get_display_values(parameters, model_class):
 
 
 def multiprocessing_timestamp_dict(manager_dict, param, model_class, timestamps_dict):
-    filter_dict = {f'{param}__isnull': False}
+    filter_dict = {f"{param}__isnull": False}
 
-    qs = (model_class.objects
-          .values(param)
-          .filter(**filter_dict)
-          .aggregate(**timestamps_dict))
+    qs = (
+        model_class.objects.values(param)
+        .filter(**filter_dict)
+        .aggregate(**timestamps_dict)
+    )
 
     # TODO remove the following block that converts unix timestamps
     #  from whole seconds into milliseconds after data re-imported
-    timestamp_latest = qs.get('timestamp_latest')
-    timestamp_earliest = qs.get('timestamp_earliest')
+    timestamp_latest = qs.get("timestamp_latest")
+    timestamp_earliest = qs.get("timestamp_earliest")
     if timestamp_latest is not None and timestamp_earliest is not None:
-        timestamp_latest_dict = {'timestamp_latest': timestamp_latest * 1000}
+        timestamp_latest_dict = {"timestamp_latest": timestamp_latest * 1000}
         qs.update(timestamp_latest_dict)
-        timestamp_earliest_dict = {'timestamp_earliest': timestamp_earliest * 1000}
+        timestamp_earliest_dict = {"timestamp_earliest": timestamp_earliest * 1000}
         qs.update(timestamp_earliest_dict)
 
     manager_dict[param] = qs

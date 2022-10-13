@@ -1,5 +1,5 @@
-from datetime import timezone
-from datetime import datetime
+from datetime import datetime, timezone
+
 import dateutil.parser as date_parser
 
 
@@ -46,7 +46,7 @@ def get_minute(date_string):
 # Assumes all days in a new year preceding the first Sunday are considered to be in week 0
 def get_week(date_string, date_format):
     dt_object = get_utc_datetime(date_string, date_format)
-    week = dt_object.strftime('%U')
+    week = dt_object.strftime("%U")
 
     return week
 
@@ -78,7 +78,7 @@ def year_day(date_string, date_format):
     year = get_year(date_string)
     julian_day = get_julian_day(date_string, date_format)
 
-    return '{0}-{1}'.format(year, julian_day)
+    return f"{year}-{julian_day}"
 
 
 # Return week of year prefixed by year and hyphen (ex. 1996-27)
@@ -86,4 +86,4 @@ def year_week(date_string, date_format):
     year = get_year(date_string)
     week = get_week(date_string, date_format)
 
-    return '{0}-{1}'.format(year, week)
+    return f"{year}-{week}"

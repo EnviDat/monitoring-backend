@@ -1,5 +1,5 @@
-from io import StringIO
 import configparser
+from io import StringIO
 from pathlib import Path
 
 
@@ -7,7 +7,9 @@ def read_config(config_path: str):
     config_file = Path(config_path)
 
     # Load configuration file
-    config = configparser.RawConfigParser(inline_comment_prefixes='#', allow_no_value=True)
+    config = configparser.RawConfigParser(
+        inline_comment_prefixes="#", allow_no_value=True
+    )
     config.read(config_file)
 
     if len(config.sections()) < 1:
@@ -20,8 +22,8 @@ def read_config(config_path: str):
 # Assign hash_lines with config lines prepended with '# '
 def get_hashed_lines(config):
     hash_lines = []
-    for line in config.replace('\r\n', '\n').split('\n'):
-        line = '# ' + line + '\n'
+    for line in config.replace("\r\n", "\n").split("\n"):
+        line = "# " + line + "\n"
         hash_lines.append(line)
     return hash_lines
 
@@ -41,14 +43,14 @@ def get_hashed_lines(config):
 def write_nead(data_frame, nead_config, output_path):
 
     # Assign nead_output to output_path with .csv extension
-    nead_output = Path('{0}.csv'.format(output_path))
+    nead_output = Path(f"{output_path}.csv")
 
     # Read nead_config into conf
     conf = read_config(Path(nead_config))
 
     # Assign fields from nead_config 'fields', convert to list in fields_list
-    fields =conf.get('FIELDS', 'fields')
-    fields_list = fields.split(',')
+    fields = conf.get("FIELDS", "fields")
+    fields_list = fields.split(",")
 
     # Write conf into buffer
     buffer = StringIO()
@@ -58,13 +60,15 @@ def write_nead(data_frame, nead_config, output_path):
     hash_lines = get_hashed_lines(buffer.getvalue())
 
     # Write hash_lines into nead_header
-    with open(nead_output, 'w', newline='\n') as nead_header:
+    with open(nead_output, "w", newline="\n") as nead_header:
         for row in hash_lines:
             nead_header.write(row)
 
     # Append data to header, omit indices, omit dataframe header, and output columns in fields_list
-    with open(nead_output, 'a') as nead:
-        data_frame.to_csv(nead, index=False, header=False, columns=fields_list, line_terminator='\n')
+    with open(nead_output, "a") as nead:
+        data_frame.to_csv(
+            nead, index=False, header=False, columns=fields_list, line_terminator="\n"
+        )
 
 
 # Function returns list of float values from 'config_key' in the 'FIELDS' section of 'nead_config'
@@ -78,8 +82,8 @@ def get_config_list(nead_config, config_key):
     conf = read_config(Path(nead_config))
 
     # Assign values from nead_config 'config_key', convert to list in values_list
-    values_string = conf.get('FIELDS', config_key)
-    values_list = values_string.split(',')
+    values_string = conf.get("FIELDS", config_key)
+    values_list = values_string.split(",")
 
     values_list_float = [float(elem) for elem in values_list]
 

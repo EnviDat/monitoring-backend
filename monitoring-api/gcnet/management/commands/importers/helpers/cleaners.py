@@ -1,7 +1,6 @@
-from datetime import timezone
-from datetime import datetime
-import dateutil.parser as date_parser
+from datetime import datetime, timezone
 
+import dateutil.parser as date_parser
 from gcnet.util.constants import Columns
 
 
@@ -13,14 +12,16 @@ def get_gcnet_record_clean(row, date_format, null_value):
 
     # Computed time fields
     time_fields = {
-        Columns.TIMESTAMP_ISO.value: get_utc_datetime(row['timestamp_iso'], date_format),
-        Columns.TIMESTAMP.value: get_unix_timestamp(row['timestamp_iso'], date_format),
-        Columns.YEAR.value: get_year(row['timestamp_iso']),
-        Columns.JULIANDAY.value: get_julian_day(row['timestamp_iso'], date_format),
-        Columns.QUARTERDAY.value: quarter_day(row['timestamp_iso']),
-        Columns.HALFDAY.value: half_day(row['timestamp_iso']),
-        Columns.DAY.value: year_day(row['timestamp_iso'], date_format),
-        Columns.WEEK.value: year_week(row['timestamp_iso'], date_format),
+        Columns.TIMESTAMP_ISO.value: get_utc_datetime(
+            row["timestamp_iso"], date_format
+        ),
+        Columns.TIMESTAMP.value: get_unix_timestamp(row["timestamp_iso"], date_format),
+        Columns.YEAR.value: get_year(row["timestamp_iso"]),
+        Columns.JULIANDAY.value: get_julian_day(row["timestamp_iso"], date_format),
+        Columns.QUARTERDAY.value: quarter_day(row["timestamp_iso"]),
+        Columns.HALFDAY.value: half_day(row["timestamp_iso"]),
+        Columns.DAY.value: year_day(row["timestamp_iso"], date_format),
+        Columns.WEEK.value: year_week(row["timestamp_iso"], date_format),
     }
 
     # Values directly from input file
@@ -54,45 +55,46 @@ def get_gcnet_record_clean(row, date_format, null_value):
 def get_gcnet_line_clean(row, date_format, null_value):
     row = {
         # Computed time fields
-        Columns.TIMESTAMP_ISO.value: get_utc_datetime(row['timestamp_iso'], date_format),
-        Columns.TIMESTAMP.value: get_unix_timestamp(row['timestamp_iso'], date_format),
-        Columns.YEAR.value: get_year(row['timestamp_iso']),
-        Columns.JULIANDAY.value: get_julian_day(row['timestamp_iso'], date_format),
-        Columns.QUARTERDAY.value: quarter_day(row['timestamp_iso']),
-        Columns.HALFDAY.value: half_day(row['timestamp_iso']),
-        Columns.DAY.value: year_day(row['timestamp_iso'], date_format),
-        Columns.WEEK.value: year_week(row['timestamp_iso'], date_format),
-
+        Columns.TIMESTAMP_ISO.value: get_utc_datetime(
+            row["timestamp_iso"], date_format
+        ),
+        Columns.TIMESTAMP.value: get_unix_timestamp(row["timestamp_iso"], date_format),
+        Columns.YEAR.value: get_year(row["timestamp_iso"]),
+        Columns.JULIANDAY.value: get_julian_day(row["timestamp_iso"], date_format),
+        Columns.QUARTERDAY.value: quarter_day(row["timestamp_iso"]),
+        Columns.HALFDAY.value: half_day(row["timestamp_iso"]),
+        Columns.DAY.value: year_day(row["timestamp_iso"], date_format),
+        Columns.WEEK.value: year_week(row["timestamp_iso"], date_format),
         # Fields directly read from input data, convert input string values to float values
-        Columns.SWIN.value: float(row['swin']),
-        Columns.SWOUT.value: float(row['swout']),
-        Columns.NETRAD.value: float(row['netrad']),
-        Columns.AIRTEMP1.value: float(row['airtemp1']),
-        Columns.AIRTEMP2.value: float(row['airtemp2']),
-        Columns.AIRTEMP_CS500AIR1.value: float(row['airtemp_cs500air1']),
-        Columns.AIRTEMP_CS500AIR2.value: float(row['airtemp_cs500air2']),
-        Columns.RH1.value: float(row['rh1']),
-        Columns.RH2.value: float(row['rh2']),
-        Columns.WINDSPEED1.value: float(row['windspeed1']),
-        Columns.WINDSPEED2.value: float(row['windspeed2']),
-        Columns.WINDDIR1.value: float(row['winddir1']),
-        Columns.WINDDIR2.value: float(row['winddir2']),
-        Columns.PRESSURE.value: float(row['pressure']),
-        Columns.SH1.value: float(row['sh1']),
-        Columns.SH2.value: float(row['sh2']),
-        Columns.BATTVOLT.value: float(row['battvolt']),
-        Columns.SWIN_MAX.value: float(row['swin_maximum']),
-        Columns.SWIN_STDEV.value: float(row['swin_stdev']),
-        Columns.NETRAD_STDEV.value: float(row['netrad_stdev']),
-        Columns.AIRTEMP1_MAX.value: float(row['airtemp1_maximum']),
-        Columns.AIRTEMP2_MAX.value: float(row['airtemp2_maximum']),
-        Columns.AIRTEMP1_MIN.value: float(row['airtemp1_minimum']),
-        Columns.AIRTEMP2_MIN.value: float(row['airtemp2_minimum']),
-        Columns.WINDSPEED_U1_MAX.value: float(row['windspeed_u1_maximum']),
-        Columns.WINDSPEED_U2_MAX.value: float(row['windspeed_u2_maximum']),
-        Columns.WINDSPEED_U1_STDEV.value: float(row['windspeed_u1_stdev']),
-        Columns.WINDSPEED_U2_STDEV.value: float(row['windspeed_u2_stdev']),
-        Columns.REFTEMP.value: float(row['reftemp'])
+        Columns.SWIN.value: float(row["swin"]),
+        Columns.SWOUT.value: float(row["swout"]),
+        Columns.NETRAD.value: float(row["netrad"]),
+        Columns.AIRTEMP1.value: float(row["airtemp1"]),
+        Columns.AIRTEMP2.value: float(row["airtemp2"]),
+        Columns.AIRTEMP_CS500AIR1.value: float(row["airtemp_cs500air1"]),
+        Columns.AIRTEMP_CS500AIR2.value: float(row["airtemp_cs500air2"]),
+        Columns.RH1.value: float(row["rh1"]),
+        Columns.RH2.value: float(row["rh2"]),
+        Columns.WINDSPEED1.value: float(row["windspeed1"]),
+        Columns.WINDSPEED2.value: float(row["windspeed2"]),
+        Columns.WINDDIR1.value: float(row["winddir1"]),
+        Columns.WINDDIR2.value: float(row["winddir2"]),
+        Columns.PRESSURE.value: float(row["pressure"]),
+        Columns.SH1.value: float(row["sh1"]),
+        Columns.SH2.value: float(row["sh2"]),
+        Columns.BATTVOLT.value: float(row["battvolt"]),
+        Columns.SWIN_MAX.value: float(row["swin_maximum"]),
+        Columns.SWIN_STDEV.value: float(row["swin_stdev"]),
+        Columns.NETRAD_STDEV.value: float(row["netrad_stdev"]),
+        Columns.AIRTEMP1_MAX.value: float(row["airtemp1_maximum"]),
+        Columns.AIRTEMP2_MAX.value: float(row["airtemp2_maximum"]),
+        Columns.AIRTEMP1_MIN.value: float(row["airtemp1_minimum"]),
+        Columns.AIRTEMP2_MIN.value: float(row["airtemp2_minimum"]),
+        Columns.WINDSPEED_U1_MAX.value: float(row["windspeed_u1_maximum"]),
+        Columns.WINDSPEED_U2_MAX.value: float(row["windspeed_u2_maximum"]),
+        Columns.WINDSPEED_U1_STDEV.value: float(row["windspeed_u1_stdev"]),
+        Columns.WINDSPEED_U2_STDEV.value: float(row["windspeed_u2_stdev"]),
+        Columns.REFTEMP.value: float(row["reftemp"]),
     }
 
     # null_value is converted to float to compare with row values
@@ -129,7 +131,7 @@ def get_year(date_string):
 # Assumes all days in a new year preceding the first Sunday are considered to be in week 0
 def get_week(date_string, date_format):
     dt_object = get_utc_datetime(date_string, date_format)
-    week = dt_object.strftime('%U')
+    week = dt_object.strftime("%U")
     return week
 
 
@@ -177,14 +179,11 @@ def half_day(date_string):
 def year_day(date_string, date_format):
     year = get_year(date_string)
     julian_day = get_julian_day(date_string, date_format)
-    return f'{year}-{julian_day}'
+    return f"{year}-{julian_day}"
 
 
 # Return week of year prefixed by year and hyphen (ex. 1996-27)
 def year_week(date_string, date_format):
     year = get_year(date_string)
     week = get_week(date_string, date_format)
-    return f'{year}-{week}'
-
-
-
+    return f"{year}-{week}"

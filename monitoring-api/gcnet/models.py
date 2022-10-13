@@ -1,20 +1,20 @@
 from django.db import models
-from django.db.models import Subquery, Max, Min
-
+from django.db.models import Max, Min, Subquery
 from gcnet.fields import CustomFloatField
 from postgres_copy import CopyManager
 
 
 # This class used for metadata endpoint development and testing and may not be deployed
 class MetadataSet(models.QuerySet):
-
     def metadata(self, parameter):
-        filter_dict = {f'{parameter}__isnull': False}
+        filter_dict = {f"{parameter}__isnull": False}
 
-        dict_timestamps = {'timestamp_iso_latest': Max('timestamp_iso'),
-                           'timestamp_latest': Max('timestamp'),
-                           'timestamp_iso_earliest': Min('timestamp_iso'),
-                           'timestamp_earliest': Min('timestamp')}
+        dict_timestamps = {
+            "timestamp_iso_latest": Max("timestamp_iso"),
+            "timestamp_latest": Max("timestamp"),
+            "timestamp_iso_earliest": Min("timestamp_iso"),
+            "timestamp_earliest": Min("timestamp"),
+        }
 
         return self.filter(**filter_dict).values(parameter).aggregate(**dict_timestamps)
 
@@ -22,161 +22,144 @@ class MetadataSet(models.QuerySet):
 # Parent class that defines fields for each station's model
 class Station(models.Model):
     timestamp_iso = models.DateTimeField(
-        verbose_name='Timestamp ISO format',
-        unique=True
+        verbose_name="Timestamp ISO format", unique=True
     )
 
-    timestamp = models.IntegerField(
-        verbose_name='Unix-Timestamp',
-        unique=True
-    )
+    timestamp = models.IntegerField(verbose_name="Unix-Timestamp", unique=True)
 
     year = models.IntegerField(
-        verbose_name='Year',
+        verbose_name="Year",
     )
 
     # Unit: Day of Year.hour/24 [days]
     julianday = models.FloatField(
-        verbose_name='Decimal Julian Day',
+        verbose_name="Decimal Julian Day",
     )
 
     # Quarter day (every 6 hours (00:00, 6:00, 12:00, 18:00))
-    quarterday = models.BooleanField(
-        verbose_name='Quarter Day'
-    )
+    quarterday = models.BooleanField(verbose_name="Quarter Day")
 
     # Half day (every 12 hours (0:00,. 12:00))
-    halfday = models.BooleanField(
-        verbose_name='Half Day'
-    )
+    halfday = models.BooleanField(verbose_name="Half Day")
 
     # Julian day truncated to whole day (i.e. 1.25 to 1) prefixed by year and hyphen (ex. 1996-123)
     day = models.CharField(
-        verbose_name='Whole Day',
+        verbose_name="Whole Day",
         max_length=10,
     )
 
     # Week of year prefixed by year and hyphen (ex. 1996-27)
     week = models.CharField(
-        verbose_name='Week Number',
+        verbose_name="Week Number",
         max_length=10,
     )
 
     # Unit:  SW_down [W m-2]
     swin = CustomFloatField(
-        verbose_name='SWin',
-        null=True,
-        db_column='swin',
-        help_text='W m^-2'
+        verbose_name="SWin", null=True, db_column="swin", help_text="W m^-2"
     )
 
     # Unit: SW_up [W m-2]
-    swout = CustomFloatField(
-        verbose_name='SWout',
-        null=True,
-        help_text='W m^-2'
-    )
+    swout = CustomFloatField(verbose_name="SWout", null=True, help_text="W m^-2")
 
     # Unit: Net Radiation F [W m-2]
     netrad = CustomFloatField(
-        verbose_name='Net Radiation',
-        null=True,
-        help_text='W m^-2'
+        verbose_name="Net Radiation", null=True, help_text="W m^-2"
     )
 
     # Unit: TC Air 1 G Air Temperature [degC]
     airtemp1 = CustomFloatField(
-        verbose_name='Air Temperature-TC Air 1',
+        verbose_name="Air Temperature-TC Air 1",
         null=True,
-        help_text='°C',
+        help_text="°C",
     )
 
     # Unit: TC Air 2 H Air Temperature [degC]
     airtemp2 = CustomFloatField(
-        verbose_name='Air Temperature-TC Air 2',
+        verbose_name="Air Temperature-TC Air 2",
         null=True,
-        help_text='°C',
+        help_text="°C",
     )
 
     # Unit:  CS500 T Air 1 I Air Temperature [degC]
     airtemp_cs500air1 = CustomFloatField(
-        verbose_name='Air Temperature-CS500 T Air 1',
+        verbose_name="Air Temperature-CS500 T Air 1",
         null=True,
-        help_text='°C',
+        help_text="°C",
     )
 
     # Unit: CS500 T Air 2 J Air Temperature [degC]
     airtemp_cs500air2 = CustomFloatField(
-        verbose_name='Air Temperature-CS500 T Air 2',
+        verbose_name="Air Temperature-CS500 T Air 2",
         null=True,
-        help_text='°C',
+        help_text="°C",
     )
 
     # Unit: RH 1 K Relative Humidity [%]
     rh1 = CustomFloatField(
-        verbose_name='Relative Humidity-RH 1',
+        verbose_name="Relative Humidity-RH 1",
         null=True,
-        help_text='%',
+        help_text="%",
     )
 
     # Unit: RH 2 L Relative Humidity [%]
     rh2 = CustomFloatField(
-        verbose_name='Relative Humidity-RH 2',
+        verbose_name="Relative Humidity-RH 2",
         null=True,
-        help_text='%',
+        help_text="%",
     )
 
     # Unit: U1 M Wind Speed [m/s]
     windspeed1 = CustomFloatField(
-        verbose_name='Windspeed-U1',
+        verbose_name="Windspeed-U1",
         null=True,
     )
 
     # Unit: U2 N Wind Speed [m/s]
     windspeed2 = CustomFloatField(
-        verbose_name='Windspeed-U2',
+        verbose_name="Windspeed-U2",
         null=True,
     )
 
     # Unit: U Dir 1 O [deg]
     winddir1 = CustomFloatField(
-        verbose_name='Wind Direction-U Dir 1',
+        verbose_name="Wind Direction-U Dir 1",
         null=True,
     )
 
     # Unit: U Dir 2 P [deg]
     winddir2 = CustomFloatField(
-        verbose_name='Wind Direction-U Dir 2',
+        verbose_name="Wind Direction-U Dir 2",
         null=True,
     )
 
     # Unit: Atmos Pressure Q [mbar]
     pressure = CustomFloatField(
-        verbose_name='Atmos Pressure',
+        verbose_name="Atmos Pressure",
         null=True,
     )
 
     # Unit: Snow Height 1 R [m]
     sh1 = CustomFloatField(
-        verbose_name='Snow Height 1',
+        verbose_name="Snow Height 1",
         null=True,
     )
 
     # Unit: Snow Height 2 S [m]
     sh2 = CustomFloatField(
-        verbose_name='Snow Height 2',
+        verbose_name="Snow Height 2",
         null=True,
     )
 
     # Unit: Battery Voltage [V]
     battvolt = CustomFloatField(
-        verbose_name='Battery Voltage',
+        verbose_name="Battery Voltage",
         null=True,
     )
 
     # Unit: SW Incoming Radiation Maximum [W m-2]
     swin_maximum = CustomFloatField(
-        verbose_name='SWinMax',
+        verbose_name="SWinMax",
         null=True,
     )
 
@@ -189,7 +172,7 @@ class Station(models.Model):
 
     # Unit: SW Incoming Radiation Standard Deviation [W m-2]
     swin_stdev = CustomFloatField(
-        verbose_name='SWinStDev',
+        verbose_name="SWinStDev",
         null=True,
     )
 
@@ -202,61 +185,61 @@ class Station(models.Model):
 
     # Unit: NetRadMax[W m-2]
     netrad_stdev = CustomFloatField(
-        verbose_name='NetRadStDev',
+        verbose_name="NetRadStDev",
         null=True,
     )
 
     # Unit: Max Air Temperature1 (TC) [degC]
     airtemp1_maximum = CustomFloatField(
-        verbose_name='Max Air Temperature1 (TC)',
+        verbose_name="Max Air Temperature1 (TC)",
         null=True,
     )
 
     # Unit: Max Air Temperature2 (TC)[degC]
     airtemp2_maximum = CustomFloatField(
-        verbose_name='Max Air Temperature2 (TC)',
+        verbose_name="Max Air Temperature2 (TC)",
         null=True,
     )
 
     # Unit: Min Air Temperature1 (TC)[degC]
     airtemp1_minimum = CustomFloatField(
-        verbose_name='Min Air Temperature1 (TC)',
+        verbose_name="Min Air Temperature1 (TC)",
         null=True,
     )
 
     # Unit: Min Air Temperature2 (TC) [degC]
     airtemp2_minimum = CustomFloatField(
-        verbose_name='Min Air Temperature2 (TC)',
+        verbose_name="Min Air Temperature2 (TC)",
         null=True,
     )
 
     # Unit: Max Windspeed-U1 [m/s]
     windspeed_u1_maximum = CustomFloatField(
-        verbose_name='Max Windspeed-U1',
+        verbose_name="Max Windspeed-U1",
         null=True,
     )
 
     # Unit: Max Windspeed-U2 [m/s]
     windspeed_u2_maximum = CustomFloatField(
-        verbose_name='Max Windspeed-U2',
+        verbose_name="Max Windspeed-U2",
         null=True,
     )
 
     # Unit: StdDev Windspeed-U1 [m/s]
     windspeed_u1_stdev = CustomFloatField(
-        verbose_name='StdDev Windspeed-U1',
+        verbose_name="StdDev Windspeed-U1",
         null=True,
     )
 
     # Unit: StdDev Windspeed-U2 [m/s]
     windspeed_u2_stdev = CustomFloatField(
-        verbose_name='StdDev Windspeed-U2',
+        verbose_name="StdDev Windspeed-U2",
         null=True,
     )
 
     # Unit: Ref Temperature [degC]
     reftemp = CustomFloatField(
-        verbose_name='Ref Temperature',
+        verbose_name="Ref Temperature",
         null=True,
     )
 

@@ -1,101 +1,155 @@
-body {font-family: Helvetica, serif;}
-body {background-color: #F3F3F3}
-body {padding-left: 30px;}
-h1   {color: darkblue;
-      font-weight: bolder;}
-h2   {font-weight: bolder;
-      color: darkgreen;
-      font-size: xx-large;}
-h3   {color: darkgreen;
-      font-size: x-large;}
-h4   {font-size: large;}
-hr   {color: lightblue;}
-li   {font-size: small;}
-li::marker   {color: black;}
-p {line-height: 1.4;}
+body {
+  font-family: Helvetica, serif;
+}
+body {
+  background-color: #f3f3f3;
+}
+body {
+  padding-left: 30px;
+}
+h1 {
+  color: darkblue;
+  font-weight: bolder;
+}
+h2 {
+  font-weight: bolder;
+  color: darkgreen;
+  font-size: xx-large;
+}
+h3 {
+  color: darkgreen;
+  font-size: x-large;
+}
+h4 {
+  font-size: large;
+}
+hr {
+  color: lightblue;
+}
+li {
+  font-size: small;
+}
+li::marker {
+  color: black;
+}
+p {
+  line-height: 1.4;
+}
 
-a {text-decoration: none;
-   color: darkblue;
+a {
+  text-decoration: none;
+  color: darkblue;
 }
 a:hover {
-    background-color: lightgray;
+  background-color: lightgray;
 }
 a:active {
-    background-color: darkgray;
+  background-color: darkgray;
 }
 
-table {border: solid thin;
-       border-collapse: collapse;}
-table th  {border: solid medium dimgray;
-           padding: 0.5rem 2rem;}
-table td {border: solid thin lightslategray;
-              padding: 0.5rem 2rem;}
-table td {font-size: smaller;}
+table {
+  border: solid thin;
+  border-collapse: collapse;
+}
+table th {
+  border: solid medium dimgray;
+  padding: 0.5rem 2rem;
+}
+table td {
+  border: solid thin lightslategray;
+  padding: 0.5rem 2rem;
+}
+table td {
+  font-size: smaller;
+}
 .special_notes {
-    border: medium solid darkred;
-    padding: 0.25rem 1rem;}
+  border: medium solid darkred;
+  padding: 0.25rem 1rem;
+}
 
-.details_link {font-size: medium;}
-.url    {color: saddlebrown;}
-.output {color: darkgreen;}
-.output {font-family: monospace, serif; font-size: small;}
+.details_link {
+  font-size: medium;
+}
+.url {
+  color: saddlebrown;
+}
+.output {
+  color: darkgreen;
+}
+.output {
+  font-family: monospace, serif;
+  font-size: small;
+}
 
-.bullet {list-style-type: circle;}
-.model {background-color: #ffe6c9;}
-.parent_class {background-color: #deffed;}
-.nodata {background-color: #ffdadd;}
+.bullet {
+  list-style-type: circle;
+}
+.model {
+  background-color: #ffe6c9;
+}
+.parent_class {
+  background-color: #deffed;
+}
+.nodata {
+  background-color: #ffdadd;
+}
 /*.nodata_light  {background-color: #F5D4DA;}*/
-.start_end {background-color: #bdfefe;}
+.start_end {
+  background-color: #bdfefe;
+}
 /*.start_end_light {background-color: lightblue;}*/
-.parameter  {background-color: #d6cddc;}
+.parameter {
+  background-color: #d6cddc;
+}
 /*.parameter_light  {background-color: #DAC5F7}*/
 
 .main_content {
-    margin-left: 16%; /* 0.5% more than the width of the sidebar */
-    padding: 0 10px;
+  margin-left: 16%; /* 0.5% more than the width of the sidebar */
+  padding: 0 10px;
 }
 
 #toc_container {
-    height: 100%; /* Full-height: remove this if you want "auto" height */
-    width: 15.5%; /* Set the width of the sidebar */
-    position: fixed; /* Fixed Sidebar (stay in place on scroll) */
-    z-index: 1; /* Stay on top */
-    top: 0; /* Stay at the top */
-    left: 0;
-    overflow-x: hidden; /* Disable horizontal scroll */
-    background: #f9f9f9 none repeat scroll 0 0;
-    border: 1px solid #aaa;
-    display: table;
-    font-size: 95%;
-    margin-bottom: 1em;
-    padding: 5px;
+  height: 100%; /* Full-height: remove this if you want "auto" height */
+  width: 15.5%; /* Set the width of the sidebar */
+  position: fixed; /* Fixed Sidebar (stay in place on scroll) */
+  z-index: 1; /* Stay on top */
+  top: 0; /* Stay at the top */
+  left: 0;
+  overflow-x: hidden; /* Disable horizontal scroll */
+  background: #f9f9f9 none repeat scroll 0 0;
+  border: 1px solid #aaa;
+  display: table;
+  font-size: 95%;
+  margin-bottom: 1em;
+  padding: 5px;
 }
 
-#toc_container li, #toc_container ul, #toc_container ul li {
-    list-style: outside none none !important;
+#toc_container li,
+#toc_container ul,
+#toc_container ul li {
+  list-style: outside none none !important;
 }
 
 #toc_container ul {
-    margin-left: 0;
+  margin-left: 0;
 }
 
-
 #toc_container li {
-    font-size: large;
-    margin-bottom: 0.5em;
-    /*margin-right: 0.5em;*/
+  font-size: large;
+  margin-bottom: 0.5em;
+  /*margin-right: 0.5em;*/
 }
 
 #toc_container a {
-     color: darkgreen;
-     margin: 1em 0;
-     text-decoration: none;
+  color: darkgreen;
+  margin: 1em 0;
+  text-decoration: none;
 }
 
 #toc_container a:hover {
-    background-color: lightgray;
+  background-color: lightgray;
 }
 
 #toc_container a:active {
-    background-color: darkgray;
+  background-color: darkgray;
 }

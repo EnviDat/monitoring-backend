@@ -138,13 +138,17 @@ def get_csv_import_command_list(config_parser: configparser, station_type: str):
             # station data stored locally or served at a URL
             # into corresponding database model
             command_string = ""
-            if source == 'local':
-                command_string = f"python manage.py import_csv -s {source} " \
-                                 f"-i {csv_data}/{csv_input} -a gcnet -m {model}"
-            elif source == 'url':
+            if source == "local":
+                command_string = (
+                    f"python manage.py import_csv -s {source} "
+                    f"-i {csv_data}/{csv_input} -a gcnet -m {model}"
+                )
+            elif source == "url":
                 source_url = stations_config.get(section, "source_url")
-                command_string = f"python manage.py import_csv -s {source} " \
-                                 f"-i {source_url}/{csv_input} -a gcnet -m {model}"
+                command_string = (
+                    f"python manage.py import_csv -s {source} "
+                    f"-i {source_url}/{csv_input} -a gcnet -m {model}"
+                )
 
             if len(command_string) > 0:
                 commands.append(command_string)

@@ -2,9 +2,9 @@
 # # GOES satellite data processing functions
 #
 
-import pandas
-
 import logging
+
+import pandas
 
 logging.basicConfig()
 logger = logging.getLogger(__name__)
@@ -13,10 +13,10 @@ logger.setLevel(logging.DEBUG)
 
 def get_converted_line(line):
     """
-       Support function to decode each line of the GOES data to the standard output.
-       :param line: a line to be decoded
-       :return: an array with the converted values for a line
-     """
+    Support function to decode each line of the GOES data to the standard output.
+    :param line: a line to be decoded
+    :return: an array with the converted values for a line
+    """
 
     # Get the station information and split the string into each character
     station = line[0:8]
@@ -61,19 +61,19 @@ def get_converted_line(line):
 
 def decode_goes(file):
     """
-     Translate the existing FORTRAN code to process the satellite transmitted data into array format.
-     Developed and tested by V.Trotsiuk[volodymyr.trotsiuk@wsl.ch], 2021.11.24
+    Translate the existing FORTRAN code to process the satellite transmitted data into array format.
+    Developed and tested by V.Trotsiuk[volodymyr.trotsiuk@wsl.ch], 2021.11.24
 
-     Updated by Rebecca Kurup Buchholz (WSL), 2022.02.08
+    Updated by Rebecca Kurup Buchholz (WSL), 2022.02.08
 
-     :param file: path to the Goes raw file
-     :return: a Pandas DataFrame [N,47], where each row corresponds to one entry, and column to Station[1]
-     and variables
+    :param file: path to the Goes raw file
+    :return: a Pandas DataFrame [N,47], where each row corresponds to one entry, and column to Station[1]
+    and variables
     """
 
-    logger.info(f' Decoding {file}...')
+    logger.info(f" Decoding {file}...")
 
-    with open(file, 'r', encoding='ASCII') as goes_input:
+    with open(file, encoding="ASCII") as goes_input:
 
         # For the testing purposes we take only last X lines, later we will do the full
         # goes_lines = goes_input.readlines()[-100000:]

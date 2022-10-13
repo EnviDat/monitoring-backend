@@ -20,4 +20,3 @@ class LWFStationFloatField(FloatField):
             ELSE ROUND(TO_NUMBER(("%(name)s"), '99999999999.9999'), 3) 
         END
     """
-

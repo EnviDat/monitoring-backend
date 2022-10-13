@@ -1,12 +1,12 @@
-from django.apps import apps
 import subprocess
 
+from django.apps import apps
 
 # ----------------------------------------  New Model Helpers ---------------------------------------------------------
 
 # Returns True if string has spaces
 def has_spaces(string):
-    if ' ' in string:
+    if " " in string:
         return True
     else:
         return False
@@ -29,15 +29,15 @@ def execute_commands(commands_list):
     commands_executed = True
     for command in commands_list:
         try:
-            process = subprocess.run(command, shell=True, check=True, stdout=subprocess.PIPE,
-                                     universal_newlines=True)
-            print('RUNNING: {0}'.format(command))
-            print('STDOUT: {0}'.format(process.stdout))
+            process = subprocess.run(
+                command, shell=True, check=True, stdout=subprocess.PIPE, text=True
+            )
+            print(f"RUNNING: {command}")
+            print(f"STDOUT: {process.stdout}")
         except Exception as e:
-            print('COULD NOT RUN: {0}'.format(command))
-            print('EXCEPTION: {0}'.format(e))
-            print('')
+            print(f"COULD NOT RUN: {command}")
+            print(f"EXCEPTION: {e}")
+            print("")
             commands_executed = False
             continue
     return commands_executed
-

@@ -1,4 +1,4 @@
-from django.db.models.fields import FloatField, DateTimeField
+from django.db.models.fields import DateTimeField, FloatField
 
 
 class CustomFloatField(FloatField):
@@ -23,7 +23,3 @@ class MeteoDateField(DateTimeField):
             ELSE to_timestamp("%(name)s", 'YYYY-MM-DDTHH24:MI:SS') /* Meteoio CSV's date pattern */
         END
     """
-
-
-
-

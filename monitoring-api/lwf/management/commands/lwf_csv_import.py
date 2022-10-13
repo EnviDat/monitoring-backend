@@ -32,94 +32,95 @@
 
 #   python manage.py lwf_csv_import -p LWFStation -i lwf/data/test.csv  -d lwf/data -m test31 -t directory
 
-import os
-
-from pathlib import Path
-import requests
-from django.core.management.base import BaseCommand
-from postgres_copy import CopyMapping
 import importlib
-from django.utils.timezone import make_aware
-from lwf.util.cleaners import get_lwf_meteo_line_clean, get_lwf_station_line_clean
-from generic.util.nead import write_nead_config
-
 # Setup logging
 import logging
+import os
+from pathlib import Path
 
-logging.basicConfig(filename=Path('lwf/logs/lwf_csv_import.log'), format='%(asctime)s   %(filename)s: %(message)s',
-                    datefmt='%d-%b-%y %H:%M:%S')
+import requests
+from django.core.management.base import BaseCommand
+from django.utils.timezone import make_aware
+from generic.util.nead import write_nead_config
+from lwf.util.cleaners import (get_lwf_meteo_line_clean,
+                               get_lwf_station_line_clean)
+from postgres_copy import CopyMapping
+
+logging.basicConfig(
+    filename=Path("lwf/logs/lwf_csv_import.log"),
+    format="%(asctime)s   %(filename)s: %(message)s",
+    datefmt="%d-%b-%y %H:%M:%S",
+)
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 
 class Command(BaseCommand):
-
     def add_arguments(self, parser):
 
         parser.add_argument(
-            '-p',
-            '--parentclass',
+            "-p",
+            "--parentclass",
             required=True,
-            help='Parent class that child class (database table) inherits fields from'
+            help="Parent class that child class (database table) inherits fields from",
         )
 
         parser.add_argument(
-            '-i',
-            '--inputfile',
-            required=True,
-            help='Path or URL to input csv file'
+            "-i", "--inputfile", required=True, help="Path or URL to input csv file"
         )
 
         parser.add_argument(
-            '-d',
-            '--directory',
+            "-d",
+            "--directory",
             required=True,
-            help='Path to directory which will contain intermediate processing csv file'
+            help="Path to directory which will contain intermediate processing csv file",
         )
 
         parser.add_argument(
-            '-m',
-            '--model',
-            required=True,
-            help='Django Model to map data import to'
+            "-m", "--model", required=True, help="Django Model to map data import to"
         )
 
         parser.add_argument(
-            '-t',
-            '--typesource',
+            "-t",
+            "--typesource",
             required=True,
-            help='Type of input data source. Valid options are a file path: "directory" or a url: "web"'
+            help='Type of input data source. Valid options are a file path: "directory" or a url: "web"',
         )
 
     def handle(self, *args, **kwargs):
 
         # Check if data source is from a directory or a url and assign input_file to selected option
-        if kwargs['typesource'] == 'web':
+        if kwargs["typesource"] == "web":
             # Write content from url into csv file
-            url = str(kwargs['inputfile'])
-            logger.info('URL: {0}'.format(url))
+            url = str(kwargs["inputfile"])
+            logger.info(f"URL: {url}")
             req = requests.get(url)
             url_content = req.content
-            csv_path = str(Path(kwargs['directory'] + '/' + kwargs['inputfile']))
-            csv_file = open(csv_path, 'wb')
+            csv_path = str(Path(kwargs["directory"] + "/" + kwargs["inputfile"]))
+            csv_file = open(csv_path, "wb")
             csv_file.write(url_content)
             csv_file.close()
             input_file = csv_path
-        elif kwargs['typesource'] == 'directory':
-            input_file = Path(kwargs['inputfile'])
-            logger.info('INPUT FILE: {0}'.format(input_file))
+        elif kwargs["typesource"] == "directory":
+            input_file = Path(kwargs["inputfile"])
+            logger.info(f"INPUT FILE: {input_file}")
         else:
-            logger.info('WARNING (lwf_csv_import.py) non-valid value entered for "typesource": {0}'.format(
-                kwargs['typesource']))
+            logger.info(
+                'WARNING (lwf_csv_import.py) non-valid value entered for "typesource": {}'.format(
+                    kwargs["typesource"]
+                )
+            )
             return
 
         # Get the parent class, assumes parent class is in module within lwf/models directory
-        parent_name = kwargs['parentclass'].rsplit('.', 1)[-1]
+        parent_name = kwargs["parentclass"].rsplit(".", 1)[-1]
         package = importlib.import_module("lwf.models." + parent_name)
         parent_class = getattr(package, parent_name)
 
         # Assign variables used to write csv_temporary
-        csv_temporary = Path(kwargs['directory'] + '/' + kwargs['model'] + '_temporary.csv')
+        csv_temporary = Path(
+            kwargs["directory"] + "/" + kwargs["model"] + "_temporary.csv"
+        )
         input_fields = parent_class.input_fields
         database_fields = [field.name for field in parent_class._meta.fields]
         date_format = parent_class.date_format
@@ -132,9 +133,11 @@ class Command(BaseCommand):
 
         # Write data in input_file into csv_temporary with additional computed fields
         try:
-            with open(csv_temporary, 'w', newline='') as sink, open(input_file, 'r') as source:
+            with open(csv_temporary, "w", newline="") as sink, open(
+                input_file
+            ) as source:
 
-                sink.write(','.join(database_fields) + '\n')
+                sink.write(",".join(database_fields) + "\n")
                 records_written = 0
 
                 # Skip number of header lines designated in parent class header line count
@@ -149,7 +152,11 @@ class Command(BaseCommand):
 
                     if not line:
                         break
-                    line_array = [v for v in line.strip().split(parent_class.delimiter) if len(v) > 0]
+                    line_array = [
+                        v
+                        for v in line.strip().split(parent_class.delimiter)
+                        if len(v) > 0
+                    ]
 
                     # Skip header lines that start with designated parent class header symbol
                     # For example: the '#' character
@@ -158,31 +165,37 @@ class Command(BaseCommand):
                         continue
 
                     if len(line_array) != len(input_fields):
-                        error_msg = "Line has {0} values, header {1} columns ".format(len(line_array),
-                                                                                      len(input_fields))
+                        error_msg = "Line has {} values, header {} columns ".format(
+                            len(line_array), len(input_fields)
+                        )
                         logger.error(error_msg)
                         raise ValueError(error_msg)
 
-                    row = {input_fields[i]: line_array[i] for i in range(len(line_array))}
+                    row = {
+                        input_fields[i]: line_array[i] for i in range(len(line_array))
+                    }
 
                     # Process row and add new computed fields
                     # Check which kind of cleaner should be applied
-                    if kwargs['parentclass'] == 'LWFMeteo':
+                    if kwargs["parentclass"] == "LWFMeteo":
                         line_clean = get_lwf_meteo_line_clean(row, date_format)
-                    elif kwargs['parentclass'] == 'LWFStation':
+                    elif kwargs["parentclass"] == "LWFStation":
                         line_clean = get_lwf_station_line_clean(row, date_format)
                     else:
                         logger.info(
-                            'WARNING (lwf_csv_import.py) {0} parentclass does not exist'.format(kwargs['parentclass']))
+                            "WARNING (lwf_csv_import.py) {} parentclass does not exist".format(
+                                kwargs["parentclass"]
+                            )
+                        )
                         return
 
                     # Get the model
-                    class_name = kwargs['model'].rsplit('.', 1)[-1]
+                    class_name = kwargs["model"].rsplit(".", 1)[-1]
                     package = importlib.import_module("lwf.models")
                     model_class = getattr(package, class_name)
 
                     # Make timestamp_iso value a UTC timezone aware datetime object
-                    dt_obj = line_clean['timestamp_iso']
+                    dt_obj = line_clean["timestamp_iso"]
                     aware_dt = make_aware(dt_obj)
 
                     # Check if record with identical timestamp already exists in table, otherwise write record to
@@ -190,46 +203,70 @@ class Command(BaseCommand):
                     try:
                         model_class.objects.get(timestamp_iso=aware_dt)
                     except model_class.DoesNotExist:
-                        if line_clean['timestamp_iso'] not in written_timestamps:
+                        if line_clean["timestamp_iso"] not in written_timestamps:
                             # keep timestamps length small
-                            written_timestamps = written_timestamps[(-1) * min(len(written_timestamps), 1000):]
-                            written_timestamps += [line_clean['timestamp_iso']]
+                            written_timestamps = written_timestamps[
+                                (-1) * min(len(written_timestamps), 1000) :
+                            ]
+                            written_timestamps += [line_clean["timestamp_iso"]]
 
                             # slide the row buffer window
-                            rows_buffer = rows_buffer[(-1) * min(len(rows_buffer), rows_before + rows_after):] + [
-                                line_clean]
+                            rows_buffer = rows_buffer[
+                                (-1) * min(len(rows_buffer), rows_before + rows_after) :
+                            ] + [line_clean]
 
                             # check values before and after
                             if len(rows_buffer) > rows_after:
                                 sink.write(
-                                    ','.join(["{0}".format(v) for v in rows_buffer[-(1 + rows_after)].values()]) + '\n')
+                                    ",".join(
+                                        [
+                                            f"{v}"
+                                            for v in rows_buffer[
+                                                -(1 + rows_after)
+                                            ].values()
+                                        ]
+                                    )
+                                    + "\n"
+                                )
                                 records_written += 1
 
                 # Write nead header configuration file if applicable
                 if len(nead_header) > parent_class.header_line_count:
                     header_symbol = parent_class.header_symbol
-                    write_nead_config('lwf', nead_header, kwargs['model'], kwargs['parentclass'], header_symbol)
+                    write_nead_config(
+                        "lwf",
+                        nead_header,
+                        kwargs["model"],
+                        kwargs["parentclass"],
+                        header_symbol,
+                    )
 
         except FileNotFoundError as e:
-            logger.info('WARNING (lwf_csv_import.py) file not found {0}, exception {1}'.format(input_file, e))
+            logger.info(
+                f"WARNING (lwf_csv_import.py) file not found {input_file}, exception {e}"
+            )
             return
 
         if model_class is None:
-            logger.info('WARNING (lwf_csv_import.py) no data found for {0}'.format(kwargs['model']))
+            logger.info(
+                "WARNING (lwf_csv_import.py) no data found for {}".format(
+                    kwargs["model"]
+                )
+            )
             return
 
         # Assign copy_dictionary from database_fields
-        copy_dictionary = {database_fields[i]: database_fields[i] for i in range(0, len(database_fields))}
+        copy_dictionary = {
+            database_fields[i]: database_fields[i]
+            for i in range(0, len(database_fields))
+        }
 
         # Import processed and cleaned data into Postgres database
         c = CopyMapping(
-
             # Assign model
             model_class,
-
             # Temporary CSV with input data and computed fields
             csv_temporary,
-
             # Dictionary mapping the model fields to CSV fields
             copy_dictionary,
         )
@@ -237,9 +274,11 @@ class Command(BaseCommand):
         c.save()
 
         # Log import message
-        logger.info('{0} successfully imported, {1} new record(s) written in {2}'.format((kwargs['inputfile']),
-                                                                                         records_written,
-                                                                                         (kwargs['model'])))
+        logger.info(
+            "{} successfully imported, {} new record(s) written in {}".format(
+                (kwargs["inputfile"]), records_written, (kwargs["model"])
+            )
+        )
 
         # Delete csv_temporary
         os.remove(csv_temporary)

@@ -12,7 +12,7 @@ django.setup()
 # ============================================= CONSTANT ==============================================================
 
 # String passed in kwargs['parameters'] that is used to return all parameters
-ALL_DISPLAY_VALUES_STRING = 'multiple'
+ALL_DISPLAY_VALUES_STRING = "multiple"
 
 
 # ============================================== FUNCTION =============================================================
@@ -36,12 +36,25 @@ def get_documentation_context(model_class):
 
     params_dict = {}
     for field in model_class._meta.get_fields():
-        params_dict[field.name] = {'param': field.name, 'long_name': field.verbose_name, 'units': field.help_text}
+        params_dict[field.name] = {
+            "param": field.name,
+            "long_name": field.verbose_name,
+            "units": field.help_text,
+        }
 
-    keys_to_remove = ['id', 'timestamp_iso', 'year', 'julianday', 'quarterday', 'halfday', 'day', 'week']
+    keys_to_remove = [
+        "id",
+        "timestamp_iso",
+        "year",
+        "julianday",
+        "quarterday",
+        "halfday",
+        "day",
+        "week",
+    ]
     for key in keys_to_remove:
         params_dict.pop(key)
 
-    context = {'parameters': params_dict}
+    context = {"parameters": params_dict}
 
     return context

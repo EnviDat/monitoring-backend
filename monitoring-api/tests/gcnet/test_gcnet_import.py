@@ -58,7 +58,7 @@ class GCNetImportTestCase(TestCase):
         self.assertEqual(
             num_lines,
             int(written_rows),
-            "Should retrieve {} written rows, got {}.".format(num_lines, written_rows),
+            f"Should retrieve {num_lines} written rows, got {written_rows}.",
         )
 
         # retrieve data
@@ -104,7 +104,7 @@ class GCNetImportTestCase(TestCase):
         self.assertEqual(
             num_lines,
             int(written_rows),
-            "Should retrieve {} written rows, got {}.".format(num_lines, written_rows),
+            f"Should retrieve {num_lines} written rows, got {written_rows}.",
         )
 
         # retrieve data
@@ -150,7 +150,7 @@ class GCNetImportTestCase(TestCase):
         self.assertEqual(
             num_lines,
             int(written_rows),
-            "Should retrieve {} written rows, got {}.".format(num_lines, written_rows),
+            f"Should retrieve {num_lines} written rows, got {written_rows}.",
         )
 
         # retrieve data
