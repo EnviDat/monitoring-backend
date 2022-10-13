@@ -160,7 +160,7 @@ REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
 }
 
-app_version = "1.0.5"
+app_version = "1.0.6"
 SPECTACULAR_SETTINGS = {
     "TITLE": "EnviDat Monitoring API",
     "DESCRIPTION": "Django API for WSL long-term environmental monitoring data.",

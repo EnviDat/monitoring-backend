@@ -1,3 +1,24 @@
+## 1.0.6 (2022-10-13)
+
+### Fix
+
+- error handling for writer creating file if not exist, lint/format
+- change nginx root up one level for /static in url
+- revert nginx config without upstream, set error logging
+
+### Refactor
+
+- remove redundant envidatrepo alias from helm chart
+- update gcnet data url from envidatrepo to envicloud s3 bucket
+- remove refs to dbpg01.wsl.ch (old), add alias for envidatrepo.wsl.ch
+- add additional debug log to gcnet importer urllib
+- update chart notation for importers to multiline arg
+- remove redundant location block in nginx config
+- set default chart liveness probes to off/false
+- update nginx proxy probe timeouts from 1 to 5
+- update importer deployment commands to main.main, timeouts on probes
+- update timeouts on chart liveness and startup probes
+
 ## 1.0.5 (2022-10-11)
 
 ### Fix
