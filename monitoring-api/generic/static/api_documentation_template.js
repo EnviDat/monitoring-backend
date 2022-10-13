@@ -1,6 +1,6 @@
 // ************************************ Assign JSON path and JSON keys ***********************************************
 
-const json_url = "/static/json/lwf_documentation.json";
+const json_url = "/data-api/static/api_documentation_template.json";
 
 const json_keys = [
   "page_title",
