@@ -166,7 +166,7 @@ SPECTACULAR_SETTINGS = {
     "DESCRIPTION": "Django API for WSL long-term environmental monitoring data.",
     "VERSION": app_version,
     "SERVE_INCLUDE_SCHEMA": False,
-    "SCHEMA_PATH_PREFIX": r"",
+    "SCHEMA_PATH_PREFIX": r"/data-api",
     "COMPONENT_SPLIT_REQUEST": True,
     # 'SCHEMA_PATH_PREFIX_TRIM': True,
     # 'SCHEMA_PATH_PREFIX_INSERT': 'https://www.envidat.ch/data-api',
