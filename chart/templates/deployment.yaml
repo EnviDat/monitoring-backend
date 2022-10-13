@@ -60,7 +60,7 @@ spec:
           {{- if .Values.probes.livenessProbe.enabled }}
           livenessProbe:
             httpGet:
-              path: /api/gcnet/models
+              path: /gcnet/models
               host: "{{ .Release.Name }}.{{ .Release.Namespace }}.svc.cluster.local"
               port: http
             failureThreshold: 1
@@ -82,7 +82,7 @@ spec:
           {{- if .Values.probes.startupProbe.enabled }}
           startupProbe:
             httpGet:
-              path: /api/gcnet/models
+              path: /gcnet/models
               host: "{{ .Release.Name }}.{{ .Release.Namespace }}.svc.cluster.local"
               port: http
             failureThreshold: 5

@@ -51,7 +51,7 @@ spec:
           {{- if .Values.probes.livenessProbe.enabled }}
           livenessProbe:
             httpGet:
-              path: /api/gcnet/models
+              path: /gcnet/models
               host: localhost
               port: {{ .Values.service.port }}
             failureThreshold: 1
@@ -73,7 +73,7 @@ spec:
           {{- if .Values.probes.startupProbe.enabled }}
           startupProbe:
             httpGet:
-              path: /api/gcnet/models
+              path: /gcnet/models
               host: localhost
               port: {{ .Values.service.port }}
             failureThreshold: 5

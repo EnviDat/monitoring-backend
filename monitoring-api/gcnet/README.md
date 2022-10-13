@@ -410,7 +410,7 @@ used during development and testing and not for production.
     <http://localhost:8080/>
 
     > - To test if the server is working properly browse to a valid
-    >   API URL: <http://localhost:8080/api/models/>
+    >   API URL: <http://localhost:8080/gcnet/models/>
     > - A list of station values by the 'model' keys in the
     >   config/stations.ini file should be returned.
     > - An overview of the API is in the section "API".
