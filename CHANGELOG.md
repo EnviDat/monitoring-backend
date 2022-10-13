@@ -1,3 +1,17 @@
+## 1.1.0 (2022-10-13)
+
+### Refactor
+
+- black and isort entire codebase
+
+### Feat
+
+- remove /api prefix from all urls (handled by proxy)
+
+### Fix
+
+- enable gcnet/main.py to process URL input data
+
 ## 1.0.6 (2022-10-13)
 
 ### Fix
