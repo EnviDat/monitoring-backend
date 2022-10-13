@@ -50,12 +50,12 @@ app.kubernetes.io/name: {{ include "chart.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 {{- define "chart.selectorLabelsLWF" -}}
-app.kubernetes.io/name: {{ include "chart.name" . }}-lwf
-app.kubernetes.io/instance: {{ .Release.Name }}-lwf
+app.kubernetes.io/name: {{ include "chart.name" . }}-import-lwf
+app.kubernetes.io/instance: {{ .Release.Name }}-import-lwf
 {{- end }}
 {{- define "chart.selectorLabelsGCNET" -}}
-app.kubernetes.io/name: {{ include "chart.name" . }}-gcnet
-app.kubernetes.io/instance: {{ .Release.Name }}-gcnet
+app.kubernetes.io/name: {{ include "chart.name" . }}-import-gcnet
+app.kubernetes.io/instance: {{ .Release.Name }}-import-gcnet
 {{- end }}
 
 {{/*
