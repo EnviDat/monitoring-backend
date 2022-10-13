@@ -17,7 +17,6 @@
 - set default chart liveness probes to off/false
 - update nginx proxy probe timeouts from 1 to 5
 - update importer deployment commands to main.main, timeouts on probes
-- update timeouts on chart liveness and startup probes
 
 ## 1.0.5 (2022-10-11)
 
