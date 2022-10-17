@@ -177,8 +177,8 @@ SPECTACULAR_SETTINGS = {
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
-
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+if DEBUG:
+    STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 PROJECT_ROOT = os.path.normpath(os.path.dirname(__file__))
 STATIC_URL = "/data-api/static/"
 STATIC_ROOT = os.path.join(PROJECT_ROOT, "..", "static")
