@@ -60,6 +60,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -166,7 +167,6 @@ SPECTACULAR_SETTINGS = {
     "DESCRIPTION": "Django API for WSL long-term environmental monitoring data.",
     "VERSION": app_version,
     "SERVE_INCLUDE_SCHEMA": False,
-    "SCHEMA_PATH_PREFIX": r"/data-api",
     "COMPONENT_SPLIT_REQUEST": True,
     # 'SCHEMA_PATH_PREFIX_TRIM': True,
     # 'SCHEMA_PATH_PREFIX_INSERT': 'https://www.envidat.ch/data-api',
@@ -178,6 +178,7 @@ SPECTACULAR_SETTINGS = {
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 PROJECT_ROOT = os.path.normpath(os.path.dirname(__file__))
 STATIC_URL = "/data-api/static/"
 STATIC_ROOT = os.path.join(PROJECT_ROOT, "..", "static")
