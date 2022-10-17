@@ -166,6 +166,7 @@ SPECTACULAR_SETTINGS = {
     "TITLE": "EnviDat Monitoring API",
     "DESCRIPTION": "Django API for WSL long-term environmental monitoring data.",
     "VERSION": app_version,
+    "SCHEMA_PATH_PREFIX_INSERT": "/data-api/",
     "SERVE_INCLUDE_SCHEMA": False,
     "COMPONENT_SPLIT_REQUEST": True,
     # 'SCHEMA_PATH_PREFIX_TRIM': True,
