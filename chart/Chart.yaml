@@ -3,7 +3,7 @@ type: application
 name: monitoring-api
 description: Monitoring API provided by EnviDat.
 version: "0.1.1-chart"
-appVersion: "1.1.0"
+appVersion: "1.1.1"
 maintainers:
 - email: samuel.woodcock@wsl.ch
   name: Sam Woodcock
