@@ -157,6 +157,7 @@ USE_L10N = True
 
 USE_TZ = True
 
+FORCE_SCRIPT_NAME = "/data-api/"
 REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
 }
@@ -166,14 +167,9 @@ SPECTACULAR_SETTINGS = {
     "TITLE": "EnviDat Monitoring API",
     "DESCRIPTION": "Django API for WSL long-term environmental monitoring data.",
     "VERSION": app_version,
-    "SCHEMA_PATH_PREFIX_INSERT": "/data-api/",
+    "SCHEMA_PATH_PREFIX_INSERT": "/data-api",
     "SERVE_INCLUDE_SCHEMA": False,
     "COMPONENT_SPLIT_REQUEST": True,
-    # 'SCHEMA_PATH_PREFIX_TRIM': True,
-    # 'SCHEMA_PATH_PREFIX_INSERT': 'https://www.envidat.ch/data-api',
-    # 'PREPROCESSING_HOOKS': 'project.hooks.preprocessing_hooks',
-    # 'PREPROCESSING_HOOKS': 'drf_spectacular.hooks.preprocess_exclude_path_format'
-    # 'PREPROCESSING_HOOKS': 'drf_spectacular.hooks'
 }
 
 # Static files (CSS, JavaScript, Images)
@@ -181,7 +177,7 @@ SPECTACULAR_SETTINGS = {
 if DEBUG:
     STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 PROJECT_ROOT = os.path.normpath(os.path.dirname(__file__))
-STATIC_URL = "/data-api/static/"
+STATIC_URL = "static/"
 STATIC_ROOT = os.path.join(PROJECT_ROOT, "..", "static")
 STATICFILES_DIRS = [
     os.path.join(PROJECT_ROOT, "..", "generic/static"),
