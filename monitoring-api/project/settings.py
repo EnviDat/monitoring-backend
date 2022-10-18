@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
+import json
 import logging
 import os
 
@@ -30,16 +31,16 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = env("SECRET_KEY")
 
-# SECURITY WARNING: don't run with debug turned on in production!
+# SECURITY WARNING: don't run with debug on in production!
 DEBUG = env("DEBUG", default=False)
 
 if DEBUG:
     ALLOWED_HOSTS = ["*"]
 else:
-    ALLOWED_HOSTS = [
-        env("MONITORING_API_HOST", default="localhost"),
-        env("ALLOWED_HOST"),
-    ]
+    ALLOWED_HOSTS = [env("MONITORING_API_HOST", default="localhost")]
+    hosts = env("ALLOWED_HOSTS", default=None)
+    if hosts:
+        ALLOWED_HOSTS += json.loads(hosts)
 
 # Application definition
 
@@ -157,7 +158,8 @@ USE_L10N = True
 
 USE_TZ = True
 
-FORCE_SCRIPT_NAME = "/data-api/"
+proxy_prefix = env("PROXY_PREFIX")
+FORCE_SCRIPT_NAME = f"{proxy_prefix}/"
 REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
 }
@@ -167,7 +169,7 @@ SPECTACULAR_SETTINGS = {
     "TITLE": "EnviDat Monitoring API",
     "DESCRIPTION": "Django API for WSL long-term environmental monitoring data.",
     "VERSION": app_version,
-    "SCHEMA_PATH_PREFIX_INSERT": "/data-api",
+    "SCHEMA_PATH_PREFIX_INSERT": f"{proxy_prefix}",
     "SERVE_INCLUDE_SCHEMA": False,
     "COMPONENT_SPLIT_REQUEST": True,
 }
@@ -177,7 +179,7 @@ SPECTACULAR_SETTINGS = {
 if DEBUG:
     STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 PROJECT_ROOT = os.path.normpath(os.path.dirname(__file__))
-STATIC_URL = "static/"
+STATIC_URL = f"{proxy_prefix}/static/"
 STATIC_ROOT = os.path.join(PROJECT_ROOT, "..", "static")
 STATICFILES_DIRS = [
     os.path.join(PROJECT_ROOT, "..", "generic/static"),

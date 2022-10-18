@@ -54,7 +54,7 @@ Official documentation on why it is critical to set and protect
 SECRET_KEY:
 <https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/#secret-key>
 
-ALLOWED_HOST is the IP address of the server.
+ALLOWED_HOSTS contains the IP or domain of the server.
 This is set to '\*' during development automatically.
 
 PORT is the port number used by the NGINX server in runserver.py
@@ -72,8 +72,9 @@ GCNET_DB_xxx settings.
 
     SECRET_KEY=<secret key>
 
-    ALLOWED_HOST=<IP address of server>
+    ALLOWED_HOSTS='[<IP or Domain>,<IP or Domain>]'
     PORT=<port number used by NGINX server in runserver.py>
+    PROXY_PREFIX=<Optional URL prefix if required / served behind a proxy>
 
     DATABASE_NAME=<db_name>
     DATABASE_USER=<db_user>

@@ -12,7 +12,8 @@ Requires secrets to be pre-populated.
 - **monitoring-api-vars** prod db creds, django variables
 
   - key: SECRET_KEY  (random, for Django)
-  - key: ALLOWED_HOST  (server to access from)
+  - key: ALLOWED_HOSTS  (server to access from)
+  - key: PROXY_PREFIX  (url prefix, if behind proxy)
   - key: PORT
   - key: DATABASE_NAME
   - key: DATABASE_USER
@@ -23,7 +24,8 @@ Requires secrets to be pre-populated.
   ```bash
   kubectl create secret generic monitoring-api-vars \
   --from-literal=SECRET_KEY=xxxxxxx \
-  --from-literal=ALLOWED_HOST=monitoring.envidat.ch \
+  --from-literal=ALLOWED_HOSTS='[envidat.ch,monitoring.envidat.ch]' \
+  --from-literal=PROXY_PREFIX=/data-api \
   --from-literal=PORT=8080 \
   --from-literal=DATABASE_NAME=xxxxxxx \
   --from-literal=DATABASE_USER=xxxxxxx \
