@@ -158,7 +158,7 @@ USE_L10N = True
 
 USE_TZ = True
 
-proxy_prefix = env("PROXY_PREFIX")
+proxy_prefix = env("PROXY_PREFIX", default="")
 FORCE_SCRIPT_NAME = f"{proxy_prefix}/"
 REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
