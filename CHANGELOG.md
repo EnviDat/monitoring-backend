@@ -1,3 +1,29 @@
+## 2.0.0 (2022-10-18)
+
+### Feat
+
+- env vars ALLOWED_HOSTS (allow multiple), PROXY_PREFIX for reverse proxy
+
+### Refactor
+
+- update settings with FORCE_SCRIPT_NAME, make static url relative
+- add SCHEMA_PATH_PREFIX_INSERT for drf-spectacular endpoints
+
+## 1.1.1 (2022-10-17)
+
+### Refactor
+
+- static, use generic css for gcnet
+- only use whitenoise if DEBUG, i.e. development
+- update STATIC_URL to include data-api prefix for reverse proxy
+
+### Fix
+
+- revert 404 page to original style, update redirect to docs
+- add SCHEMA_PATH_PREFIX data-api for drf-spectacular
+- open quotes in documentation html templates
+- static references in all templates, add dirs to settings
+
 ## 1.1.0 (2022-10-13)
 
 ### Refactor
