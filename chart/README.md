@@ -24,7 +24,7 @@ Requires secrets to be pre-populated.
   ```bash
   kubectl create secret generic monitoring-api-vars \
   --from-literal=SECRET_KEY=xxxxxxx \
-  --from-literal=ALLOWED_HOSTS='[envidat.ch,monitoring.envidat.ch]' \
+  --from-literal=ALLOWED_HOSTS='["envidat.ch", "monitoring.envidat.ch"]' \
   --from-literal=PROXY_PREFIX=/data-api \
   --from-literal=PORT=8080 \
   --from-literal=DATABASE_NAME=xxxxxxx \
