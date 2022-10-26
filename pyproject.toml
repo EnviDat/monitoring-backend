@@ -78,7 +78,7 @@ build-backend = "pdm.pep517.api"
 
 [tool.commitizen]
 name = "cz_conventional_commits"
-version = "2.0.0"
+version = "2.0.1"
 version_files = [
     "pyproject.toml:version",
     "monitoring-api/project/__version__.py",

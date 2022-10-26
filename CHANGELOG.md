@@ -1,3 +1,15 @@
+## 2.0.1 (2022-10-26)
+
+### Refactor
+
+- improve logging for ALLOWED_HOSTS variable
+- fix gcnet documentation js script location
+- add default for PROXY_PREFIX var
+
+### Fix
+
+- update gcnet config to generate and read local csvs, 30 day backlog
+
 ## 2.0.0 (2022-10-18)
 
 ### Feat
