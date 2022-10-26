@@ -6,8 +6,12 @@ from django.core.management.base import BaseCommand
 __version__ = "0.0.1"
 __author__ = "Rebecca Buchholz"
 
-from lwf.util.new_model_helpers import (execute_commands, has_spaces,
-                                        model_exists, read_config)
+from lwf.util.new_model_helpers import (
+    execute_commands,
+    has_spaces,
+    model_exists,
+    read_config,
+)
 
 
 class Command(BaseCommand):

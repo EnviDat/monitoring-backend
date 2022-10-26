@@ -1,16 +1,18 @@
-# EXAMPLE COMMANDS to run main.py
-#
-#    Open terminal at project directory.
-#    Make sure virtual environment is activated.
-#
-#    Import data from URL:
-#
-#       python
-#       from lwf import main
-#       main.main(['-r 10'])
-#
-# Author: Rebecca Kurup Buchholz, Swiss Federal Research Institute WSL
-# Date last modified: January, 6, 2022
+"""
+EXAMPLE COMMANDS to run main.py
+
+   Open terminal at project directory.
+   Make sure virtual environment is activated.
+
+   Import data from URL:
+
+      python
+      from lwf import main
+      main.main(['-r 10'])
+
+Author: Rebecca Kurup Buchholz, Swiss Federal Research Institute WSL
+Date last modified: January, 6, 2022
+"""
 
 
 import argparse
@@ -161,7 +163,7 @@ def main(args=None):
     repeat = True
     while repeat:
 
-        # Do not repeat loop if the -r argument is not present
+        # Do not repeat loop if the --repeatInterval argument is not present
         repeat = args.repeatInterval is not None
 
         # Assign start_time for data import iteration

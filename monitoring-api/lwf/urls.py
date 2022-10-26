@@ -1,12 +1,15 @@
 from django.urls import path
-from generic.views import (generic_get_daily_data, generic_get_data,
-                           generic_get_documentation,
-                           generic_get_documentation_context,
-                           generic_get_models, generic_get_nead,
-                           generic_get_station_parameter_metadata)
+from generic.views import (
+    generic_get_daily_data,
+    generic_get_data,
+    generic_get_documentation,
+    generic_get_documentation_context,
+    generic_get_models,
+    generic_get_nead,
+    generic_get_station_parameter_metadata,
+)
 from lwf.util.http_errors import parameter_http_error
-from lwf.util.views_helpers import (get_display_values,
-                                    get_documentation_context)
+from lwf.util.views_helpers import get_display_values, get_documentation_context
 
 urlpatterns = [
     # API documentation

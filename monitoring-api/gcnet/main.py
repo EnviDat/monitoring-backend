@@ -17,10 +17,10 @@ No arguments:
   main()
 
 repeatInterval:
-  main(['-r 10'])
+  main(['--repeatInterval 10'])
 
 repeatInterval and localInput:
-  main(['-r 10', '-l True'])
+  main(['--repeatInterval 10', '-l True'])
 """
 
 
@@ -34,12 +34,12 @@ from datetime import datetime
 from pathlib import Path
 from urllib import request
 
-from gcnet.management.commands.importers.processor.cleaner import \
-    CleanerFactory
+from gcnet.management.commands.importers.processor.cleaner import CleanerFactory
 from gcnet.management.commands.importers.processor.process_argos import (
-    decode_argos, read_argos)
-from gcnet.management.commands.importers.processor.process_goes import \
-    decode_goes
+    decode_argos,
+    read_argos,
+)
+from gcnet.management.commands.importers.processor.process_goes import decode_goes
 from gcnet.util.writer import Writer
 
 logging.basicConfig()
@@ -233,7 +233,7 @@ def main(args=None):
     repeat = True
     while repeat:
 
-        # Do not repeat if the -r argument is not present
+        # Do not repeat if the --repeatInterval argument is not present
         repeat = args.repeatInterval is not None
 
         start_time = time.time()

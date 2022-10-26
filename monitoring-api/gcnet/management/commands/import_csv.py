@@ -10,6 +10,7 @@
 
 
 import importlib
+
 # Setup logging
 import logging
 import os
@@ -20,8 +21,13 @@ from django.apps import apps
 from django.core.management.base import BaseCommand
 from django.utils.timezone import make_aware
 from gcnet.management.commands.importers.helpers.import_date_helpers import (
-    gcnet_utc_datetime, gcnet_utc_timestamp, half_day, quarter_day, year_day,
-    year_week)
+    gcnet_utc_datetime,
+    gcnet_utc_timestamp,
+    half_day,
+    quarter_day,
+    year_day,
+    year_week,
+)
 from gcnet.util.constants import Columns
 from postgres_copy import CopyMapping
 

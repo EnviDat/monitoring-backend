@@ -3,11 +3,20 @@ from gcnet import views
 from gcnet.util.http_errors import model_http_error, parameter_http_error
 from gcnet.util.stream import gcnet_stream
 from gcnet.util.views_helpers import get_documentation_context, get_model
+
 # from gcnet.util.write_nead_config import gcnet_nead_config
-from gcnet.views import (get_json_data, get_model_stations,
-                         get_station_parameter_metadata, streaming_csv_view_v1)
-from generic.views import (generic_get_daily_data, generic_get_data,
-                           generic_get_documentation_context, generic_get_nead)
+from gcnet.views import (
+    get_json_data,
+    get_model_stations,
+    get_station_parameter_metadata,
+    streaming_csv_view_v1,
+)
+from generic.views import (
+    generic_get_daily_data,
+    generic_get_data,
+    generic_get_documentation_context,
+    generic_get_nead,
+)
 
 urlpatterns = [
     # ---------------------------------------- Views from gcnet app ---------------------------------------------------

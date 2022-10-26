@@ -1,5 +1,12 @@
-from lwf.util.time_fields import (get_julian_day, get_utc_datetime, get_year,
-                                  half_day, quarter_day, year_day, year_week)
+from lwf.util.time_fields import (
+    get_julian_day,
+    get_utc_datetime,
+    get_year,
+    half_day,
+    quarter_day,
+    year_day,
+    year_week,
+)
 
 
 # Return line_clean dictionary for lwf_csv_import.py for LWFStation data

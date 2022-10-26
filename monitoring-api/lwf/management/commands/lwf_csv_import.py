@@ -33,6 +33,7 @@
 #   python manage.py lwf_csv_import -p LWFStation -i lwf/data/test.csv  -d lwf/data -m test31 -t directory
 
 import importlib
+
 # Setup logging
 import logging
 import os
@@ -42,8 +43,7 @@ import requests
 from django.core.management.base import BaseCommand
 from django.utils.timezone import make_aware
 from generic.util.nead import write_nead_config
-from lwf.util.cleaners import (get_lwf_meteo_line_clean,
-                               get_lwf_station_line_clean)
+from lwf.util.cleaners import get_lwf_meteo_line_clean, get_lwf_station_line_clean
 from postgres_copy import CopyMapping
 
 logging.basicConfig(

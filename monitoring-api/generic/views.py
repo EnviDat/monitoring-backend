@@ -1,19 +1,30 @@
-from django.http import (HttpResponseNotFound, JsonResponse,
-                         StreamingHttpResponse)
+from django.http import HttpResponseNotFound, JsonResponse, StreamingHttpResponse
 from django.shortcuts import render
-from generic.util.http_errors import (date_http_error, model_http_error,
-                                      parameter_http_error,
-                                      parent_class_http_error,
-                                      timestamp_http_error,
-                                      timestamp_meaning_http_error)
-from generic.util.nead import (get_config_list, get_database_fields,
-                               get_hashed_lines, get_nead_config)
+from generic.util.http_errors import (
+    date_http_error,
+    model_http_error,
+    parameter_http_error,
+    parent_class_http_error,
+    timestamp_http_error,
+    timestamp_meaning_http_error,
+)
+from generic.util.nead import (
+    get_config_list,
+    get_database_fields,
+    get_hashed_lines,
+    get_nead_config,
+)
 from generic.util.stream import get_null_value, stream
-from generic.util.views_helpers import (get_dict_fields, get_dict_timestamps,
-                                        get_model_cl, get_model_class,
-                                        get_models_list,
-                                        get_timestamp_iso_range_day_dict,
-                                        validate_date, validate_display_values)
+from generic.util.views_helpers import (
+    get_dict_fields,
+    get_dict_timestamps,
+    get_model_cl,
+    get_model_class,
+    get_models_list,
+    get_timestamp_iso_range_day_dict,
+    validate_date,
+    validate_display_values,
+)
 from rest_framework.decorators import api_view
 
 

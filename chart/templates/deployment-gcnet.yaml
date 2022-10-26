@@ -41,7 +41,7 @@ spec:
               import os
               from gcnet import main
               interval = os.getenv("GCNET_INTERVAL_MINS", default=10)
-              main.main([f"-r {interval}"])
+              main.main([f"--repeatInterval {interval}"])
               '
           resources:
             {{- toYaml .Values.gcnetImporter.resources | nindent 12 }}

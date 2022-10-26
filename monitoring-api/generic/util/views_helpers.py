@@ -3,6 +3,7 @@ from datetime import datetime
 
 from django.apps import apps
 from django.core.exceptions import FieldDoesNotExist
+
 # from django.db.models import Func, Min, Max, Avg, Sum
 from django.db.models import Avg, Func, Max, Min
 

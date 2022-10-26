@@ -2,19 +2,27 @@ import os
 from pathlib import Path
 
 from django.core.exceptions import FieldError
-from django.http import (HttpResponseNotFound, JsonResponse,
-                         StreamingHttpResponse)
+from django.http import HttpResponseNotFound, JsonResponse, StreamingHttpResponse
 from django.shortcuts import render
 from gcnet.main import read_config
-from gcnet.util.http_errors import (date_http_error, model_http_error,
-                                    parameter_http_error, station_http_error,
-                                    timestamp_http_error,
-                                    timestamp_meaning_http_error)
+from gcnet.util.http_errors import (
+    date_http_error,
+    model_http_error,
+    parameter_http_error,
+    station_http_error,
+    timestamp_http_error,
+    timestamp_meaning_http_error,
+)
 from gcnet.util.stream import gcnet_stream
-from gcnet.util.views_helpers import (get_dict_fields, get_dict_timestamps,
-                                      get_display_values, get_hashed_lines,
-                                      get_model, get_null_value,
-                                      validate_date_gcnet)
+from gcnet.util.views_helpers import (
+    get_dict_fields,
+    get_dict_timestamps,
+    get_display_values,
+    get_hashed_lines,
+    get_model,
+    get_null_value,
+    validate_date_gcnet,
+)
 from gcnet.util.write_nead_config import write_nead_config
 from generic.util.views_helpers import get_timestamp_iso_range_day_dict
 from rest_framework.decorators import api_view

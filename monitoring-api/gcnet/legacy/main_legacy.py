@@ -1,8 +1,10 @@
-# Legacy main.py used prior to March 2022
+"""
+Legacy main.py used prior to March 2022
 
-# EXAMPLE COMMANDS TO RUN main.py
-#    Import data from URL:         main.main(['-r 15', '-i url']) or main(['-r 15', '-i url'])
-#    Import data from directory:   main.main(['-r 15', '-i path'])
+EXAMPLE COMMANDS TO RUN main.py
+   Import data from URL:         main.main(['-r 15', '-i url']) or main(['-r 15', '-i url'])
+   Import data from directory:   main.main(['-r 15', '-i path'])
+"""
 
 import argparse
 import configparser
@@ -13,11 +15,13 @@ import time
 from datetime import datetime
 from pathlib import Path
 
-# from gcnet.management.commands.importers.processor.fortranprocessor import FortranProcessorFactory
 from gcnet.legacy.cleaner_legacy import CleanerFactory
 from gcnet.legacy.fortranprocessor import FortranProcessorFactory
-# from gcnet.management.commands.importers.processor.cleaner import CleanerFactory
 from gcnet.util.writer import Writer
+
+# from gcnet.management.commands.importers.processor.fortranprocessor import FortranProcessorFactory
+# from gcnet.management.commands.importers.processor.cleaner import CleanerFactory
+
 
 logging.basicConfig()
 logger = logging.getLogger(__name__)
@@ -207,7 +211,7 @@ def main(args=None):
     repeat = True
     while repeat:
 
-        # Do not repeat if the -r argument is not present
+        # Do not repeat if the --repeatInterval argument is not present
         repeat = args.repeatInterval is not None
 
         start_time = time.time()

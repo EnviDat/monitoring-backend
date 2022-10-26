@@ -15,8 +15,11 @@ Including another URLconf
 """
 
 from django.urls import include, path
-from drf_spectacular.views import (SpectacularAPIView, SpectacularRedocView,
-                                   SpectacularSwaggerView)
+from drf_spectacular.views import (
+    SpectacularAPIView,
+    SpectacularRedocView,
+    SpectacularSwaggerView,
+)
 
 # from django.conf import settings
 # from django.contrib.staticfiles.urls import staticfiles_urlpatterns

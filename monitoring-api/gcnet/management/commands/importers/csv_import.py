@@ -5,10 +5,19 @@ from pathlib import Path
 from django.db import transaction
 from django.utils.timezone import make_aware
 from gcnet.management.commands.importers.helpers.csvvalidator import (
-    csv_null_checker, csv_validator, is_null)
+    csv_null_checker,
+    csv_validator,
+    is_null,
+)
 from gcnet.management.commands.importers.helpers.import_date_helpers import (
-    dict_from_csv_line, gcnet_utc_datetime, gcnet_utc_timestamp, half_day,
-    quarter_day, year_day, year_week)
+    dict_from_csv_line,
+    gcnet_utc_datetime,
+    gcnet_utc_timestamp,
+    half_day,
+    quarter_day,
+    year_day,
+    year_week,
+)
 from gcnet.util.constants import Columns
 
 logging.basicConfig(

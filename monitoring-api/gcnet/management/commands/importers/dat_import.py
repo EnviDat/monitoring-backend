@@ -28,10 +28,17 @@ from pathlib import Path
 from django.db import transaction
 from django.utils.timezone import make_aware
 from gcnet.management.commands.importers.helpers.datvalidator import (
-    is_null, null_checker)
+    is_null,
+    null_checker,
+)
 from gcnet.management.commands.importers.helpers.import_date_helpers import (
-    gcnet_utc_datetime, gcnet_utc_timestamp, half_day, quarter_day, year_day,
-    year_week)
+    gcnet_utc_datetime,
+    gcnet_utc_timestamp,
+    half_day,
+    quarter_day,
+    year_day,
+    year_week,
+)
 from gcnet.util.constants import Columns
 
 logging.basicConfig(

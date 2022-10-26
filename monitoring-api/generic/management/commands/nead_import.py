@@ -24,6 +24,7 @@
 
 
 import importlib
+
 # Setup logging
 import logging
 import os
@@ -35,8 +36,7 @@ from django.apps import apps
 from django.core.management.base import BaseCommand
 from django.forms import model_to_dict
 from django.utils.timezone import make_aware
-from gcnet.management.commands.importers.helpers.cleaners import \
-    get_gcnet_record_clean
+from gcnet.management.commands.importers.helpers.cleaners import get_gcnet_record_clean
 
 
 def setup_logger(logger_name, log_file, level=logging.DEBUG):

@@ -11,8 +11,7 @@ __author__ = "Rebecca Buchholz"
 # Setup logging
 import logging
 
-from generic.util.commands_helpers import (execute_commands, has_spaces,
-                                           model_exists)
+from generic.util.commands_helpers import execute_commands, has_spaces, model_exists
 from generic.util.nead import read_config
 
 logging.basicConfig(
