@@ -1,7 +1,6 @@
 """For writing raw GCNET data to human readable form."""
 
 import logging
-import os
 from datetime import date, datetime, timedelta
 from pathlib import Path
 
@@ -181,51 +180,50 @@ class Writer:
 
     def write_csv(self, processed_data, station_num, year, julian_day, date_number):
         """Write CSV files."""
-        filename = Path(self.csv_file_path + str(station_num) + ".csv")
+        file_path = Path(self.csv_file_path + str(station_num) + ".csv")
 
         if self.new_load_flag == 1:
-            with open(filename, "w") as fidn:
+            logger.debug("newLoadFlag passed in config, overwriting existing file")
+            with open(file_path, "w") as fidn:
                 # overwrite any existing files because newloadflag==1 means fresh run
                 self.write_csv_file(fidn, processed_data)
         else:
             try:
-                fsize = os.path.getsize(filename)
-                if fsize != 0:  # if station file already exists append to it
-                    if len(processed_data) == 0:  # if no new data
-                        # TODO look at unused variables
-                        indstart = 0
-                        outdat = processed_data
-                    else:
-                        # number that is ascending in time, calculate last date
-                        # number of old data
-                        lastdatenum = year * 1e3 + julian_day
-                        # find indices of dates in new part that are before what is
-                        # already in csv
-                        indstart = np.argwhere(date_number <= lastdatenum)
-                        if len(indstart) == 0:  # all data new
-                            indstart = 0
-                            outdat = processed_data
-                        elif len(indstart) == len(
-                            processed_data[:, 1]
-                        ):  # only dates before what is already there
-                            outdat = np.array([])
-                        else:  # some new data some old data
-                            # begin with index after what is already in file
-                            outdat = processed_data[int(np.max(indstart)) + 1 :, :]
-                            # write outdat to station_id.dat
-                            with open(filename, "a") as fidn:
-                                self.write_csv_file(fidn, outdat)
-            # if filename doesn't exist create new file
+                # Create if not exists
+                file_path.touch(exist_ok=True)
+
+                if len(processed_data) == 0:
+                    logger.debug("No new data to add, skipping...")
+                    return
+
+                # number that is ascending in time, calculate last date
+                # number of old data
+                lastdatenum = year * 1e3 + julian_day
+                # find indices of dates in new part that are before what is
+                # already in csv
+                indstart = np.argwhere(date_number <= lastdatenum)
+                if len(indstart) == 0:
+                    logger.debug("Adding entirely new data")
+                    indstart = 0
+                    outdat = processed_data
+                elif len(indstart) == len(
+                    processed_data[:, 1]
+                ):  # only dates before what is already there
+                    logger.debug("Adding new data before existing data")
+                    outdat = np.array([])
+                else:  # some new data some old data
+                    logger.debug("Adding new data after existing data")
+                    # begin with index after what is already in file
+                    outdat = processed_data[int(np.max(indstart)) + 1 :, :]
+
+                # Write data to file
+                with open(file_path, "a") as fidn:
+                    logger.debug(f"Writing data to file: {str(file_path)}")
+                    self.write_csv_file(fidn, outdat)
+
             except Exception as e:
-                # TODO properly catch the file not found exception and return an error
-                # otherwise, print exception info
-                logger.debug(e)
-                with open(filename, "w") as fidn:
-                    self.write_csv_file(fidn, processed_data)
-                logger.info(
-                    f"No existing .csv file for station #{station_num} found."
-                    "Writing new .csv"
-                )
+                logger.error(e)
+                logger.error(f"Error writing .csv file for station #{station_num}.")
 
     def write_csv_short_term(self, station_array: list[str], csv_short_days: int):
         """Write short-term csv files."""
