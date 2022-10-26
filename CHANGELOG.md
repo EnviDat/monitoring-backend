@@ -1,3 +1,25 @@
+## 2.1.0 (2022-10-26)
+
+### Refactor
+
+- update to latest django LOGGING var, dict format
+- remove legacy gcnet code
+- add more verbose debug logging to gcnet main import
+- add refs to flag -r to more verbose --refreshInterval, blacken all
+- update 404 to include API docs page, format
+
+### Fix
+
+- logging throughout app, single init in settings.py or main.py importer
+- update gcnet config paths to linux '/' (from windows '\')
+- update csv_writer to handle file not exist, logging, error handling
+- revert --repeatInterval to -r, as flag not supported
+- defer js/css loading in html templates until render done
+
+### Feat
+
+- add correct logging to Django throughout app, LOG_LEVEL setting
+
 ## 2.0.1 (2022-10-26)
 
 ### Refactor
