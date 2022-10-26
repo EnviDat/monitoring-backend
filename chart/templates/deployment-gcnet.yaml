@@ -38,13 +38,17 @@ spec:
           args:
             - |
               python -c '
+              import os
               from gcnet import main
-              main.main(["-r 10"])
+              interval = os.getenv("GCNET_INTERVAL_MINS", default=10)
+              main.main([f"-r {interval}"])
               '
           resources:
             {{- toYaml .Values.gcnetImporter.resources | nindent 12 }}
           env:
             {{- toYaml .Values.extraEnv | nindent 12 }}
+            - name: GCNET_INTERVAL_MINS
+              value: {{ .Values.gcnetImporter.intervalMins }}
           envFrom:
             {{- toYaml .Values.extraEnvFrom | nindent 12 }}
           volumeMounts: []

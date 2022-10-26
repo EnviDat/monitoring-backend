@@ -38,13 +38,17 @@ spec:
           args:
             - |
               python -c '
+              import os
               from lwf import main
-              main.main(["-r 10"])
+              interval = os.getenv("LWF_INTERVAL_MINS", default=10)
+              main.main([f"-r {interval}"])
               '
           resources:
             {{- toYaml .Values.lwfImporter.resources | nindent 12 }}
           env:
             {{- toYaml .Values.extraEnv | nindent 12 }}
+            - name: LWF_INTERVAL_MINS
+              value: {{ .Values.lwfImporter.intervalMins }}
           envFrom:
             {{- toYaml .Values.extraEnvFrom | nindent 12 }}
           volumeMounts: []

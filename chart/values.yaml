@@ -17,6 +17,7 @@ fullnameOverride: ""
 
 gcnetImporter:
   enabled: true
+  intervalMins: 180
   resources:
     limits:
       cpu: 1000m
@@ -26,6 +27,7 @@ gcnetImporter:
       memory: 100Mi
 lwfImporter:
   enabled: true
+  intervalMins: 180
   resources:
     limits:
       cpu: 1000m
