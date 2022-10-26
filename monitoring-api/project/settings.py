@@ -40,6 +40,7 @@ else:
     ALLOWED_HOSTS = [env("MONITORING_API_HOST", default="localhost")]
     hosts = env("ALLOWED_HOSTS", default=None)
     if hosts:
+        log.debug(f"Attempting to add hosts {hosts} to {ALLOWED_HOSTS}")
         ALLOWED_HOSTS += json.loads(hosts)
 
 # Application definition
