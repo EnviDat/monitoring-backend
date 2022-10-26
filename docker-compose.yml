@@ -5,6 +5,10 @@ networks:
   traefik-proxy:
     external: true
 
+volumes:
+  gcnet-input:
+  gcnet-output:
+
 services:
   api:
     container_name: monitoring_api
@@ -19,7 +23,9 @@ services:
         - EXTERNAL_REG=${EXTERNAL_REG}
       target: debug
     volumes:
-      - ./monitoring-api:/opt/app:ro
+      - ./monitoring-api:/opt/app
+      - gcnet-input:/opt/app/gcnet/input
+      - gcnet-output:/opt/app/gcnet/output
     ports:
       - "9111:8080"
     extra_hosts:
