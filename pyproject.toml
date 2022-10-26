@@ -86,3 +86,8 @@ version_files = [
     "chart/Chart.yaml:appVersion",
     "monitoring-api/project/settings.py:app_version",
 ]
+
+[tool.isort]
+profile = "black"
+atomic = true
+known_first_party = ["monitoring-api"]
