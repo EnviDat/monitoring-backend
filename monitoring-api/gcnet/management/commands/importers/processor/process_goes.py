@@ -71,7 +71,7 @@ def decode_goes(file):
     and variables
     """
 
-    logger.info(f" Decoding {file}...")
+    logger.debug(f"Decoding GOES raw data {file}...")
 
     with open(file, encoding="ASCII") as goes_input:
 
@@ -91,7 +91,14 @@ def decode_goes(file):
 
             data_out.append(conv_line)
 
-    # Convert data to Pandas DataFrame
-    df = pandas.DataFrame(data_out)
+    try:
+        # Convert data to Pandas DataFrame
+        df = pandas.DataFrame(data_out)
+    except Exception as e:
+        logger.error(e)
+        logger.error("Failed to read GOES into dataframe")
+        raise ValueError("Failed to read GOES into dataframe")
+
+    logger.debug(f"GOES file read and decoded successfully into dataframe")
 
     return df

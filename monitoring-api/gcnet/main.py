@@ -194,10 +194,12 @@ def process_data(station_type: str, config_dict: dict, local_input=None):
         raise ValueError(f"Invalid station type: {station_type}")
 
     # Convert decoded data pandas dataframe to Numpy array
+    logger.debug("Converting to numpy array")
     data_array = data_decode.to_numpy()
 
     # Clean data and write csv and json files
     stations_config_path = "gcnet/config/stations.ini"
+    logger.debug(f"Getting cleaner type for station type: {station_type}")
     cleaner = CleanerFactory.get_cleaner(station_type, stations_config_path, writer)
 
     if not cleaner:
@@ -206,6 +208,7 @@ def process_data(station_type: str, config_dict: dict, local_input=None):
 
     # Clean Numpy array data by applying basic filters
     # Cleaner also writes csv and json files
+    logger.debug(f"Trigger cleaner function for cleaner type: {cleaner}")
     cleaner.clean(data_array)
 
     return
@@ -256,10 +259,8 @@ def main(args=None):
             config_dict = dict(config.items(station_type))
             config_dict["writer"] = get_writer_config_dict(config)
 
-            local_input = None
-            # Assign local_input if commandline option localInput is passed
-            if args.localInput:
-                local_input = args.localInput
+            # local_input default to None, if not passed
+            local_input = args.localInput
 
             # Process data from each station_type concurrently using multiprocessing
             process = multiprocessing.Process(
