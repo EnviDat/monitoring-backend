@@ -1,6 +1,4 @@
-# Setup logging
 import logging
-from pathlib import Path
 
 from django.db import transaction
 from django.utils.timezone import make_aware
@@ -20,13 +18,7 @@ from gcnet.management.commands.importers.helpers.import_date_helpers import (
 )
 from gcnet.util.constants import Columns
 
-logging.basicConfig(
-    filename=Path("gcnet/logs/csv_import.log"),
-    format="%(asctime)s   %(filename)s: %(message)s",
-    datefmt="%d-%b-%y %H:%M:%S",
-)
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+log = logging.getLogger(__name__)
 
 
 class CsvImporter:
@@ -140,7 +132,7 @@ class CsvImporter:
                                 records_written += 1
 
             # Log import message
-            logger.info(
+            log.info(
                 "{} successfully imported, {} lines read, {} new record(s) written in {}".format(
                     input_file, line_number, records_written, model_class
                 )

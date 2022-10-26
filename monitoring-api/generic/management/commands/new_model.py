@@ -1,26 +1,16 @@
-# Example command:
-#   python manage.py new_model -c lwf/config/test.ini
+"""
+Example command:
+  python manage.py new_model -c lwf/config/test.ini
+"""
 
+import logging
 from pathlib import Path
 
 from django.core.management.base import BaseCommand
-
-__version__ = "0.0.1"
-__author__ = "Rebecca Buchholz"
-
-# Setup logging
-import logging
-
 from generic.util.commands_helpers import execute_commands, has_spaces, model_exists
 from generic.util.nead import read_config
 
-logging.basicConfig(
-    filename=Path("generic/logs/new_model.log"),
-    format="%(asctime)s  %(filename)s: %(message)s",
-    datefmt="%d-%b-%y %H:%M:%S",
-)
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+log = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
@@ -44,12 +34,12 @@ class Command(BaseCommand):
         try:
             app = self.get_app(parent_class)
         except Exception as e:
-            logger.error(e)
+            log.error(e)
             return
 
         # Check if 'database_table_name' in config file has no spaces
         if has_spaces(database_table_name):
-            logger.error(
+            log.error(
                 f"ERROR database_table_name in config must have no spaces: {database_table_name}"
             )
             return
@@ -61,7 +51,7 @@ class Command(BaseCommand):
         try:
             model_path = self.get_model_path(parent_class)
         except Exception as e:
-            logger.error(e)
+            log.error(e)
             return
 
         # Check if model ('database_table_name' in config) already exists in corresponding models file
@@ -69,17 +59,17 @@ class Command(BaseCommand):
             # First check if model is written in corresponding models file:
             with open(model_path) as f:
                 if f"class {database_table_name}" in f.read():
-                    logger.error(
+                    log.error(
                         f"ERROR table {database_table_name} already written in {model_path}"
                     )
                     return
         except FileNotFoundError as e:
-            logger.error(f"ERROR file not found {model_path}, exception {e}")
+            log.error(f"ERROR file not found {model_path}, exception {e}")
             return
 
         # Check if table already exists in database
         if model_exists(database_table_name, app):
-            logger.error(
+            log.error(
                 f"ERROR database_table_name already exists in database: {database_table_name}"
             )
             return
@@ -117,18 +107,18 @@ class Command(BaseCommand):
 
             # Log message
             if commands_executed:
-                logger.info(
+                log.info(
                     f"FINISHED creating new model {database_table_name} in parent_class {parent_class}"
                 )
             else:
-                logger.info(
+                log.info(
                     f"FAILED to create new model {database_table_name} in parent_class {parent_class}"
                 )
 
             return 0
 
         except Exception as e:
-            logger.error(f"ERROR: {e}")
+            log.error(f"ERROR: {e}")
 
     # Check which kind of model_path should be used
     @staticmethod

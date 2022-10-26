@@ -1,20 +1,12 @@
 import configparser
+import logging
 import os
 from pathlib import Path
 
 # Code to test locally
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "project.settings")
 
-# Setup logging
-import logging
-
-logging.basicConfig(
-    filename=Path("gcnet/logs/import.log"),
-    format="%(asctime)s   %(filename)s: %(message)s",
-    datefmt="%d-%b-%y %H:%M:%S",
-)
-validator_logger = logging.getLogger(__name__)
-validator_logger.setLevel(logging.DEBUG)
+log = logging.getLogger(__name__)
 
 
 def check_values(stations_config, key, value, section, minimum, maximum, row, dat_path):
@@ -26,7 +18,7 @@ def check_values(stations_config, key, value, section, minimum, maximum, row, da
         and not is_null(value)
     ):
 
-        validator_logger.info(
+        log.info(
             "STATION INPUT FILE: {}  UNEXPECTED VALUE for {}: {}   {}".format(
                 dat_path, key, value, row
             )
@@ -101,4 +93,4 @@ def null_checker(rows_buffer, rows_before, rows_after):
                     logger_message = (
                         f"UNEXPECTED VALUE for {key} (probably NULL):  {current_row}"
                     )
-                    validator_logger.info(logger_message)
+                    log.info(logger_message)

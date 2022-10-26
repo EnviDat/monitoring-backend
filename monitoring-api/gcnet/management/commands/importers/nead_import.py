@@ -1,4 +1,3 @@
-# Setup logging
 import logging
 from configparser import ConfigParser
 from datetime import datetime
@@ -8,13 +7,7 @@ import gcnet.management.commands.importers.helpers.import_date_helpers as h
 from django.db import transaction
 from gcnet.util.constants import Columns
 
-logging.basicConfig(
-    filename=Path("gcnet/logs/nead_import.log"),
-    format="%(asctime)s   %(filename)s: %(message)s",
-    datefmt="%d-%b-%y %H:%M:%S",
-)
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+log = logging.getLogger(__name__)
 
 
 class NeadImporter:
@@ -83,7 +76,7 @@ class NeadImporter:
                             raise e
 
             # Log import message
-            logger.info(
+            log.info(
                 "{} successfully imported, {} lines read, {} new record(s) written in {}".format(
                     input_file, line_number, records_written, model_class
                 )

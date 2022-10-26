@@ -1,10 +1,10 @@
-# Example commands:
-# python manage.py csv_import -i lwf/data/test.csv -t directory -d lwf/data -a lwf -m test41
-# python manage.py csv_import -i https://os.zhdk.cloud.switch.ch/envidat4lwf/p1_meteo/historical/1.csv -t web -d lwf/data -a lwf -m test41
-# python manage.py csv_import -i https://os.zhdk.cloud.switch.ch/envidat4lwf/p1_meteo/1.csv -t web -d lwf/data -a lwf -m test41
+"""
+Example commands:
+python manage.py csv_import -i lwf/data/test.csv -t directory -d lwf/data -a lwf -m test41
+python manage.py csv_import -i https://os.zhdk.cloud.switch.ch/envidat4lwf/p1_meteo/historical/1.csv -t web -d lwf/data -a lwf -m test41
+python manage.py csv_import -i https://os.zhdk.cloud.switch.ch/envidat4lwf/p1_meteo/1.csv -t web -d lwf/data -a lwf -m test41
+"""
 
-
-# Setup logging
 import logging
 import os
 from pathlib import Path
@@ -18,13 +18,7 @@ from generic.util.views_helpers import get_model_cl
 from lwf.util.cleaners import get_lwf_meteo_line_clean, get_lwf_station_line_clean
 from postgres_copy import CopyMapping
 
-logging.basicConfig(
-    filename=Path("generic/logs/csv_import.log"),
-    format="%(asctime)s  %(filename)s: %(message)s",
-    datefmt="%d-%b-%y %H:%M:%S",
-)
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+log = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
@@ -74,7 +68,7 @@ class Command(BaseCommand):
 
             # Write content from url into csv file
             url = str(inputfile)
-            logger.info(f"STARTED importing input URL: {url}")
+            log.info(f"STARTED importing input URL: {url}")
             req = requests.get(url)
             url_content = req.content
             input_file = Path(f"{directory}/{model}_downloaded.csv")
@@ -83,23 +77,21 @@ class Command(BaseCommand):
             csv_file.close()
         elif typesource == "directory":
             input_file = Path(inputfile)
-            logger.info(f"STARTED importing input file: {input_file}")
+            log.info(f"STARTED importing input file: {input_file}")
         else:
-            logger.error(
-                f'ERROR non-valid value entered for "typesource": {typesource}'
-            )
+            log.error(f'ERROR non-valid value entered for "typesource": {typesource}')
             return
 
         # Validate app
         if not apps.is_installed(app):
-            logger.error(f"ERROR app {app} not found")
+            log.error(f"ERROR app {app} not found")
             return
 
         # Validate model
         try:
             model_class = get_model_cl(app, model)
         except AttributeError as e:
-            logger.error(f"ERROR model {model} not found, exception {e}")
+            log.error(f"ERROR model {model} not found, exception {e}")
             return
 
         # Get parent class name
@@ -109,7 +101,7 @@ class Command(BaseCommand):
         try:
             line_cleaner = self.get_line_cleaner(parent_class_name)
         except Exception as e:
-            logger.error(e)
+            log.error(e)
             return
 
         # Assign other variables used to write csv_temporary
@@ -160,7 +152,7 @@ class Command(BaseCommand):
 
                     if len(line_array) != len(input_fields):
                         error_msg = f"ERROR: line has {len(line_array)} values, header has {len(input_fields)} columns"
-                        logger.error(error_msg)
+                        log.error(error_msg)
                         raise ValueError(error_msg)
 
                     row = {
@@ -214,7 +206,7 @@ class Command(BaseCommand):
                     )
 
         except FileNotFoundError as e:
-            logger.error(f"ERROR file not found {input_file}, exception {e}")
+            log.error(f"ERROR file not found {input_file}, exception {e}")
             return
 
         # Assign copy_dictionary from database_fields
@@ -236,7 +228,7 @@ class Command(BaseCommand):
         c.save()
 
         # Log import message
-        logger.info(
+        log.info(
             f"FINISHED importing {input_file}, {records_written} new records written in {model}"
         )
 

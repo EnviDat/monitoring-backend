@@ -7,9 +7,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-logging.basicConfig()
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+log = logging.getLogger(__name__)
 
 
 class Writer:
@@ -55,15 +53,15 @@ class Writer:
             )
             try:
                 np.savetxt(fid, dataset, fmt=formstr)
-                logger.info(
+                log.info(
                     " Successfully saved {} entries to file: {}".format(
                         len(dataset[:, 1]), fid.name
                     )
                 )
             except Exception as e:
                 # TODO catch specific extensions and print their info
-                logger.error(e)
-                logger.error("Could not write CSV")
+                log.error(e)
+                log.error("Could not write CSV")
         else:
             np.savetxt(fid, dataset)
 
@@ -183,7 +181,7 @@ class Writer:
         file_path = Path(self.csv_file_path + str(station_num) + ".csv")
 
         if self.new_load_flag == 1:
-            logger.debug("newLoadFlag passed in config, overwriting existing file")
+            log.debug("newLoadFlag passed in config, overwriting existing file")
             with open(file_path, "w") as fidn:
                 # overwrite any existing files because newloadflag==1 means fresh run
                 self.write_csv_file(fidn, processed_data)
@@ -193,7 +191,7 @@ class Writer:
                 file_path.touch(exist_ok=True)
 
                 if len(processed_data) == 0:
-                    logger.debug("No new data to add, skipping...")
+                    log.debug("No new data to add, skipping...")
                     return
 
                 # number that is ascending in time, calculate last date
@@ -203,27 +201,27 @@ class Writer:
                 # already in csv
                 indstart = np.argwhere(date_number <= lastdatenum)
                 if len(indstart) == 0:
-                    logger.debug("Adding entirely new data")
+                    log.debug("Adding entirely new data")
                     indstart = 0
                     outdat = processed_data
                 elif len(indstart) == len(
                     processed_data[:, 1]
                 ):  # only dates before what is already there
-                    logger.debug("Adding new data before existing data")
+                    log.debug("Adding new data before existing data")
                     outdat = np.array([])
                 else:  # some new data some old data
-                    logger.debug("Adding new data after existing data")
+                    log.debug("Adding new data after existing data")
                     # begin with index after what is already in file
                     outdat = processed_data[int(np.max(indstart)) + 1 :, :]
 
                 # Write data to file
                 with open(file_path, "a") as fidn:
-                    logger.debug(f"Writing data to file: {str(file_path)}")
+                    log.debug(f"Writing data to file: {str(file_path)}")
                     self.write_csv_file(fidn, outdat)
 
             except Exception as e:
-                logger.error(e)
-                logger.error(f"Error writing .csv file for station #{station_num}.")
+                log.error(e)
+                log.error(f"Error writing .csv file for station #{station_num}.")
 
     def write_csv_short_term(self, station_array: list[str], csv_short_days: int):
         """Write short-term csv files."""
@@ -279,5 +277,5 @@ class Writer:
                     self.write_csv_file(fidn, time_range)
 
             except Exception as e:
-                logger.error(e)
-                logger.error(f"Erorr writing station {stations[i]} CSV file")
+                log.error(e)
+                log.error(f"Erorr writing station {stations[i]} CSV file")

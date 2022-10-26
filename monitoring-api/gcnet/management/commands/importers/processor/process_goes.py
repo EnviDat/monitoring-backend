@@ -6,9 +6,7 @@ import logging
 
 import pandas
 
-logging.basicConfig()
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+log = logging.getLogger(__name__)
 
 
 def get_converted_line(line):
@@ -71,7 +69,7 @@ def decode_goes(file):
     and variables
     """
 
-    logger.debug(f"Decoding GOES raw data {file}...")
+    log.debug(f"Decoding GOES raw data {file}...")
 
     with open(file, encoding="ASCII") as goes_input:
 
@@ -95,10 +93,10 @@ def decode_goes(file):
         # Convert data to Pandas DataFrame
         df = pandas.DataFrame(data_out)
     except Exception as e:
-        logger.error(e)
-        logger.error("Failed to read GOES into dataframe")
+        log.error(e)
+        log.error("Failed to read GOES into dataframe")
         raise ValueError("Failed to read GOES into dataframe")
 
-    logger.debug(f"GOES file read and decoded successfully into dataframe")
+    log.debug(f"GOES file read and decoded successfully into dataframe")
 
     return df

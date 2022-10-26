@@ -22,13 +22,13 @@ repeatInterval:
 repeatInterval and localInput:
   main(['-r 10', '-l True'])
 """
-
-
 import argparse
 import configparser
 import logging
 import multiprocessing
+import os
 import subprocess
+import sys
 import time
 from datetime import datetime
 from pathlib import Path
@@ -42,9 +42,16 @@ from gcnet.management.commands.importers.processor.process_argos import (
 from gcnet.management.commands.importers.processor.process_goes import decode_goes
 from gcnet.util.writer import Writer
 
-logging.basicConfig()
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+logging.basicConfig(
+    level=os.getenv("LOG_LEVEL", default="DEBUG"),
+    format=(
+        "%(asctime)s.%(msecs)03d [%(levelname)s] "
+        "%(name)s | %(funcName)s:%(lineno)d | %(message)s"
+    ),
+    datefmt="%Y-%m-%d %H:%M:%S",
+    stream=sys.stdout,
+)
+log = logging.getLogger(__name__)
 
 
 def get_parser():
@@ -66,10 +73,10 @@ def read_config(config_path: str):
     config_file = Path(config_path)
     config = configparser.ConfigParser()
     config.read(config_file)
-    logger.info(f" Read configuration file: {config_path}")
+    log.info(f" Read configuration file: {config_path}")
 
     if len(config.sections()) < 1:
-        logger.error(" Invalid config file, missing sections")
+        log.error(" Invalid config file, missing sections")
         raise ValueError("Invalid config file, missing sections")
 
     return config
@@ -87,7 +94,7 @@ def get_input_data(config_dict: dict, local_input):
     # 'data_local' from config
     if local_input:
         data_file = config_dict["data_local"]
-        logger.info(f" Skipping downloading input data, using local file: {data_file}")
+        log.info(f" Skipping downloading input data, using local file: {data_file}")
 
     # Else assign data_file to file downloaded from data_url
     else:
@@ -95,7 +102,7 @@ def get_input_data(config_dict: dict, local_input):
         data_file = config_dict["data_url_file"]
 
         # Download data from URL
-        logger.debug(f"Attempting to download URL: {data_url}")
+        log.debug(f"Attempting to download URL: {data_url}")
         with request.urlopen(data_url) as data:
             content = data.read()
 
@@ -103,7 +110,7 @@ def get_input_data(config_dict: dict, local_input):
         with open(data_file, "wb") as download_file:
             download_file.write(content)
 
-        logger.info(f" Downloaded input data from URL and wrote file: {data_file}")
+        log.info(f" Downloaded input data from URL and wrote file: {data_file}")
 
     return data_file
 
@@ -168,7 +175,7 @@ def execute_commands(commands_list):
                 text=True,
             )
         except subprocess.CalledProcessError:
-            logger.error(f"Could not run command: {station_command}")
+            log.error(f"Could not run command: {station_command}")
             continue
 
 
@@ -190,25 +197,25 @@ def process_data(station_type: str, config_dict: dict, local_input=None):
         data_decode = decode_goes(data)
 
     else:
-        logger.error(f" Invalid station type: {station_type}")
+        log.error(f" Invalid station type: {station_type}")
         raise ValueError(f"Invalid station type: {station_type}")
 
     # Convert decoded data pandas dataframe to Numpy array
-    logger.debug("Converting to numpy array")
+    log.debug("Converting to numpy array")
     data_array = data_decode.to_numpy()
 
     # Clean data and write csv and json files
     stations_config_path = "gcnet/config/stations.ini"
-    logger.debug(f"Getting cleaner type for station type: {station_type}")
+    log.debug(f"Getting cleaner type for station type: {station_type}")
     cleaner = CleanerFactory.get_cleaner(station_type, stations_config_path, writer)
 
     if not cleaner:
-        logger.error(f"No cleaner exists for station type: {station_type}")
+        log.error(f"No cleaner exists for station type: {station_type}")
         raise ValueError(f"No cleaner exists for station type: {station_type}")
 
     # Clean Numpy array data by applying basic filters
     # Cleaner also writes csv and json files
-    logger.debug(f"Trigger cleaner function for cleaner type: {cleaner}")
+    log.debug(f"Trigger cleaner function for cleaner type: {cleaner}")
     cleaner.clean(data_array)
 
     return
@@ -228,7 +235,7 @@ def main(args=None):
     config = read_config(metadata_path)
 
     if not config:
-        logger.error(f"Not valid config file: {metadata_path}")
+        log.error(f"Not valid config file: {metadata_path}")
         return -1
 
     # Process and clean input data, write csv and json files, import csv files data
@@ -241,7 +248,7 @@ def main(args=None):
 
         start_time = time.time()
 
-        logger.info(
+        log.info(
             " **************************** START DATA PROCESSING ITERATION"
             " (start time: {}) "
             "**************************** ".format(
@@ -285,11 +292,11 @@ def main(args=None):
 
         # Check if stations_config exists
         if not stations_config:
-            logger.error(f"Non-valid config file: {stations_path}")
+            log.error(f"Non-valid config file: {stations_path}")
             return -1
 
         # Import csv files into Postgres database so that data are available for API
-        logger.info(
+        log.info(
             " **************************** START DATA IMPORT ITERATION ****************"
             "************ "
         )
@@ -316,7 +323,7 @@ def main(args=None):
             process.join()
 
         exec_time = int(time.time() - start_time)
-        logger.info(
+        log.info(
             f" FINISHED data processing and data import iteration, "
             f"that took {exec_time} seconds"
         )
@@ -325,7 +332,7 @@ def main(args=None):
             interval = int(args.repeatInterval) * 60
             if interval > exec_time:
                 wait_time = interval - exec_time
-                logger.info(f" SLEEPING {wait_time} seconds before next iteration...\n")
+                log.info(f" SLEEPING {wait_time} seconds before next iteration...\n")
                 time.sleep(wait_time)
 
     return 0

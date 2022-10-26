@@ -1,10 +1,13 @@
-# Example commands:
-# python manage.py lwf_main_import -i lwf/data/test.csv -t directory -d lwf/data -a lwf -m test41
-# python manage.py lwf_main_import -i https://os.zhdk.cloud.switch.ch/envidat4lwf/p1_meteo/historical/1.csv -t web -d lwf/data -a lwf -m test41
-# python manage.py lwf_main_import -i https://os.zhdk.cloud.switch.ch/envidat4lwf/p1_meteo/1.csv -t web -d lwf/data -a lwf -m test41 -s 10
+"""
+Example commands:
+python manage.py lwf_main_import -i lwf/data/test.csv -t directory -d lwf/data -a lwf -m test41
+python manage.py lwf_main_import -i https://os.zhdk.cloud.switch.ch/envidat4lwf/p1_meteo/historical/1.csv -t web -d lwf/data -a lwf -m test41
+python manage.py lwf_main_import -i https://os.zhdk.cloud.switch.ch/envidat4lwf/p1_meteo/1.csv -t web -d lwf/data -a lwf -m test41 -s 10
+"""
 
-
+import logging
 import os
+import sys
 from pathlib import Path
 
 import requests
@@ -13,12 +16,19 @@ from django.core.management.base import BaseCommand
 from django.utils.timezone import make_aware
 from generic.util.nead import write_nead_config
 from generic.util.views_helpers import get_model_cl
-from lwf.main import get_logger
 from lwf.util.cleaners import get_lwf_meteo_line_clean, get_lwf_station_line_clean
 from postgres_copy import CopyMapping
 
-# Setup logging
-logger = get_logger("lwf_main_import")
+logging.basicConfig(
+    level=os.getenv("LOG_LEVEL", default="DEBUG"),
+    format=(
+        "%(asctime)s.%(msecs)03d [%(levelname)s] "
+        "%(name)s | %(funcName)s:%(lineno)d | %(message)s"
+    ),
+    datefmt="%Y-%m-%d %H:%M:%S",
+    stream=sys.stdout,
+)
+log = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
@@ -71,14 +81,14 @@ class Command(BaseCommand):
 
         # Validate app
         if not apps.is_installed(app):
-            logger.error(f" ERROR app {app} not found")
+            log.error(f" ERROR app {app} not found")
             return
 
         # Validate model
         try:
             model_class = get_model_cl(app, model)
         except AttributeError as e:
-            logger.error(f" ERROR model {model} not found, exception {e}")
+            log.error(f" ERROR model {model} not found, exception {e}")
             return
 
         # Check if data source is from a directory or a url and assign input_file to selected option
@@ -98,12 +108,12 @@ class Command(BaseCommand):
 
                 # If file to download is over limit then log error and stop processing
                 if size_mb_url > int(size_limit):
-                    logger.error(
+                    log.error(
                         f" ERROR {url} is larger than maximum size allowed: {size_limit} MB"
                     )
                     return
 
-            # logger.info(f' Started importing input URL: {url}')
+            # log.info(f' Started importing input URL: {url}')
             req = requests.get(url)
             url_content = req.content
             input_file = Path(f"{directory}/{model}_downloaded.csv")
@@ -113,12 +123,10 @@ class Command(BaseCommand):
 
         elif typesource == "directory":
             input_file = Path(inputfile)
-            logger.info(f" Started importing input file: {input_file}")
+            log.info(f" Started importing input file: {input_file}")
 
         else:
-            logger.error(
-                f' ERROR non-valid value entered for "typesource": {typesource}'
-            )
+            log.error(f' ERROR non-valid value entered for "typesource": {typesource}')
             return
 
         # Get parent class name
@@ -128,7 +136,7 @@ class Command(BaseCommand):
         try:
             line_cleaner = self.get_line_cleaner(parent_class_name)
         except Exception as e:
-            logger.error(e)
+            log.error(e)
             return
 
         # Assign other variables used to write csv_temporary
@@ -179,7 +187,7 @@ class Command(BaseCommand):
 
                     if len(line_array) != len(input_fields):
                         error_msg = f" ERROR: line has {len(line_array)} values, header has {len(input_fields)} columns"
-                        logger.error(error_msg)
+                        log.error(error_msg)
                         raise ValueError(error_msg)
 
                     row = {
@@ -233,7 +241,7 @@ class Command(BaseCommand):
                     )
 
         except FileNotFoundError as e:
-            logger.error(f" ERROR file not found {input_file}, exception {e}")
+            log.error(f" ERROR file not found {input_file}, exception {e}")
             return
 
         # Assign copy_dictionary from database_fields
@@ -255,9 +263,7 @@ class Command(BaseCommand):
         c.save()
 
         # Log import message
-        logger.info(
-            f" Finished import: {records_written} new records written in {model}"
-        )
+        log.info(f" Finished import: {records_written} new records written in {model}")
 
         # Delete csv_temporary
         os.remove(csv_temporary)

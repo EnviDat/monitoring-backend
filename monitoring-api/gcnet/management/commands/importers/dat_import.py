@@ -1,27 +1,28 @@
-# ======================================   EXAMPLE COMMANDS ==========================================================
+"""
+======================================   EXAMPLE COMMANDS ==========================================================
 
-# TEST model used to test data imports
-# TEST:      python manage.py import_data -s test -c config/stations.ini -i gcnet/data/01c.dat -m test
+TEST model used to test data imports
+TEST:      python manage.py import_data -s test -c config/stations.ini -i gcnet/data/01c.dat -m test
 
-# SWISS CAMP 10m:  Unable to run, this station has a different .dat file format with a header
-# SWISS CAMP:      python manage.py import_data -s 01_swisscamp -c config/stations.ini -i gcnet/data/01c.dat -m swisscamp_01d
-# CRAWFORD POINT:  python manage.py import_data -s 02_crawfordpoint -c config/stations.ini -i gcnet/data/02c.dat -m crawfordpoint_02d
-# NASA-U:          python manage.py import_data -s 03_nasa_u -c config/stations.ini -i gcnet/data/03c.dat -m nasa_u_03d
-# GITS:            python manage.py import_data -s 04_gits -c config/stations.ini -i gcnet/data/04c.dat -m gits_04d
-# HUMBOLDT:        python manage.py import_data -s 05_humboldt -c /config/stations.ini -i gcnet/data/05c.dat -m humboldt_05d
-# SUMMIT:          python manage.py import_data -s 06_summit -c config/stations.ini -i gcnet/data/06c.dat -m summit_06d
-# TUNU-N:          python manage.py import_data -s 07_tunu_n -c config/stations.ini -i gcnet/data/07c.dat -m tunu_n_07d
-# DYE-2:           python manage.py import_data -s 08_dye2 -c config/stations.ini -i gcnet/data/08c.dat -m dye2_08d
-# JAR-1:           python manage.py import_data -s 09_jar1 -c config/stations.ini -i gcnet/data/09c.dat -m jar1_09d
-# SADDLE:          python manage.py import_data -s 10_saddle -c config/stations.ini -i gcnet/data/10c.dat -m saddle_10d
-# SOUTHDOME:       python manage.py import_data -s 11_southdome -c config/stations.ini -i gcnet/data/11c.dat -m southdome_11d
-# NASA-EAST:       python manage.py import_data -s 12_nasa_east -c config/stations.ini -i gcnet/data/12c.dat -m nasa_east_12d
-# NASA-SOUTHEAST:  python manage.py import_data -s 15_nasa_southeast -c config/stations.ini -i gcnet/data/15c.dat -m nasa_southeast_15d
-# PETERMANN:       python manage.py import_data -s 22_petermann -c config/stations.ini -i gcnet/data/22c.dat -m petermann_22d
-# NEEM:            python manage.py import_data -s 23_neem -c config/stations.ini -i gcnet/data/23c.dat -m neem_23d
-# EAST-GRIP:       python manage.py import_data -s 24_east_grip -c config/stations.ini -i gcnet/data/24c.dat -m east_grip_24d
+SWISS CAMP 10m:  Unable to run, this station has a different .dat file format with a header
+SWISS CAMP:      python manage.py import_data -s 01_swisscamp -c config/stations.ini -i gcnet/data/01c.dat -m swisscamp_01d
+CRAWFORD POINT:  python manage.py import_data -s 02_crawfordpoint -c config/stations.ini -i gcnet/data/02c.dat -m crawfordpoint_02d
+NASA-U:          python manage.py import_data -s 03_nasa_u -c config/stations.ini -i gcnet/data/03c.dat -m nasa_u_03d
+GITS:            python manage.py import_data -s 04_gits -c config/stations.ini -i gcnet/data/04c.dat -m gits_04d
+HUMBOLDT:        python manage.py import_data -s 05_humboldt -c /config/stations.ini -i gcnet/data/05c.dat -m humboldt_05d
+SUMMIT:          python manage.py import_data -s 06_summit -c config/stations.ini -i gcnet/data/06c.dat -m summit_06d
+TUNU-N:          python manage.py import_data -s 07_tunu_n -c config/stations.ini -i gcnet/data/07c.dat -m tunu_n_07d
+DYE-2:           python manage.py import_data -s 08_dye2 -c config/stations.ini -i gcnet/data/08c.dat -m dye2_08d
+JAR-1:           python manage.py import_data -s 09_jar1 -c config/stations.ini -i gcnet/data/09c.dat -m jar1_09d
+SADDLE:          python manage.py import_data -s 10_saddle -c config/stations.ini -i gcnet/data/10c.dat -m saddle_10d
+SOUTHDOME:       python manage.py import_data -s 11_southdome -c config/stations.ini -i gcnet/data/11c.dat -m southdome_11d
+NASA-EAST:       python manage.py import_data -s 12_nasa_east -c config/stations.ini -i gcnet/data/12c.dat -m nasa_east_12d
+NASA-SOUTHEAST:  python manage.py import_data -s 15_nasa_southeast -c config/stations.ini -i gcnet/data/15c.dat -m nasa_southeast_15d
+PETERMANN:       python manage.py import_data -s 22_petermann -c config/stations.ini -i gcnet/data/22c.dat -m petermann_22d
+NEEM:            python manage.py import_data -s 23_neem -c config/stations.ini -i gcnet/data/23c.dat -m neem_23d
+EAST-GRIP:       python manage.py import_data -s 24_east_grip -c config/stations.ini -i gcnet/data/24c.dat -m east_grip_24d
+"""
 
-# Setup logging
 import logging
 from pathlib import Path
 
@@ -41,13 +42,7 @@ from gcnet.management.commands.importers.helpers.import_date_helpers import (
 )
 from gcnet.util.constants import Columns
 
-logging.basicConfig(
-    filename=Path("gcnet/logs/dat_import.log"),
-    format="%(asctime)s   %(filename)s: %(message)s",
-    datefmt="%d-%b-%y %H:%M:%S",
-)
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+log = logging.getLogger(__name__)
 
 
 class DatImporter:
@@ -203,7 +198,7 @@ class DatImporter:
                     raise e
 
             # Log import message
-            logger.info(
+            log.info(
                 "{} successfully imported, {} lines read, {} new record(s) written in {}".format(
                     input_file, line_number, records_written, model_class
                 )

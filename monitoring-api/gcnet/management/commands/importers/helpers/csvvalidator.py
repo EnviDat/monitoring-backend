@@ -1,4 +1,5 @@
 import configparser
+import logging
 import os
 from pathlib import Path
 
@@ -7,16 +8,7 @@ from gcnet.util.constants import Columns
 # Code to test locally
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "project.settings")
 
-# Setup logging
-import logging
-
-logging.basicConfig(
-    filename=Path("gcnet/logs/csvvalidator.log"),
-    format="%(asctime)s   %(filename)s: %(message)s",
-    datefmt="%d-%b-%y %H:%M:%S",
-)
-validator_logger = logging.getLogger(__name__)
-validator_logger.setLevel(logging.DEBUG)
+log = logging.getLogger(__name__)
 
 
 def check_values(
@@ -30,7 +22,7 @@ def check_values(
         and not is_null(value)
     ):
         log_message = f"STATION INPUT FILE: {csv_path}  LINE COUNT: {line_count}   UNEXPECTED VALUE for {key}: {value}   {row}"
-        validator_logger.info(log_message)
+        log.info(log_message)
 
     return
 
@@ -105,4 +97,4 @@ def csv_null_checker(rows_buffer, rows_before, rows_after, csv_path, line_count)
                 list_not_nulls = [1 for row in rows_buffer if not is_null(row[key])]
                 if len(list_not_nulls) <= 1:
                     logger_message = f"STATION INPUT FILE: {csv_path}  LINE COUNT: {line_count-1}   UNEXPECTED VALUE for {key} (probably NULL):  {current_row}"
-                    validator_logger.info(logger_message)
+                    log.info(logger_message)

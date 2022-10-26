@@ -1,34 +1,32 @@
-#
-# TODO test running script with multiple stations and from a batch file
-# TODO FUTURE DEVELOPMENT refactor 'tempdir' argument and storing data downloaded from web rather than temporary file
-#
-# Summary: Command used to import data in NEAD format into database.
-#
-# WARNING: Existing records (selected by field 'timestamp') WILL BE UPDATED with the data in the input file,
-#          records that do not exist will be created!!!!
-#
-# WARNING: To insure that 'timestamp_iso' values will be aware datetime objects with time zone 'UTC',
-#          check that project/settings.py has the following settings:
-#               USE_TZ = True
-#               TIME_ZONE = 'UTC'
-#
-# Usage: To see information about command arguments see method add_arguments() or
-#        open terminal (with virual environment activated) and run:
-#               python manage.py nead_import --help
-#
-# Author: Rebecca Kurup Buchholz, WSL
-# Date last modified: June 10, 2022
-#
-# Example command:
-#       python manage.py nead_import -s local -i gcnet/data/01-SwissCamp.csv -n -999 -a gcnet -m test
+"""
+TODO test running script with multiple stations and from a batch file
+TODO FUTURE DEVELOPMENT refactor 'tempdir' argument and storing data downloaded from web rather than temporary file
 
+Summary: Command used to import data in NEAD format into database.
+
+WARNING: Existing records (selected by field 'timestamp') WILL BE UPDATED with the data in the input file,
+         records that do not exist will be created!!!!
+
+WARNING: To insure that 'timestamp_iso' values will be aware datetime objects with time zone 'UTC',
+         check that project/settings.py has the following settings:
+              USE_TZ = True
+              TIME_ZONE = 'UTC'
+
+Usage: To see information about command arguments see method add_arguments() or
+       open terminal (with virual environment activated) and run:
+              python manage.py nead_import --help
+
+Author: Rebecca Kurup Buchholz, WSL
+Date last modified: June 10, 2022
+
+Example command:
+      python manage.py nead_import -s local -i gcnet/data/01-SwissCamp.csv -n -999 -a gcnet -m test
+"""
 
 import importlib
-
-# Setup logging
 import logging
 import os
-from pathlib import Path
+import sys
 
 import requests
 from deepdiff import DeepDiff
@@ -38,34 +36,19 @@ from django.forms import model_to_dict
 from django.utils.timezone import make_aware
 from gcnet.management.commands.importers.helpers.cleaners import get_gcnet_record_clean
 
-
-def setup_logger(logger_name, log_file, level=logging.DEBUG):
-
-    # Get logger
-    log = logging.getLogger(logger_name)
-
-    # Configure file handler
-    fileHandler = logging.FileHandler(log_file, mode="a")
-    formatter = logging.Formatter(
+logging.basicConfig(
+    level=os.getenv("LOG_LEVEL", default="DEBUG"),
+    format=(
         "%(asctime)s.%(msecs)03d [%(levelname)s] "
-        "%(name)s | %(funcName)s:%(lineno)d | %(message)s",
-        "%Y-%m-%d %H:%M:%S",
-    )
-    fileHandler.setFormatter(formatter)
-
-    # Configure log
-    log.addHandler(fileHandler)
-    log.propagate = False
-    log.setLevel(level)
-
-
+        "%(name)s | %(funcName)s:%(lineno)d | %(message)s"
+    ),
+    datefmt="%Y-%m-%d %H:%M:%S",
+    stream=sys.stdout,
+)
 # logger used for general logging
-setup_logger("logger", "generic/logs/nead_import.log")
-logger = logging.getLogger("logger")
-
+log = logging.getLogger("logger")
 # updater_logger used specifically to log updated records
-setup_logger("updater_logger", "generic/logs/nead_import_updater.log")
-updater_logger = logging.getLogger("updater_logger")
+updater_log = logging.getLogger("updater_logger")
 
 
 class Command(BaseCommand):
@@ -123,14 +106,14 @@ class Command(BaseCommand):
 
         # Validate app
         if not apps.is_installed(app):
-            logger.error(f"ERROR app {app} not found")
+            log.error(f"ERROR app {app} not found")
             return
 
         # Validate model
         try:
             model_class = self.get_model_cl(app, model)
         except AttributeError as e:
-            logger.error(f"ERROR model {model} not found, exception {e}")
+            log.error(f"ERROR model {model} not found, exception {e}")
             return
 
         # Get line cleaner function that corresponds to parent class
@@ -141,7 +124,7 @@ class Command(BaseCommand):
         if source == "web":
             # Write content from url into csv file
             url = str(inputfile)
-            logger.info(f"STARTED importing input URL: {url}")
+            log.info(f"STARTED importing input URL: {url}")
             req = requests.get(url)
             url_content = req.content
             # TODO test this with storing web data in memory rather than downloading data
@@ -152,9 +135,9 @@ class Command(BaseCommand):
             csv_file.close()
         elif source == "local":
             input_file = Path(inputfile)
-            logger.info(f"STARTED importing input file: {input_file}")
+            log.info(f"STARTED importing input file: {input_file}")
         else:
-            logger.error(f'ERROR non-valid value entered for "source": {source}')
+            log.error(f'ERROR non-valid value entered for "source": {source}')
             return
 
         # Get NEAD database fields
@@ -165,7 +148,7 @@ class Command(BaseCommand):
         records_updated, records_created = self.update_database(
             input_file, nead_database_fields, line_cleaner, model_class, **kwargs
         )
-        logger.info(
+        log.info(
             f"FINISHED importing {input_file} into model {model}: "
             f"{records_created} new records created; "
             f"{records_updated} existing records updated"
@@ -252,7 +235,7 @@ class Command(BaseCommand):
                             difference_dict = DeepDiff(old_obj_dict, new_obj_dict)
                             if difference_dict:
                                 timestamp_iso = line_clean["timestamp_iso"]
-                                updater_logger.info(
+                                updater_log.info(
                                     f"UPDATED record difference for model {model}, "
                                     f"timestamp {timestamp_iso}:  {difference_dict}"
                                 )
@@ -265,7 +248,7 @@ class Command(BaseCommand):
                 return records_updated, records_created
 
         except FileNotFoundError as e:
-            logger.error(f"ERROR file not found {input_file}, exception {e}")
+            log.error(f"ERROR file not found {input_file}, exception {e}")
             return
 
     # Check which kind of line cleaner should be used

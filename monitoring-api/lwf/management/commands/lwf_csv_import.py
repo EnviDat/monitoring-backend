@@ -1,40 +1,40 @@
-# Example commands:
-#   python manage.py lwf_csv_import -p LWFMeteo -i lwf/data/lebforest.csv -d lwf/data -m leb -t directory
-#   python manage.py lwf_csv_import -p LWFMeteo -i lwf/data/albforest.csv -d lwf/data -m alb -t directory
-#   python manage.py lwf_csv_import -p LWFMeteo -i lwf/data/baffield.csv -d lwf/data -m baf -t directory
-#   python manage.py lwf_csv_import -p LWFMeteo -i lwf/data/babforest.csv -d lwf/data -m bab -t directory
-#   python manage.py lwf_csv_import -p LWFMeteo -i lwf/data/clbforest.csv -d lwf/data -m clb -t directory
-#   python manage.py lwf_csv_import -p LWFMeteo -i lwf/data/clffield.csv -d lwf/data -m clf -t directory
-#   python manage.py lwf_csv_import -p LWFMeteo -i lwf/data/jubforest.csv -d lwf/data -m jub -t directory
-#   python manage.py lwf_csv_import -p LWFMeteo -i lwf/data/juffield.csv -d lwf/data -m juf -t directory
-#   python manage.py lwf_csv_import -p LWFMeteo -i lwf/data/isbforest.csv -d lwf/data -m isb -t directory
-#   python manage.py lwf_csv_import -p LWFMeteo -i lwf/data/isffield.csv -d lwf/data -m isf -t directory
-#   python manage.py lwf_csv_import -p LWFMeteo -i lwf/data/btffield.csv -d lwf/data -m btf -t directory
-#   python manage.py lwf_csv_import -p LWFMeteo -i lwf/data/btbforest.csv -d lwf/data -m btb -t directory
-#   python manage.py lwf_csv_import -p LWFMeteo -i lwf/data/cibforest.csv -d lwf/data -m cib -t directory
-#   python manage.py lwf_csv_import -p LWFMeteo -i lwf/data/ciffield.csv -d lwf/data -m cif -t directory
-#   python manage.py lwf_csv_import -p LWFMeteo -i lwf/data/nabforest.csv -d lwf/data -m nab -t directory
-#   python manage.py lwf_csv_import -p LWFMeteo -i lwf/data/naffield.csv -d lwf/data -m naf -t directory
-#   python manage.py lwf_csv_import -p LWFMeteo -i lwf/data/vsbforest.csv -d lwf/data -m vsb -t directory
-#   python manage.py lwf_csv_import -p LWFMeteo -i lwf/data/vsffield.csv -d lwf/data -m vsf -t directory
-#   python manage.py lwf_csv_import -p LWFMeteo -i lwf/data/labforest.csv -d lwf/data -m lab -t directory
-#   python manage.py lwf_csv_import -p LWFMeteo -i lwf/data/laffield.csv -d lwf/data -m laf -t directory
-#   python manage.py lwf_csv_import -p LWFMeteo -i lwf/data/vobforest.csv -d lwf/data -m vob -t directory
-#   python manage.py lwf_csv_import -p LWFMeteo -i lwf/data/voffield.csv  -d lwf/data -m vof -t directory
-#   python manage.py lwf_csv_import -p LWFMeteo -i lwf/data/nebforest.csv  -d lwf/data -m neb -t directory
-#   python manage.py lwf_csv_import -p LWFMeteo -i lwf/data/neffield.csv  -d lwf/data -m nef -t directory
-#   python manage.py lwf_csv_import -p LWFMeteo -i lwf/data/nobforest.csv  -d lwf/data -m nob -t directory
-#   python manage.py lwf_csv_import -p LWFMeteo -i lwf/data/noffield.csv  -d lwf/data -m nof -t directory
-#   python manage.py lwf_csv_import -p LWFMeteo -i lwf/data/otbforest.csv  -d lwf/data -m otb -t directory
-#   python manage.py lwf_csv_import -p LWFMeteo -i lwf/data/otffield.csv  -d lwf/data -m otf -t directory
-#   python manage.py lwf_csv_import -p LWFMeteo -i lwf/data/scbforest.csv  -d lwf/data -m scb -t directory
-#   python manage.py lwf_csv_import -p LWFMeteo -i lwf/data/scffield.csv  -d lwf/data -m scf -t directory
+"""
+Example commands:
+  python manage.py lwf_csv_import -p LWFMeteo -i lwf/data/lebforest.csv -d lwf/data -m leb -t directory
+  python manage.py lwf_csv_import -p LWFMeteo -i lwf/data/albforest.csv -d lwf/data -m alb -t directory
+  python manage.py lwf_csv_import -p LWFMeteo -i lwf/data/baffield.csv -d lwf/data -m baf -t directory
+  python manage.py lwf_csv_import -p LWFMeteo -i lwf/data/babforest.csv -d lwf/data -m bab -t directory
+  python manage.py lwf_csv_import -p LWFMeteo -i lwf/data/clbforest.csv -d lwf/data -m clb -t directory
+  python manage.py lwf_csv_import -p LWFMeteo -i lwf/data/clffield.csv -d lwf/data -m clf -t directory
+  python manage.py lwf_csv_import -p LWFMeteo -i lwf/data/jubforest.csv -d lwf/data -m jub -t directory
+  python manage.py lwf_csv_import -p LWFMeteo -i lwf/data/juffield.csv -d lwf/data -m juf -t directory
+  python manage.py lwf_csv_import -p LWFMeteo -i lwf/data/isbforest.csv -d lwf/data -m isb -t directory
+  python manage.py lwf_csv_import -p LWFMeteo -i lwf/data/isffield.csv -d lwf/data -m isf -t directory
+  python manage.py lwf_csv_import -p LWFMeteo -i lwf/data/btffield.csv -d lwf/data -m btf -t directory
+  python manage.py lwf_csv_import -p LWFMeteo -i lwf/data/btbforest.csv -d lwf/data -m btb -t directory
+  python manage.py lwf_csv_import -p LWFMeteo -i lwf/data/cibforest.csv -d lwf/data -m cib -t directory
+  python manage.py lwf_csv_import -p LWFMeteo -i lwf/data/ciffield.csv -d lwf/data -m cif -t directory
+  python manage.py lwf_csv_import -p LWFMeteo -i lwf/data/nabforest.csv -d lwf/data -m nab -t directory
+  python manage.py lwf_csv_import -p LWFMeteo -i lwf/data/naffield.csv -d lwf/data -m naf -t directory
+  python manage.py lwf_csv_import -p LWFMeteo -i lwf/data/vsbforest.csv -d lwf/data -m vsb -t directory
+  python manage.py lwf_csv_import -p LWFMeteo -i lwf/data/vsffield.csv -d lwf/data -m vsf -t directory
+  python manage.py lwf_csv_import -p LWFMeteo -i lwf/data/labforest.csv -d lwf/data -m lab -t directory
+  python manage.py lwf_csv_import -p LWFMeteo -i lwf/data/laffield.csv -d lwf/data -m laf -t directory
+  python manage.py lwf_csv_import -p LWFMeteo -i lwf/data/vobforest.csv -d lwf/data -m vob -t directory
+  python manage.py lwf_csv_import -p LWFMeteo -i lwf/data/voffield.csv  -d lwf/data -m vof -t directory
+  python manage.py lwf_csv_import -p LWFMeteo -i lwf/data/nebforest.csv  -d lwf/data -m neb -t directory
+  python manage.py lwf_csv_import -p LWFMeteo -i lwf/data/neffield.csv  -d lwf/data -m nef -t directory
+  python manage.py lwf_csv_import -p LWFMeteo -i lwf/data/nobforest.csv  -d lwf/data -m nob -t directory
+  python manage.py lwf_csv_import -p LWFMeteo -i lwf/data/noffield.csv  -d lwf/data -m nof -t directory
+  python manage.py lwf_csv_import -p LWFMeteo -i lwf/data/otbforest.csv  -d lwf/data -m otb -t directory
+  python manage.py lwf_csv_import -p LWFMeteo -i lwf/data/otffield.csv  -d lwf/data -m otf -t directory
+  python manage.py lwf_csv_import -p LWFMeteo -i lwf/data/scbforest.csv  -d lwf/data -m scb -t directory
+  python manage.py lwf_csv_import -p LWFMeteo -i lwf/data/scffield.csv  -d lwf/data -m scf -t directory
 
-#   python manage.py lwf_csv_import -p LWFStation -i lwf/data/test.csv  -d lwf/data -m test31 -t directory
+  python manage.py lwf_csv_import -p LWFStation -i lwf/data/test.csv  -d lwf/data -m test31 -t directory
+"""
 
 import importlib
-
-# Setup logging
 import logging
 import os
 from pathlib import Path
@@ -46,13 +46,7 @@ from generic.util.nead import write_nead_config
 from lwf.util.cleaners import get_lwf_meteo_line_clean, get_lwf_station_line_clean
 from postgres_copy import CopyMapping
 
-logging.basicConfig(
-    filename=Path("lwf/logs/lwf_csv_import.log"),
-    format="%(asctime)s   %(filename)s: %(message)s",
-    datefmt="%d-%b-%y %H:%M:%S",
-)
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+log = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
@@ -93,7 +87,7 @@ class Command(BaseCommand):
         if kwargs["typesource"] == "web":
             # Write content from url into csv file
             url = str(kwargs["inputfile"])
-            logger.info(f"URL: {url}")
+            log.info(f"URL: {url}")
             req = requests.get(url)
             url_content = req.content
             csv_path = str(Path(kwargs["directory"] + "/" + kwargs["inputfile"]))
@@ -103,9 +97,9 @@ class Command(BaseCommand):
             input_file = csv_path
         elif kwargs["typesource"] == "directory":
             input_file = Path(kwargs["inputfile"])
-            logger.info(f"INPUT FILE: {input_file}")
+            log.info(f"INPUT FILE: {input_file}")
         else:
-            logger.info(
+            log.info(
                 'WARNING (lwf_csv_import.py) non-valid value entered for "typesource": {}'.format(
                     kwargs["typesource"]
                 )
@@ -168,7 +162,7 @@ class Command(BaseCommand):
                         error_msg = "Line has {} values, header {} columns ".format(
                             len(line_array), len(input_fields)
                         )
-                        logger.error(error_msg)
+                        log.error(error_msg)
                         raise ValueError(error_msg)
 
                     row = {
@@ -182,7 +176,7 @@ class Command(BaseCommand):
                     elif kwargs["parentclass"] == "LWFStation":
                         line_clean = get_lwf_station_line_clean(row, date_format)
                     else:
-                        logger.info(
+                        log.info(
                             "WARNING (lwf_csv_import.py) {} parentclass does not exist".format(
                                 kwargs["parentclass"]
                             )
@@ -242,13 +236,13 @@ class Command(BaseCommand):
                     )
 
         except FileNotFoundError as e:
-            logger.info(
+            log.info(
                 f"WARNING (lwf_csv_import.py) file not found {input_file}, exception {e}"
             )
             return
 
         if model_class is None:
-            logger.info(
+            log.info(
                 "WARNING (lwf_csv_import.py) no data found for {}".format(
                     kwargs["model"]
                 )
@@ -274,7 +268,7 @@ class Command(BaseCommand):
         c.save()
 
         # Log import message
-        logger.info(
+        log.info(
             "{} successfully imported, {} new record(s) written in {}".format(
                 (kwargs["inputfile"]), records_written, (kwargs["model"])
             )

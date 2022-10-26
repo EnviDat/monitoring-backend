@@ -14,51 +14,25 @@ Author: Rebecca Kurup Buchholz, Swiss Federal Research Institute WSL
 Date last modified: January, 6, 2022
 """
 
-
 import argparse
 import configparser
 import logging
+import os
 import subprocess
 import sys
 import time
-from logging.handlers import TimedRotatingFileHandler
 from pathlib import Path
 
-# ============================================ LOGGING ================================================================
-
-
-def get_console_handler():
-    console_handler = logging.StreamHandler(sys.stdout)
-    formatter = logging.Formatter(
+logging.basicConfig(
+    level=os.getenv("LOG_LEVEL", default="DEBUG"),
+    format=(
         "%(asctime)s.%(msecs)03d [%(levelname)s] "
-        "%(name)s | %(funcName)s:%(lineno)d | %(message)s",
-        "%Y-%m-%d %H:%M:%S",
-    )
-    console_handler.setFormatter(formatter)
-    return console_handler
-
-
-def get_file_handler():
-    log_file = "lwf/logs/lwf_main.log"
-    file_handler = TimedRotatingFileHandler(log_file, when="midnight", backupCount=30)
-    formatter = logging.Formatter(
-        "%(asctime)s.%(msecs)03d [%(levelname)s] "
-        "%(name)s | %(funcName)s:%(lineno)d | %(message)s",
-        "%Y-%m-%d %H:%M:%S",
-    )
-    file_handler.setFormatter(formatter)
-    return file_handler
-
-
-def get_logger(logger_name):
-    log = logging.getLogger(logger_name)
-    log.setLevel(logging.DEBUG)
-    log.addHandler(get_console_handler())
-    log.propagate = False
-    return log
-
-
-logger = get_logger("main")
+        "%(name)s | %(funcName)s:%(lineno)d | %(message)s"
+    ),
+    datefmt="%Y-%m-%d %H:%M:%S",
+    stream=sys.stdout,
+)
+log = logging.getLogger(__name__)
 
 
 # ============================================ MAIN SUPPORTING FUNCTIONS===============================================
@@ -113,12 +87,12 @@ def execute_commands(commands_list):
     # Iterate through commands_list and execute each command
     for command in commands_list:
         try:
-            logger.info(f" Running: {command}")
+            log.info(f" Running: {command}")
             subprocess.run(
                 command, shell=True, check=True, stdout=subprocess.PIPE, text=True
             )
         except subprocess.CalledProcessError:
-            logger.error(f" ERROR could not run: {command}")
+            log.error(f" ERROR could not run: {command}")
             continue
 
 
@@ -131,10 +105,10 @@ def read_config(conf_path: str):
     config.read(config_file)
 
     # Uncomment line below to log config read and config sections
-    # logger.info(' Read config params file: {0}, sections: {1}'.format(conf_path, ', '.join(config.sections())))
+    # log.info(' Read config params file: {0}, sections: {1}'.format(conf_path, ', '.join(config.sections())))
 
     if len(config.sections()) < 1:
-        logger.error(" ERROR: invalid config file, missing sections")
+        log.error(" ERROR: invalid config file, missing sections")
         return None
 
     return config
@@ -156,7 +130,7 @@ def main(args=None):
     config = read_config(config_path)
 
     if not config:
-        logger.error(f" ERROR not valid config file: {config_path}")
+        log.error(f" ERROR not valid config file: {config_path}")
         return -1
 
     # Import csv files data into Postgres database
@@ -170,7 +144,7 @@ def main(args=None):
         start_time = time.time()
 
         print("\n")
-        logger.info(
+        log.info(
             " ************************************************* START DATA IMPORT ITERATION"
             " *************************************************"
         )
@@ -183,14 +157,14 @@ def main(args=None):
 
         # Finish data import iteration
         exec_time = int(time.time() - start_time)
-        logger.info(f" FINISHED data import iteration, that took {exec_time} seconds")
+        log.info(f" FINISHED data import iteration, that took {exec_time} seconds")
 
         # Do not start next iteration until wait_time has lapsed
         if repeat:
             interval = int(args.repeatInterval) * 60
             if interval > exec_time:
                 wait_time = interval - exec_time
-                logger.info(f" SLEEPING {wait_time} seconds before next iteration...")
+                log.info(f" SLEEPING {wait_time} seconds before next iteration...")
                 time.sleep(wait_time)
 
     return 0

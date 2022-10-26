@@ -6,8 +6,6 @@
 #   python manage.py import_data -s 08_dye2 -c gcnet/config/stations.ini -i gcnet/data/8_nead_min.csv  -m dye2_08d -f 1
 import argparse
 import importlib
-
-# Setup logging
 import logging
 from datetime import datetime
 from pathlib import Path
@@ -21,11 +19,7 @@ from .importers.csv_import import CsvImporter
 from .importers.dat_import import DatImporter
 from .importers.nead_import import NeadImporter
 
-# logging.basicConfig(filename=Path('gcnet/logs/import_data.log'), format='%(asctime)s   %(filename)s: %(message)s',
-# #                     datefmt='%d-%b-%y %H:%M:%S')
-logging.basicConfig()
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+log = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):

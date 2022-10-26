@@ -6,9 +6,7 @@ import logging
 import numpy
 import pandas
 
-logging.basicConfig()
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+log = logging.getLogger(__name__)
 
 
 def read_argos(file, nrows):
@@ -20,7 +18,7 @@ def read_argos(file, nrows):
     :return: a pandas dataframe, with 24 columns
     """
 
-    logger.debug(f"Reading ARGOS raw data {file}...")
+    log.debug(f"Reading ARGOS raw data {file}...")
 
     try:
         # Set up the column width, column names and the timestamp split
@@ -124,11 +122,11 @@ def read_argos(file, nrows):
         ]
         df.columns = columns_timestamp + ["Station"] + [f"v_{i}" for i in range(1, 17)]
     except Exception as e:
-        logger.error(e)
-        logger.error("Failed to read ARGOS raw data into dataframe")
+        log.error(e)
+        log.error("Failed to read ARGOS raw data into dataframe")
         raise ValueError("Error reading ARGOS raw data into dataframe")
 
-    logger.debug(f"File read successfully into pandas dataframe")
+    log.debug(f"File read successfully into pandas dataframe")
     return df
 
 
@@ -141,7 +139,7 @@ def decode_argos(df, remove_duplicate=True, sort=True):
     :return: a pandas dataframe
     """
 
-    logger.debug(f"Decoding ARGOS raw data from dataframe...")
+    log.debug(f"Decoding ARGOS raw data from dataframe...")
 
     try:
         # Drop duplicated rows, this substantially speeds up the process
@@ -200,11 +198,11 @@ def decode_argos(df, remove_duplicate=True, sort=True):
             )
 
     except Exception as e:
-        logger.error(e)
-        logger.error("Failed to decode ARGOS dataframe")
+        log.error(e)
+        log.error("Failed to decode ARGOS dataframe")
         raise ValueError("Failed to decode ARGOS dataframe")
 
-    logger.debug(f"ARGOS data successfully decoded")
+    log.debug(f"ARGOS data successfully decoded")
 
     return df
 

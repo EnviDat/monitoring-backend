@@ -6,9 +6,7 @@ from pathlib import Path
 import numpy as np
 from gcnet.util.writer import Writer
 
-logging.basicConfig()
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+log = logging.getLogger(__name__)
 
 
 class Cleaner:
@@ -144,7 +142,7 @@ class ArgosCleaner(Cleaner):
                 # Assign station_num
                 station_num = int(self.stations_config.get(section, "station_num"))
 
-                logger.info(
+                log.info(
                     f"ArgosCleaner: Cleaning {self.station_type} Station {station_num}..."
                 )
 
@@ -214,7 +212,7 @@ class ArgosCleaner(Cleaner):
                                 duplicate_timestamps_num = raw_num - len(
                                     unique_date_num_indices
                                 )
-                                logger.warning(
+                                log.warning(
                                     f"ArgosCleaner: Removed {duplicate_timestamps_num} entries out of:"
                                     f" {raw_num} records from Station {station_num} "
                                     f"because of duplicate time tags"
@@ -582,7 +580,7 @@ class ArgosCleaner(Cleaner):
                             )
 
                             if future_reports_num > 0:
-                                logger.warning(
+                                log.warning(
                                     f"ArgosCleaner: Warning: Removed {str(future_reports_num)} entries out "
                                     f"of: {str(len(wdata[:, 1]) + future_reports_num)} records from station "
                                     f"ID: {str(station_id)} Reason: time tags in future"
@@ -598,12 +596,12 @@ class ArgosCleaner(Cleaner):
 
                         # Else station_array is empty after removing bad dates
                         else:
-                            logger.warning(
+                            log.warning(
                                 f"\t{self.station_type} Station #{station_num} does not have usable data"
                             )
 
                 else:
-                    logger.warning(
+                    log.warning(
                         f"\t{self.station_type} Station #{station_num} does not have usable data"
                     )
 
@@ -806,7 +804,7 @@ class GoesCleaner(Cleaner):
                 # Assign station number
                 station_num = int(self.stations_config.get(section, "station_num"))
 
-                logger.info(
+                log.info(
                     f"GoesCleaner: Cleaning {self.station_type} Station #{station_num}..."
                 )
 
@@ -819,7 +817,7 @@ class GoesCleaner(Cleaner):
                         ]
                     )
 
-                    logger.info(
+                    log.info(
                         f"GoesCleaner: Data size {station_array.size} for Station #{station_num}..."
                     )
 
@@ -840,11 +838,11 @@ class GoesCleaner(Cleaner):
                         :,
                     ]
 
-                    logger.info(
+                    log.info(
                         f"GoesCleaner: Clean data size {station_array.size} for Station {station_num}..."
                     )
                     if station_array.size <= 0:
-                        logger.warning(
+                        log.warning(
                             f"Skipping cleaning of {station_array.size} for Station #{station_num},"
                             f" NO DATA after cleaning"
                         )
@@ -869,9 +867,6 @@ class GoesCleaner(Cleaner):
                     # Assign date_num to year plus julian_day
                     date_num = year * 1e3 + julian_day
 
-                    # Assign raw_num to number of total datasets before duplicate filtering
-                    raw_num = int(len(date_num))
-
                     # Assign unique_date_num to unique time stamps
                     # Assign unique_date_num_indices to indicies of unique time stamps
                     # TEST comment out
@@ -895,7 +890,7 @@ class GoesCleaner(Cleaner):
                     # Log how many duplicate rows removed
                     # if len(unique_date_num_indices) < raw_num:
                     #     duplicates_num = raw_num - len(unique_date_num_indices)
-                    #     logger.warning(f'GoesCleaner: Removed {duplicates_num} entries out of {raw_num} records'
+                    #     log.warning(f'GoesCleaner: Removed {duplicates_num} entries out of {raw_num} records'
                     #                    f' Station {station_num} because of duplicate time tags')
 
                     # # Assign time_indices to indices that would sort unique rows along time
@@ -1168,7 +1163,7 @@ class GoesCleaner(Cleaner):
                     future_reports_num = len(np.argwhere(date_num > current_date_num))
 
                     if future_reports_num > 0:
-                        logger.warning(
+                        log.warning(
                             f"GoesCleaner: Removed {future_reports_num} entries out of: "
                             f"{len(wdata[:, 1]) + future_reports_num} good records from station ID: "
                             f"{station_id} Reason: time tags in future"
@@ -1184,7 +1179,7 @@ class GoesCleaner(Cleaner):
 
                 # Else station does not have usable data
                 else:
-                    logger.warning(
+                    log.warning(
                         f"{self.station_type} Station  #{station_num} does not have usable data"
                     )
 
@@ -1258,5 +1253,5 @@ class CleanerFactory:
         elif station_type == "goes":
             return GoesCleaner(init_file_path=init_file_path, writer=writer)
         else:
-            logger.error(f"No cleaner for station type: {station_type}")
+            log.error(f"No cleaner for station type: {station_type}")
             return None

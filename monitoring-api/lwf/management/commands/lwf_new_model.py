@@ -2,10 +2,6 @@
 #   python manage.py lwf_new_model -c lwf/config/test.ini
 
 from django.core.management.base import BaseCommand
-
-__version__ = "0.0.1"
-__author__ = "Rebecca Buchholz"
-
 from lwf.util.new_model_helpers import (
     execute_commands,
     has_spaces,

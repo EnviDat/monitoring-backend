@@ -10,8 +10,6 @@
 
 
 import importlib
-
-# Setup logging
 import logging
 import os
 from pathlib import Path
@@ -31,9 +29,7 @@ from gcnet.management.commands.importers.helpers.import_date_helpers import (
 from gcnet.util.constants import Columns
 from postgres_copy import CopyMapping
 
-logging.basicConfig()
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+log = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
@@ -73,14 +69,14 @@ class Command(BaseCommand):
         # ======================================= VALIDATE AND ASSIGN ARGUMENTS =======================================
         # Validate app
         if not apps.is_installed(app):
-            logger.error(f"ERROR app {app} not found")
+            log.error(f"ERROR app {app} not found")
             return
 
         # Validate model
         try:
             model_class = self.get_model_cl(app, model)
         except AttributeError as e:
-            logger.error(f" ERROR model {model} not found, exception {e}")
+            log.error(f" ERROR model {model} not found, exception {e}")
             return
 
         # Get model's parent class name as string
@@ -97,7 +93,7 @@ class Command(BaseCommand):
         if source == "url":
             # Write content from url into csv file
             url = str(inputfile)
-            logger.info(f" STARTED importing URL: {url}")
+            log.info(f" STARTED importing URL: {url}")
             req = requests.get(url)
             url_content = req.content
             input_file = Path(f"{data_dir}/{model}_downloaded.csv")
@@ -106,9 +102,9 @@ class Command(BaseCommand):
             csv_file.close()
         elif source == "local":
             input_file = Path(inputfile)
-            logger.info(f" STARTED importing local file: {inputfile}")
+            log.info(f" STARTED importing local file: {inputfile}")
         else:
-            logger.error(
+            log.error(
                 f' ERROR non-valid value entered for argument "source": {source}. '
                 f'Valid options are "local" or "url".'
             )
@@ -151,7 +147,7 @@ class Command(BaseCommand):
                             f" ERROR: line has {len(line_array)} values, "
                             f"expected {len(input_fields)} input values per line"
                         )
-                        logger.error(error_msg)
+                        log.error(error_msg)
                         raise ValueError(error_msg)
 
                     # Assign row to dictionary of input_fields keys with line_array values
@@ -201,7 +197,7 @@ class Command(BaseCommand):
                                 records_written += 1
 
         except FileNotFoundError as e:
-            logger.error(f" ERROR file not found {input_file}, exception {e}")
+            log.error(f" ERROR file not found {input_file}, exception {e}")
             return
 
         # ======================================= IMPORT DATA INTO POSTGRES DATABASE ==================================
@@ -223,7 +219,7 @@ class Command(BaseCommand):
         c.save()
 
         # Log import message
-        logger.info(
+        log.info(
             f" FINISHED importing {inputfile}: {records_written} new records written in {model}"
         )
 
