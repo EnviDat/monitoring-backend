@@ -2,12 +2,14 @@
 <html lang="en">
   <head>
     {% load static %}
-    <script src="{% static '/lwf_documentation.js' %}"></script>
-    <title id="page_title"></title>
     <link
       rel="stylesheet"
       href="{% static '/api_documentation_template.css' %}"
+      media="print"
+      onload="this.media='all'"
     />
+    <script src="{% static '/lwf_documentation.js' %}" defer></script>
+    <title id="page_title"></title>
   </head>
 
   <body>

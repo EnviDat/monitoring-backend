@@ -5,7 +5,10 @@
     <link
       rel="stylesheet"
       href="{% static '/api_documentation_template.css' %}"
+      media="print"
+      onload="this.media='all'"
     />
+    <script src="{% static '/api_documentation_template.js' %}" defer></script>
     <title id="page_title"></title>
   </head>
 
@@ -102,15 +105,6 @@
       </ul>
       <br />
       <br />
-
-      <script>
-        function myFunction() {
-          let urlNeadElements = document.querySelectorAll(".url_nead");
-          let testString2 =
-            "https://www.envidat.ch/data-api/app/nead/model/end/empty/2020-11-02/2020-11-07";
-          window.open(testString2);
-        }
-      </script>
 
       <h3 id="details_nead">2. Download NEAD</h3>
       <p>
@@ -890,7 +884,5 @@
 
       <div id="parameter_table">{{ parameters|json_script:"parameters" }}</div>
     </div>
-
-    <script src="{% static '/api_documentation_template.js' %}"></script>
   </body>
 </html>
