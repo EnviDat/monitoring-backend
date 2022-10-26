@@ -54,7 +54,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PYTHONFAULTHANDLER=1 \
     PATH="/opt/python/bin:$PATH" \
-    PYTHONPATH="/opt/python/pkgs:/opt/app/monitoring-api"
+    PYTHONPATH="/opt/python/pkgs:/opt/app"
 
 RUN set -ex \
     && apt-get update \
@@ -86,6 +86,7 @@ RUN python -c "import compileall; compileall.compile_path(maxlevels=10, quiet=1)
 FROM runtime as debug
 WORKDIR /opt/python
 COPY pyproject.toml pdm.lock ./
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 RUN pip install --no-cache-dir pdm==2.1.3 \
     && pdm config python.use_venv false \
     && pdm export --dev --no-default | \
