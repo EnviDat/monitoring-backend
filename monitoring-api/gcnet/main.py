@@ -17,10 +17,10 @@ No arguments:
   main()
 
 repeatInterval:
-  main(['--repeatInterval 10'])
+  main(['-r 10'])
 
 repeatInterval and localInput:
-  main(['--repeatInterval 10', '-l True'])
+  main(['-r 10', '-l True'])
 """
 
 
@@ -236,7 +236,7 @@ def main(args=None):
     repeat = True
     while repeat:
 
-        # Do not repeat if the --repeatInterval argument is not present
+        # Do not repeat if the -r argument is not present
         repeat = args.repeatInterval is not None
 
         start_time = time.time()

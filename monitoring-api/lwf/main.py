@@ -163,7 +163,7 @@ def main(args=None):
     repeat = True
     while repeat:
 
-        # Do not repeat loop if the --repeatInterval argument is not present
+        # Do not repeat loop if the -r argument is not present
         repeat = args.repeatInterval is not None
 
         # Assign start_time for data import iteration

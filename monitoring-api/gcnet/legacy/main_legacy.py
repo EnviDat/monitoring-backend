@@ -211,7 +211,7 @@ def main(args=None):
     repeat = True
     while repeat:
 
-        # Do not repeat if the --repeatInterval argument is not present
+        # Do not repeat if the -r argument is not present
         repeat = args.repeatInterval is not None
 
         start_time = time.time()

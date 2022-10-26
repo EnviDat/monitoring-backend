@@ -41,7 +41,7 @@ spec:
               import os
               from lwf import main
               interval = os.getenv("LWF_INTERVAL_MINS", default=10)
-              main.main([f"--repeatInterval {interval}"])
+              main.main([f"-r {interval}"])
               '
           resources:
             {{- toYaml .Values.lwfImporter.resources | nindent 12 }}
