@@ -11,12 +11,12 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
 import json
-import logging
+import logging.config
 import os
 
 import environ
 
-log = logging.getLogger()
+log = logging.getLogger(__name__)
 
 env = environ.Env()
 # Reading .env file
@@ -124,6 +124,36 @@ DATABASES = {
         "PORT": env("GCNET_DB_PORT"),
     },
 }
+
+# Logging
+LOGGING_CONFIG = None
+logging.config.dictConfig(
+    {
+        "version": 1,
+        "disable_existing_loggers": False,
+        "formatters": {
+            "console": {
+                "format": (
+                    "%(asctime)s.%(msecs)03d [%(levelname)s] "
+                    "%(name)s | %(funcName)s:%(lineno)d | %(message)s"
+                ),
+                "datefmt": "%Y-%m-%d %H:%M:%S",
+            },
+        },
+        "handlers": {
+            "console": {
+                "class": "logging.StreamHandler",
+                "formatter": "console",
+            },
+        },
+        "loggers": {
+            "": {
+                "level": env("LOG_LEVEL", default="DEBUG"),
+                "handlers": ["console"],
+            },
+        },
+    }
+)
 
 # Password validation
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators
