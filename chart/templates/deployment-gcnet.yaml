@@ -48,7 +48,7 @@ spec:
           env:
             {{- toYaml .Values.extraEnv | nindent 12 }}
             - name: GCNET_INTERVAL_MINS
-              value: {{ .Values.gcnetImporter.intervalMins }}
+              value: {{ .Values.gcnetImporter.intervalMins | quote }}
           envFrom:
             {{- toYaml .Values.extraEnvFrom | nindent 12 }}
           volumeMounts: []

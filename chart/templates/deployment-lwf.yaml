@@ -48,7 +48,7 @@ spec:
           env:
             {{- toYaml .Values.extraEnv | nindent 12 }}
             - name: LWF_INTERVAL_MINS
-              value: {{ .Values.lwfImporter.intervalMins }}
+              value: {{ .Values.lwfImporter.intervalMins | quote }}
           envFrom:
             {{- toYaml .Values.extraEnvFrom | nindent 12 }}
           volumeMounts: []
