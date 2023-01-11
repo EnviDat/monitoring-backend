@@ -28,7 +28,6 @@ Requires secrets to be pre-populated.
   --from-literal=ALLOWED_HOSTS='["envidat.ch", "monitoring.envidat.ch"]' \
   --from-literal=PROXY_PREFIX=/data-api \
   --from-literal=LOG_LEVEL=DEBUG \
-  --from-literal=PORT=8080 \
   --from-literal=DATABASE_NAME=xxxxxxx \
   --from-literal=DATABASE_USER=xxxxxxx \
   --from-literal=DATABASE_PASSWORD=xxxxxxx \

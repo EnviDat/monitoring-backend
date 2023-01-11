@@ -73,7 +73,6 @@ GCNET_DB_xxx settings.
     SECRET_KEY=<secret key>
 
     ALLOWED_HOSTS='["<IP or Domain>", "<IP or Domain>"]'
-    PORT=<port number used by NGINX server in runserver.py>
     PROXY_PREFIX=<Optional URL prefix if required / served behind a proxy>
     LOG_LEVEL=<Log level for app printing to STDOUT>
 
