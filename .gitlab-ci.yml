@@ -28,7 +28,7 @@ set-vars:
     - echo CHART_VERSION=$(yq '.version' chart/Chart.yaml) >> build.env
     - "echo MONITORING_API_IMAGE=${INTERNAL_REG}/${APP_NAME}:\
       ${APP_VERSION}-${CI_COMMIT_REF_NAME} >> build.env"
-    - "echo PROXY_IMAGE=${INTERNAL_REG}/${APP_NAME}-proxy:\
+    - "echo PROXY_IMAGE=${INTERNAL_REG}/${APP_NAME}/proxy:\
       ${NGINX_VERSION}-${CI_COMMIT_REF_NAME} >> build.env"
   artifacts:
     reports:
