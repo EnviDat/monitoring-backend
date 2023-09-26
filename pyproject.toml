@@ -17,7 +17,7 @@ dependencies = [
     "cryptography==3.4.5",
     "datetime==4.3",
     "deepdiff==5.8.1",
-    "django==3.2.14",
+    "django==3.2.19",
     "django-environ==0.9.0",
     "django-postgres-copy==2.5.0",
     "drf-spectacular>=0.24.2",
