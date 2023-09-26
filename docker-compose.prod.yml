@@ -1,9 +1,8 @@
 version: "3"
 
 networks:
-  monitoring-internal:
-  traefik-proxy:
-    external: true
+  net:
+    name: monitoring-api
 
 volumes:
   gcnet-input:
@@ -12,7 +11,7 @@ volumes:
 services:
   api:
     container_name: monitoring_api
-    image: "${INTERNAL_REG}/monitoring-api:${APP_VERSION}-debug"
+    image: "${INTERNAL_REG}/monitoring-api:${APP_VERSION}-master"
     build:
       context: .
       args:
@@ -21,20 +20,14 @@ services:
         - APP_MAINTAINER=${APP_MAINTAINER}
         - DEVOPS_MAINTAINER=${DEVOPS_MAINTAINER}
         - EXTERNAL_REG=${EXTERNAL_REG}
-      target: debug
+      target: prod
     volumes:
-      - ./monitoring-api:/opt/app
       - gcnet-input:/opt/app/gcnet/input
       - gcnet-output:/opt/app/gcnet/output
     ports:
       - "9111:8080"
-    extra_hosts:
-      - "pgdboapp.wsl.ch:10.30.1.156"
     env_file:
       - monitoring-api/project/.env
-    environment:
-      DEBUG: "True"
     networks:
-      - monitoring-internal
-      - traefik-proxy
+      - net
     restart: unless-stopped
