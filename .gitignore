@@ -1,4 +1,6 @@
 .pdm.toml
+.pdm-python
+pdm.toml
 __pypackages__/
 .idea
 .vscode
