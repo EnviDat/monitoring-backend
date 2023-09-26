@@ -49,9 +49,9 @@ extraEnvFrom:
       name: monitoring-gcnet-vars
 
 hostAliases:
-  - ip: 10.30.1.29
+  - ip: 10.30.1.156
     hostnames:
-      - "postgres.wsl.ch"
+      - "pgdboapp.wsl.ch"
 
 serviceAccount:
   # Specifies whether a service account should be created
