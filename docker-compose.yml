@@ -2,8 +2,6 @@ version: "3"
 
 networks:
   monitoring-internal:
-  traefik-proxy:
-    external: true
 
 volumes:
   gcnet-input:
@@ -36,5 +34,4 @@ services:
       DEBUG: "True"
     networks:
       - monitoring-internal
-      - traefik-proxy
     restart: unless-stopped
