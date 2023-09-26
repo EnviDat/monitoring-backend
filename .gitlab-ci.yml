@@ -26,9 +26,9 @@ set-vars:
     - cat .env >> build.env
     - source build.env
     - echo CHART_VERSION=$(yq '.version' chart/Chart.yaml) >> build.env
-    - "echo MONITORING_API_IMAGE=${INTERNAL_REG}/monitoring-api:\
+    - "echo MONITORING_API_IMAGE=${INTERNAL_REG}/${APP_NAME}:\
       ${APP_VERSION}-${CI_COMMIT_REF_NAME} >> build.env"
-    - "echo PROXY_IMAGE=${INTERNAL_REG}/monitoring-api-proxy:\
+    - "echo PROXY_IMAGE=${INTERNAL_REG}/${APP_NAME}-proxy:\
       ${NGINX_VERSION}-${CI_COMMIT_REF_NAME} >> build.env"
   artifacts:
     reports:
@@ -40,9 +40,6 @@ set-vars:
     name: gcr.io/kaniko-project/executor:v1.8.1-debug
     entrypoint: [""]
   before_script:
-    - >
-      echo "${IMAGE_REGISTRY_CA_CERT}"
-      | base64 -d >> /kaniko/ssl/certs/ca-certificates.crt
     - mkdir -p /kaniko/.docker
     - >
       echo "{\"auths\":{\"${INTERNAL_REG}\":{\"auth\":\"$(printf
@@ -162,49 +159,70 @@ proxy-retag:
   variables:
     IMAGE_NAME: ${PROXY_IMAGE}
 
-.helm:
+remote-docker:
   stage: deploy
-  image:
-    name: docker.io/alpine/helm:3.8.0
-    entrypoint: [""]
-  before_script:
-    - >
-      echo "${IMAGE_REGISTRY_CA_CERT}"
-      | base64 -d >> /etc/ssl/certs/ca-certificates.crt
-    - mkdir -p /root/.config/helm/registry
-    - >
-      echo "{\"auths\":{\"${INTERNAL_REG}\":{\"auth\":\"$(printf "%s:%s"
-      "${IMAGE_REGISTRY_USER}" "${IMAGE_REGISTRY_PASS}" | base64
-      | tr -d '\n')\"}}}" > /root/.config/helm/registry/config.json
-
-create-helm-chart:
-  extends:
-    - .helm
-  stage: package
-  rules:
-    - if: $CI_COMMIT_REF_NAME == "master"
-      when: always
-  script:
-    - >
-      apk add yq --no-cache
-      --repository=http://dl-cdn.alpinelinux.org/alpine/edge/community
-    - helm package chart
-    - CHART_VER=$(yq '.version' chart/Chart.yaml)
-    - helm push "monitoring-api-${CHART_VER}.tgz" oci://registry.envidat.ch/envidat
-
-helm-deploy:
-  extends:
-    - .helm
-  rules:
-    - if: $CI_COMMIT_REF_NAME == "master"
-      when: always
+  image: docker.io/docker:24.0
+  only:
+    - branches
   variables:
-    GIT_STRATEGY: none
+    DOCKER_HOST: "ssh://$DEPLOY_SSH_USER@$DEPLOY_HOSTNAME"
+  before_script:
+    - echo "$RUNTIME_ENV" > monitoring-api/project/.env
+    - echo "Adding SSH Key"
+    - mkdir -p ~/.ssh
+    - echo "$DEPLOY_SSH_KEY" > ~/.ssh/gitlab
+    - chmod 400 ~/.ssh/gitlab
+    - echo 'IdentityFile ~/.ssh/gitlab' > ~/.ssh/config
+    - ssh-keyscan -H $DEPLOY_HOSTNAME >> ~/.ssh/known_hosts
   script:
-    - >
-      helm upgrade --install "${APP_NAME}"
-      oci://registry.envidat.ch/envidat/monitoring-api
-      --namespace envidat --create-namespace
-      --version "${CHART_VERSION}"
-      --set image.tag="${APP_VERSION}-${CI_COMMIT_REF_NAME}"
-      --set proxy.image.tag="${NGINX_VERSION}-${CI_COMMIT_REF_NAME}"
+    - |
+      docker compose \
+        --file "docker-compose.prod.yml" \
+        up --detach --force-recreate
+
+# .helm:
+#   stage: deploy
+#   image:
+#     name: docker.io/alpine/helm:3.8.0
+#     entrypoint: [""]
+#   before_script:
+#     - >
+#       echo "${IMAGE_REGISTRY_CA_CERT}"
+#       | base64 -d >> /etc/ssl/certs/ca-certificates.crt
+#     - mkdir -p /root/.config/helm/registry
+#     - >
+#       echo "{\"auths\":{\"${INTERNAL_REG}\":{\"auth\":\"$(printf "%s:%s"
+#       "${IMAGE_REGISTRY_USER}" "${IMAGE_REGISTRY_PASS}" | base64
+#       | tr -d '\n')\"}}}" > /root/.config/helm/registry/config.json
+
+# create-helm-chart:
+#   extends:
+#     - .helm
+#   stage: package
+#   rules:
+#     - if: $CI_COMMIT_REF_NAME == "master"
+#       when: always
+#   script:
+#     - >
+#       apk add yq --no-cache
+#       --repository=http://dl-cdn.alpinelinux.org/alpine/edge/community
+#     - helm package chart
+#     - CHART_VER=$(yq '.version' chart/Chart.yaml)
+#     - helm push "monitoring-api-${CHART_VER}.tgz" oci://registry.envidat.ch/envidat
+
+# helm-deploy:
+#   extends:
+#     - .helm
+#   rules:
+#     - if: $CI_COMMIT_REF_NAME == "master"
+#       when: always
+#   variables:
+#     GIT_STRATEGY: none
+#   script:
+#     - >
+#       helm upgrade --install "${APP_NAME}"
+#       oci://registry.envidat.ch/envidat/monitoring-api
+#       --namespace envidat --create-namespace
+#       --version "${CHART_VERSION}"
+#       --set image.tag="${APP_VERSION}-${CI_COMMIT_REF_NAME}"
+#       --set proxy.image.tag="${NGINX_VERSION}-${CI_COMMIT_REF_NAME}"
