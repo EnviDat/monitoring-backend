@@ -40,6 +40,8 @@ set-vars:
 
 .build:
   stage: build
+  needs:
+    - set-vars
   image:
     name: gcr.io/kaniko-project/executor:v1.8.1-debug
     entrypoint: [""]
@@ -69,8 +71,6 @@ set-vars:
 api-build:
   extends:
     - .build
-  needs:
-    - set-vars
   variables:
     IMAGE_NAME: ${MONITORING_API_IMAGE}
     CONTEXT_DIR: "${CI_PROJECT_DIR}"
@@ -78,8 +78,6 @@ api-build:
 proxy-build:
   extends:
     - .build
-  needs:
-    - set-vars
   variables:
     IMAGE_NAME: ${PROXY_IMAGE}
     CONTEXT_DIR: "${CI_PROJECT_DIR}/nginx"
@@ -89,6 +87,8 @@ proxy-build:
   image:
     name: docker.io/aquasec/trivy:0.23.0
     entrypoint: [""]
+  needs:
+    - set-vars
   variables:
     GIT_STRATEGY: none
   before_script:
@@ -145,6 +145,8 @@ proxy-scan:
 .retag:
   stage: package
   image: docker.io/regclient/regctl:v0.3-alpine
+  needs:
+    - set-vars
   variables:
     GIT_STRATEGY: none
   before_script:
