@@ -194,8 +194,8 @@ remote-docker:
   variables:
     DOCKER_HOST: "ssh://$DEPLOY_SSH_USER@$DEPLOY_HOSTNAME"
   before_script:
-    - apt-get -yq update
-    - apt-get -yqq install ssh-keyscan
+    - apk update
+    - apk add openssh
     - echo "$RUNTIME_ENV" > monitoring-api/project/.env
     - echo "Adding SSH Key"
     - mkdir -p ~/.ssh
