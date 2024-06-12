@@ -3,6 +3,7 @@ stages:
   - scan
   - package
   - deploy
+  - manual-deploy
 
 variables:
   ARTIFACT_COMPRESSION_LEVEL: "fast"
@@ -11,6 +12,8 @@ variables:
 workflow:
   rules:
     - if: $CI_COMMIT_REF_NAME == "master"
+      when: always
+    - if: $CI_COMMIT_REF_NAME == "staging"
       when: always
     - if: '$CI_PIPELINE_SOURCE == "web"'
       when: always
@@ -64,6 +67,8 @@ set-vars:
 api-build:
   extends:
     - .build
+  needs:
+    - set-vars
   variables:
     IMAGE_NAME: ${MONITORING_API_IMAGE}
     CONTEXT_DIR: "${CI_PROJECT_DIR}"
@@ -71,6 +76,8 @@ api-build:
 proxy-build:
   extends:
     - .build
+  needs:
+    - set-vars
   variables:
     IMAGE_NAME: ${PROXY_IMAGE}
     CONTEXT_DIR: "${CI_PROJECT_DIR}/nginx"
@@ -117,6 +124,8 @@ proxy-build:
 api-scan:
   extends:
     - .scan
+  needs:
+    - api-build
   variables:
     IMAGE_NAME: ${MONITORING_API_IMAGE}
     SHORT_NAME: "monitoring-api"
@@ -124,6 +133,8 @@ api-scan:
 proxy-scan:
   extends:
     - .scan
+  needs:
+    - proxy-build
   variables:
     IMAGE_NAME: ${PROXY_IMAGE}
     SHORT_NAME: "proxy"
@@ -150,18 +161,26 @@ proxy-scan:
 api-retag:
   extends:
     - .retag
+  needs:
+    - api-scan
   variables:
     IMAGE_NAME: ${MONITORING_API_IMAGE}
 
 proxy-retag:
   extends:
     - .retag
+  needs:
+    - proxy-scan
   variables:
     IMAGE_NAME: ${PROXY_IMAGE}
 
 remote-docker:
   stage: deploy
   image: docker.io/docker:24.0
+  needs:
+    - set-vars
+    - api-retag
+    - proxy-retag
   only:
     - branches
   variables:
@@ -175,10 +194,52 @@ remote-docker:
     - echo 'IdentityFile ~/.ssh/gitlab' > ~/.ssh/config
     - ssh-keyscan -H $DEPLOY_HOSTNAME >> ~/.ssh/known_hosts
   script:
+    # use docker compose create to recreate the container and force pulling the latest image
+    # to avoid using the local cache
     - |
-      docker compose \
-        --file "docker-compose.prod.yml" \
-        up --detach --force-recreate
+      docker compose --project-name="$APP_NAME" \
+        --file "docker-compose.$CI_COMMIT_REF_NAME.yml" \
+        create --force-recreate --pull="always"
+    # use docker compose up to start the service on the remote machine
+    - |
+      docker compose --project-name="$APP_NAME" \
+        --file "docker-compose.$CI_COMMIT_REF_NAME.yml" \
+        up --detach
+
+manual-remote-docker:
+  stage: deploy
+  image: docker.io/docker:24.0
+  needs:
+    - set-vars
+    - api-retag
+    - proxy-retag
+  when: manual
+  variables:
+    DOCKER_HOST: "ssh://$DEPLOY_SSH_USER@$DEPLOY_HOSTNAME"
+  before_script:
+    - echo "$RUNTIME_ENV" > monitoring-api/project/.env
+    - echo "Adding SSH Key"
+    - mkdir -p ~/.ssh
+    - echo "$DEPLOY_SSH_KEY" > ~/.ssh/gitlab
+    - chmod 400 ~/.ssh/gitlab
+    - echo 'IdentityFile ~/.ssh/gitlab' > ~/.ssh/config
+    - ssh-keyscan -H $DEPLOY_HOSTNAME >> ~/.ssh/known_hosts
+  script:
+    - USER_DIR=$(echo "/home/$DEPLOY_SSH_USER")
+    - echo "Defined USER_DIR ${USER_DIR}"
+    - HOME=$USER_DIR
+    - echo "Going to remotely start the docker-compose.${CI_COMMIT_REF_NAME}.yml on ${DEPLOY_SSH_USER}@${DEPLOY_HOSTNAME}"
+    # use docker compose create to recreate the container and force pulling the latest image
+    # to avoid using the local cache
+    - |
+      docker compose --project-name="$APP_NAME" \
+        --file "docker-compose.$CI_COMMIT_REF_NAME.yml" \
+        create --force-recreate --pull="always"
+    # use docker compose up to start the service on the remote machine
+    - |
+      docker compose --project-name="$APP_NAME" \
+        --file "docker-compose.$CI_COMMIT_REF_NAME.yml" \
+        up --detach
 
 # .helm:
 #   stage: deploy

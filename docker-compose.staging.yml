@@ -1,0 +1,33 @@
+version: "3"
+
+networks:
+  net:
+    name: monitoring-api
+
+volumes:
+  gcnet-input:
+  gcnet-output:
+
+services:
+  api:
+    container_name: monitoring_api
+    image: "${INTERNAL_REG}/monitoring-api:${APP_VERSION}-staging"
+    build:
+      context: .
+      args:
+        - APP_VERSION=${APP_VERSION}
+        - PYTHON_IMG_TAG=${PYTHON_IMG_TAG}
+        - APP_MAINTAINER=${APP_MAINTAINER}
+        - DEVOPS_MAINTAINER=${DEVOPS_MAINTAINER}
+        - EXTERNAL_REG=${EXTERNAL_REG}
+      target: prod
+    volumes:
+      - gcnet-input:/opt/app/gcnet/input
+      - gcnet-output:/opt/app/gcnet/output
+    ports:
+      - "9111:8080"
+    env_file:
+      - monitoring-api/project/.env
+    networks:
+      - net
+    restart: unless-stopped
