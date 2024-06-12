@@ -50,7 +50,7 @@ set-vars:
       "%s:%s" "${IMAGE_REGISTRY_USER}" "${IMAGE_REGISTRY_PASS}"
       | base64 | tr -d '\n')\"}}}" > /kaniko/.docker/config.json
   script:
-    - echo "Going to build iamge ${IMAGE_NAME}-unverified"
+    - echo "Going to build image ${IMAGE_NAME}-unverified"
     - >
       /kaniko/executor
       --force
@@ -96,7 +96,7 @@ proxy-build:
       echo "${IMAGE_REGISTRY_CA_CERT}"
       | base64 -d >> /etc/ssl/certs/ca-certificates.crt
   script:
-    - echo "Going to scan iamge ${IMAGE_NAME}-unverified"
+    - echo "Going to scan image ${IMAGE_NAME}-unverified"
     - trivy --version
     - time trivy image --clear-cache
     - time trivy --cache-dir .trivycache/ image --download-db-only --no-progress
@@ -156,6 +156,7 @@ proxy-scan:
       \"${REG_HOST}\",\"user\":\"${IMAGE_REGISTRY_USER}\",\"pass\":
       \"${IMAGE_REGISTRY_PASS}\"}}}" >> /home/appuser/.regctl/config.json
   script:
+    - echo "Going to retag image ${IMAGE_NAME}-unverified to ${IMAGE_NAME}"
     - >
       regctl --verbosity debug image copy
       "${IMAGE_NAME}-unverified" "${IMAGE_NAME}"
