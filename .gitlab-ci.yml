@@ -33,6 +33,7 @@ set-vars:
       ${APP_VERSION}-${CI_COMMIT_REF_NAME} >> build.env"
     - "echo PROXY_IMAGE=${INTERNAL_REG}/${APP_NAME}/proxy:\
       ${NGINX_VERSION}-${CI_COMMIT_REF_NAME} >> build.env"
+    - cat build.env
   artifacts:
     reports:
       dotenv: build.env
@@ -49,6 +50,7 @@ set-vars:
       "%s:%s" "${IMAGE_REGISTRY_USER}" "${IMAGE_REGISTRY_PASS}"
       | base64 | tr -d '\n')\"}}}" > /kaniko/.docker/config.json
   script:
+    - echo "Going to build iamge ${IMAGE_NAME}-unverified"
     - >
       /kaniko/executor
       --force
@@ -94,6 +96,7 @@ proxy-build:
       echo "${IMAGE_REGISTRY_CA_CERT}"
       | base64 -d >> /etc/ssl/certs/ca-certificates.crt
   script:
+    - echo "Going to scan iamge ${IMAGE_NAME}-unverified"
     - trivy --version
     - time trivy image --clear-cache
     - time trivy --cache-dir .trivycache/ image --download-db-only --no-progress
@@ -106,11 +109,11 @@ proxy-build:
     # Print full report
     - >
       time trivy --cache-dir .trivycache/ image --exit-code 0 --ignore-unfixed
-      --no-progress "${IMAGE_NAME}"-unverified
+      --no-progress "${IMAGE_NAME}-unverified"
     # Fail on critical vulnerabilities
     - >
       time trivy --cache-dir .trivycache/ image --exit-code 1 --ignore-unfixed
-      --severity CRITICAL --no-progress "${IMAGE_NAME}"-unverified
+      --severity CRITICAL --no-progress "${IMAGE_NAME}-unverified"
   cache:
     key: trivy-cache
     paths:
@@ -211,8 +214,6 @@ manual-remote-docker:
   image: docker.io/docker:24.0
   needs:
     - set-vars
-    - api-retag
-    - proxy-retag
   when: manual
   variables:
     DOCKER_HOST: "ssh://$DEPLOY_SSH_USER@$DEPLOY_HOSTNAME"
