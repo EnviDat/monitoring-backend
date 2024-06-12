@@ -72,14 +72,14 @@ api-build:
   extends:
     - .build
   variables:
-    IMAGE_NAME: ${MONITORING_API_IMAGE}
+    IMAGE_NAME: $MONITORING_API_IMAGE
     CONTEXT_DIR: "${CI_PROJECT_DIR}"
 
 proxy-build:
   extends:
     - .build
   variables:
-    IMAGE_NAME: ${PROXY_IMAGE}
+    IMAGE_NAME: $PROXY_IMAGE
     CONTEXT_DIR: "${CI_PROJECT_DIR}/nginx"
 
 .scan:
@@ -130,7 +130,7 @@ api-scan:
   needs:
     - api-build
   variables:
-    IMAGE_NAME: ${MONITORING_API_IMAGE}
+    IMAGE_NAME: $MONITORING_API_IMAGE
     SHORT_NAME: "monitoring-api"
 
 proxy-scan:
@@ -139,7 +139,7 @@ proxy-scan:
   needs:
     - proxy-build
   variables:
-    IMAGE_NAME: ${PROXY_IMAGE}
+    IMAGE_NAME: $PROXY_IMAGE
     SHORT_NAME: "proxy"
 
 .retag:
@@ -170,7 +170,7 @@ api-retag:
   needs:
     - api-scan
   variables:
-    IMAGE_NAME: ${MONITORING_API_IMAGE}
+    IMAGE_NAME: $MONITORING_API_IMAGE
 
 proxy-retag:
   extends:
@@ -178,7 +178,7 @@ proxy-retag:
   needs:
     - proxy-scan
   variables:
-    IMAGE_NAME: ${PROXY_IMAGE}
+    IMAGE_NAME: $PROXY_IMAGE
 
 remote-docker:
   stage: deploy
