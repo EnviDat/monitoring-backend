@@ -195,7 +195,7 @@ remote-docker:
   variables:
     DOCKER_HOST: "ssh://$DEPLOY_SSH_USER@$DEPLOY_HOSTNAME"
   before_script:
-    - apk update
+    - apk update && apk upgrade
     - apk add openssh
     - echo "$RUNTIME_ENV" > monitoring-api/project/.env
     - echo "Adding SSH Key"
