@@ -219,6 +219,8 @@ remote-docker:
     - USER_DIR=$(echo "/home/$DEPLOY_SSH_USER")
     - echo "Defined USER_DIR ${USER_DIR}"
     - HOME=$USER_DIR
+    - echo "going to docker login with user ${DOCKER_USERNAME}"
+    - echo "${DOCKER_TOKEN}" | docker login --username "${DOCKER_USERNAME}" --password-stdin
     - echo "Going to remotely start the docker-compose.${CI_COMMIT_REF_NAME}.yml on ${DEPLOY_SSH_USER}@${DEPLOY_HOSTNAME}"
     # use docker compose create to recreate the container and force pulling the latest image
     # to avoid using the local cache
@@ -256,6 +258,8 @@ manual-remote-docker:
     - USER_DIR=$(echo "/home/$DEPLOY_SSH_USER")
     - echo "Defined USER_DIR ${USER_DIR}"
     - HOME=$USER_DIR
+    - echo "going to docker login with user ${DOCKER_USERNAME}"
+    - echo "${DOCKER_TOKEN}" | docker login --username "${DOCKER_USERNAME}" --password-stdin
     - echo "Going to remotely start the docker-compose.${CI_COMMIT_REF_NAME}.yml on ${DEPLOY_SSH_USER}@${DEPLOY_HOSTNAME}"
     # use docker compose create to recreate the container and force pulling the latest image
     # to avoid using the local cache
